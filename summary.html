@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Market Summary - Quantum Investment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      padding: 20px;
+      color: #111827;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .price-box {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 18px;
+    }
+    button {
+      display: block;
+      margin: 30px auto;
+      padding: 12px 24px;
+      background-color: #1e40af;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Live Market Summary</h2>
+
+  <div class="price-box" id="btcPrice">BTC/USD: Loading...</div>
+  <div class="price-box" id="ethPrice">ETH/USD: Loading...</div>
+  <div class="price-box" id="usdKes">USD/KES: Loading...</div>
+  <div class="price-box" id="goldPrice">Gold (XAU/USD): Loading...</div>
+
+  <button onclick="investNow()">Invest Now</button>
+
+  <script>
+    async function loadPrices() {
+      // Load BTC and ETH
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd");
+        const data = await res.json();
+        document.getElementById("btcPrice").innerText = "BTC/USD: $" + data.bitcoin.usd.toLocaleString();
+        document.getElementById("ethPrice").innerText = "ETH/USD: $" + data.ethereum.usd.toLocaleString();
+      } catch (e) {
+        document.getElementById("btcPrice").innerText = "BTC/USD: Error";
+        document.getElementById("ethPrice").innerText = "ETH/USD: Error";
+      }
+
+      // Load USD/KES
+      try {
+        const fx = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=KES");
+        const fxData = await fx.json();
+        document.getElementById("usdKes").innerText = "USD/KES: " + fxData.rates.KES.toFixed(2);
+      } catch (e) {
+        document.getElementById("usdKes").innerText = "USD/KES: Error";
+      }
+
+      // Gold price (fallback for now)
+      document.getElementById("goldPrice").innerText = "Gold (XAU/USD): $--.--";
+    }
+
+    function investNow() {
+      alert("Investment function goes here.");
+      // You can implement actual deduction logic from user balance here
+    }
+
+    // Load prices on page load
+    loadPrices();
+  </script>
+
+</body>
+</html>

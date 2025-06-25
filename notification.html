@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Notifications - Quantum Investment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      background-color: #020617;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #38bdf8;
+      margin-bottom: 1.5rem;
+    }
+
+    .notification {
+      background-color: #0f172a;
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .message {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .timestamp {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-align: right;
+    }
+
+    .empty {
+      text-align: center;
+      color: #64748b;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Notifications</h1>
+    <div id="notificationsList"><p class="empty">Checking for notifications...</p></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const notificationsList = document.getElementById("notificationsList");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const notifRef = collection(db, "users", user.uid, "notifications");
+        const snapshot = await getDocs(notifRef);
+
+        notificationsList.innerHTML = "";
+
+        if (snapshot.empty) {
+          notificationsList.innerHTML = `<p class="empty">No notifications yet.</p>`;
+        } else {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const div = document.createElement("div");
+            div.className = "notification";
+            div.innerHTML = `
+              <div class="message">${data.message || "No message"}</div>
+              <div class="timestamp">${formatDate(data.timestamp)}</div>
+            `;
+            notificationsList.appendChild(div);
+          });
+        }
+
+      } catch (error) {
+        console.error("Firestore error:", error);
+        notificationsList.innerHTML = `<p class="empty">No notifications yet.</p>`;
+      }
+    });
+
+    function formatDate(timestamp) {
+      try {
+        if (!timestamp || !timestamp.toDate) return "Unknown time";
+        const date = timestamp.toDate();
+        return date.toLocaleString();
+      } catch {
+        return "Unknown time";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile - Quantum Investment</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    .container {
+      max-width: 450px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: white;
+      padding: 1.8rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .profile-detail {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .profile-label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .logout-btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 1rem;
+      background-color: #e74c3c;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <h2>My Profile</h2>
+    <div class="profile-detail"><span class="profile-label">Name:</span> <span id="userName">Loading...</span></div>
+    <div class="profile-detail"><span class="profile-label">Email:</span> <span id="userEmail">Loading...</span></div>
+    <div class="profile-detail"><span class="profile-label">Referral Code:</span> <span id="userReferral">Loading...</span></div>
+    <div class="profile-detail"><span class="profile-label">Date Joined:</span> <span id="userJoined">Loading...</span></div>
+    <button class="logout-btn" id="logoutBtn">Log Out</button>
+  </div>
+</div>
+
+<!-- Firebase Modular SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDoc);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("userName").textContent = data.name || "Not set";
+        document.getElementById("userEmail").textContent = user.email || "N/A";
+        document.getElementById("userReferral").textContent = data.referralCode || user.uid;
+        document.getElementById("userJoined").textContent = data.joinedDate || "Unknown";
+      } else {
+        document.getElementById("userName").textContent = "No data found";
+      }
+    } else {
+      window.location.href = "login.html";
+    }
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  });
+</script>
+
+</body>
+</html>

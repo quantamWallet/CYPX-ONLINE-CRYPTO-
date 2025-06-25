@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Quantum Investment</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .card, .market-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .emoji {
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-top: 1.2rem;
+      font-size: 1rem;
+    }
+
+    .stat {
+      font-size: 1.4rem;
+      margin: 0.4rem 0;
+      color: #27ae60;
+    }
+
+    .market {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.95rem;
+    }
+
+    .market span {
+      margin-bottom: 0.4rem;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      padding: 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .full-width {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>Welcome, Investor</h2>
+      <div class="emoji">👋</div>
+
+      <div class="section-title">Total Balance</div>
+      <div class="stat" id="balance">Loading...</div>
+
+      <div class="section-title">Total Profit</div>
+      <div class="stat" id="profit">0 KES</div>
+
+      <div class="section-title">Active Investments</div>
+      <div class="stat" id="activeInvestments">--</div>
+
+      <div class="section-title">Matured Investments</div>
+      <div class="stat" id="maturedInvestments">--</div>
+    </div>
+
+    <div class="market-card">
+      <h3>Market Rates</h3>
+      <div class="market">
+        <span>BTC/USD: $<span id="btcPrice">--</span></span>
+        <span>ETH/USD: $<span id="ethPrice">--</span></span>
+        <span>Gold: $<span id="goldPrice">--</span></span>
+        <span>USD/KES: KES <span id="usdKes">--</span></span>
+      </div>
+    </div>
+
+    <div class="btn-grid">
+      <button onclick="location.href='wallet.html'">My Wallet</button>
+      <button onclick="location.href='investment.html'">Investment Plans</button>
+      <button onclick="location.href='referral.html'">Referral</button>
+      <button onclick="location.href='support.html'">Support</button>
+      <button onclick="location.href='profile.html'">Profile</button>
+      <button onclick="location.href='about.html'">About Us</button>
+    </div>
+
+    <button class="full-width" onclick="logout()">Log Out</button>
+  </div>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        document.getElementById("balance").textContent =
+          typeof data.balance === "number" ? `${data.balance.toLocaleString()} KES` : "0 KES";
+        document.getElementById("profit").textContent =
+          typeof data.profit === "number" ? `${data.profit.toLocaleString()} KES` : "0 KES";
+      }
+
+      const invSnap = await getDocs(collection(db, "users", user.uid, "investments"));
+      let active = 0, matured = 0;
+
+      invSnap.forEach((doc) => {
+        const inv = doc.data();
+        if (inv.status === "active") active++;
+        else if (inv.status === "matured") matured++;
+      });
+
+      document.getElementById("activeInvestments").textContent = active;
+      document.getElementById("maturedInvestments").textContent = matured;
+    });
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    };
+
+    // Static Prices
+    document.getElementById("btcPrice").textContent = "66,500";
+    document.getElementById("ethPrice").textContent = "3,200";
+    document.getElementById("goldPrice").textContent = "2,340";
+    document.getElementById("usdKes").textContent = "138.50";
+  </script>
+</body>
+</html>
