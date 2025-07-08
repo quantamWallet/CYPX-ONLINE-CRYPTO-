@@ -99,11 +99,9 @@
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
 
-        // Deduct balance
         const newBalance = currentBalance - amount;
         await updateDoc(userRef, { balance: newBalance });
 
-        // Log investment
         await addDoc(collection(db, "users", currentUser.uid, "investments"), {
           amount,
           roi,
@@ -111,7 +109,6 @@
           createdAt: serverTimestamp()
         });
 
-        // Award referrer (if exists)
         const referredBy = userSnap.data().referredBy;
         if (referredBy) {
           const referrerRef = doc(db, "users", referredBy);
@@ -123,6 +120,9 @@
         currentBalance = newBalance;
         alert(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
 
+      } catch (error) {
+        console.error("Investment error:", error);
+        alert("❌ Error trying to invest. Please try again.");
       }
     } else {
       alert("❌ Insufficient balance to invest.");
