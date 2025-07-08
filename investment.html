@@ -123,9 +123,6 @@
         currentBalance = newBalance;
         alert(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
 
-      } catch (err) {
-        console.error("Investment error:", err);
-        alert("❌ Error saving investment.");
       }
     } else {
       alert("❌ Insufficient balance to invest.");
