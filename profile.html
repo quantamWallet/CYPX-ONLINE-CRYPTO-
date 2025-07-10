@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Profile - Quantum Investment</title>
+  <title>Profile - Quantum Investment</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #0a7c46; /* corporate green */
-      color: white;
+      background-color: #1abc9c;
     }
 
     .container {
-      max-width: 450px;
+      max-width: 400px;
       margin: auto;
       padding: 2rem 1rem;
     }
@@ -21,56 +20,57 @@
     .card {
       background: white;
       padding: 2rem;
-      border-radius: 20px;
-      color: #333;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 1rem;
-      color: #0a7c46;
-    }
-
-    .profile-detail {
+      color: #2c3e50;
       margin-bottom: 1rem;
     }
 
-    .profile-detail label {
-      display: block;
-      margin-bottom: 5px;
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
       font-weight: bold;
+      display: block;
+      margin-bottom: 0.3rem;
+      color: #333;
     }
 
-    .profile-detail input {
+    input {
       width: 100%;
-      padding: 10px;
+      padding: 0.8rem;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-size: 1rem;
     }
 
-    #profileImagePreview {
+    #photoPreview {
       width: 100px;
       height: 100px;
       object-fit: cover;
       border-radius: 50%;
-      margin-bottom: 10px;
+      margin: 1rem auto;
+      display: block;
     }
 
-    .save-btn {
+    button {
       width: 100%;
-      padding: 12px;
-      background-color: #0a7c46;
+      padding: 1rem;
+      background: #1abc9c;
       color: white;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 1rem;
       cursor: pointer;
-      margin-top: 1rem;
     }
 
-    .save-btn:hover {
-      background-color: #056633;
+    button:hover {
+      background: #16a085;
     }
   </style>
 </head>
@@ -79,42 +79,36 @@
 <div class="container">
   <div class="card">
     <h2>My Profile</h2>
-    <center><img id="profileImagePreview" src="default-profile.png" alt="Profile Photo" /></center>
-
-    <div class="profile-detail">
-      <label for="profileImage">Upload Photo</label>
-      <input type="file" id="profileImage" accept="image/*">
-    </div>
-
-    <div class="profile-detail">
+    <img id="photoPreview" src="https://via.placeholder.com/100" alt="Profile Photo">
+    
+    <div class="input-group">
       <label for="name">Full Name</label>
-      <input type="text" id="name" placeholder="Your name">
+      <input type="text" id="name" placeholder="Enter full name" />
     </div>
 
-    <div class="profile-detail">
+    <div class="input-group">
       <label for="email">Email</label>
-      <input type="email" id="email" disabled>
+      <input type="text" id="email" disabled />
     </div>
 
-    <div class="profile-detail">
+    <div class="input-group">
       <label for="phone">Phone Number</label>
-      <input type="text" id="phone" placeholder="07XX XXX XXX">
+      <input type="text" id="phone" placeholder="Enter phone number" />
     </div>
 
-    <div class="profile-detail">
-      <label for="joinedDate">Date Joined</label>
-      <input type="text" id="joinedDate" disabled>
+    <div class="input-group">
+      <label for="photo">Upload Photo</label>
+      <input type="file" id="photo" accept="image/*" />
     </div>
 
-    <button class="save-btn" id="saveBtn">Save Profile</button>
+    <button id="saveBtn">Save Profile</button>
   </div>
 </div>
 
-<!-- Firebase SDKs -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -132,80 +126,56 @@
   const storage = getStorage(app);
 
   let currentUser;
-  let selectedFile;
 
-  const nameInput = document.getElementById("name");
-  const emailInput = document.getElementById("email");
-  const phoneInput = document.getElementById("phone");
-  const joinedInput = document.getElementById("joinedDate");
-  const profileImageInput = document.getElementById("profileImage");
-  const profileImagePreview = document.getElementById("profileImagePreview");
-  const saveBtn = document.getElementById("saveBtn");
-
-  // Monitor auth
   onAuthStateChanged(auth, async user => {
     if (user) {
       currentUser = user;
-      emailInput.value = user.email;
-
-      const userRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(userRef);
-
+      const docSnap = await getDoc(doc(db, "users", user.uid));
       if (docSnap.exists()) {
         const data = docSnap.data();
-        nameInput.value = data.name || "";
-        phoneInput.value = data.phone || "";
-        joinedInput.value = data.joinedDate || "";
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("email").value = data.email || user.email;
+        document.getElementById("phone").value = data.phone || "";
         if (data.photoURL) {
-          profileImagePreview.src = data.photoURL;
+          document.getElementById("photoPreview").src = data.photoURL;
         }
-      } else {
-        // create default profile
-        await setDoc(userRef, {
-          email: user.email,
-          joinedDate: new Date().toLocaleDateString(),
-          createdAt: serverTimestamp()
-        });
-        joinedInput.value = new Date().toLocaleDateString();
       }
     } else {
       window.location.href = "login.html";
     }
   });
 
-  // Upload preview
-  profileImageInput.addEventListener("change", () => {
-    selectedFile = profileImageInput.files[0];
-    if (selectedFile) {
-      profileImagePreview.src = URL.createObjectURL(selectedFile);
+  document.getElementById("photo").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (file) {
+      document.getElementById("photoPreview").src = URL.createObjectURL(file);
     }
   });
 
-  // Save profile
-  saveBtn.addEventListener("click", async () => {
+  document.getElementById("saveBtn").addEventListener("click", async () => {
     if (!currentUser) return;
 
-    const userRef = doc(db, "users", currentUser.uid);
-    const updates = {
-      name: nameInput.value.trim(),
-      phone: phoneInput.value.trim()
-    };
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const file = document.getElementById("photo").files[0];
+    let photoURL = null;
 
-    try {
-      // If photo selected, upload to storage
-      if (selectedFile) {
-        const photoRef = ref(storage, `profiles/${currentUser.uid}`);
-        await uploadBytes(photoRef, selectedFile);
-        const photoURL = await getDownloadURL(photoRef);
-        updates.photoURL = photoURL;
-      }
-
-      await updateDoc(userRef, updates);
-      alert("✅ Profile updated successfully!");
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to save profile. Please try again.");
+    if (file) {
+      const storageRef = ref(storage, `profiles/${currentUser.uid}.jpg`);
+      await uploadBytes(storageRef, file);
+      photoURL = await getDownloadURL(storageRef);
     }
+
+    const updateData = {
+      name,
+      phone,
+    };
+    if (photoURL) {
+      updateData.photoURL = photoURL;
+    }
+
+    await updateDoc(doc(db, "users", currentUser.uid), updateData);
+    alert("✅ Profile updated successfully!");
   });
 </script>
 
