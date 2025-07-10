@@ -8,66 +8,88 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #e8f5e9; /* Corporate green background */
+      background-color: #006400; /* Corporate green */
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-    }
-
-    .container {
-      max-width: 420px;
-      width: 90%;
-      padding: 2rem 1.2rem;
+      align-items: center;
+      min-height: 100vh;
     }
 
     .card {
       background: white;
       padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-    }
-
-    .card h2 {
-      margin-bottom: 1.5rem;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
       text-align: center;
-      color: #2e7d32; /* Dark green */
     }
 
-    .profile-detail {
+    h2 {
+      margin-bottom: 1.2rem;
+      color: #2c3e50;
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #006400;
       margin-bottom: 1rem;
+    }
+
+    input[type="file"] {
+      margin-bottom: 1rem;
+    }
+
+    .info {
+      margin: 0.4rem 0;
       font-size: 1rem;
       color: #333;
     }
 
-    .profile-label {
+    .label {
       font-weight: bold;
-      color: #2e7d32;
+      color: #444;
     }
 
-    @media (max-width: 600px) {
-      .card {
-        padding: 1.5rem 1rem;
-      }
+    .save-btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #006400;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background-color: #004d00;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="card">
-    <h2>My Profile</h2>
-    <div class="profile-detail"><span class="profile-label">Name:</span> <span id="userName">Loading...</span></div>
-    <div class="profile-detail"><span class="profile-label">Email:</span> <span id="userEmail">Loading...</span></div>
-    <div class="profile-detail"><span class="profile-label">Date Joined:</span> <span id="userJoined">Loading...</span></div>
-  </div>
+<div class="card">
+  <h2>My Profile</h2>
+  <img id="profileImage" src="https://via.placeholder.com/100" class="profile-img" alt="Profile Image"/>
+  <input type="file" id="imageUpload" accept="image/*" />
+
+  <div class="info"><span class="label">Name:</span> <span id="userName">Loading...</span></div>
+  <div class="info"><span class="label">Email:</span> <span id="userEmail">Loading...</span></div>
+  <div class="info"><span class="label">Phone:</span> <span id="userPhone">Loading...</span></div>
+  <div class="info"><span class="label">Joined:</span> <span id="userJoined">Loading...</span></div>
+  <button class="save-btn" onclick="uploadImage()">Save Picture</button>
 </div>
 
-<!-- Firebase Modular SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -81,24 +103,54 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  let currentUser = null;
+  let userDocRef;
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      const userDoc = doc(db, "users", user.uid);
-      const docSnap = await getDoc(userDoc);
+      currentUser = user;
+      userDocRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
         document.getElementById("userName").textContent = data.name || "Not set";
-        document.getElementById("userEmail").textContent = user.email || "N/A";
-        document.getElementById("userJoined").textContent = data.joinedDate || "Unknown";
+        document.getElementById("userEmail").textContent = data.email || "N/A";
+        document.getElementById("userPhone").textContent = data.phone || "N/A";
+
+        const joined = data.joinedDate?.toDate?.() || null;
+        document.getElementById("userJoined").textContent = joined
+          ? joined.toLocaleDateString()
+          : "Unknown";
+
+        if (data.profileImageURL) {
+          document.getElementById("profileImage").src = data.profileImageURL;
+        }
       } else {
-        document.getElementById("userName").textContent = "No data found";
+        alert("User data not found.");
       }
     } else {
       window.location.href = "login.html";
     }
   });
+
+  window.uploadImage = async function () {
+    const file = document.getElementById("imageUpload").files[0];
+    if (!file || !currentUser) {
+      alert("Please select a file.");
+      return;
+    }
+
+    const imageRef = ref(storage, `profilePictures/${currentUser.uid}.jpg`);
+    await uploadBytes(imageRef, file);
+    const downloadURL = await getDownloadURL(imageRef);
+
+    await updateDoc(userDocRef, { profileImageURL: downloadURL });
+    document.getElementById("profileImage").src = downloadURL;
+    alert("✅ Profile picture updated successfully!");
+  };
 </script>
 
 </body>
