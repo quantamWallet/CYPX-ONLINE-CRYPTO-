@@ -125,7 +125,12 @@
       window.location.href = "dashboard.html";
     } catch (err) {
       console.error("Registration error", err);
-      alert(err.message);
+      if (err.code === 'auth/email-already-in-use') {
+        alert("This email is already registered. Please log in instead.");
+        window.location.href = "login.html";
+      } else {
+        alert("Registration failed: " + err.message);
+      }
     }
   };
 </script>
