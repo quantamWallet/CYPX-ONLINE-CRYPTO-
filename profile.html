@@ -1,183 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile - Quantum Investment</title>
+  <title>My Profile - Quantum RIO</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #1abc9c;
+      background-color: #2e7d32; /* corporate green */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 400px;
-      margin: auto;
-      padding: 2rem 1rem;
-    }
-
-    .card {
       background: white;
       padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
     }
 
     h2 {
       text-align: center;
-      color: #2c3e50;
+      color: #2e7d32;
+    }
+
+    .profile-detail {
       margin-bottom: 1rem;
     }
 
-    .input-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
+    .profile-detail label {
       font-weight: bold;
       display: block;
       margin-bottom: 0.3rem;
-      color: #333;
     }
 
-    input {
+    .profile-detail input {
       width: 100%;
       padding: 0.8rem;
-      border: 1px solid #ccc;
       border-radius: 10px;
-      font-size: 1rem;
+      border: 1px solid #ccc;
     }
 
-    #photoPreview {
+    #profilePic {
+      display: block;
+      margin: 0 auto 1rem;
       width: 100px;
       height: 100px;
-      object-fit: cover;
       border-radius: 50%;
-      margin: 1rem auto;
-      display: block;
+      object-fit: cover;
+      border: 2px solid #2e7d32;
     }
 
-    button {
-      width: 100%;
-      padding: 1rem;
-      background: #1abc9c;
+    .save-btn {
+      margin-top: 1rem;
+      background-color: #2e7d32;
       color: white;
+      padding: 0.9rem;
       border: none;
       border-radius: 10px;
+      width: 100%;
       font-size: 1rem;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #16a085;
+    .save-btn:hover {
+      background-color: #256428;
     }
   </style>
 </head>
 <body>
-
-<div class="container">
-  <div class="card">
+  <div class="container">
     <h2>My Profile</h2>
-    <img id="photoPreview" src="https://via.placeholder.com/100" alt="Profile Photo">
-    
-    <div class="input-group">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" placeholder="Enter full name" />
+    <img id="profilePic" src="https://via.placeholder.com/100" alt="Profile Picture" />
+    <input type="file" id="imageUpload" accept="image/*" />
+
+    <div class="profile-detail">
+      <label>Full Name</label>
+      <input type="text" id="userName" />
     </div>
 
-    <div class="input-group">
-      <label for="email">Email</label>
-      <input type="text" id="email" disabled />
+    <div class="profile-detail">
+      <label>Email</label>
+      <input type="email" id="userEmail" disabled />
     </div>
 
-    <div class="input-group">
-      <label for="phone">Phone Number</label>
-      <input type="text" id="phone" placeholder="Enter phone number" />
+    <div class="profile-detail">
+      <label>Phone Number</label>
+      <input type="text" id="userPhone" />
     </div>
 
-    <div class="input-group">
-      <label for="photo">Upload Photo</label>
-      <input type="file" id="photo" accept="image/*" />
+    <div class="profile-detail">
+      <label>Date Joined</label>
+      <input type="text" id="userJoined" disabled />
     </div>
 
-    <button id="saveBtn">Save Profile</button>
+    <button class="save-btn" id="saveBtn">Save Profile</button>
   </div>
-</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  let currentUser;
-
-  onAuthStateChanged(auth, async user => {
-    if (user) {
-      currentUser = user;
-      const docSnap = await getDoc(doc(db, "users", user.uid));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        document.getElementById("name").value = data.name || "";
-        document.getElementById("email").value = data.email || user.email;
-        document.getElementById("phone").value = data.phone || "";
-        if (data.photoURL) {
-          document.getElementById("photoPreview").src = data.photoURL;
-        }
-      }
-    } else {
-      window.location.href = "login.html";
-    }
-  });
-
-  document.getElementById("photo").addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (file) {
-      document.getElementById("photoPreview").src = URL.createObjectURL(file);
-    }
-  });
-
-  document.getElementById("saveBtn").addEventListener("click", async () => {
-    if (!currentUser) return;
-
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const file = document.getElementById("photo").files[0];
-    let photoURL = null;
-
-    if (file) {
-      const storageRef = ref(storage, `profiles/${currentUser.uid}.jpg`);
-      await uploadBytes(storageRef, file);
-      photoURL = await getDownloadURL(storageRef);
-    }
-
-    const updateData = {
-      name,
-      phone,
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
     };
-    if (photoURL) {
-      updateData.photoURL = photoURL;
-    }
 
-    await updateDoc(doc(db, "users", currentUser.uid), updateData);
-    alert("✅ Profile updated successfully!");
-  });
-</script>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
+    let currentUser = null;
+    let imageFile = null;
+
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+    const userPhone = document.getElementById("userPhone");
+    const userJoined = document.getElementById("userJoined");
+    const profilePic = document.getElementById("profilePic");
+    const imageUpload = document.getElementById("imageUpload");
+    const saveBtn = document.getElementById("saveBtn");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          userName.value = data.name || "";
+          userEmail.value = data.email || user.email;
+          userPhone.value = data.phone || "";
+          profilePic.src = data.photoURL || "https://via.placeholder.com/100";
+          userJoined.value = data.createdAt?.toDate().toLocaleDateString() || "Unknown";
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    imageUpload.addEventListener("change", (e) => {
+      imageFile = e.target.files[0];
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          profilePic.src = reader.result;
+        };
+        reader.readAsDataURL(imageFile);
+      }
+    });
+
+    saveBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      const userRef = doc(db, "users", currentUser.uid);
+      let photoURL = profilePic.src;
+
+      try {
+        if (imageFile) {
+          const imageRef = ref(storage, `profilePics/${currentUser.uid}`);
+          await uploadBytes(imageRef, imageFile);
+          photoURL = await getDownloadURL(imageRef);
+        }
+
+        await updateDoc(userRef, {
+          name: userName.value.trim(),
+          phone: userPhone.value.trim(),
+          photoURL: photoURL,
+          updatedAt: serverTimestamp()
+        });
+
+        alert("✅ Profile updated successfully!");
+      } catch (err) {
+        console.error("Save failed:", err);
+        alert("❌ Failed to update profile.");
+      }
+    });
+  </script>
 </body>
 </html>
