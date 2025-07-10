@@ -1,186 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Investment Plans | Quantum RIO</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile - Quantum RIO</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #e8f5e9; /* corporate green background */
       margin: 0;
-      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #2e7d32; /* corporate green */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
     }
 
     h2 {
       text-align: center;
-      color: #1b5e20; /* deep green */
-      margin-bottom: 20px;
-    }
-
-    .plans-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 500px;
-      margin: auto;
-    }
-
-    .plan {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .plan h3 {
       color: #2e7d32;
-      margin: 0 0 10px;
     }
 
-    .plan p {
-      margin: 5px 0;
-      color: #333;
+    .profile-detail {
+      margin-bottom: 1rem;
     }
 
-    .plan button {
-      margin-top: 10px;
+    .profile-detail label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .profile-detail input {
       width: 100%;
-      padding: 12px;
+      padding: 0.8rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    #profilePic {
+      display: block;
+      margin: 0 auto 1rem;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #2e7d32;
+    }
+
+    .save-btn {
+      margin-top: 1rem;
       background-color: #2e7d32;
       color: white;
-      font-weight: bold;
+      padding: 0.9rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      width: 100%;
+      font-size: 1rem;
       cursor: pointer;
     }
 
-    .plan button:hover {
-      background-color: #1b5e20;
+    .save-btn:hover {
+      background-color: #256428;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>My Profile</h2>
+    <img id="profilePic" src="https://via.placeholder.com/100" alt="Profile Picture" />
+    <input type="file" id="imageUpload" accept="image/*" />
 
-<h2>📈 Investment Plans</h2>
-<div id="plansContainer" class="plans-container"></div>
+    <div class="profile-detail">
+      <label>Full Name</label>
+      <input type="text" id="userName" />
+    </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    getDoc,
-    updateDoc,
-    collection,
-    addDoc,
-    increment,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    <div class="profile-detail">
+      <label>Email</label>
+      <input type="email" id="userEmail" disabled />
+    </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-  };
+    <div class="profile-detail">
+      <label>Phone Number</label>
+      <input type="text" id="userPhone" />
+    </div>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    <div class="profile-detail">
+      <label>Date Joined</label>
+      <input type="text" id="userJoined" disabled />
+    </div>
 
-  const plans = [
-    { title: "Starter Plan", amount: 15000, roi: 30000 },
-    { title: "Bronze Plan", amount: 25000, roi: 50000 },
-    { title: "Silver Plan", amount: 50000, roi: 100000 },
-    { title: "Gold Plan", amount: 100000, roi: 200000 },
-    { title: "Platinum Plan", amount: 150000, roi: 300000 },
-    { title: "Diamond Plan", amount: 200000, roi: 400000 },
-    { title: "Elite Plan", amount: 250000, roi: 500000 },
-    { title: "Titan Plan", amount: 300000, roi: 600000 },
-    { title: "Mega Plan", amount: 350000, roi: 700000 },
-    { title: "Ultra Plan", amount: 400000, roi: 800000 },
-    { title: "Supreme Plan", amount: 450000, roi: 900000 },
-    { title: "VIP Plan", amount: 500000, roi: 1000000 }
-  ];
+    <button class="save-btn" id="saveBtn">Save Profile</button>
+  </div>
 
-  const plansContainer = document.getElementById("plansContainer");
-  let currentUser = null;
-  let currentBalance = 0;
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-  onAuthStateChanged(auth, async user => {
-    if (user) {
-      currentUser = user;
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        currentBalance = userSnap.data().balance || 0;
-        renderPlans();
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUser = null;
+    let imageFile = null;
+
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+    const userPhone = document.getElementById("userPhone");
+    const userJoined = document.getElementById("userJoined");
+    const profilePic = document.getElementById("profilePic");
+    const imageUpload = document.getElementById("imageUpload");
+    const saveBtn = document.getElementById("saveBtn");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          userName.value = data.name || "";
+          userEmail.value = data.email || user.email;
+          userPhone.value = data.phone || "";
+          profilePic.src = data.photoURL || "https://via.placeholder.com/100";
+          userJoined.value = data.createdAt?.toDate().toLocaleDateString() || "Unknown";
+        }
       } else {
-        alert("User data not found.");
+        window.location.href = "login.html";
       }
-    } else {
-      window.location.href = "index.html";
-    }
-  });
-
-  function renderPlans() {
-    plansContainer.innerHTML = "";
-    plans.forEach(plan => {
-      const div = document.createElement("div");
-      div.className = "plan";
-      div.innerHTML = `
-        <h3>${plan.title}</h3>
-        <p>💰 Amount: ${plan.amount.toLocaleString()} KES</p>
-        <p>📊 ROI: ${plan.roi.toLocaleString()} KES</p>
-        <button onclick="invest(${plan.amount}, ${plan.roi})">Invest Now</button>
-      `;
-      plansContainer.appendChild(div);
     });
-  }
 
-  window.invest = async function(amount, roi) {
-    if (!currentUser) {
-      alert("Login required.");
-      return;
-    }
+    imageUpload.addEventListener("change", (e) => {
+      imageFile = e.target.files[0];
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          profilePic.src = reader.result;
+        };
+        reader.readAsDataURL(imageFile);
+      }
+    });
 
-    if (currentBalance >= amount) {
+    saveBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+
+      const userRef = doc(db, "users", currentUser.uid);
+      let photoURL = profilePic.src;
+
       try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        const newBalance = currentBalance - amount;
-        await updateDoc(userRef, { balance: newBalance });
-
-        await addDoc(collection(db, "users", currentUser.uid, "investments"), {
-          amount,
-          roi,
-          status: "active",
-          createdAt: serverTimestamp()
-        });
-
-        const referredBy = userSnap.data().referredBy;
-        if (referredBy) {
-          const referrerRef = doc(db, "users", referredBy);
-          await updateDoc(referrerRef, {
-            balance: increment(3100)
-          });
+        if (imageFile) {
+          const imageRef = ref(storage, `profilePics/${currentUser.uid}`);
+          await uploadBytes(imageRef, imageFile);
+          photoURL = await getDownloadURL(imageRef);
         }
 
-        currentBalance = newBalance;
-        alert(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
-      } catch (error) {
-        console.error("Investment error:", error);
-        alert("❌ Error trying to invest. Please try again.");
-      }
-    } else {
-      alert("❌ Insufficient balance to invest.");
-    }
-  };
-</script>
+        await updateDoc(userRef, {
+          name: userName.value.trim(),
+          phone: userPhone.value.trim(),
+          photoURL: photoURL,
+          updatedAt: serverTimestamp()
+        });
 
+        alert("✅ Profile updated successfully!");
+      } catch (err) {
+        console.error("Save failed:", err);
+        alert("❌ Failed to update profile.");
+      }
+    });
+  </script>
 </body>
 </html>
