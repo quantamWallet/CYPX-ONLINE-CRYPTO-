@@ -6,58 +6,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #006400; /* Corporate green */
+      margin: 0;
+      background: #0a5737; /* Corporate green */
       color: #fff;
       padding: 20px;
-      overflow-y: auto;
     }
-
     h2 {
       text-align: center;
-      margin-bottom: 20px;
+      color: #fff;
     }
-
     .plans-container {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      max-width: 600px;
-      margin: auto;
+      gap: 15px;
+      margin-top: 20px;
+      overflow-y: auto;
+      max-height: 90vh;
     }
-
     .plan {
       background: #ffffff;
-      color: #000;
+      color: #222;
+      padding: 15px;
       border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
-
     .plan h3 {
-      margin-top: 0;
-      color: #006400;
+      margin: 0 0 10px;
+      color: #0a5737;
     }
-
     .plan p {
-      margin: 6px 0;
+      margin: 5px 0;
     }
-
     .plan button {
       margin-top: 10px;
-      padding: 12px;
-      width: 100%;
-      background-color: #006400;
-      color: #fff;
+      background: #0a5737;
+      color: white;
       border: none;
+      padding: 10px;
       border-radius: 8px;
-      font-weight: bold;
       cursor: pointer;
+      width: 100%;
+      font-weight: bold;
     }
-
     .plan button:hover {
-      background-color: #004d00;
+      background: #06472c;
     }
   </style>
 </head>
@@ -71,7 +64,6 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-    // ✅ Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -85,7 +77,6 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ✅ Investment plans
     const plans = [
       { title: "Starter Plan", amount: 15000, roi: 30000 },
       { title: "Bronze Plan", amount: 25000, roi: 50000 },
@@ -106,7 +97,6 @@
     let currentUser = null;
     let currentBalance = 0;
 
-    // ✅ Monitor login state
     onAuthStateChanged(auth, async user => {
       if (user) {
         currentUser = user;
@@ -123,7 +113,6 @@
       }
     });
 
-    // ✅ Render investment plans
     function renderPlans() {
       plansContainer.innerHTML = "";
       plans.forEach(plan => {
@@ -139,23 +128,16 @@
       });
     }
 
-    // ✅ Invest function
     window.invest = async function(amount, roi) {
-      if (!currentUser) {
-        alert("Login required.");
-        return;
-      }
-
+      if (!currentUser) return alert("Login required.");
       if (currentBalance >= amount) {
         try {
           const userRef = doc(db, "users", currentUser.uid);
           const userSnap = await getDoc(userRef);
-          const newBalance = currentBalance - amount;
 
-          // Deduct balance
+          const newBalance = currentBalance - amount;
           await updateDoc(userRef, { balance: newBalance });
 
-          // Add investment
           await addDoc(collection(db, "users", currentUser.uid, "investments"), {
             amount,
             roi,
@@ -163,7 +145,6 @@
             createdAt: serverTimestamp()
           });
 
-          // Reward referral bonus
           const referredBy = userSnap.data().referredBy;
           if (referredBy) {
             const referrerRef = doc(db, "users", referredBy);
@@ -172,4 +153,17 @@
             });
           }
 
-          currentBalance = new
+          currentBalance = newBalance;
+          alert(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
+        } catch (error) {
+          console.error("Investment error:", error);
+          alert("❌ Error trying to invest. Please try again.");
+        }
+      } else {
+        alert("❌ Insufficient balance to invest.");
+      }
+    };
+  </script>
+
+</body>
+</html>
