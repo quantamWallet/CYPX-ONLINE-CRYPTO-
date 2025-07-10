@@ -7,24 +7,25 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
+      background-color: #0a5737; /* Corporate green */
       margin: 0;
       padding: 0;
-      color: #2c3e50;
+      color: #fff;
     }
 
     .container {
       max-width: 480px;
       margin: auto;
-      padding: 2rem 1rem;
+      padding: 1.5rem 1rem;
     }
 
-    .card, .market-card {
+    .card {
       background: white;
+      color: #0a5737;
       padding: 1.5rem;
       border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
     }
 
     h2 {
@@ -39,7 +40,7 @@
 
     .section-title {
       font-weight: bold;
-      margin-top: 1.2rem;
+      margin-top: 1rem;
       font-size: 1rem;
     }
 
@@ -49,19 +50,9 @@
       color: #27ae60;
     }
 
-    .market {
+    .btn-list {
       display: flex;
       flex-direction: column;
-      font-size: 0.95rem;
-    }
-
-    .market span {
-      margin-bottom: 0.4rem;
-    }
-
-    .btn-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 0.8rem;
       margin-top: 1rem;
     }
@@ -81,9 +72,13 @@
       background-color: #2980b9;
     }
 
-    .full-width {
-      width: 100%;
-      margin-top: 1rem;
+    .logout-btn {
+      background-color: #e74c3c;
+      margin-top: 1.2rem;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
     }
   </style>
 </head>
@@ -106,26 +101,15 @@
       <div class="stat" id="maturedInvestments">--</div>
     </div>
 
-    <div class="market-card">
-      <h3>Market Rates</h3>
-      <div class="market">
-        <span>BTC/USD: $<span id="btcPrice">--</span></span>
-        <span>ETH/USD: $<span id="ethPrice">--</span></span>
-        <span>Gold: $<span id="goldPrice">--</span></span>
-        <span>USD/KES: KES <span id="usdKes">--</span></span>
-      </div>
+    <div class="btn-list">
+      <button onclick="location.href='wallet.html'">💼 My Wallet</button>
+      <button onclick="location.href='investment.html'">📈 Investment Plans</button>
+      <button onclick="location.href='referral.html'">👥 Referral</button>
+      <button onclick="location.href='support.html'">📞 Support</button>
+      <button onclick="location.href='profile.html'">👤 Profile</button>
+      <button onclick="location.href='about.html'">ℹ️ About Us</button>
+      <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
     </div>
-
-    <div class="btn-grid">
-      <button onclick="location.href='wallet.html'">My Wallet</button>
-      <button onclick="location.href='investment.html'">Investment Plans</button>
-      <button onclick="location.href='referral.html'">Referral</button>
-      <button onclick="location.href='support.html'">Support</button>
-      <button onclick="location.href='profile.html'">Profile</button>
-      <button onclick="location.href='about.html'">About Us</button>
-    </div>
-
-    <button class="full-width" onclick="logout()">Log Out</button>
   </div>
 
   <!-- Firebase Script -->
@@ -188,12 +172,6 @@
         window.location.href = "login.html";
       });
     };
-
-    // Static Prices
-    document.getElementById("btcPrice").textContent = "66,500";
-    document.getElementById("ethPrice").textContent = "3,200";
-    document.getElementById("goldPrice").textContent = "2,340";
-    document.getElementById("usdKes").textContent = "138.50";
   </script>
 </body>
 </html>
