@@ -8,26 +8,30 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
+      background-color: #e8f5e9; /* Corporate green background */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
 
     .container {
-      max-width: 450px;
-      margin: auto;
-      padding: 2rem 1rem;
+      max-width: 420px;
+      width: 90%;
+      padding: 2rem 1.2rem;
     }
 
     .card {
       background: white;
-      padding: 1.8rem;
+      padding: 2rem;
       border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     }
 
     .card h2 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       text-align: center;
-      color: #2c3e50;
+      color: #2e7d32; /* Dark green */
     }
 
     .profile-detail {
@@ -38,28 +42,12 @@
 
     .profile-label {
       font-weight: bold;
-      color: #555;
-    }
-
-    .logout-btn {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: 1rem;
-      background-color: #e74c3c;
-      border: none;
-      border-radius: 10px;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .logout-btn:hover {
-      background-color: #c0392b;
+      color: #2e7d32;
     }
 
     @media (max-width: 600px) {
-      .container {
-        padding: 1rem 0.5rem;
+      .card {
+        padding: 1.5rem 1rem;
       }
     }
   </style>
@@ -71,16 +59,14 @@
     <h2>My Profile</h2>
     <div class="profile-detail"><span class="profile-label">Name:</span> <span id="userName">Loading...</span></div>
     <div class="profile-detail"><span class="profile-label">Email:</span> <span id="userEmail">Loading...</span></div>
-    <div class="profile-detail"><span class="profile-label">Referral Code:</span> <span id="userReferral">Loading...</span></div>
     <div class="profile-detail"><span class="profile-label">Date Joined:</span> <span id="userJoined">Loading...</span></div>
-    <button class="logout-btn" id="logoutBtn">Log Out</button>
   </div>
 </div>
 
 <!-- Firebase Modular SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -105,7 +91,6 @@
         const data = docSnap.data();
         document.getElementById("userName").textContent = data.name || "Not set";
         document.getElementById("userEmail").textContent = user.email || "N/A";
-        document.getElementById("userReferral").textContent = data.referralCode || user.uid;
         document.getElementById("userJoined").textContent = data.joinedDate || "Unknown";
       } else {
         document.getElementById("userName").textContent = "No data found";
@@ -113,12 +98,6 @@
     } else {
       window.location.href = "login.html";
     }
-  });
-
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-    signOut(auth).then(() => {
-      window.location.href = "login.html";
-    });
   });
 </script>
 
