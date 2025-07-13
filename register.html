@@ -6,43 +6,44 @@
   <title>Register | Quantum RIO</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #ffffff;
+      font-family: Arial, sans-serif;
+      background: white;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      padding: 20px;
+      color: #0a5737;
     }
 
     .container {
-      width: 90%;
       max-width: 400px;
-      background: #f4f4f4;
+      margin: 50px auto;
       padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     h2 {
       text-align: center;
-      color: #0a5737;
+      margin-bottom: 20px;
     }
 
-    input, button {
+    input {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
-      border-radius: 6px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
+      border-radius: 8px;
+      font-size: 16px;
     }
 
     button {
+      width: 100%;
+      padding: 12px;
       background-color: #0a5737;
       color: white;
+      font-size: 16px;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
 
@@ -50,31 +51,26 @@
       background-color: #06472c;
     }
 
-    .login-link {
+    .link {
       text-align: center;
       margin-top: 15px;
+      font-size: 14px;
     }
 
-    .login-link a {
+    .link a {
       color: #0a5737;
       text-decoration: none;
-      font-weight: bold;
-    }
-
-    .login-link a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Create Your Account</h2>
-    <input type="text" id="name" placeholder="Full Name" required />
-    <input type="email" id="email" placeholder="Email Address" required />
-    <input type="password" id="password" placeholder="Password" required />
+    <h2>Create Account</h2>
+    <input type="text" id="name" placeholder="Full Name" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
     <button onclick="register()">Register</button>
-
-    <div class="login-link">
+    <div class="link">
       Already have an account? <a href="login.html">Login</a>
     </div>
   </div>
@@ -97,7 +93,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    async function register() {
+    window.register = async function () {
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
@@ -121,6 +117,7 @@
         });
 
         if (referrer) {
+          // Handle referral bonus logging
           const q = query(collection(db, "users"), where("name", "==", referrer.replace(/_/g, ' ')));
           const snapshot = await getDocs(q);
           if (!snapshot.empty) {
@@ -138,10 +135,10 @@
         alert("Registration successful!");
         window.location.href = "dashboard.html";
       } catch (error) {
-        console.error("Error:", error.message);
-        alert("Registration failed: " + error.message);
+        console.error("Registration error:", error.message);
+        alert("Error: " + error.message);
       }
-    }
+    };
   </script>
 </body>
 </html>
