@@ -11,6 +11,7 @@
       background: #0a5737; /* Corporate green */
       color: #fff;
       padding: 20px;
+      padding-bottom: 90px; /* Room for nav */
     }
     h2 {
       text-align: center;
@@ -22,7 +23,6 @@
       gap: 15px;
       margin-top: 20px;
       overflow-y: auto;
-      max-height: 90vh;
     }
     .plan {
       background: #ffffff;
@@ -52,12 +52,46 @@
     .plan button:hover {
       background: #06472c;
     }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0a5737;
+      display: flex;
+      gap: 25px;
+      justify-content: center;
+      padding: 12px 25px;
+      border-radius: 30px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 24px;
+    }
+
+    .bottom-nav a:hover {
+      color: #ffdd57;
+    }
   </style>
 </head>
 <body>
 
   <h2>📈 Investment Plans</h2>
   <div id="plansContainer" class="plans-container"></div>
+
+  <!-- Floating bottom navigation -->
+  <div class="bottom-nav">
+    <a href="dashboard.html" title="Dashboard">🏠</a>
+    <a href="investment.html" title="Investments">📈</a>
+    <a href="wallet.html" title="Wallet">💰</a>
+    <a href="referral.html" title="Referrals">👥</a>
+    <a href="profile.html" title="Profile">👤</a>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
