@@ -203,7 +203,7 @@
   window.withdraw = async function () {
     const amount = parseInt(document.getElementById("amount").value);
     if (!currentUser || isNaN(amount) || amount < 1000) {
-      return alert("Minimum withdrawal is 1,000 KES");
+      return alert("Minimum withdrawal is 2,000 KES");
     }
 
     const userRef = doc(db, "users", currentUser.uid);
