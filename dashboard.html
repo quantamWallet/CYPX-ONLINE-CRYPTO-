@@ -9,7 +9,7 @@
       font-family: 'Segoe UI', sans-serif;
       background-color: #0a5737;
       margin: 0;
-      padding-bottom: 100px; /* leave space for nav */
+      padding-bottom: 100px;
       color: #fff;
     }
 
@@ -50,11 +50,23 @@
       color: #27ae60;
     }
 
+    .about-text {
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .contact-info {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
     .btn-list {
       display: flex;
       flex-direction: column;
       gap: 0.8rem;
-      margin-top: 1rem;
+      margin-top: 1.5rem;
     }
 
     button {
@@ -134,29 +146,32 @@
       <div class="section-title">Total Balance</div>
       <div class="stat" id="balance">Loading...</div>
 
-      <div class="section-title">Total Profit</div>
-      <div class="stat" id="profit">0 KES</div>
+      <div class="charts">
+        <h3>📊 Forex & Crypto Charts</h3>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT"></iframe>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD"></iframe>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:SOLUSDT"></iframe>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:ETHUSDT"></iframe>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:USDJPY"></iframe>
+        <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:EURUSD"></iframe>
+      </div>
 
-      <div class="section-title">Active Investments</div>
-      <div class="stat" id="activeInvestments">--</div>
+      <div class="about-text">
+        <strong>About Quantum Investment:</strong><br>
+        Founded in 2010, Quantum Investment has grown into one of the most trusted platforms for investing in Bitcoin, forex, and binary options. Our platform uses AI-powered trading robots to maximize returns for our users.<br><br>
+        Over the years, more than 1,000,000 investors have joined us and benefited from our unique ROI model, earning up to 200% returns within just 12 to 24 hours.<br><br>
+        We invite you to become part of our growing family. Invest smart. Invest with Quantum.
+      </div>
 
-      <div class="section-title">Matured Investments</div>
-      <div class="stat" id="maturedInvestments">--</div>
-    </div>
-
-    <div class="charts">
-      <h3>📊 Forex & Crypto Charts</h3>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT"></iframe>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD"></iframe>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:SOLUSDT"></iframe>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:ETHUSDT"></iframe>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:USDJPY"></iframe>
-      <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:EURUSD"></iframe>
+      <div class="contact-info">
+        <strong>Contact Us:</strong><br>
+        Email: quantumriokenya@gmail.com<br>
+        WhatsApp: +254707207201<br>
+        Telegram: @QuantumRIO_support
+      </div>
     </div>
 
     <div class="btn-list">
-      <button onclick="location.href='support.html'">📞 Support</button>
-      <button onclick="location.href='hike.html'">ℹ️ About Us</button>
       <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
     </div>
   </div>
@@ -177,9 +192,7 @@
     import {
       getFirestore,
       doc,
-      getDoc,
-      collection,
-      getDocs
+      getDoc
     } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -208,21 +221,7 @@
         const data = userSnap.data();
         document.getElementById("balance").textContent =
           typeof data.balance === "number" ? `${data.balance.toLocaleString()} KES` : "0 KES";
-        document.getElementById("profit").textContent =
-          typeof data.profit === "number" ? `${data.profit.toLocaleString()} KES` : "0 KES";
       }
-
-      const invSnap = await getDocs(collection(db, "users", user.uid, "investments"));
-      let active = 0, matured = 0;
-
-      invSnap.forEach((doc) => {
-        const inv = doc.data();
-        if (inv.status === "active") active++;
-        else if (inv.status === "matured") matured++;
-      });
-
-      document.getElementById("activeInvestments").textContent = active;
-      document.getElementById("maturedInvestments").textContent = matured;
     });
 
     window.logout = function () {
