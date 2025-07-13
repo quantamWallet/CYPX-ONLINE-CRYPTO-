@@ -173,7 +173,6 @@
     const popup = document.getElementById("popup");
 
     let currentUser = null;
-    let currentBalance = 0;
 
     function showPopup(message, isError = false) {
       popup.textContent = message;
@@ -188,8 +187,7 @@
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-          currentBalance = userSnap.data().balance || 0;
-          renderPlans();
+          renderPlans(userSnap.data().balance || 0);
         } else {
           showPopup("User data not found.", true);
         }
@@ -198,7 +196,7 @@
       }
     });
 
-    function renderPlans() {
+    function renderPlans(balance) {
       plansContainer.innerHTML = "";
       plans.forEach(plan => {
         const div = document.createElement("div");
@@ -207,13 +205,13 @@
           <h3>📌 ${plan.title}</h3>
           <p>💰 Amount: ${plan.amount.toLocaleString()} KES</p>
           <p>📊 ROI: ${plan.roi.toLocaleString()} KES</p>
-          <button onclick="invest(${plan.amount}, ${plan.roi})">Invest Now</button>
+          <button onclick="invest(${plan.amount}, ${plan.roi}, ${balance})">Invest Now</button>
         `;
         plansContainer.appendChild(div);
       });
     }
 
-    window.invest = async function(amount, roi) {
+    window.invest = async function(amount, roi, userBalance) {
       if (!currentUser) return showPopup("Login required.", true);
 
       try {
@@ -239,7 +237,6 @@
           createdAt: serverTimestamp()
         });
 
-        // Optional: Referral bonus
         if (data.referredBy) {
           const referrerRef = doc(db, "users", data.referredBy);
           await updateDoc(referrerRef, {
@@ -247,7 +244,6 @@
           });
         }
 
-        currentBalance = newBalance;
         showPopup(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
       } catch (error) {
         console.error("Investment error:", error);
