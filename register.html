@@ -51,6 +51,13 @@
     button:hover {
       background-color: #06472c;
     }
+
+    .error-message {
+      color: #ff4d4d;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -60,6 +67,7 @@
     <input type="email" id="email" placeholder="Email Address" required />
     <input type="password" id="password" placeholder="Password" required />
     <button onclick="registerUser()">Register</button>
+    <div id="errorMsg" class="error-message">All fields are required</div>
   </div>
 
   <script type="module">
@@ -95,12 +103,10 @@
     async function getReferrerUid(refCode) {
       if (!refCode) return null;
 
-      // 1. Try to match with name
       const q = query(collection(db, "users"), where("name", "==", refCode.replace(/_/g, " ")));
       const snap = await getDocs(q);
       if (!snap.empty) return snap.docs[0].id;
 
-      // 2. Fallback: treat as UID
       const q2 = query(collection(db, "users"), where("__name__", "==", refCode));
       const snap2 = await getDocs(q2);
       if (!snap2.empty) return refCode;
@@ -112,10 +118,13 @@
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
+      const errorMsg = document.getElementById("errorMsg");
 
       if (!name || !email || !password) {
-        alert("Please fill all fields.");
+        errorMsg.style.display = "block";
         return;
+      } else {
+        errorMsg.style.display = "none";
       }
 
       try {
@@ -131,7 +140,6 @@
           createdAt: serverTimestamp()
         });
 
-        // ✅ Log referral
         const referrerUid = await getReferrerUid(refCode);
         if (referrerUid) {
           const referralDoc = doc(db, "users", referrerUid, "referrals", user.uid);
