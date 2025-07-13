@@ -163,11 +163,11 @@
     onAuthStateChanged(auth, async user => {
       if (user) {
         const uid = user.uid;
-        const userSnap = await getDoc(doc(db, "users", uid));
-        const data = userSnap.data();
-        const rawName = data?.name || data?.email || uid;
-        const refName = rawName.replace(/\s+/g, "_").toLowerCase();
-        const referralLink = `${window.location.origin}/signup.html?ref=${refName}`;
+        const userDoc = await getDoc(doc(db, "users", uid));
+        const userData = userDoc.data();
+        const name = userData?.name?.replace(/\s+/g, '_') || uid;
+
+        const referralLink = `https://quantamwallet.github.io/Quantum-Investment/register.html?ref=${name}`;
         document.getElementById("referralLink").value = referralLink;
 
         const referralRef = collection(db, "users", uid, "referrals");
@@ -178,10 +178,10 @@
         list.innerHTML = "";
 
         referralSnap.forEach(doc => {
-          const d = doc.data();
+          const data = doc.data();
           totalBonus += 3100;
           const li = document.createElement("li");
-          li.textContent = `${d.name || d.email || "New User"} - Bonus: 3,100 KES`;
+          li.textContent = `${data.name || data.email || "New User"} - Bonus: 3,100 KES`;
           list.appendChild(li);
         });
 
@@ -199,4 +199,4 @@
     };
   </script>
 </body>
-</html
+</html>
