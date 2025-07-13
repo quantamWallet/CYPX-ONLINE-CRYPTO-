@@ -61,11 +61,19 @@
       color: #0a5737;
       text-decoration: none;
     }
+
+    .error {
+      color: #d9534f;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Login to Your Account</h2>
+    <div class="error" id="errorMessage"></div>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
@@ -93,18 +101,19 @@
     window.login = async function () {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
+      const errorBox = document.getElementById("errorMessage");
+      errorBox.textContent = "";
 
       if (!email || !password) {
-        alert("Please fill in all fields.");
+        errorBox.textContent = "All fields are required";
         return;
       }
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        alert("Login successful!");
         window.location.href = "dashboard.html";
       } catch (error) {
-        alert("Login failed: " + error.message);
+        errorBox.textContent = "Login failed: " + error.message;
       }
     };
   </script>
