@@ -88,27 +88,27 @@
 
     .popup {
       position: fixed;
-      top: 50%;
+      top: 20px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      background: #2ecc71;
-      color: #fff;
-      padding: 16px 22px;
+      transform: translateX(-50%);
+      background: #ffffff;
+      color: #0a5737;
+      padding: 12px 20px;
       border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       font-weight: bold;
-      z-index: 1000;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      text-align: center;
-      animation: fadein 0.3s ease;
+      z-index: 9999;
+      display: none;
     }
 
     .popup.error {
       background: #e74c3c;
+      color: white;
     }
 
-    @keyframes fadein {
-      from { opacity: 0; transform: translate(-50%, -60%); }
-      to { opacity: 1; transform: translate(-50%, -50%); }
+    .popup.success {
+      background: #2ecc71;
+      color: white;
     }
   </style>
 </head>
@@ -116,6 +116,7 @@
 
   <h2>📈 Investment Plans</h2>
   <div id="plansContainer" class="plans-container"></div>
+  <div id="popup" class="popup"></div>
 
   <!-- Bottom Nav -->
   <div class="bottom-nav">
@@ -129,7 +130,16 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      collection,
+      addDoc,
+      increment,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -160,16 +170,16 @@
     ];
 
     const plansContainer = document.getElementById("plansContainer");
+    const popup = document.getElementById("popup");
 
     let currentUser = null;
     let currentBalance = 0;
 
     function showPopup(message, isError = false) {
-      const popup = document.createElement("div");
-      popup.className = "popup" + (isError ? " error" : "");
-      popup.innerText = message;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 3000);
+      popup.textContent = message;
+      popup.className = `popup ${isError ? 'error' : 'success'}`;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 3000);
     }
 
     onAuthStateChanged(auth, async user => {
@@ -204,42 +214,44 @@
     }
 
     window.invest = async function(amount, roi) {
-      if (!currentUser) {
-        showPopup("Login required.", true);
-        return;
-      }
+      if (!currentUser) return showPopup("Login required.", true);
 
-      if (currentBalance >= amount) {
-        try {
-          const userRef = doc(db, "users", currentUser.uid);
-          const userSnap = await getDoc(userRef);
-          const newBalance = currentBalance - amount;
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        const data = userSnap.data();
 
-          await updateDoc(userRef, { balance: newBalance });
-
-          await addDoc(collection(db, "users", currentUser.uid, "investments"), {
-            amount,
-            roi,
-            status: "active",
-            createdAt: serverTimestamp()
-          });
-
-          const referredBy = userSnap.data().referredBy;
-          if (referredBy) {
-            const referrerRef = doc(db, "users", referredBy);
-            await updateDoc(referrerRef, {
-              balance: increment(3100)
-            });
-          }
-
-          currentBalance = newBalance;
-          showPopup(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
-        } catch (error) {
-          console.error("Investment error:", error);
-          showPopup("❌ Error trying to invest. Please try again.", true);
+        if (!data || typeof data.balance !== "number") {
+          return showPopup("Error fetching user data.", true);
         }
-      } else {
-        showPopup("❌ Insufficient balance to invest.", true);
+
+        if (data.balance < amount) {
+          return showPopup("❌ Insufficient balance to invest.", true);
+        }
+
+        const newBalance = data.balance - amount;
+        await updateDoc(userRef, { balance: newBalance });
+
+        await addDoc(collection(db, "users", currentUser.uid, "investments"), {
+          amount,
+          roi,
+          status: "active",
+          createdAt: serverTimestamp()
+        });
+
+        // Optional: Referral bonus
+        if (data.referredBy) {
+          const referrerRef = doc(db, "users", data.referredBy);
+          await updateDoc(referrerRef, {
+            balance: increment(3100)
+          });
+        }
+
+        currentBalance = newBalance;
+        showPopup(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
+      } catch (error) {
+        console.error("Investment error:", error);
+        showPopup("❌ Error trying to invest. Please try again.", true);
       }
     };
   </script>
