@@ -8,14 +8,15 @@
     body {
       font-family: Arial, sans-serif;
       background: white;
+      margin: 0;
       padding: 20px;
       color: #0a5737;
     }
 
     .container {
       max-width: 400px;
-      margin: 40px auto;
-      padding: 25px;
+      margin: 50px auto;
+      padding: 30px;
       background: #f9f9f9;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -23,65 +24,69 @@
 
     h2 {
       text-align: center;
+      margin-bottom: 20px;
     }
 
-    input, select {
+    input {
       width: 100%;
       padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      font-size: 15px;
+      border-radius: 8px;
+      font-size: 16px;
     }
 
     button {
       width: 100%;
       padding: 12px;
-      background: #0a5737;
+      background-color: #0a5737;
       color: white;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #06472c;
-    }
-
-    .error {
-      color: red;
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 14px;
+      background-color: #06472c;
     }
 
     .link {
       text-align: center;
-      margin-top: 10px;
+      margin-top: 15px;
+      font-size: 14px;
     }
 
     .link a {
       color: #0a5737;
       text-decoration: none;
     }
+
+    .error {
+      color: #d9534f;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Create an Account</h2>
-    <div class="error" id="errorBox"></div>
+    <div class="error" id="errorMessage"></div>
     <input type="text" id="name" placeholder="Full Name" />
     <input type="email" id="email" placeholder="Email Address" />
     <input type="password" id="password" placeholder="Password" />
     <button onclick="register()">Register</button>
-    <div class="link">Already have an account? <a href="login.html">Login</a></div>
+    <div class="link">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDocs, collection, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -97,17 +102,17 @@
     const db = getFirestore(app);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const referralName = urlParams.get("ref"); // 👈 From ?ref=nicelroberts
+    const referralName = urlParams.get("ref");
 
     window.register = async function () {
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
-      const errorBox = document.getElementById("errorBox");
+      const errorBox = document.getElementById("errorMessage");
       errorBox.textContent = "";
 
       if (!name || !email || !password) {
-        errorBox.textContent = "Please fill all fields.";
+        errorBox.textContent = "All fields are required";
         return;
       }
 
@@ -115,42 +120,39 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Save user to Firestore
-        await setDoc(doc(db, "users", user.uid), {
-          uid: user.uid,
-          name: name,
-          email: email,
-          balance: 0,
-          bonus: 0,
-          createdAt: new Date(),
-          referral: referralName || null
-        });
+        let referrerUID = null;
 
-        // ✅ Add referral if referralName exists
         if (referralName) {
-          const usersSnapshot = await getDocs(collection(db, "users"));
-          let referrerUID = null;
+          const usersRef = collection(db, "users");
+          const q = query(usersRef, where("name", "==", referralName.replace(/_/g, " ")));
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            referrerUID = querySnapshot.docs[0].id;
 
-          usersSnapshot.forEach(docSnap => {
-            const data = docSnap.data();
-            const refName = data.name?.replace(/\s+/g, "_");
-            if (refName && refName.toLowerCase() === referralName.toLowerCase()) {
-              referrerUID = docSnap.id;
-            }
-          });
-
-          if (referrerUID) {
+            // Save referral record under referrer
             await addDoc(collection(db, "users", referrerUID, "referrals"), {
               name: name,
               email: email,
-              referredAt: new Date()
+              referredUID: user.uid,
+              timestamp: new Date()
             });
           }
         }
 
+        // Create new user document
+        await setDoc(doc(db, "users", user.uid), {
+          name,
+          email,
+          uid: user.uid,
+          balance: 0,
+          bonus: 0,
+          referredBy: referrerUID || null,
+          createdAt: new Date()
+        });
+
         window.location.href = "dashboard.html";
       } catch (error) {
-        errorBox.textContent = error.message;
+        errorBox.textContent = "Registration failed: " + error.message;
       }
     };
   </script>
