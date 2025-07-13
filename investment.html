@@ -4,20 +4,18 @@
   <meta charset="UTF-8" />
   <title>Investment Plans | Quantum RIO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0a5737;
       margin: 0;
-      background: #0a5737;
+      padding-bottom: 100px;
       color: #fff;
-      padding-bottom: 80px;
     }
 
     h2 {
       text-align: center;
       margin: 20px 0;
-      color: #fff;
     }
 
     .plans-container {
@@ -31,7 +29,7 @@
 
     .plan {
       background: #ffffff;
-      color: #222;
+      color: #0a5737;
       padding: 15px;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -39,7 +37,6 @@
 
     .plan h3 {
       margin: 0 0 10px;
-      color: #0a5737;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -69,39 +66,24 @@
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 100%;
+      right: 0;
       background: #ffffff;
+      border-top: 1px solid #ccc;
       display: flex;
-      justify-content: space-between;
-      padding: 10px 20px;
-      box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
-      z-index: 1000;
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
+      justify-content: space-around;
+      padding: 0.5rem 0;
+      z-index: 10;
     }
 
     .bottom-nav a {
-      flex: 1;
       text-align: center;
+      color: #0a5737;
+      font-size: 0.85rem;
       text-decoration: none;
-      color: #0a5737;
-      font-size: 11px;
     }
 
-    .bottom-nav .icon-box {
-      background: white;
-      border-radius: 50%;
-      padding: 10px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 4px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .bottom-nav i {
-      font-size: 18px;
-      color: #0a5737;
+    .bottom-nav a:hover {
+      color: #3498db;
     }
   </style>
 </head>
@@ -112,26 +94,11 @@
 
   <!-- Bottom Nav -->
   <div class="bottom-nav">
-    <a href="dashboard.html">
-      <div class="icon-box"><i class="ri-dashboard-fill"></i></div>
-      <div>Dashboard</div>
-    </a>
-    <a href="wallet.html">
-      <div class="icon-box"><i class="ri-wallet-3-fill"></i></div>
-      <div>Wallet</div>
-    </a>
-    <a href="investment.html">
-      <div class="icon-box"><i class="ri-line-chart-fill"></i></div>
-      <div>Invest</div>
-    </a>
-    <a href="referral.html">
-      <div class="icon-box"><i class="ri-user-shared-fill"></i></div>
-      <div>Referrals</div>
-    </a>
-    <a href="profile.html">
-      <div class="icon-box"><i class="ri-user-3-fill"></i></div>
-      <div>Profile</div>
-    </a>
+    <a href="dashboard.html">🏠<br>Home</a>
+    <a href="wallet.html">💼<br>Wallet</a>
+    <a href="investment.html">📈<br>Plans</a>
+    <a href="referral.html">👥<br>Referrals</a>
+    <a href="profile.html">👤<br>Me</a>
   </div>
 
   <script type="module">
@@ -151,21 +118,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    const iconMap = {
-      "Starter Plan": "ri-seedling-fill",
-      "Bronze Plan": "ri-copper-coin-fill",
-      "Silver Plan": "ri-medal-fill",
-      "Gold Plan": "ri-trophy-fill",
-      "Platinum Plan": "ri-vip-crown-fill",
-      "Diamond Plan": "ri-gem-fill",
-      "Elite Plan": "ri-star-s-fill",
-      "Titan Plan": "ri-shield-star-fill",
-      "Mega Plan": "ri-fire-fill",
-      "Ultra Plan": "ri-rocket-fill",
-      "Supreme Plan": "ri-bank-card-fill",
-      "VIP Plan": "ri-vip-diamond-fill"
-    };
 
     const plans = [
       { title: "Starter Plan", amount: 15000, roi: 30000 },
@@ -206,11 +158,10 @@
     function renderPlans() {
       plansContainer.innerHTML = "";
       plans.forEach(plan => {
-        const icon = iconMap[plan.title] || "ri-line-chart-fill";
         const div = document.createElement("div");
         div.className = "plan";
         div.innerHTML = `
-          <h3><i class="${icon}"></i> ${plan.title}</h3>
+          <h3>📌 ${plan.title}</h3>
           <p>💰 Amount: ${plan.amount.toLocaleString()} KES</p>
           <p>📊 ROI: ${plan.roi.toLocaleString()} KES</p>
           <button onclick="invest(${plan.amount}, ${plan.roi})">Invest Now</button>
