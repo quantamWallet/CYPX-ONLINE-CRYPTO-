@@ -3,85 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up | Quantum RIO</title>
+  <title>Signup | Quantum RIO</title>
   <style>
     body {
-      background: #0a5737;
-      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background: #0a5737;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .signup-box {
+      background: white;
       color: #333;
-    }
-
-    .container {
-      max-width: 400px;
-      margin: 60px auto;
-      background: #fff;
       padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    h2 {
+    .signup-box h2 {
       text-align: center;
       color: #0a5737;
-      margin-bottom: 20px;
     }
 
-    input {
+    .signup-box input,
+    .signup-box button {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
+      margin-top: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
+    .signup-box button {
       background-color: #0a5737;
       color: white;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
       cursor: pointer;
     }
 
-    button:hover {
+    .signup-box button:hover {
       background-color: #06472c;
     }
 
-    .footer {
+    .error {
+      color: red;
       text-align: center;
-      margin-top: 20px;
-      color: white;
+      margin-top: 10px;
     }
 
-    .footer a {
-      color: #ffdd57;
-      text-decoration: none;
+    .success {
+      color: green;
+      text-align: center;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
+  <div class="signup-box">
     <h2>Create Account</h2>
-
-    <input type="email" id="email" placeholder="Enter your email" required />
-    <input type="password" id="password" placeholder="Enter your password" required />
-    <button id="signupBtn">Sign Up</button>
-  </div>
-
-  <div class="footer">
-    Already have an account? <a href="login.html">Login</a>
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email Address" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button onclick="registerUser()">Sign Up</button>
+    <div id="message"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -96,46 +94,65 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Get referral UID from URL if exists
-    const urlParams = new URLSearchParams(window.location.search);
-    const referredBy = urlParams.get("ref");
-
-    document.getElementById("signupBtn").addEventListener("click", async () => {
+    async function registerUser() {
+      const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
+      const messageDiv = document.getElementById("message");
 
-      if (!email || !password) {
-        alert("Please fill in all fields.");
+      messageDiv.innerHTML = "";
+
+      if (!name || !email || !password) {
+        messageDiv.innerHTML = "<p class='error'>Please fill all fields.</p>";
         return;
+      }
+
+      // Check referral from URL
+      let referredBy = null;
+      const urlParams = new URLSearchParams(window.location.search);
+      const refName = urlParams.get("ref");
+
+      if (refName) {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        usersSnapshot.forEach(docSnap => {
+          const userData = docSnap.data();
+          const formatted = (userData.name || userData.email || "").replace(/\s+/g, "_").toLowerCase();
+          if (formatted === refName) {
+            referredBy = docSnap.id;
+          }
+        });
       }
 
       try {
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const uid = userCred.user.uid;
 
-        // Save user data
         await setDoc(doc(db, "users", uid), {
-          email: email,
+          name,
+          email,
           referredBy: referredBy || null,
           balance: 0,
           createdAt: new Date()
         });
 
-        // Save referral under referrer if present
+        // If referred, add to referrals subcollection
         if (referredBy) {
           await setDoc(doc(db, "users", referredBy, "referrals", uid), {
-            email: email,
-            createdAt: new Date()
+            name,
+            email,
+            referredAt: new Date()
           });
         }
 
-        alert("Account created successfully!");
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        alert("Signup Error: " + error.message);
-      }
-    });
-  </script>
+        messageDiv.innerHTML = "<p class='success'>Account created successfully! Redirecting...</p>";
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 2000);
 
+      } catch (error) {
+        messageDiv.innerHTML = `<p class='error'>${error.message}</p>`;
+      }
+    }
+  </script>
 </body>
 </html>
