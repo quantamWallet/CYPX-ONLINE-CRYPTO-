@@ -61,13 +61,21 @@
       color: #0a5737;
       text-decoration: none;
     }
+
+    .error {
+      color: #d9534f;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Create Account</h2>
+    <h2>Create an Account</h2>
+    <div class="error" id="errorMessage"></div>
     <input type="text" id="name" placeholder="Full Name" />
-    <input type="email" id="email" placeholder="Email" />
+    <input type="email" id="email" placeholder="Email Address" />
     <input type="password" id="password" placeholder="Password" />
     <button onclick="register()">Register</button>
     <div class="link">
@@ -78,7 +86,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, setDoc, doc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -94,49 +102,33 @@
     const db = getFirestore(app);
 
     window.register = async function () {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const urlParams = new URLSearchParams(window.location.search);
-      const referrer = urlParams.get('ref');
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorBox = document.getElementById("errorMessage");
+      errorBox.textContent = "";
 
       if (!name || !email || !password) {
-        alert("Please fill in all fields");
+        errorBox.textContent = "All fields are required";
         return;
       }
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = userCredential.user.uid;
+        const user = userCredential.user;
 
-        await setDoc(doc(db, "users", uid), {
-          name,
-          email,
-          referralBy: referrer || null,
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          uid: user.uid,
+          balance: 0,
+          bonus: 0,
           createdAt: new Date()
         });
 
-        if (referrer) {
-          // Handle referral bonus logging
-          const q = query(collection(db, "users"), where("name", "==", referrer.replace(/_/g, ' ')));
-          const snapshot = await getDocs(q);
-          if (!snapshot.empty) {
-            const refUserDoc = snapshot.docs[0];
-            const refUid = refUserDoc.id;
-
-            await addDoc(collection(db, "users", refUid, "referrals"), {
-              name,
-              email,
-              referredAt: new Date()
-            });
-          }
-        }
-
-        alert("Registration successful!");
         window.location.href = "dashboard.html";
       } catch (error) {
-        console.error("Registration error:", error.message);
-        alert("Error: " + error.message);
+        errorBox.textContent = "Registration failed: " + error.message;
       }
     };
   </script>
