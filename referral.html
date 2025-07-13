@@ -91,19 +91,6 @@
       color: #333;
     }
 
-    .notification {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #0a5737;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      display: none;
-      z-index: 1000;
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -129,8 +116,6 @@
   </style>
 </head>
 <body>
-  <div class="notification" id="notify">🎉 Bonus awarded: +3,100 KES</div>
-
   <div class="container">
     <h2>🔗 Referral Program</h2>
     <p>Earn <strong>3,100 KES</strong> bonus for every successful referral after their first deposit!</p>
@@ -140,7 +125,7 @@
       <button onclick="copyReferral()">Copy</button>
     </div>
 
-    <div class="bonus-section" id="bonusInfo">Total Bonus: 0 KES | Referrals: 0</div>
+    <div class="bonus-section" id="bonusInfo">Total Bonus: 0 KES</div>
 
     <div class="referrals-list">
       <h3>Referred Users:</h3>
@@ -160,7 +145,14 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      doc,
+      getDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -175,49 +167,38 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const notify = document.getElementById("notify");
-
-    function showNotification(message) {
-      notify.textContent = message;
-      notify.style.display = "block";
-      setTimeout(() => notify.style.display = "none", 3000);
-    }
-
     onAuthStateChanged(auth, async user => {
-      if (user) {
-        const uid = user.uid;
-        const userDoc = await getDoc(doc(db, "users", uid));
-        const userData = userDoc.data();
-        const name = userData?.name?.replace(/\s+/g, '_') || uid;
-
-        const referralLink = `https://quantamwallet.github.io/Quantum-RIO-Investment-/register.html?ref=${name}`;
-        document.getElementById("referralLink").value = referralLink;
-
-        const referralRef = collection(db, "users", uid, "referrals");
-        const referralSnap = await getDocs(referralRef);
-
-        let totalBonus = 0;
-        let referralCount = 0;
-        const list = document.getElementById("referredList");
-        list.innerHTML = "";
-
-        referralSnap.forEach(doc => {
-          const data = doc.data();
-          referralCount++;
-          totalBonus += 3100;
-          const li = document.createElement("li");
-          li.textContent = `${data.name || data.email || "New User"} - Bonus: 3,100 KES`;
-          list.appendChild(li);
-        });
-
-        if (referralCount > 0) {
-          showNotification(`🎉 ${referralCount} referral${referralCount > 1 ? 's' : ''} earned bonus!`);
-        }
-
-        document.getElementById("bonusInfo").textContent = `Total Bonus: ${totalBonus.toLocaleString()} KES | Referrals: ${referralCount}`;
-      } else {
+      if (!user) {
         window.location.href = "index.html";
+        return;
       }
+
+      const uid = user.uid;
+      const userDoc = await getDoc(doc(db, "users", uid));
+      const userData = userDoc.data();
+      const name = userData?.name?.replace(/\s+/g, '_') || uid;
+
+      const referralLink = `https://quantamwallet.github.io/Quantum-RIO-Investment-/register.html?ref=${name}`;
+      document.getElementById("referralLink").value = referralLink;
+
+      const referralRef = collection(db, "users", uid, "referrals");
+      const referralSnap = await getDocs(referralRef);
+
+      let totalBonus = 0;
+      const list = document.getElementById("referredList");
+      list.innerHTML = "";
+
+      referralSnap.forEach(doc => {
+        const data = doc.data();
+        totalBonus += 3100;
+        const li = document.createElement("li");
+        const refName = data.name || data.email || "New User";
+        const time = data.timestamp?.toDate().toLocaleString() || "No timestamp";
+        li.textContent = `${refName} – Bonus: 3,100 KES – ${time}`;
+        list.appendChild(li);
+      });
+
+      document.getElementById("bonusInfo").textContent = `Total Bonus: ${totalBonus.toLocaleString()} KES`;
     });
 
     window.copyReferral = function () {
