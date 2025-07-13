@@ -9,7 +9,8 @@
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: #e8f5e9;
-      padding-bottom: 90px; /* Space for bottom nav */
+      padding-bottom: 100px;
+      color: #333;
     }
 
     .container {
@@ -45,7 +46,6 @@
       font-weight: bold;
       display: block;
       margin-bottom: 0.3rem;
-      color: #333;
     }
 
     .profile-detail input {
@@ -54,42 +54,35 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       background-color: #f2f2f2;
-      color: #555;
     }
 
     input[disabled] {
       cursor: not-allowed;
     }
 
+    /* ✅ Fixed Floating Bottom Navigation - Emoji style */
     .bottom-nav {
       position: fixed;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top: 1px solid #ccc;
       display: flex;
-      justify-content: space-between;
-      background-color: white;
-      padding: 10px 20px;
-      border-radius: 30px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      width: 90%;
-      max-width: 500px;
+      justify-content: space-around;
+      padding: 0.5rem 0;
       z-index: 1000;
     }
 
     .bottom-nav a {
       text-align: center;
-      color: #2e7d32;
-      font-size: 12px;
+      color: #0a5737;
+      font-size: 0.85rem;
       text-decoration: none;
-      flex: 1;
     }
 
-    .bottom-nav img {
-      width: 24px;
-      height: 24px;
-      display: block;
-      margin: 0 auto 5px;
+    .bottom-nav a:hover {
+      color: #3498db;
     }
   </style>
 </head>
@@ -114,31 +107,16 @@
     </div>
   </div>
 
-  <!-- ✅ Fixed Floating Bottom Nav with Correct Icon Names -->
+  <!-- ✅ Bottom Nav Matches dashboard.html Style -->
   <div class="bottom-nav">
-    <a href="dashboard.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/home.png" alt="Home"/>
-      <div>Home</div>
-    </a>
-    <a href="wallet.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/wallet.png" alt="Wallet"/>
-      <div>Wallet</div>
-    </a>
-    <a href="investment.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/money-bag.png" alt="Plans"/>
-      <div>Plans</div>
-    </a>
-    <a href="referral.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/add-user-group-man-man.png" alt="Referrals"/>
-      <div>Referrals</div>
-    </a>
-    <a href="profile.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/user-male-circle.png" alt="Me"/>
-      <div>Me</div>
-    </a>
+    <a href="dashboard.html">🏠<br>Home</a>
+    <a href="wallet.html">💼<br>Wallet</a>
+    <a href="investment.html">📈<br>Plans</a>
+    <a href="referral.html">👥<br>Referrals</a>
+    <a href="profile.html">👤<br>Me</a>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase Integration -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
