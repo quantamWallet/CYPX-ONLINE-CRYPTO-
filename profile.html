@@ -135,8 +135,6 @@
         userInfoDiv.innerHTML = `
           <strong>Name:</strong> ${data.name || "N/A"}<br>
           <strong>Email:</strong> ${user.email || "N/A"}<br>
-          <strong>Phone:</strong> ${data.phone || "N/A"}<br>
-          <strong>Country:</strong> ${data.country || "N/A"}<br>
           <strong>Balance:</strong> ${typeof data.balance === "number" ? data.balance.toLocaleString() + " KES" : "0 KES"}
         `;
       } else {
