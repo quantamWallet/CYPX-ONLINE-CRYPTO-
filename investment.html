@@ -16,15 +16,15 @@
 
     h2 {
       text-align: center;
+      margin: 20px 0;
       color: #fff;
-      margin-top: 20px;
     }
 
     .plans-container {
       display: flex;
       flex-direction: column;
       gap: 15px;
-      margin: 20px;
+      margin: 0 20px;
       overflow-y: auto;
       max-height: 75vh;
     }
@@ -67,32 +67,41 @@
 
     .bottom-nav {
       position: fixed;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #ffffff;
       display: flex;
-      justify-content: space-around;
-      align-items: center;
-      width: 90%;
-      border-radius: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      padding: 10px 0;
+      justify-content: space-between;
+      padding: 10px 20px;
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
       z-index: 1000;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
     }
 
     .bottom-nav a {
+      flex: 1;
+      text-align: center;
       text-decoration: none;
       color: #0a5737;
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
+      font-size: 11px;
+    }
+
+    .bottom-nav .icon-box {
+      background: white;
+      border-radius: 50%;
+      padding: 10px;
+      display: inline-flex;
+      justify-content: center;
       align-items: center;
+      margin-bottom: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
     .bottom-nav i {
-      font-size: 20px;
-      margin-bottom: 4px;
+      font-size: 18px;
+      color: #0a5737;
     }
   </style>
 </head>
@@ -104,24 +113,24 @@
   <!-- Bottom Nav -->
   <div class="bottom-nav">
     <a href="dashboard.html">
-      <i class="ri-dashboard-2-line"></i>
-      <span>Dashboard</span>
+      <div class="icon-box"><i class="ri-dashboard-fill"></i></div>
+      <div>Dashboard</div>
     </a>
     <a href="wallet.html">
-      <i class="ri-wallet-3-line"></i>
-      <span>Wallet</span>
+      <div class="icon-box"><i class="ri-wallet-3-fill"></i></div>
+      <div>Wallet</div>
     </a>
     <a href="investment.html">
-      <i class="ri-line-chart-line"></i>
-      <span>Invest</span>
+      <div class="icon-box"><i class="ri-line-chart-fill"></i></div>
+      <div>Invest</div>
     </a>
     <a href="referral.html">
-      <i class="ri-team-line"></i>
-      <span>Referrals</span>
+      <div class="icon-box"><i class="ri-user-shared-fill"></i></div>
+      <div>Referrals</div>
     </a>
     <a href="profile.html">
-      <i class="ri-user-3-line"></i>
-      <span>Profile</span>
+      <div class="icon-box"><i class="ri-user-3-fill"></i></div>
+      <div>Profile</div>
     </a>
   </div>
 
@@ -151,11 +160,11 @@
       "Platinum Plan": "ri-vip-crown-fill",
       "Diamond Plan": "ri-gem-fill",
       "Elite Plan": "ri-star-s-fill",
-      "Titan Plan": "ri-shield-star-line",
-      "Mega Plan": "ri-fire-line",
-      "Ultra Plan": "ri-rocket-line",
-      "Supreme Plan": "ri-bank-card-line",
-      "VIP Plan": "ri-vip-diamond-line"
+      "Titan Plan": "ri-shield-star-fill",
+      "Mega Plan": "ri-fire-fill",
+      "Ultra Plan": "ri-rocket-fill",
+      "Supreme Plan": "ri-bank-card-fill",
+      "VIP Plan": "ri-vip-diamond-fill"
     };
 
     const plans = [
@@ -197,7 +206,7 @@
     function renderPlans() {
       plansContainer.innerHTML = "";
       plans.forEach(plan => {
-        const icon = iconMap[plan.title] || "ri-line-chart-line";
+        const icon = iconMap[plan.title] || "ri-line-chart-fill";
         const div = document.createElement("div");
         div.className = "plan";
         div.innerHTML = `
@@ -246,6 +255,5 @@
       }
     };
   </script>
-
 </body>
 </html>
