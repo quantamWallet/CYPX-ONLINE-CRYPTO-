@@ -86,7 +86,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDocs, collection, query, where, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -102,7 +102,7 @@
     const db = getFirestore(app);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const referralName = urlParams.get("ref");
+    const referrerName = urlParams.get("ref");
 
     window.register = async function () {
       const name = document.getElementById("name").value.trim();
@@ -120,35 +120,40 @@
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        let referrerUID = null;
-
-        if (referralName) {
-          const usersRef = collection(db, "users");
-          const q = query(usersRef, where("name", "==", referralName.replace(/_/g, " ")));
-          const querySnapshot = await getDocs(q);
-          if (!querySnapshot.empty) {
-            referrerUID = querySnapshot.docs[0].id;
-
-            // Save referral record under referrer
-            await addDoc(collection(db, "users", referrerUID, "referrals"), {
-              name: name,
-              email: email,
-              referredUID: user.uid,
-              timestamp: new Date()
-            });
-          }
-        }
-
-        // Create new user document
         await setDoc(doc(db, "users", user.uid), {
-          name,
-          email,
+          name: name,
+          email: email,
           uid: user.uid,
           balance: 0,
           bonus: 0,
-          referredBy: referrerUID || null,
           createdAt: new Date()
         });
+
+        // Handle referral logic
+        if (referrerName) {
+          const allUsers = await getDocs(collection(db, "users"));
+          for (const docSnap of allUsers.docs) {
+            const refUser = docSnap.data();
+            const formattedName = refUser.name?.replace(/\s+/g, "_");
+            if (formattedName === referrerName) {
+              const refUid = refUser.uid;
+
+              // Store referral
+              await setDoc(doc(db, "users", refUid, "referrals", user.uid), {
+                name,
+                email,
+                referredAt: new Date()
+              });
+
+              // Add 3100 to bonus
+              await setDoc(doc(db, "users", refUid), {
+                bonus: (refUser.bonus || 0) + 3100
+              }, { merge: true });
+
+              break;
+            }
+          }
+        }
 
         window.location.href = "dashboard.html";
       } catch (error) {
