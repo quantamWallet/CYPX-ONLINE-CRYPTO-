@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Referral Program | Quantum RIO</title>
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,7 +11,6 @@
       margin: 0;
       padding: 20px;
       color: white;
-      padding-bottom: 90px;
     }
 
     .container {
@@ -95,32 +93,25 @@
 
     .bottom-nav {
       position: fixed;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      width: 90%;
-      border-radius: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      padding: 10px 0;
-      z-index: 1000;
+      padding: 8px 0;
+      border-top: 1px solid #ccc;
+      z-index: 999;
     }
 
     .bottom-nav a {
       text-decoration: none;
       color: #0a5737;
-      font-size: 12px;
+      font-size: 13px;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-
-    .bottom-nav i {
-      font-size: 20px;
-      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -145,31 +136,31 @@
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <a href="dashboard.html">
-      <i class="ri-dashboard-fill"></i>
-      <span>Dashboard</span>
+      <div>🏠</div>
+      <span>Home</span>
     </a>
     <a href="wallet.html">
-      <i class="ri-wallet-3-fill"></i>
+      <div>💼</div>
       <span>Wallet</span>
     </a>
     <a href="investment.html">
-      <i class="ri-line-chart-fill"></i>
-      <span>Invest</span>
+      <div>📈</div>
+      <span>Plans</span>
     </a>
     <a href="referral.html">
-      <i class="ri-user-shared-fill"></i>
+      <div>🧑‍🤝‍🧑</div>
       <span>Referrals</span>
     </a>
     <a href="profile.html">
-      <i class="ri-user-3-fill"></i>
-      <span>Profile</span>
+      <div>👤</div>
+      <span>Me</span>
     </a>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -184,11 +175,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
-
     onAuthStateChanged(auth, async user => {
       if (user) {
-        currentUser = user;
         const uid = user.uid;
         const referralLink = `${window.location.origin}/register.html?ref=${uid}`;
         document.getElementById("referralLink").value = referralLink;
