@@ -9,7 +9,7 @@
       font-family: Arial, sans-serif;
       background: #0a5737;
       margin: 0;
-      padding: 20px;
+      padding-bottom: 80px;
       color: white;
     }
 
@@ -21,6 +21,7 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       color: #333;
+      margin-top: 20px;
     }
 
     h2 {
@@ -113,6 +114,21 @@
       flex-direction: column;
       align-items: center;
     }
+
+    .notification {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0a5737;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -132,6 +148,9 @@
       <ul id="referredList"></ul>
     </div>
   </div>
+
+  <!-- In-App Notification -->
+  <div class="notification" id="popupNotice">Bonus Awarded!</div>
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
@@ -160,35 +179,50 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    function showNotification(message) {
+      const notice = document.getElementById("popupNotice");
+      notice.textContent = message;
+      notice.style.display = "block";
+      setTimeout(() => {
+        notice.style.display = "none";
+      }, 3000);
+    }
+
     onAuthStateChanged(auth, async user => {
-      if (user) {
-        const uid = user.uid;
-        const userDoc = await getDoc(doc(db, "users", uid));
-        const userData = userDoc.data();
-        const name = userData?.name?.replace(/\s+/g, '_') || uid;
-
-        const referralLink = `https://quantamwallet.github.io/Quantum-Investment/register.html?ref=${name}`;
-        document.getElementById("referralLink").value = referralLink;
-
-        const referralRef = collection(db, "users", uid, "referrals");
-        const referralSnap = await getDocs(referralRef);
-
-        let totalBonus = 0;
-        const list = document.getElementById("referredList");
-        list.innerHTML = "";
-
-        referralSnap.forEach(doc => {
-          const data = doc.data();
-          totalBonus += 3100;
-          const li = document.createElement("li");
-          li.textContent = `${data.name || data.email || "New User"} - Bonus: 3,100 KES`;
-          list.appendChild(li);
-        });
-
-        document.getElementById("bonusInfo").textContent = `Total Bonus: ${totalBonus.toLocaleString()} KES`;
-      } else {
+      if (!user) {
         window.location.href = "index.html";
+        return;
       }
+
+      const uid = user.uid;
+      const userDoc = await getDoc(doc(db, "users", uid));
+      const userData = userDoc.data();
+      const name = userData?.name?.replace(/\s+/g, '_') || uid;
+
+      const referralLink = `https://quantamwallet.github.io/Quantum-Investment/register.html?ref=${name}`;
+      document.getElementById("referralLink").value = referralLink;
+
+      const referralRef = collection(db, "users", uid, "referrals");
+      const referralSnap = await getDocs(referralRef);
+
+      let totalBonus = 0;
+      const list = document.getElementById("referredList");
+      list.innerHTML = "";
+
+      referralSnap.forEach(doc => {
+        const data = doc.data();
+        totalBonus += 3100;
+
+        const li = document.createElement("li");
+        li.textContent = `${data.name || data.email || "User"} - Bonus: 3,100 KES`;
+        list.appendChild(li);
+      });
+
+      if (totalBonus > 0) {
+        showNotification(`Referral Bonus Updated! Total: ${totalBonus.toLocaleString()} KES`);
+      }
+
+      document.getElementById("bonusInfo").textContent = `Total Bonus: ${totalBonus.toLocaleString()} KES`;
     });
 
     window.copyReferral = function () {
