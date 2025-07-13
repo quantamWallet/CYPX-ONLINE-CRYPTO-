@@ -1,51 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-<he<link rel="manifest" href="/site.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
-<meta name="theme-color" content="#4CAF50">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quantum RIO</title>
-
-  <!-- Icons -->
+<head>
+  <!-- PWA Icons -->
+  <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#4CAF50">
+  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quantum RIO Investment - Kenya</title>
 
-  <!-- PWA Meta -->
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- Styles -->
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      background: #005f3c;
+      color: #fff;
+      line-height: 1.6;
+    }
+    header {
+      background: #003322;
+      padding: 20px;
       text-align: center;
-      padding: 50px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
-    h1 {
-      color: #333;
+    header h1 {
+      font-size: 2rem;
     }
-    a.button {
-      display: inline-block;
-      padding: 12px 20px;
-      background: #007BFF;
-      color: white;
-      border-radius: 6px;
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      margin: 20px auto;
+      max-width: 900px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+    .hero img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .hero h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .btn {
+      background: #00b894;
+      color: #fff;
+      padding: 12px 24px;
       text-decoration: none;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .section {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+    }
+    .section h3 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
       margin-top: 20px;
+    }
+    .feature {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      width: 250px;
+      text-align: center;
+    }
+    .feature img {
+      width: 60px;
+      margin-bottom: 10px;
+    }
+    footer {
+      background: #00291c;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>Welcome to Quantum RIO Investment
-  </h1>
-  <p>Fast & Secure Investments with Real ROI</p>
-  <a href="login.html" class="button">Get Started</a>
+  <header>
+    <h1>Quantum RIO Investment - Kenya</h1>
+  </header>
+
+  <section class="hero">
+    <img src="https://cdn.pixabay.com/photo/2017/03/01/09/05/money-2105745_960_720.jpg" alt="Investment Hero Image">
+    <h2>Grow Your Wealth With AI-Powered Trading</h2>
+    <p>We invest in Bitcoin, binary, and forex markets using advanced AI trading bots to give you up to <strong>200% ROI in 24 hours</strong>.</p>
+    <a href="login.html" class="btn">Get Started</a>
+  </section>
+
+  <section class="section">
+    <h3>How It Works</h3>
+    <div class="features">
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/2331/2331948.png" alt="Deposit" />
+        <p>Deposit funds to start investing</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/2631/2631973.png" alt="AI Bot" />
+        <p>AI bots trade on your behalf</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/1554/1554591.png" alt="ROI" />
+        <p>Earn ROI of up to 200%</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" alt="Withdraw" />
+        <p>Withdraw directly to M-Pesa</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3>Why Choose Quantum Rio?</h3>
+    <div class="features">
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/726/726488.png" alt="Fast" />
+        <p>Fast, secure transactions</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/702/702797.png" alt="Support" />
+        <p>Real-time support</p>
+      </div>
+      <div class="feature">
+        <img src="https://cdn-icons-png.flaticon.com/512/1007/1007945.png" alt="Trust" />
+        <p>Trusted by Kenyan investors</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="text-align:center">
+    <h3>Ready to invest?</h3>
+    <a href="login.html" class="btn">Create Your Account</a>
+  </section>
+
+  <footer>
+    <p>Need help? Email: forexinvestmentclubkampala@gmail.com | Telegram: @QuantumRIO_support</p>
+    <p>© 2025 Quantum RIO Kenya. All rights reserved.</p>
+  </footer>
 
   <!-- Firebase setup -->
   <script type="module">
