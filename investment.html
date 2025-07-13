@@ -93,12 +93,22 @@
       transform: translate(-50%, -50%);
       background: #2ecc71;
       color: #fff;
-      padding: 18px 24px;
+      padding: 16px 22px;
       border-radius: 10px;
       font-weight: bold;
       z-index: 1000;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       text-align: center;
+      animation: fadein 0.3s ease;
+    }
+
+    .popup.error {
+      background: #e74c3c;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
     }
   </style>
 </head>
@@ -154,6 +164,14 @@
     let currentUser = null;
     let currentBalance = 0;
 
+    function showPopup(message, isError = false) {
+      const popup = document.createElement("div");
+      popup.className = "popup" + (isError ? " error" : "");
+      popup.innerText = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
     onAuthStateChanged(auth, async user => {
       if (user) {
         currentUser = user;
@@ -163,7 +181,7 @@
           currentBalance = userSnap.data().balance || 0;
           renderPlans();
         } else {
-          alert("User data not found.");
+          showPopup("User data not found.", true);
         }
       } else {
         window.location.href = "index.html";
@@ -186,7 +204,11 @@
     }
 
     window.invest = async function(amount, roi) {
-      if (!currentUser) return alert("Login required.");
+      if (!currentUser) {
+        showPopup("Login required.", true);
+        return;
+      }
+
       if (currentBalance >= amount) {
         try {
           const userRef = doc(db, "users", currentUser.uid);
@@ -194,6 +216,7 @@
           const newBalance = currentBalance - amount;
 
           await updateDoc(userRef, { balance: newBalance });
+
           await addDoc(collection(db, "users", currentUser.uid, "investments"), {
             amount,
             roi,
@@ -204,23 +227,19 @@
           const referredBy = userSnap.data().referredBy;
           if (referredBy) {
             const referrerRef = doc(db, "users", referredBy);
-            await updateDoc(referrerRef, { balance: increment(3100) });
+            await updateDoc(referrerRef, {
+              balance: increment(3100)
+            });
           }
 
           currentBalance = newBalance;
-
-          const popup = document.createElement("div");
-          popup.className = "popup";
-          popup.innerText = `✅ You have successfully invested ${amount.toLocaleString()} KES.`;
-          document.body.appendChild(popup);
-          setTimeout(() => popup.remove(), 3000);
-
+          showPopup(`✅ You have successfully invested ${amount.toLocaleString()} KES.`);
         } catch (error) {
           console.error("Investment error:", error);
-          alert("❌ Error trying to invest. Please try again.");
+          showPopup("❌ Error trying to invest. Please try again.", true);
         }
       } else {
-        alert("❌ Insufficient balance to invest.");
+        showPopup("❌ Insufficient balance to invest.", true);
       }
     };
   </script>
