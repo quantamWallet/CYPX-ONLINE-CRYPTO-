@@ -58,6 +58,21 @@
       margin-top: 10px;
       display: none;
     }
+
+    .login-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .login-link a {
+      color: #0a5737;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +83,9 @@
     <input type="password" id="password" placeholder="Password" required />
     <button onclick="registerUser()">Register</button>
     <div id="errorMsg" class="error-message">All fields are required</div>
+    <div class="login-link">
+      <p>Have an account? <a href="login.html">Log in</a></p>
+    </div>
   </div>
 
   <script type="module">
