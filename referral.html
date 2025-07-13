@@ -135,32 +135,17 @@
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <a href="dashboard.html">
-      <div>🏠</div>
-      <span>Home</span>
-    </a>
-    <a href="wallet.html">
-      <div>💼</div>
-      <span>Wallet</span>
-    </a>
-    <a href="investment.html">
-      <div>📈</div>
-      <span>Plans</span>
-    </a>
-    <a href="referral.html">
-      <div>🧑‍🤝‍🧑</div>
-      <span>Referrals</span>
-    </a>
-    <a href="profile.html">
-      <div>👤</div>
-      <span>Me</span>
-    </a>
+    <a href="dashboard.html"><div>🏠</div><span>Home</span></a>
+    <a href="wallet.html"><div>💼</div><span>Wallet</span></a>
+    <a href="investment.html"><div>📈</div><span>Plans</span></a>
+    <a href="referral.html"><div>🧑‍🤝‍🧑</div><span>Referrals</span></a>
+    <a href="profile.html"><div>👤</div><span>Me</span></a>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -178,7 +163,11 @@
     onAuthStateChanged(auth, async user => {
       if (user) {
         const uid = user.uid;
-        const referralLink = `${window.location.origin}/register.html?ref=${uid}`;
+        const userSnap = await getDoc(doc(db, "users", uid));
+        const data = userSnap.data();
+        const rawName = data?.name || data?.email || uid;
+        const refName = rawName.replace(/\s+/g, "_").toLowerCase();
+        const referralLink = `${window.location.origin}/signup.html?ref=${refName}`;
         document.getElementById("referralLink").value = referralLink;
 
         const referralRef = collection(db, "users", uid, "referrals");
@@ -189,10 +178,10 @@
         list.innerHTML = "";
 
         referralSnap.forEach(doc => {
-          const data = doc.data();
+          const d = doc.data();
           totalBonus += 3100;
           const li = document.createElement("li");
-          li.textContent = `${data.name || data.email || "New User"} - Bonus: 3,100 KES`;
+          li.textContent = `${d.name || d.email || "New User"} - Bonus: 3,100 KES`;
           list.appendChild(li);
         });
 
@@ -210,4 +199,4 @@
     };
   </script>
 </body>
-</html>
+</html
