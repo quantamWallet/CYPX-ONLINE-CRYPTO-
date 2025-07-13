@@ -147,7 +147,7 @@
       <div class="stat" id="balance">Loading...</div>
 
       <div class="charts">
-        <h3>📊 Forex & Crypto Charts</h3>
+        <h3></h3>
         <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT"></iframe>
         <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD"></iframe>
         <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:SOLUSDT"></iframe>
@@ -221,13 +221,8 @@
         const data = userSnap.data();
         document.getElementById("balance").textContent =
           typeof data.balance === "number" ? `${data.balance.toLocaleString()} KES` : "0 KES";
+    
       }
-    });
-
-    window.logout = function () {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      });
     };
   </script>
 </body>
