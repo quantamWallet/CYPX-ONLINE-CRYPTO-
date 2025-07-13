@@ -40,6 +40,9 @@
     .plan h3 {
       margin: 0 0 10px;
       color: #0a5737;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .plan p {
@@ -140,6 +143,21 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const iconMap = {
+      "Starter Plan": "ri-seedling-fill",
+      "Bronze Plan": "ri-copper-coin-fill",
+      "Silver Plan": "ri-medal-fill",
+      "Gold Plan": "ri-trophy-fill",
+      "Platinum Plan": "ri-vip-crown-fill",
+      "Diamond Plan": "ri-gem-fill",
+      "Elite Plan": "ri-star-s-fill",
+      "Titan Plan": "ri-shield-star-fill",
+      "Mega Plan": "ri-fire-fill",
+      "Ultra Plan": "ri-rocket-fill",
+      "Supreme Plan": "ri-bank-card-fill",
+      "VIP Plan": "ri-vip-diamond-fill"
+    };
+
     const plans = [
       { title: "Starter Plan", amount: 15000, roi: 30000 },
       { title: "Bronze Plan", amount: 25000, roi: 50000 },
@@ -179,10 +197,11 @@
     function renderPlans() {
       plansContainer.innerHTML = "";
       plans.forEach(plan => {
+        const icon = iconMap[plan.title] || "ri-line-chart-fill";
         const div = document.createElement("div");
         div.className = "plan";
         div.innerHTML = `
-          <h3>${plan.title}</h3>
+          <h3><i class="${icon}"></i> ${plan.title}</h3>
           <p>💰 Amount: ${plan.amount.toLocaleString()} KES</p>
           <p>📊 ROI: ${plan.roi.toLocaleString()} KES</p>
           <button onclick="invest(${plan.amount}, ${plan.roi})">Invest Now</button>
