@@ -7,9 +7,9 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #0a5737; /* Corporate green */
+      background-color: #0a5737;
       margin: 0;
-      padding: 0;
+      padding-bottom: 100px; /* leave space for nav */
       color: #fff;
     }
 
@@ -74,18 +74,61 @@
 
     .logout-btn {
       background-color: #e74c3c;
-      margin-top: 1.2rem;
     }
 
     .logout-btn:hover {
       background-color: #c0392b;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border-top: 1px solid #ccc;
+      display: flex;
+      justify-content: space-around;
+      padding: 0.5rem 0;
+      z-index: 10;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      color: #0a5737;
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .bottom-nav a:hover {
+      color: #3498db;
+    }
+
+    .charts {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: #0a5737;
+    }
+
+    .charts h3 {
+      margin-bottom: 1rem;
+    }
+
+    iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+      margin-bottom: 1rem;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
-      <h2>Welcome, Investor</h2>
+      <h2>Welcome to QUANTUM RIO INVESTMENT</h2>
       <div class="emoji">👋</div>
 
       <div class="section-title">Total Balance</div>
@@ -101,15 +144,30 @@
       <div class="stat" id="maturedInvestments">--</div>
     </div>
 
+    <div class="charts">
+      <h3>📊 Forex & Crypto Charts</h3>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT"></iframe>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD"></iframe>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:SOLUSDT"></iframe>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:ETHUSDT"></iframe>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:USDJPY"></iframe>
+      <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:EURUSD"></iframe>
+    </div>
+
     <div class="btn-list">
-      <button onclick="location.href='wallet.html'">💼 My Wallet</button>
-      <button onclick="location.href='investment.html'">📈 Investment Plans</button>
-      <button onclick="location.href='referral.html'">👥 Referral</button>
       <button onclick="location.href='support.html'">📞 Support</button>
-      <button onclick="location.href='profile.html'">👤 Profile</button>
-      <button onclick="location.href='about.html'">ℹ️ About Us</button>
+      <button onclick="location.href='hike.html'">ℹ️ About Us</button>
       <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
     </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <a href="dashboard.html">🏠<br>Home</a>
+    <a href="wallet.html">💼<br>Wallet</a>
+    <a href="investment.html">📈<br>Plans</a>
+    <a href="referral.html">👥<br>Referrals</a>
+    <a href="profile.html">👤<br>Me</a>
   </div>
 
   <!-- Firebase Script -->
