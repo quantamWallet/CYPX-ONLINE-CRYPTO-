@@ -3,137 +3,139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register - Quantum Investment</title>
+  <title>Sign Up | Quantum RIO</title>
   <style>
     body {
+      background: #0a5737;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
+      color: #333;
     }
 
     .container {
       max-width: 400px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }
-
-    .card {
+      margin: 60px auto;
       background: #fff;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     h2 {
       text-align: center;
-      color: #222;
-      margin-bottom: 1.5rem;
+      color: #0a5737;
+      margin-bottom: 20px;
     }
 
     input {
       width: 100%;
-      padding: 0.9rem;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
       border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
     }
 
     button {
       width: 100%;
-      padding: 1rem;
-      font-size: 1rem;
-      background-color: #1abc9c;
+      padding: 12px;
+      background-color: #0a5737;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #16a085;
+      background-color: #06472c;
     }
 
-    .login-link {
-      margin-top: 1rem;
+    .footer {
       text-align: center;
-      font-size: 0.95rem;
+      margin-top: 20px;
+      color: white;
     }
 
-    .login-link a {
-      color: #3498db;
+    .footer a {
+      color: #ffdd57;
       text-decoration: none;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="card">
+  <div class="container">
     <h2>Create Account</h2>
-    <input type="text" id="name" placeholder="Full Name" />
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="register()">Register</button>
 
-    <div class="login-link">
-      Already have an account? <a href="login.html">Login</a>
-    </div>
+    <input type="email" id="email" placeholder="Enter your email" required />
+    <input type="password" id="password" placeholder="Enter your password" required />
+    <button id="signupBtn">Sign Up</button>
   </div>
-</div>
 
-<!-- Firebase v10 Modular Script -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  <div class="footer">
+    Already have an account? <a href="login.html">Login</a>
+  </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-  };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    };
 
-  window.register = async function () {
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    if (!name || !email || !password) {
-      alert("All fields are required.");
-      return;
-    }
+    // Get referral UID from URL if exists
+    const urlParams = new URLSearchParams(window.location.search);
+    const referredBy = urlParams.get("ref");
 
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      await setDoc(doc(db, "users", cred.user.uid), {
-        uid: cred.user.uid,
-        name,
-        email,
-        balance: 0,
-        createdAt: serverTimestamp()
-      });
-      alert("Account created successfully!");
-      window.location.href = "dashboard.html";
-    } catch (err) {
-      console.error("Registration error", err);
-      if (err.code === 'auth/email-already-in-use') {
-        alert("This email is already registered. Please log in instead.");
-        window.location.href = "login.html";
-      } else {
-        alert("Registration failed: " + err.message);
+    document.getElementById("signupBtn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("Please fill in all fields.");
+        return;
       }
-    }
-  };
-</script>
+
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCred.user.uid;
+
+        // Save user data
+        await setDoc(doc(db, "users", uid), {
+          email: email,
+          referredBy: referredBy || null,
+          balance: 0,
+          createdAt: new Date()
+        });
+
+        // Save referral under referrer if present
+        if (referredBy) {
+          await setDoc(doc(db, "users", referredBy, "referrals", uid), {
+            email: email,
+            createdAt: new Date()
+          });
+        }
+
+        alert("Account created successfully!");
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert("Signup Error: " + error.message);
+      }
+    });
+  </script>
 
 </body>
 </html>
