@@ -3,83 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Signup | Quantum RIO</title>
+  <title>Register | Quantum RIO</title>
   <style>
     body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffffff;
       margin: 0;
       padding: 0;
-      background: #0a5737;
-      font-family: Arial, sans-serif;
-      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
-    .signup-box {
-      background: white;
-      color: #333;
-      padding: 30px;
-      border-radius: 16px;
+    .container {
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      background: #f4f4f4;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    .signup-box h2 {
+    h2 {
       text-align: center;
       color: #0a5737;
     }
 
-    .signup-box input,
-    .signup-box button {
+    input, button {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
+      box-sizing: border-box;
     }
 
-    .signup-box button {
+    button {
       background-color: #0a5737;
       color: white;
       border: none;
       cursor: pointer;
     }
 
-    .signup-box button:hover {
+    button:hover {
       background-color: #06472c;
     }
 
-    .error {
-      color: red;
+    .login-link {
       text-align: center;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
-    .success {
-      color: green;
-      text-align: center;
-      margin-top: 10px;
+    .login-link a {
+      color: #0a5737;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="signup-box">
-    <h2>Create Account</h2>
+  <div class="container">
+    <h2>Create Your Account</h2>
     <input type="text" id="name" placeholder="Full Name" required />
     <input type="email" id="email" placeholder="Email Address" required />
     <input type="password" id="password" placeholder="Password" required />
-    <button onclick="registerUser()">Sign Up</button>
-    <div id="message"></div>
+    <button onclick="register()">Register</button>
+
+    <div class="login-link">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, setDoc, doc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -94,63 +97,49 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    async function registerUser() {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const messageDiv = document.getElementById("message");
-
-      messageDiv.innerHTML = "";
+    async function register() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const urlParams = new URLSearchParams(window.location.search);
+      const referrer = urlParams.get('ref');
 
       if (!name || !email || !password) {
-        messageDiv.innerHTML = "<p class='error'>Please fill all fields.</p>";
+        alert("Please fill in all fields");
         return;
       }
 
-      // Check referral from URL
-      let referredBy = null;
-      const urlParams = new URLSearchParams(window.location.search);
-      const refName = urlParams.get("ref");
-
-      if (refName) {
-        const usersSnapshot = await getDocs(collection(db, "users"));
-        usersSnapshot.forEach(docSnap => {
-          const userData = docSnap.data();
-          const formatted = (userData.name || userData.email || "").replace(/\s+/g, "_").toLowerCase();
-          if (formatted === refName) {
-            referredBy = docSnap.id;
-          }
-        });
-      }
-
       try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = userCred.user.uid;
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
 
         await setDoc(doc(db, "users", uid), {
           name,
           email,
-          referredBy: referredBy || null,
-          balance: 0,
+          referralBy: referrer || null,
           createdAt: new Date()
         });
 
-        // If referred, add to referrals subcollection
-        if (referredBy) {
-          await setDoc(doc(db, "users", referredBy, "referrals", uid), {
-            name,
-            email,
-            referredAt: new Date()
-          });
+        if (referrer) {
+          const q = query(collection(db, "users"), where("name", "==", referrer.replace(/_/g, ' ')));
+          const snapshot = await getDocs(q);
+          if (!snapshot.empty) {
+            const refUserDoc = snapshot.docs[0];
+            const refUid = refUserDoc.id;
+
+            await addDoc(collection(db, "users", refUid, "referrals"), {
+              name,
+              email,
+              referredAt: new Date()
+            });
+          }
         }
 
-        messageDiv.innerHTML = "<p class='success'>Account created successfully! Redirecting...</p>";
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 2000);
-
+        alert("Registration successful!");
+        window.location.href = "dashboard.html";
       } catch (error) {
-        messageDiv.innerHTML = `<p class='error'>${error.message}</p>`;
+        console.error("Error:", error.message);
+        alert("Registration failed: " + error.message);
       }
     }
   </script>
