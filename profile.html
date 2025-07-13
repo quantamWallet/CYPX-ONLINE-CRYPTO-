@@ -8,9 +8,9 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #2e7d32; /* corporate green */
+      background-color: #2e7d32;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       min-height: 100vh;
     }
@@ -20,8 +20,10 @@
       padding: 2rem;
       border-radius: 20px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
       width: 90%;
+      max-width: 400px;
+      margin-top: 50px;
+      margin-bottom: 100px;
     }
 
     h2 {
@@ -44,6 +46,7 @@
       padding: 0.8rem;
       border-radius: 10px;
       border: 1px solid #ccc;
+      background-color: #f0f0f0;
     }
 
     #profilePic {
@@ -56,32 +59,43 @@
       border: 2px solid #2e7d32;
     }
 
-    .save-btn {
-      margin-top: 1rem;
-      background-color: #2e7d32;
-      color: white;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 10px;
-      width: 100%;
-      font-size: 1rem;
-      cursor: pointer;
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 65px;
+      border-top: 1px solid #ddd;
+      z-index: 999;
     }
 
-    .save-btn:hover {
-      background-color: #256428;
+    .bottom-nav a {
+      text-align: center;
+      color: #2e7d32;
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .bottom-nav img {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>My Profile</h2>
-    <img id="profilePic" src="https://via.placeholder.com/100" alt="Profile Picture" />
-    <input type="file" id="imageUpload" accept="image/*" />
+    <img id="profilePic" src="https://i.postimg.cc/yxRw6Lxz/default-avatar.png" alt="Profile Picture" />
 
     <div class="profile-detail">
       <label>Full Name</label>
-      <input type="text" id="userName" />
+      <input type="text" id="userName" disabled />
     </div>
 
     <div class="profile-detail">
@@ -90,24 +104,36 @@
     </div>
 
     <div class="profile-detail">
-      <label>Phone Number</label>
-      <input type="text" id="userPhone" />
-    </div>
-
-    <div class="profile-detail">
       <label>Date Joined</label>
       <input type="text" id="userJoined" disabled />
     </div>
-
-    <button class="save-btn" id="saveBtn">Save Profile</button>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <a href="dashboard.html">
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/home.png" alt="Dashboard" />
+      <div>Home</div>
+    </a>
+    <a href="investment.html">
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/combo-chart.png" alt="Invest" />
+      <div>Invest</div>
+    </a>
+    <a href="wallet.html">
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="profile.html">
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/user.png" alt="Profile" />
+      <div>Profile</div>
+    </a>
+  </div>
+
+  <!-- Firebase Auth & Firestore -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -121,71 +147,23 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    let currentUser = null;
-    let imageFile = null;
 
     const userName = document.getElementById("userName");
     const userEmail = document.getElementById("userEmail");
-    const userPhone = document.getElementById("userPhone");
     const userJoined = document.getElementById("userJoined");
     const profilePic = document.getElementById("profilePic");
-    const imageUpload = document.getElementById("imageUpload");
-    const saveBtn = document.getElementById("saveBtn");
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        currentUser = user;
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          userName.value = data.name || "";
+          userName.value = data.name || "No name";
           userEmail.value = data.email || user.email;
-          userPhone.value = data.phone || "";
-          profilePic.src = data.photoURL || "https://via.placeholder.com/100";
           userJoined.value = data.createdAt?.toDate().toLocaleDateString() || "Unknown";
         }
       } else {
         window.location.href = "login.html";
-      }
-    });
-
-    imageUpload.addEventListener("change", (e) => {
-      imageFile = e.target.files[0];
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          profilePic.src = reader.result;
-        };
-        reader.readAsDataURL(imageFile);
-      }
-    });
-
-    saveBtn.addEventListener("click", async () => {
-      if (!currentUser) return;
-
-      const userRef = doc(db, "users", currentUser.uid);
-      let photoURL = profilePic.src;
-
-      try {
-        if (imageFile) {
-          const imageRef = ref(storage, `profilePics/${currentUser.uid}`);
-          await uploadBytes(imageRef, imageFile);
-          photoURL = await getDownloadURL(imageRef);
-        }
-
-        await updateDoc(userRef, {
-          name: userName.value.trim(),
-          phone: userPhone.value.trim(),
-          photoURL: photoURL,
-          updatedAt: serverTimestamp()
-        });
-
-        alert("✅ Profile updated successfully!");
-      } catch (err) {
-        console.error("Save failed:", err);
-        alert("❌ Failed to update profile.");
       }
     });
   </script>
