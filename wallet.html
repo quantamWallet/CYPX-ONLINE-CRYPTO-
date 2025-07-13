@@ -66,7 +66,6 @@
       background-color: #e74c3c;
     }
 
-    /* Floating bottom navigation */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -90,6 +89,28 @@
     .bottom-nav a:hover {
       color: #3498db;
     }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      z-index: 9999;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: fadeOut 3s forwards;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -108,16 +129,12 @@
     <button class="submit-btn" onclick="submitTxnCode()">Submit</button>
 
     <p class="info-text">🔻 You can withdraw any amount from 2,000 KES</p>
-
-    <!-- ✅ Added new field for phone number to receive funds -->
     <input type="text" id="receiverPhone" placeholder="Phone number to receive withdrawal">
-
     <input type="number" id="amount" placeholder="Enter amount to withdraw">
     <button class="withdraw-btn" onclick="withdraw()">Withdraw</button>
   </div>
 </div>
 
-<!-- Floating Bottom Navigation -->
 <div class="bottom-nav">
   <a href="dashboard.html">🏠<br>Home</a>
   <a href="wallet.html">💼<br>Wallet</a>
@@ -126,7 +143,6 @@
   <a href="profile.html">👤<br>Me</a>
 </div>
 
-<!-- Firebase Script -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import {
@@ -142,6 +158,16 @@
     addDoc,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+  function showMessage(msg) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -168,7 +194,7 @@
         document.getElementById("balance").textContent = "KES " + (data?.balance || 0);
       });
     } else {
-      alert("Please login to access wallet");
+      showMessage("Please login to access wallet");
       window.location.href = "login.html";
     }
   });
@@ -177,14 +203,14 @@
     const input = document.getElementById("mpesaNumber");
     input.select();
     document.execCommand("copy");
-    alert("M-Pesa number copied!");
+    showMessage("M-Pesa number copied!");
   };
 
   window.submitTxnCode = async function () {
     const txnCode = document.getElementById("txnCode").value.trim();
 
     if (!txnCode || txnCode.length < 5) {
-      return alert("Enter a valid M-Pesa transaction code.");
+      return showMessage("Enter a valid M-Pesa transaction code.");
     }
 
     try {
@@ -196,18 +222,18 @@
         timestamp: serverTimestamp()
       });
 
-      alert("Transaction code submitted. Wait for admin approval.");
+      showMessage("Transaction code submitted. Wait for admin approval.");
       document.getElementById("txnCode").value = "";
     } catch (err) {
       console.error(err);
-      alert("Failed to submit transaction code.");
+      showMessage("Failed to submit transaction code.");
     }
   };
 
   window.withdraw = async function () {
     const amount = parseInt(document.getElementById("amount").value);
-    if (!currentUser || isNaN(amount) || amount < 1000) {
-      return alert("Minimum withdrawal is 2,000 KES");
+    if (!currentUser || isNaN(amount) || amount < 2000) {
+      return showMessage("Minimum withdrawal is 2,000 KES");
     }
 
     const userRef = doc(db, "users", currentUser.uid);
@@ -232,11 +258,11 @@
         timestamp: serverTimestamp()
       });
 
-      alert("Withdrawal request sent. Wait for approval.");
+      showMessage("Withdrawal request sent. Wait for approval.");
       document.getElementById("amount").value = "";
     } catch (err) {
       console.error(err);
-      alert(err.message === "Insufficient funds" ? err.message : "Withdrawal failed");
+      showMessage(err.message === "Insufficient funds" ? err.message : "Withdrawal failed");
     }
   };
 </script>
