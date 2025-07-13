@@ -86,7 +86,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -100,6 +100,9 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get("ref");
 
     window.register = async function () {
       const name = document.getElementById("name").value.trim();
@@ -123,8 +126,28 @@
           uid: user.uid,
           balance: 0,
           bonus: 0,
+          referredBy: ref || null,
           createdAt: new Date()
         });
+
+        // Store referral record under referrer
+        if (ref) {
+          const referrerDoc = doc(db, "users", ref);
+          const refData = await getDoc(referrerDoc);
+          if (refData.exists()) {
+            await addDoc(collection(db, "users", ref, "referrals"), {
+              uid: user.uid,
+              name: name,
+              email: email,
+              date: new Date()
+            });
+
+            // Optional: Add bonus logic
+            await updateDoc(referrerDoc, {
+              bonus: (refData.data().bonus || 0) + 3100
+            });
+          }
+        }
 
         window.location.href = "dashboard.html";
       } catch (error) {
