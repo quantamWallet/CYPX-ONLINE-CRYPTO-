@@ -104,23 +104,23 @@
   <!-- Bottom Nav -->
   <div class="bottom-nav">
     <a href="dashboard.html">
-      <i class="ri-dashboard-fill"></i>
+      <i class="ri-dashboard-2-line"></i>
       <span>Dashboard</span>
     </a>
     <a href="wallet.html">
-      <i class="ri-wallet-3-fill"></i>
+      <i class="ri-wallet-3-line"></i>
       <span>Wallet</span>
     </a>
     <a href="investment.html">
-      <i class="ri-line-chart-fill"></i>
+      <i class="ri-line-chart-line"></i>
       <span>Invest</span>
     </a>
     <a href="referral.html">
-      <i class="ri-user-shared-fill"></i>
+      <i class="ri-team-line"></i>
       <span>Referrals</span>
     </a>
     <a href="profile.html">
-      <i class="ri-user-3-fill"></i>
+      <i class="ri-user-3-line"></i>
       <span>Profile</span>
     </a>
   </div>
@@ -151,11 +151,11 @@
       "Platinum Plan": "ri-vip-crown-fill",
       "Diamond Plan": "ri-gem-fill",
       "Elite Plan": "ri-star-s-fill",
-      "Titan Plan": "ri-shield-star-fill",
-      "Mega Plan": "ri-fire-fill",
-      "Ultra Plan": "ri-rocket-fill",
-      "Supreme Plan": "ri-bank-card-fill",
-      "VIP Plan": "ri-vip-diamond-fill"
+      "Titan Plan": "ri-shield-star-line",
+      "Mega Plan": "ri-fire-line",
+      "Ultra Plan": "ri-rocket-line",
+      "Supreme Plan": "ri-bank-card-line",
+      "VIP Plan": "ri-vip-diamond-line"
     };
 
     const plans = [
@@ -197,7 +197,7 @@
     function renderPlans() {
       plansContainer.innerHTML = "";
       plans.forEach(plan => {
-        const icon = iconMap[plan.title] || "ri-line-chart-fill";
+        const icon = iconMap[plan.title] || "ri-line-chart-line";
         const div = document.createElement("div");
         div.className = "plan";
         div.innerHTML = `
