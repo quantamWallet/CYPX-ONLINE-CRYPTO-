@@ -1,29 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Profile - Quantum RIO</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #2e7d32;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      background-color: #e8f5e9;
+      padding-bottom: 100px;
     }
 
     .container {
       background: white;
+      margin: 2rem auto;
       padding: 2rem;
       border-radius: 20px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      width: 90%;
       max-width: 400px;
-      margin-top: 50px;
-      margin-bottom: 100px;
+      width: 90%;
     }
 
     h2 {
@@ -31,14 +27,25 @@
       color: #2e7d32;
     }
 
+    #profilePic {
+      display: block;
+      margin: 0 auto 1.5rem;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #2e7d32;
+    }
+
     .profile-detail {
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
 
     .profile-detail label {
       font-weight: bold;
       display: block;
       margin-bottom: 0.3rem;
+      color: #333;
     }
 
     .profile-detail input {
@@ -46,52 +53,50 @@
       padding: 0.8rem;
       border-radius: 10px;
       border: 1px solid #ccc;
-      background-color: #f0f0f0;
+      background-color: #f2f2f2;
+      color: #555;
     }
 
-    #profilePic {
-      display: block;
-      margin: 0 auto 1rem;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #2e7d32;
+    input[disabled] {
+      cursor: not-allowed;
     }
 
-    /* Bottom Nav */
     .bottom-nav {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #ffffff;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      justify-content: space-around;
-      align-items: center;
-      height: 65px;
-      border-top: 1px solid #ddd;
+      justify-content: space-between;
+      background-color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 500px;
       z-index: 999;
     }
 
     .bottom-nav a {
       text-align: center;
       color: #2e7d32;
-      text-decoration: none;
       font-size: 12px;
+      text-decoration: none;
+      flex: 1;
     }
 
     .bottom-nav img {
       width: 24px;
       height: 24px;
-      margin-bottom: 4px;
+      display: block;
+      margin: 0 auto 5px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>My Profile</h2>
-    <img id="profilePic" src="https://i.postimg.cc/yxRw6Lxz/default-avatar.png" alt="Profile Picture" />
+    <img id="profilePic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Picture" />
 
     <div class="profile-detail">
       <label>Full Name</label>
@@ -109,27 +114,31 @@
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
+  <!-- ✅ Fixed 5-Icon Floating Bottom Nav -->
   <div class="bottom-nav">
     <a href="dashboard.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/home.png" alt="Dashboard" />
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/home.png" alt="Home"/>
       <div>Home</div>
     </a>
-    <a href="investment.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/combo-chart.png" alt="Invest" />
-      <div>Invest</div>
-    </a>
     <a href="wallet.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/wallet.png" alt="Wallet" />
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/wallet.png" alt="Wallet"/>
       <div>Wallet</div>
     </a>
+    <a href="investment.html">
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/money-bag.png" alt="Plans"/>
+      <div>Plans</div>
+    </a>
+    <a href="referrals.html">
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/add-user-group-man-man.png" alt="Referrals"/>
+      <div>Referrals</div>
+    </a>
     <a href="profile.html">
-      <img src="https://img.icons8.com/ios-filled/50/2e7d32/user.png" alt="Profile" />
-      <div>Profile</div>
+      <img src="https://img.icons8.com/ios-filled/50/2e7d32/user-male-circle.png" alt="Me"/>
+      <div>Me</div>
     </a>
   </div>
 
-  <!-- Firebase Auth & Firestore -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
@@ -158,9 +167,12 @@
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          userName.value = data.name || "No name";
+          userName.value = data.name || "";
           userEmail.value = data.email || user.email;
           userJoined.value = data.createdAt?.toDate().toLocaleDateString() || "Unknown";
+          if (data.photoURL) {
+            profilePic.src = data.photoURL;
+          }
         }
       } else {
         window.location.href = "login.html";
