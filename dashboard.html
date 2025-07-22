@@ -1,187 +1,379 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard - Quantum Investment</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #0a5737;
-      margin: 0;
-      padding-bottom: 100px;
-      color: #fff;
-    }
+<!DOCTYPE html>  <html lang="en">    <head>    
+  <meta charset="UTF-8" />    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>    
+  <title>CYPX ONLINE CRYPTO- Dashboard</title>    
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  
+<!-- Firebase SDK (compat version that includes everything) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL:,
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+};
 
-    .container {
-      max-width: 480px;
-      margin: auto;
-      padding: 1.5rem 1rem;
-    }
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+  <style>    
+    body {    
+      margin: 0;    
+      font-family: Arial, sans-serif;    
+      background-color: #001f3f;    
+      color: white;    
+    }    
+    header {    
+      background-color: #002f6c;    
+      padding: 15px;    
+      display: flex;    
+      justify-content: space-between;    
+      align-items: center;    
+    }    
+    .announcement {    
+      background-color: #00274d;    
+      color: #fff700;    
+      padding: 10px;    
+      white-space: nowrap;    
+      overflow: hidden;    
+      box-sizing: border-box;    
+      border-top: 1px solid #003;    
+      border-bottom: 1px solid #003;    
+      cursor: pointer;    
+    }    
+    .announcement-content {    
+      display: inline-block;    
+      padding-left: 100%;    
+      animation: scroll-left 15s linear infinite;    
+    }    
+    @keyframes scroll-left {    
+      0% { transform: translateX(0); }    
+      100% { transform: translateX(-100%); }    
+    }    
+    .balance-section {    
+      padding: 20px;    
+      background-color: #002b5c;    
+      text-align: center;    
+    }    
+    .balance-section .email {    
+      font-size: 14px;    
+      color: #ffa500;    
+    }    
+    .balance-section .balance {    
+      font-size: 24px;    
+      margin: 10px 0;    
+      color: yellow;    
+    }    
+    .balance-buttons {    
+      display: flex;    
+      justify-content: space-around;    
+    }    
+    .balance-buttons button {    
+      background-color: #ffcc00;    
+      color: black;    
+      padding: 10px;    
+      border: none;    
+      border-radius: 8px;    
+      font-weight: bold;    
+      width: 100px;    
+      display: flex;    
+      flex-direction: column;    
+      align-items: center;    
+      cursor: pointer;    
+    }    
+    .balance-buttons button i {    
+      font-size: 20px;    
+      margin-bottom: 5px;    
+    }    
+    .extra-info {    
+      padding: 15px;    
+      text-align: center;    
+    }    
+    .extra-info img {    
+      max-width: 90%;    
+      border-radius: 8px;    
+      margin-bottom: 15px;    
+    }    
+    .extra-info p {    
+      font-size: 14px;    
+      margin: 10px 0;    
+    }    
+    .claim-btn {    
+      background-color: #ffcc00;    
+      color: black;    
+      padding: 8px 20px;    
+      font-weight: bold;    
+      border: none;    
+      border-radius: 8px;    
+      cursor: pointer;    
+    }    
+    .popup {    
+      position: fixed;    
+      top: 50%;    
+      left: 50%;    
+      transform: translate(-50%, -50%);    
+      background-color: #28a745;    
+      color: white;    
+      padding: 20px;    
+      border-radius: 10px;    
+      font-weight: bold;    
+      z-index: 9999;    
+      max-width: 80%;    
+      text-align: center;    
+    }    
+    .popup.red {    
+      background-color: #cc0000;    
+    }    
+    .task-countdown {    
+      background-color: #001a33;    
+      text-align: center;    
+      padding: 10px;    
+      font-weight: bold;    
+      color: #ffcc00;    
+    }    
+    .vip-list {    
+      padding: 10px;    
+    }    
+    .vip-box {    
+      background-color: #003366;    
+      margin: 10px 0;    
+      padding: 10px;    
+      border-radius: 10px;    
+      display: flex;    
+      align-items: center;    
+      justify-content: space-between;    
+    }    
+    .vip-box img {    
+      height: 50px;    
+      margin-right: 10px;    
+    }    
+    .vip-box .info {    
+      flex-grow: 1;    
+    }    
+    .vip-box .info p {    
+      margin: 0;    
+    }    
+    .vip-box .info .amount {    
+      font-weight: bold;    
+      color: yellow;    
+    }    
+    .vip-box .arrow {    
+      font-size: 24px;    
+      color: white;    
+      cursor: pointer;    
+    }    
+    .vip-images {    
+      display: flex;    
+      justify-content: center;    
+      gap: 10px;    
+      padding: 20px 10px 80px;    
+    }    
+    .vip-images img {    
+      width: 48%;    
+      border-radius: 10px;    
+    }    
+    nav {    
+      position: fixed;    
+      bottom: 0;    
+      left: 0;    
+      right: 0;    
+      background-color: #002244;    
+      display: flex;    
+      justify-content: space-around;    
+      padding: 10px 0;    
+    }    
+    nav a {    
+      color: white;    
+      text-align: center;    
+      text-decoration: none;    
+    }    
+    nav i {    
+      font-size: 20px;    
+    }    
+    #announcementModal {    
+      display: none;    
+      position: fixed;    
+      z-index: 9999;    
+      left: 0;    
+      top: 0;    
+      width: 100%;    
+      height: 100%;    
+      background-color: white;    
+      color: #002f6c;    
+      padding: 20px;    
+      overflow-y: scroll;    
+    }    
+    #announcementModal button {    
+      margin-top: 20px;    
+      margin-bottom: 40px;    
+      padding: 10px 20px;    
+      background-color: #ffcc00;    
+      border: none;    
+      font-weight: bold;    
+      cursor: pointer;    
+      border-radius: 5px;    
+    }    
+  </style>    
+</head>    
+<body>    
+  <header>    
+    <div style="display: flex; align-items: center; gap: 10px;">    
+      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" style="height: 30px;" />    
+      <h2 style="margin: 0;">CYPX ONLINE CRYPTO</h2>    
+    </div>    
+  </header>    <div class="announcement" id="ann-btn">    
+    <div class="announcement-content">🛒Welcome to  CYPX ONLINE CRYPTO 🛒 Recruiting investors and agents worldwide!</div>    
+  </div>    <div class="balance-section">    
+    <div class="email" id="user-email"></div>    
+<div class="balance" id="user-balance">Balance: KSh 0.00</div>    
+<div class="balance-buttons">
+  <button onclick="location.href='recharge.html'"><i class="fas fa-wallet"></i>Recharge</button>    
+  <button onclick="location.href='withdraw.html'"><i class="fas fa-hand-holding-usd"></i>Withdraw</button>    
+  <button onclick="location.href='company.html'"><i class="fas fa-building"></i>Company</button>    
+</div>    
+</div>    
+<div class="extra-info">    
+  <img src="https://api.tkteam.cc/upload/img/686bf98e78c7.webp" alt="Floating Banner">
+    <p>    
+      Improve VIP task rules on the same day. Upgrading the VIP level on the same day allows you to complete multiple tasks without restrict. Listed as: You are now VIP1 and have completed today's task. You can upgrade to VIP2 to continue completing VIP2 tasks. If you continue to upgrade to VIP3, you can continue to complete the tasks of VIP3. 【Similar to this, the highest level of VIP is VIP10】    
+    </p>    
+    <button class="claim-btn" id="claim-btn">Claim 250.00 KES</button>    
+  </div>    <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>    <div class="vip-list" id="vip-list"></div>    <div class="vip-images">    
+    <img src="https://api.tkteam.cc/upload/img/683c2ce69148.webp" alt="VIP Banner 1">    
+    <img src="https://api.tkteam.cc/upload/img/683c2cd8a27e.webp" alt="VIP Banner 2">    
+  </div>    <nav>    
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>    
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>    
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>    
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>    
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>    
+  </nav>    <div id="announcementModal">    
+    <h3>🛒Welcome to AIRDROP USDT 🛒</h3>    
+    <pre style="white-space: pre-wrap; font-size: 14px;">    
+💲CYPX ONLINE CRYPTO 2025 is a formal and legal long-term platform💲    
+🏆Recruiting investors and agents worldwide, with a monthly salary of 5888USDT.    
+And charge commissions based on the total deposit of the team! If you have the ability, please contact us!    
+TK minimum deposit: 13,000 KES Minimum withdrawal: 2,000 KES daily withdrawal.    
+TK uses multiple currencies such as USDT/BNB and chooses BEP20/TRC20 network.    
+TK task update time: 24 hours, complete daily order work, and you can earn income.    
+TK forms a team and gets a three-level cashback reward. Income ratio 17%/2%/1%.    
+The higher the TK VIP level, the higher the income, and the accumulated deposit amount can increase your VIP level. We have two income options for you to choose from:    
+①Unlock your VIP level and realize the wealth channel:    
+VIP1 deposit 13,000 KSH = daily income 3,600 KSH.    
+VIP2 deposit 35,000 KES= daily income 9,000 KSH.    
+VIP3 deposit 65,000 KES = daily income 20,000 KSH.    
+VIP4 deposit 90,000 KES = daily income 30,000 KSH.    
+VIP5 deposit 150,000 = daily income 30,000 KSH.    
+VIP6 deposit 185,000 = daily income 42,000 KSH.    
+VIP7 deposit 226,000 KES = daily income 55,200 KSH.    
+VIP8 deposit 302,000 KSH = daily income 70,400.    
+VIP9 deposit 400,000 KSH = daily income 110,000 KSH.    
+VIP10 top-up 500,000 KSH = daily income 150,000 KSH.  ② Invite friends to get three levels of rewards  
+Company benefits-invite subordinates to contribute to get 20% commission (17%, 2%, 1%)  
+You can invite friends, members, relatives and friends to join, and you can get three high commission rewards, details are as follows  
+A: Team first-level top-up 1000USDT will get 17% rebate (170USDT)  
+B: Team second-level top-up 1000USDT will get 2% rebate (20USDT)  
+C: Team third-level top-up 1000USDT will get 1% rebate (10USDT)  
+Conclusion: If you are A-level, then you get (A+B+C) 17+2+1=20% total commission.  
+You should know that the fastest way to make money here is not to save money yourself, but to form a team to earn generous commissions and lead team members to make money together.  
+</pre>  
+<button onclick="closeAnnouncement()">Close</button>    </div>    <script>    
+    window.onload = function () {    
+      // Setup    
+      const userEmail = localStorage.getItem("userEmail") || "kiproticnicel@gmail.com";    
+      document.getElementById("user-email").textContent = userEmail;    let balance = parseFloat(localStorage.getItem("balance") || "0");    
+  document.getElementById("user-balance").textContent = `Balance: ksh ${balance.toFixed(2)}`; 
+  const claimBtn = document.getElementById("claim-btn");    
+  const hasClaimed = localStorage.getItem("hasClaimedBonus") === "true";    
+  if (hasClaimed) {    
+    claimBtn.textContent = "Completed";    
+    claimBtn.disabled = true;    
+  }    
 
-    .card {
-      background: white;
-      color: #0a5737;
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 1.5rem;
-    }
+  claimBtn.onclick = function () {    
+    if (localStorage.getItem("hasClaimedBonus") === "true") return;    
+    balance += 250;    
+    localStorage.setItem("balance", balance.toFixed(4));    
+    document.getElementById("user-balance").textContent = `Balance: Ksh {balance.toFixed(2)}`;    
+    claimBtn.textContent = "Completed";    
+    claimBtn.disabled = true;    
+    localStorage.setItem("hasClaimedBonus", "true");    
+    showPopup("250 Ksh successfully Claimed");    
+  };    
 
-    h2 {
-      text-align: center;
-      margin-bottom: 0.5rem;
-    }
+  // Announcement modal    
+  document.getElementById("ann-btn").onclick = function () {    
+    document.getElementById("announcementModal").style.display = "block";    
+  };    
+  document.querySelector("#announcementModal button").onclick = function () {    
+    document.getElementById("announcementModal").style.display = "none";    
+  };    
 
-    .emoji {
-      font-size: 2rem;
-      text-align: center;
-    }
+  function showPopup(msg, red = false) {    
+    const popup = document.createElement("div");    
+    popup.className = "popup" + (red ? " red" : "");    
+    popup.textContent = msg;    
+    document.body.appendChild(popup);    
+    setTimeout(() => popup.remove(), 3000);    
+  }    
 
-    .section-title {
-      font-weight: bold;
-      margin-top: 1rem;
-      font-size: 1rem;
-    }
+  // VIP list    
+  const vipData = [13000,35000,65000,90000,150000,185000,226000,302000,400000,500000];    
+  function renderVIPList() {    
+    const list = document.getElementById("vip-list");    
+    list.innerHTML = "";    
+    const unlocked = JSON.parse(localStorage.getItem("vipLevels") || "[]");    
+    vipData.forEach((amt, idx) => {    
+      const lvl = idx + 1;    
+      const lockIcon = unlocked.includes(lvl) ? "🔐" : "🔐";    
+      const div = document.createElement("div");    
+      div.className = "vip-box";    
+      div.innerHTML = `    
+  <img src="https://api.tkteam.cc/upload/img/686bfbaa6b3a.webp" alt="VIP Icon">    
+  <div class="info">    
+    <p>Unlock amount: <span class="amount">KSh ${amt.toFixed(2)}</span></p>    
+    <p>${lockIcon} vip${lvl}</p>    
+  </div>    
+  <div class="arrow">»</div>    
+`;    
+div.querySelector(".arrow").onclick = () => {    
+  showPopup("Please unlock your VIP levels first", true);    
+};    
+list.appendChild(div);    
+    });    
+  }    
+  renderVIPList();    
 
-    .stat {
-      font-size: 1.4rem;
-      margin: 0.4rem 0;
-      color: #27ae60;
-    }
+  // Countdown    
+  function startCountdown() {    
+    const countdown = document.getElementById("countdown");    
+    let start = localStorage.getItem("countdownStart");    
+    if (!start) {    
+      start = Date.now();    
+      localStorage.setItem("countdownStart", start);    
+    }    
+    function update() {    
+      const now = Date.now();    
+      let diff = 86400000 - (now - start);    
+      if (diff <= 0) {    
+        start = Date.now();    
+        localStorage.setItem("countdownStart", start);    
+        diff = 86400000;    
+      }    
+      const h = Math.floor(diff / 3600000),    
+            m = Math.floor((diff % 3600000)/60000),    
+            s = Math.floor((diff %60000)/1000);    
+      countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;    
+    }    
+    setInterval(update,1000);    
+  }    
+  startCountdown();    
+};
 
-    .about-text {
-      margin-top: 1.5rem;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
+</script>  </body>
 
-    .contact-info {
-      margin-top: 1rem;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #ffffff;
-      border-top: 1px solid #ccc;
-      display: flex;
-      justify-content: space-around;
-      padding: 0.5rem 0;
-      z-index: 10;
-    }
-
-    .bottom-nav a {
-      text-align: center;
-      color: #0a5737;
-      font-size: 0.85rem;
-      text-decoration: none;
-    }
-
-    .bottom-nav a:hover {
-      color: #3498db;
-    }
-
-    .charts {
-      background: #fff;
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      color: #0a5737;
-    }
-
-    iframe {
-      width: 100%;
-      height: 250px;
-      border: none;
-      margin-bottom: 1rem;
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <h2>Welcome to QUANTUM RIO INVESTMENT</h2>
-      <div class="emoji">👋</div>
-
-      <div class="section-title">Total Balance</div>
-      <div class="stat" id="balance">Loading...</div>
-
-      <div class="charts">
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT"></iframe>
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD"></iframe>
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:SOLUSDT"></iframe>
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=BINANCE:ETHUSDT"></iframe>
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:USDJPY"></iframe>
-        <iframe src="https://www.tradingview.com/widgetembed/?symbol=OANDA:EURUSD"></iframe>
-      </div>
-
-      <div class="about-text">
-        <strong>About Quantum Investment:</strong><br>
-        Founded in 2010, Quantum Investment has grown into one of the most trusted platforms for investing in Bitcoin, forex, and binary options. Our platform uses AI-powered trading robots to maximize returns for our users.<br><br>
-        Over the years, more than 1,000,000 investors have joined us and benefited from our unique ROI model, earning up to 200% returns within just 12 to 24 hours.<br><br>
-        We invite you to become part of our growing family. Invest smart. Invest with Quantum.
-      </div>
-
-      <div class="contact-info">
-        <strong>Contact Us:</strong><br>
-        Email: quantumriokenya@gmail.com<br>
-        WhatsApp: +254707207201<br>
-        Telegram: @QuantumRIO_support
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <a href="dashboard.html">🏠<br>Home</a>
-    <a href="wallet.html">💼<br>Wallet</a>
-    <a href="investment.html">📈<br>Plans</a>
-    <a href="referral.html">👥<br>Referrals</a>
-    <a href="profile.html">👤<br>Me</a>
-  </div>
-
-  <!-- Firebase Script -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        document.getElementById("balance").textContent =
-          typeof data.balance === "number"
-            ? `${data.balance.toLocaleString()} KES`
-            : "0 KES";
-      }
-    });
-  </script>
-</body>
-</html>
+</html> 
