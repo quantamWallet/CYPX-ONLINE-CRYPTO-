@@ -154,10 +154,14 @@
       <p><strong>Name:</strong> DAVID MAKWA</p>
     </div>
 
-    <div class="exchange-rate">1 KSH ≈ 27 UGX</div>
+    <div class="exchange-rate" id="exchangeText">1 KSH ≈ 27 UGX</div>
 
     <div class="input-box">
-      <input type="number" id="amount" placeholder="Enter amount in UGX">
+      <input type="number" id="kshInput" placeholder="Enter amount in KSH" oninput="convertToUGX()">
+    </div>
+
+    <div class="input-box">
+      <input type="number" id="ugxResult" placeholder="UGX amount will show here" readonly>
     </div>
 
     <div class="input-box">
@@ -200,14 +204,26 @@
   </script>
 
   <script>
+    const rate = 27;
+
+    function convertToUGX() {
+      const ksh = parseFloat(document.getElementById('kshInput').value);
+      if (!isNaN(ksh)) {
+        const ugx = ksh * rate;
+        document.getElementById('ugxResult').value = ugx.toFixed(2);
+      } else {
+        document.getElementById('ugxResult').value = '';
+      }
+    }
+
     function showPopup() {
       const popup = document.getElementById('popupMsg');
-      const amount = document.getElementById('amount').value;
       const phoneUsed = document.getElementById('phoneUsed').value;
+      const ugx = document.getElementById('ugxResult').value;
 
-      if (!amount || !phoneUsed) {
+      if (!ugx || !phoneUsed) {
         popup.style.backgroundColor = '#dc3545';
-        popup.innerText = "Please enter both amount and phone number used.";
+        popup.innerText = "Please enter all required fields.";
       } else {
         popup.style.backgroundColor = '#28a745';
         popup.innerText = "Recharge submitted successfully! Please wait for confirmation.";
