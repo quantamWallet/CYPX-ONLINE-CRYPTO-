@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYPX ONLINE CRYPTO - Team</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+    }
+    header {
+      background-color: #002f6c;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    header img {
+      height: 20px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .referral {
+      background-color: #003366;
+      padding: 15px;
+      text-align: center;
+    }
+    .referral input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      margin-top: 10px;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 15px;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    .stat-box {
+      flex: 1;
+      min-width: 30%;
+      background-color: #004080;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      color: #ffcc00;
+    }
+    .selection-period {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .team-section-title {
+      background-color: #002b5c;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+      border-top: 1px solid #003;
+      border-bottom: 1px solid #003;
+    }
+    .level-box {
+      background-color: #003366;
+      margin: 10px 15px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .level-box h3 {
+      margin: 0 0 10px;
+      color: #ffcc00;
+    }
+    .level-info {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+    }
+    .level-info span {
+      font-size: 14px;
+    }
+    .details-btn {
+      margin-top: 10px;
+      background-color: #ffcc00;
+      color: black;
+      padding: 8px 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .team-levels {
+      padding-bottom: 80px;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    nav i {
+      font-size: 20px;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: green;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
+    CYPX ONLINE CRYPTO - Team
+  </header>
+
+  <div class="referral">
+    <div>Your Referral Link:</div>
+    <input type="text" id="ref-link" readonly />
+  </div>
+
+  <div class="selection-period">Selection period</div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div>Team Size</div>
+      <div>0</div>
+    </div>
+    <div class="stat-box">
+      <div>Team Recharge</div>
+      <div>KSH 0.00</div>
+    </div>
+    <div class="stat-box">
+      <div>Team Withdrawal</div>
+      <div>KSH 0.00</div>
+    </div>
+    <div class="stat-box">
+      <div>New Team</div>
+      <div>0</div>
+    </div>
+    <div class="stat-box">
+      <div>First Time Recharge</div>
+      <div>0</div>
+    </div>
+    <div class="stat-box">
+      <div>First Withdrawal</div>
+      <div>0</div>
+    </div>
+  </div>
+
+  <div class="team-levels">
+    <div class="team-section-title">LEV 1</div>
+    <div class="level-box">
+      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
+      <div class="level-info"><span>Commission Percentage:</span><span>17%</span></div>
+      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
+      <button class="details-btn">Details</button>
+    </div>
+
+    <div class="team-section-title">LEV 2</div>
+    <div class="level-box">
+      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
+      <div class="level-info"><span>Commission Percentage:</span><span>2%</span></div>
+      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
+      <button class="details-btn">Details</button>
+    </div>
+
+    <div class="team-section-title">LEV 3</div>
+    <div class="level-box">
+      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
+      <div class="level-info"><span>Commission Percentage:</span><span>1%</span></div>
+      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
+      <button class="details-btn">Details</button>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
+
+  <script>
+    // Injected Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const user = localStorage.getItem("userEmail") || "user@example.com";
+    const baseUrl = location.origin + "/register.html?ref=";
+    document.getElementById("ref-link").value = `${baseUrl}${encodeURIComponent(user)}`;
+
+    const buttons = document.querySelectorAll('.details-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const referrals = JSON.parse(localStorage.getItem("referrals")) || [];
+        const count = referrals.length || 0;
+
+        const popup = document.createElement("div");
+        popup.className = "popup";
+        popup.textContent = count === 0 
+          ? "No referrals yet. Count: 0" 
+          : `You have ${count} referral${count > 1 ? "s" : ""}`;
+
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 3000);
+      });
+    });
+  </script>
+</body>
+</html>
