@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recharge - CYPX ONLINE CRYPTO</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      text-align: center;
+      padding-bottom: 80px;
+    }
+    header {
+      background-color: #002f6c;
+      padding: 15px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    header img {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+    }
+    .wallet-option {
+      margin: 20px auto;
+      background-color: #003366;
+      padding: 10px 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .wallet-button {
+      background-color: #ffcc00;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 15px;
+    }
+    .wallet-button img {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+    }
+    nav i {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" />
+    Recharge - CYPX ONLINE CRYPTO
+  </header>
+
+  <!-- MPESA KENYA -->
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='mpesa.html'" style="background-color: #34B233; color: white;">
+      MPESA (Kenya)
+    </button>
+  </div>
+
+  <!-- MTN UGANDA -->
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='mtn.html'" style="background-color: #FFD700; color: black;">
+      MTN (Uganda)
+    </button>
+  </div>
+
+  <!-- VODACOM TANZANIA -->
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='vodacom.html'" style="background-color: #E60000; color: white;">
+      Vodacom (Tanzania)
+    </button>
+  </div>
+
+  <!-- Crypto options -->
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='tron.html'">
+      <img src="https://api.tkteam.cc/static/image/trc20-usdt.jpg" alt="TRC20">
+      Tron (TRC20)
+    </button>
+  </div>
+
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='trx.html'">
+      <img src="https://api.tkteam.cc/static/image/trx.webp" alt="TRX">
+      TRX
+    </button>
+  </div>
+
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='bep20-usdt.html'">
+      <img src="https://api.tkteam.cc/static/image/bep20-usdt.webp" alt="BEP20 USDT">
+      BEP20 - USDT
+    </button>
+  </div>
+
+  <div class="wallet-option">
+    <button class="wallet-button" onclick="location.href='bnb.html'">
+      <img src="https://api.tkteam.cc/static/image/bnb.webp" alt="BNB">
+      BNB
+    </button>
+  </div>
+
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
+
+  <!-- Firebase Config Only -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzmksCs_D3wODtBjiL7LZyBWfPV71Kk34",
+      authDomain: "airdrop-usdt-2025.firebaseapp.com",
+      projectId: "airdrop-usdt-2025",
+      storageBucket: "airdrop-usdt-2025.firebasestorage.app",
+      messagingSenderId: "511690643803",
+      appId: "1:511690643803:web:eb5549017fe3e09222e27e",
+      measurementId: "G-5CBWQSLNG9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+  </script>
+
+</body>
+</html>
