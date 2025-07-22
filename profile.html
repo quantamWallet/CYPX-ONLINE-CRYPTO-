@@ -2,151 +2,179 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profile | Quantum Investment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CYPX ONLINE CRYPTO - Profile</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #0a5737;
       margin: 0;
-      padding-bottom: 100px;
-      color: #fff;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: auto;
-      padding: 1.5rem 1rem;
-    }
-
-    .card {
-      background: white;
-      color: #0a5737;
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 1.5rem;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    .info {
-      margin-top: 1rem;
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-
-    .logout-btn {
-      background-color: #e74c3c;
+      font-family: Arial, sans-serif;
+      background-color: #0b1f3a;
       color: white;
-      padding: 1rem;
-      border: none;
-      border-radius: 12px;
-      width: 100%;
-      font-size: 1rem;
-      margin-top: 1.5rem;
-      cursor: pointer;
+      padding-bottom: 80px;
     }
-
-    .logout-btn:hover {
-      background-color: #c0392b;
+    .top-bar {
+      background-color: #001b33;
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
     }
-
-    .bottom-nav {
+    .top-bar .title {
+      font-weight: bold;
+      font-size: 18px;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+    .top-bar img {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+    }
+    .profile-section {
+      background-color: #072544;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .profile-info {
+      color: white;
+    }
+    .profile-info .email {
+      font-size: 14px;
+    }
+    .profile-info .vip {
+      background-color: #ffcc00;
+      color: black;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .profile-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+    }
+    .balance-box {
+      background-color: #ffe4a1;
+      color: black;
+      margin: 15px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      font-weight: bold;
+    }
+    .balance-box div {
+      text-align: center;
+    }
+    .menu {
+      background-color: #072544;
+      padding: 10px 0;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid #003355;
+      color: white;
+      text-decoration: none;
+    }
+    .menu-item i {
+      margin-right: 12px;
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: #ffffff;
-      border-top: 1px solid #ccc;
+      background-color: #002244;
       display: flex;
       justify-content: space-around;
-      padding: 0.5rem 0;
-      z-index: 10;
+      padding: 10px 0;
     }
-
-    .bottom-nav a {
+    nav a {
+      color: white;
       text-align: center;
-      color: #0a5737;
-      font-size: 0.85rem;
       text-decoration: none;
+      font-size: 14px;
     }
-
-    .bottom-nav a:hover {
-      color: #3498db;
+    nav i {
+      font-size: 20px;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <div class="card">
-      <h2>👤 My Profile</h2>
-      <div class="info" id="userInfo">
-        Loading user info...
-      </div>
-      <button class="logout-btn" onclick="logout()">🚪 Log Out</button>
+<body>  
+  <div class="top-bar">
+    <div class="title">
+      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
+      CYPX ONLINE CRYPTO
     </div>
-  </div>
+  </div>  
+  <div class="profile-section">
+    <div class="profile-info">
+      <div class="email" id="user-email">user@example.com</div>
+      <div class="vip">vip0</div>
+    </div>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Profile" class="profile-icon" />
+  </div>  
+  <div class="balance-box">
+    <div>
+      <div>Total balance (Ksh)</div>
+      <div id="total-balance">0.00</div>
+    </div>
+    <div>
+      <div>Recharge amount (Ksh)</div>
+      <div id="recharge-amount">0.00</div>
+    </div>
+  </div>  
+  <div class="menu">
+    <a href="recharge.html" class="menu-item"><i class="fas fa-bank"></i>Recharge</a>
+    <a href="withdraw.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i>Withdraw</a>
+    <a href="financial.html" class="menu-item"><i class="fas fa-file-invoice-dollar"></i>Financial records</a>
+    <a href="password.html" class="menu-item"><i class="fas fa-key"></i>Change Password</a>
+    <a href="index.html" class="menu-item"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
+  </div>  
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>  
 
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <a href="dashboard.html">🏠<br>Home</a>
-    <a href="wallet.html">💼<br>Wallet</a>
-    <a href="investment.html">📈<br>Plans</a>
-    <a href="referral.html">👥<br>Referrals</a>
-    <a href="profile.html">👤<br>Me</a>
-  </div>
+  <script>
+    const userEmail = localStorage.getItem("userEmail") || "user@example.com";
+    document.getElementById("user-email").textContent = userEmail;
 
-  <!-- Firebase Script -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    // Format amounts to 2 decimal places for Ksh
+    const totalBalanceKsh = 0.0559 * 155;  // Example rate: 1 CYPX = 155 Ksh
+    const rechargeAmountKsh = 0 * 155;
 
+    document.getElementById("total-balance").textContent = totalBalanceKsh.toFixed(2);
+    document.getElementById("recharge-amount").textContent = rechargeAmountKsh.toFixed(2);
+  </script>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+      apiKey: "AIzaSyBzmksCs_D3wODtBjiL7LZyBWfPV71Kk34",
+      authDomain: "airdrop-usdt-2025.firebaseapp.com",
+      projectId: "airdrop-usdt-2025",
+      storageBucket: "airdrop-usdt-2025.firebasestorage.app",
+      messagingSenderId: "511690643803",
+      appId: "1:511690643803:web:eb5549017fe3e09222e27e",
+      measurementId: "G-5CBWQSLNG9"
     };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const userInfoDiv = document.getElementById("userInfo");
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        userInfoDiv.innerHTML = `
-          <strong>Name:</strong> ${data.name || "N/A"}<br>
-          <strong>Email:</strong> ${user.email || "N/A"}<br>
-          <strong>Balance:</strong> ${typeof data.balance === "number" ? data.balance.toLocaleString() + " KES" : "0 KES"}
-        `;
-      } else {
-        userInfoDiv.innerHTML = "User data not found.";
-      }
-    });
-
-    window.logout = function () {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      });
-    };
+    firebase.initializeApp(firebaseConfig);
   </script>
 </body>
 </html>
