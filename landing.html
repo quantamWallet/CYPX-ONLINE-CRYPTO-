@@ -92,12 +92,12 @@
       <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
       <h2>CYPX ONLINE CRYPTO</h2>
     </div>
-  </div>  <!-- Firebase SDKs -->
+  </div>  <!-- ✅ Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
-<!-- Firebase Config & Init -->
+<!-- ✅ Firebase Config & Initialization -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -110,68 +110,87 @@
     measurementId: "G-4RSQXZJX44"
   };
 
+  // ✅ Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
-</script>
 
-  // UI Loader
+  // ✅ Load sign-up form by default
   window.onload = loadSignUp;
 
-  // Popup message
-  function showPopup(message) {
+  // ✅ Popup message
+  function showPopup(message, color = "#28a745") {
     const popup = document.createElement("div");
     popup.className = "popup";
     popup.textContent = message;
+    popup.style.backgroundColor = color;
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.padding = "20px";
+    popup.style.color = "white";
+    popup.style.fontWeight = "bold";
+    popup.style.borderRadius = "10px";
+    popup.style.zIndex = "9999";
     document.body.appendChild(popup);
     setTimeout(() => popup.remove(), 3000);
   }
 
-  // Auth actions
+  // ✅ Sign Up
   async function signUp() {
     const email = document.getElementById("signup-email").value.trim();
     const password = document.getElementById("signup-password").value.trim();
-    if (!email || !password) return showPopup("Enter email and password.");
+    if (!email || !password) return showPopup("Enter email and password.", "#dc3545");
 
     try {
       await auth.createUserWithEmailAndPassword(email, password);
       localStorage.setItem("userEmail", email);
       window.location.href = "dashboard.html";
     } catch (error) {
-      showPopup(error.message);
+      showPopup(error.message, "#dc3545");
     }
   }
 
+  // ✅ Sign In
   async function signIn() {
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value.trim();
-    if (!email || !password) return showPopup("Enter email and password.");
+    if (!email || !password) return showPopup("Enter email and password.", "#dc3545");
 
     try {
       await auth.signInWithEmailAndPassword(email, password);
       localStorage.setItem("userEmail", email);
       window.location.href = "dashboard.html";
     } catch (error) {
-      showPopup(error.message);
+      showPopup(error.message, "#dc3545");
     }
   }
 
-  // UI Loaders
+  // ✅ UI Loaders
   function loadSignUp() {
     const box = document.getElementById('auth-box');
-    const countryOptions = `<!-- your long country select list here -->`;
+    const countryOptions = `
+      <select id="country-code" style="width: 40%; padding: 10px; border-radius: 5px; margin-right: 5px;">
+        <option value="+254">🇰🇪 +254</option>
+        <option value="+1">🇺🇸 +1</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+91">🇮🇳 +91</option>
+        <!-- You can add full list here or dynamically load -->
+      </select>
+    `;
 
     box.innerHTML = `
       <h2>Sign Up</h2>
-      <input type="email" id="signup-email" placeholder="Email">
-      <input type="password" id="signup-password" placeholder="Password">
-      <div class="phone-row">
+      <input type="email" id="signup-email" placeholder="Email" />
+      <input type="password" id="signup-password" placeholder="Password" />
+      <div class="phone-row" style="display:flex; gap: 5px;">
         ${countryOptions}
-        <input type="text" id="phone" placeholder="Phone Number">
+        <input type="text" id="phone" placeholder="Phone Number" style="flex: 1; padding: 10px; border-radius: 5px;" />
       </div>
-      <input type="text" id="referral-code" placeholder="Referral Code (Optional)">
+      <input type="text" id="referral-code" placeholder="Referral Code (Optional)" />
       <button class="btn" onclick="signUp()">Sign Up</button>
-      <div class="switch">Already have an account? <a onclick="loadSignIn()">Sign In</a></div>
+      <div class="switch">Already have an account? <a href="#" onclick="loadSignIn()">Sign In</a></div>
     `;
   }
 
@@ -179,10 +198,10 @@
     const box = document.getElementById('auth-box');
     box.innerHTML = `
       <h2>Sign In</h2>
-      <input type="email" id="login-email" placeholder="Email">
-      <input type="password" id="login-password" placeholder="Password">
+      <input type="email" id="login-email" placeholder="Email" />
+      <input type="password" id="login-password" placeholder="Password" />
       <button class="btn" onclick="signIn()">Sign In</button>
-      <div class="switch">Don't have an account? <a onclick="loadSignUp()">Sign Up</a></div>
+      <div class="switch">Don't have an account? <a href="#" onclick="loadSignUp()">Sign Up</a></div>
     `;
   }
 </script>
