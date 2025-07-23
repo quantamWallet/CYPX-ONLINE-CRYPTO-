@@ -92,11 +92,13 @@
       <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
       <h2>CYPX ONLINE CRYPTO</h2>
     </div>
-  </div>  <!-- Firebase SDKs (Always include these first) -->
+  </div>  <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
 <script>
+  // Your Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -109,23 +111,8 @@
   };
 
   // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth(); // <--- Make sure this line exists
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // You can now safely use auth here
-    document.getElementById("signUpBtn").addEventListener("click", () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          console.log("Signed up:", userCredential.user);
-        })
-        .catch((error) => {
-          console.error("Signup error:", error);
-        });
-    });
-  });
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth(); // ✅ auth is now globally defined
 </script>
 
 <!-- Register your service worker -->
