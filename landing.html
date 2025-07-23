@@ -92,12 +92,12 @@
       <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
       <h2>CYPX ONLINE CRYPTO</h2>
     </div>
-  </div>  <!-- Firebase App and Config -->
+  </div>  <!-- Firebase core and auth SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
 <script>
-  // ✅ Your Firebase config
+  // Your Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -109,14 +109,11 @@
     measurementId: "G-4RSQXZJX44"
   };
 
-  // ✅ Initialize Firebase
+  // Initialize Firebase app
   const app = firebase.initializeApp(firebaseConfig);
-  window.auth = firebase.auth(); // ✅ global
 
-  // Example usage:
-  // auth.signInWithEmailAndPassword("test@example.com", "123456")
-  //   .then(userCredential => console.log("Logged in:", userCredential.user))
-  //   .catch(error => console.error("Login error:", error.message));
+  // Make auth accessible globally
+  window.auth = firebase.auth();
 </script>
 
 <!-- Register your service worker -->
