@@ -110,10 +110,23 @@
     measurementId: "G-4RSQXZJX44"
   };
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth(); // ✅ auth is now globally defined
-</script>
+const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("signUpBtn")?.addEventListener("click", () => {
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          console.log("Signed up:", userCredential.user);
+        })
+        .catch((error) => {
+          console.error("Signup error:", error);
+        });
+    });
+  });
 
 <!-- Register your service worker -->
 <script>
