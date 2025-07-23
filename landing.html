@@ -114,14 +114,16 @@
   const auth = firebase.auth();
   const db = firebase.database();
 </script>
-<script>
 
-  // Register service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('✅ Service Worker Registered'))
-      .catch(err => console.error('❌ SW registration failed:', err));
-  }
+  <script>
+  window.addEventListener('load', () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js', { scope: './' })
+        .then(() => console.log('✅ Service Worker Registered'))
+        .catch(err => console.error('❌ SW registration failed:', err));
+    }
+  });
+</script>
 
   // UI Loader
   window.onload = loadSignUp;
