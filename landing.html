@@ -94,6 +94,8 @@
     </div>
   </div>  <!-- Firebase App and Config -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script> <!-- 🔥 Add this line -->
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -107,6 +109,7 @@
   };
 
   const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth(); // ✅ Fix: initialize auth
 </script>
   
   <script>
