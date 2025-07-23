@@ -111,9 +111,7 @@
 
   // ✅ Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
-
-  // ✅ Initialize Auth
-  const auth = firebase.auth();
+  window.auth = firebase.auth(); // ✅ global
 
   // Example usage:
   // auth.signInWithEmailAndPassword("test@example.com", "123456")
