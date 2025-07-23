@@ -111,7 +111,7 @@
   };
 
 const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+const auth = firebase.auth(); // ✅ valid with compat build
 
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("signUpBtn")?.addEventListener("click", () => {
@@ -127,7 +127,9 @@ const app = firebase.initializeApp(firebaseConfig);
         });
     });
   });
-
+<script>
+  
+ <script>
 <!-- Register your service worker -->
 <script>
   if ('serviceWorker' in navigator) {
