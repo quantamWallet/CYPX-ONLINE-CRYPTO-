@@ -111,23 +111,106 @@
   };
 
 const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth(); // ✅ valid with compat build
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("signUpBtn")?.addEventListener("click", () => {
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          console.log("Signed up:", userCredential.user);
-        })
-        .catch((error) => {
-          console.error("Signup error:", error);
-        });
-    });
-  });
 <script>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service Worker Registered'))
+      .catch(err => console.error('❌ SW registration failed:', err));
+  }
+
+  // UI Loader
+  window.onload = loadSignUp;
+
+  // Popup message
+  function showPopup(message) {
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    popup.textContent = message;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 3000);
+  }
+
+  // Auth actions
+  async function signUp() {
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value.trim();
+    if (!email || !password) return showPopup("Enter email and password.");
+
+    try {
+      await auth.createUserWithEmailAndPassword(email, password);
+      localStorage.setItem("userEmail", email);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      showPopup(error.message);
+    }
+  }
+
+  async function signIn() {
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+    if (!email || !password) return showPopup("Enter email and password.");
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      localStorage.setItem("userEmail", email);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      showPopup(error.message);
+    }
+  }
+
+  // UI Loaders
+  function loadSignUp() {
+    const box = document.getElementById('auth-box');
+    const countryOptions = `<!-- your long country select list here -->`;
+
+    box.innerHTML = `
+      <h2>Sign Up</h2>
+      <input type="email" id="signup-email" placeholder="Email">
+      <input type="password" id="signup-password" placeholder="Password">
+      <div class="phone-row">
+        ${countryOptions}
+        <input type="text" id="phone" placeholder="Phone Number">
+      </div>
+      <input type="text" id="referral-code" placeholder="Referral Code (Optional)">
+      <button class="btn" onclick="signUp()">Sign Up</button>
+      <div class="switch">Already have an account? <a onclick="loadSignIn()">Sign In</a></div>
+    `;
+  }
+
+  function loadSignIn() {
+    const box = document.getElementById('auth-box');
+    box.innerHTML = `
+      <h2>Sign In</h2>
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Password">
+      <button class="btn" onclick="signIn()">Sign In</button>
+      <div class="switch">Don't have an account? <a onclick="loadSignUp()">Sign Up</a></div>
+    `;
+  }
+</script>
   
  <!-- Register your service worker -->
 <script>
