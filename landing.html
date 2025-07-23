@@ -92,18 +92,12 @@
       <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
       <h2>CYPX ONLINE CRYPTO</h2>
     </div>
-  </div>  <!-- ✅ Firebase SDKs -->
+  </div>  <!-- Firebase SDKs (Compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
-<!-- ✅ Firebase Config & Initialization -->
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
-<!-- Firebase Config & Init -->
+<!-- Firebase Config & Initialization -->
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -116,15 +110,14 @@
     measurementId: "G-4RSQXZJX44"
   };
 
+  // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
 </script>
 
-<!-- Main Logic -->
+<!-- CYPX Logic -->
 <script>
-  window.onload = loadSignUp;
-
   function showPopup(message) {
     const popup = document.createElement("div");
     popup.className = "popup";
@@ -163,138 +156,9 @@
 
   function loadSignUp() {
     const box = document.getElementById('auth-box');
-      const countryOptions = `<!-- injected country selector -->
-<select id="country-code">
-  <option value="+1">+1 🇺🇸 US</option>
-  <option value="+44">+44 🇬🇧 GB</option>
-  <option value="+91">+91 🇮🇳 IN</option>
-  <option value="+81">+81 🇯🇵 JP</option>
-  <option value="+86">+86 🇨🇳 CN</option>
-  <option value="+49">+49 🇩🇪 DE</option>
-  <option value="+33">+33 🇫🇷 FR</option>
-  <option value="+39">+39 🇮🇹 IT</option>
-  <option value="+34">+34 🇪🇸 ES</option>
-  <option value="+61">+61 🇦🇺 AU</option>
-  <option value="+7">+7 🇷🇺 RU</option>
-  <option value="+27">+27 🇿🇦 ZA</option>
-  <option value="+234">+234 🇳🇬 NG</option>
-  <option value="+254">+254 🇰🇪 KE</option>
-  <option value="+20">+20 🇪🇬 EG</option>
-  <option value="+256">+256 🇺🇬 UG</option>
-  <option value="+250">+250 🇷🇼 RW</option>
-  <option value="+212">+212 🇲🇦 MA</option>
-  <option value="+213">+213 🇩🇿 DZ</option>
-  <option value="+218">+218 🇱🇾 LY</option>
-  <option value="+90">+90 🇹🇷 TR</option>
-  <option value="+966">+966 🇸🇦 SA</option>
-  <option value="+971">+971 🇦🇪 AE</option>
-  <option value="+974">+974 🇶🇦 QA</option>
-  <option value="+965">+965 🇰🇼 KW</option>
-  <option value="+973">+973 🇧🇭 BH</option>
-  <option value="+962">+962 🇯🇴 JO</option>
-  <option value="+964">+964 🇮🇶 IQ</option>
-  <option value="+98">+98 🇮🇷 IR</option>
-  <option value="+961">+961 🇱🇧 LB</option>
-  <option value="+972">+972 🇮🇱 IL</option>
-  <option value="+94">+94 🇱🇰 LK</option>
-  <option value="+880">+880 🇧🇩 BD</option>
-  <option value="+855">+855 🇰🇭 KH</option>
-  <option value="+66">+66 🇹🇭 TH</option>
-  <option value="+84">+84 🇻🇳 VN</option>
-  <option value="+63">+63 🇵🇭 PH</option>
-  <option value="+62">+62 🇮🇩 ID</option>
-  <option value="+60">+60 🇲🇾 MY</option>
-  <option value="+65">+65 🇸🇬 SG</option>
-  <option value="+82">+82 🇰🇷 KR</option>
-  <option value="+960">+960 🇲🇻 MV</option>
-  <option value="+93">+93 🇦🇫 AF</option>
-  <option value="+998">+998 🇺🇿 UZ</option>
-  <option value="+996">+996 🇰🇬 KG</option>
-  <option value="+995">+995 🇬🇪 GE</option>
-  <option value="+994">+994 🇦🇿 AZ</option>
-  <option value="+975">+975 🇧🇹 BT</option>
-  <option value="+977">+977 🇳🇵 NP</option>
-  <option value="+7">+7 🇰🇿 KZ</option>
-  <option value="+1">+1 🇨🇦 CA</option>
-  <option value="+52">+52 🇲🇽 MX</option>
-  <option value="+505">+505 🇳🇮 NI</option>
-  <option value="+507">+507 🇵🇦 PA</option>
-  <option value="+51">+51 🇵🇪 PE</option>
-  <option value="+595">+595 🇵🇾 PY</option>
-  <option value="+54">+54 🇦🇷 AR</option>
-  <option value="+55">+55 🇧🇷 BR</option>
-  <option value="+56">+56 🇨🇱 CL</option>
-  <option value="+58">+58 🇻🇪 VE</option>
-  <option value="+591">+591 🇧🇴 BO</option>
-  <option value="+593">+593 🇪🇨 EC</option>
-  <option value="+592">+592 🇬🇾 GY</option>
-  <option value="+597">+597 🇸🇷 SR</option>
-  <option value="+685">+685 🇼🇸 WS</option>
-  <option value="+675">+675 🇵🇬 PG</option>
-  <option value="+64">+64 🇳🇿 NZ</option>
-  <option value="+679">+679 🇫🇯 FJ</option>
-  <option value="+682">+682 🇨🇰 CK</option>
-  <option value="+686">+686 🇰🇮 KI</option>
-  <option value="+687">+687 🇳🇨 NC</option>
-  <option value="+688">+688 🇹🇻 TV</option>
-  <option value="+689">+689 🇵🇫 PF</option>
-  <option value="+691">+691 🇫🇲 FM</option>
-  <option value="+692">+692 🇲🇭 MH</option>
-  <option value="+850">+850 🇰🇵 KP</option>
-  <option value="+670">+670 🇹🇱 TL</option>
-  <option value="+373">+373 🇲🇩 MD</option>
-  <option value="+380">+380 🇺🇦 UA</option>
-  <option value="+381">+381 🇷🇸 RS</option>
-  <option value="+387">+387 🇧🇦 BA</option>
-  <option value="+389">+389 🇲🇰 MK</option>
-  <option value="+355">+355 🇦🇱 AL</option>
-  <option value="+386">+386 🇸🇮 SI</option>
-  <option value="+357">+357 🇨🇾 CY</option>
-  <option value="+372">+372 🇪🇪 EE</option>
-  <option value="+358">+358 🇫🇮 FI</option>
-  <option value="+353">+353 🇮🇪 IE</option>
-  <option value="+352">+352 🇱🇺 LU</option>
-  <option value="+371">+371 🇱🇻 LV</option>
-  <option value="+370">+370 🇱🇹 LT</option>
-  <option value="+356">+356 🇲🇹 MT</option>
-  <option value="+31">+31 🇳🇱 NL</option>
-  <option value="+47">+47 🇳🇴 NO</option>
-  <option value="+48">+48 🇵🇱 PL</option>
-  <option value="+351">+351 🇵🇹 PT</option>
-  <option value="+40">+40 🇷🇴 RO</option>
-  <option value="+421">+421 🇸🇰 SK</option>
-  <option value="+46">+46 🇸🇪 SE</option>
-  <option value="+41">+41 🇨🇭 CH</option>
-  <option value="+36">+36 🇭🇺 HU</option>
-  <option value="+43">+43 🇦🇹 AT</option>
-  <option value="+213">+213 🇩🇿 DZ</option>
-  <option value="+244">+244 🇦🇴 AO</option>
-  <option value="+229">+229 🇧🇯 BJ</option>
-  <option value="+267">+267 🇧🇼 BW</option>
-  <option value="+226">+226 🇧🇫 BF</option>
-  <option value="+257">+257 🇧🇮 BI</option>
-  <option value="+243">+243 🇨🇩 CD</option>
-  <option value="+20">+20 🇪🇬 EG</option>
-  <option value="+233">+233 🇬🇭 GH</option>
-  <option value="+224">+224 🇬🇳 GN</option>
-  <option value="+254">+254 🇰🇪 KE</option>
-  <option value="+211">+211 🇸🇸 SS</option>
-  <option value="+249">+249 🇸🇩 SD</option>
-  <option value="+256">+256 🇺🇬 UG</option>
-  <option value="+260">+260 🇿🇲 ZM</option>
-  <option value="+263">+263 🇿🇼 ZW</option>
+    const countryOptions = `<!-- Paste full 195 countries here with flags, dialing code, and ISO -->`;
 
-  <!-- Plus some major global ones -->
-  <option value="+1">+1 🇺🇸 US</option>
-  <option value="+44">+44 🇬🇧 GB</option>
-  <option value="+91">+91 🇮🇳 IN</option>
-  <option value="+81">+81 🇯🇵 JP</option>
-  <option value="+61">+61 🇦🇺 AU</option>
-  <option value="+86">+86 🇨🇳 CN</option>
-  <option value="+49">+49 🇩🇪 DE</option>
-</select>`;
-
-      box.innerHTML = `
+    box.innerHTML = `
       <h2>Sign Up</h2>
       <input type="email" id="signup-email" placeholder="Email">
       <input type="password" id="signup-password" placeholder="Password">
@@ -318,6 +182,6 @@
       <div class="switch">Don't have an account? <a onclick="loadSignUp()">Sign Up</a></div>
     `;
   }
+
+  window.onload = loadSignUp;
 </script>
-</body>
-</html>
