@@ -38,9 +38,6 @@
       justify-content: space-between;
       align-items: center;
     }
-    .profile-info {
-      color: white;
-    }
     .profile-info .email {
       font-size: 14px;
     }
@@ -50,8 +47,8 @@
       padding: 3px 8px;
       border-radius: 6px;
       font-size: 12px;
-      display: inline-block;
       margin-top: 4px;
+      display: inline-block;
     }
     .profile-icon {
       width: 60px;
@@ -117,6 +114,7 @@
       CYPX ONLINE CRYPTO
     </div>
   </div>  
+
   <div class="profile-section">
     <div class="profile-info">
       <div class="email" id="user-email">user@example.com</div>
@@ -124,6 +122,7 @@
     </div>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Profile" class="profile-icon" />
   </div>  
+
   <div class="balance-box">
     <div>
       <div>Total balance (Ksh)</div>
@@ -134,13 +133,15 @@
       <div id="recharge-amount">0.00</div>
     </div>
   </div>  
+
   <div class="menu">
     <a href="recharge.html" class="menu-item"><i class="fas fa-bank"></i>Recharge</a>
     <a href="withdraw.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i>Withdraw</a>
     <a href="financial.html" class="menu-item"><i class="fas fa-file-invoice-dollar"></i>Financial records</a>
     <a href="password.html" class="menu-item"><i class="fas fa-key"></i>Change Password</a>
-    <a href="index.html" class="menu-item"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
+    <a href="#" class="menu-item" onclick="signOutUser()"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
   </div>  
+
   <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
@@ -149,32 +150,58 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>  
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <!-- Firebase Config + Auth Init -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+  </script>
+
+  <!-- Profile Logic -->
   <script>
     const userEmail = localStorage.getItem("userEmail") || "user@example.com";
     document.getElementById("user-email").textContent = userEmail;
 
-    // Format amounts to 2 decimal places for Ksh
-    const totalBalanceKsh = 0.0559 * 155;  // Example rate: 1 CYPX = 155 Ksh
+    // Example balance values
+    const totalBalanceKsh = 0.0559 * 155;
     const rechargeAmountKsh = 0 * 155;
-
     document.getElementById("total-balance").textContent = totalBalanceKsh.toFixed(2);
     document.getElementById("recharge-amount").textContent = rechargeAmountKsh.toFixed(2);
-  </script>
 
-  <!-- Firebase App (the core Firebase SDK) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    // Sign out securely
+    function signOutUser() {
+      auth.signOut().then(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      }).catch((error) => {
+        alert("Error signing out: " + error.message);
+      });
+    }
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBzmksCs_D3wODtBjiL7LZyBWfPV71Kk34",
-      authDomain: "airdrop-usdt-2025.firebaseapp.com",
-      projectId: "airdrop-usdt-2025",
-      storageBucket: "airdrop-usdt-2025.firebasestorage.app",
-      messagingSenderId: "511690643803",
-      appId: "1:511690643803:web:eb5549017fe3e09222e27e",
-      measurementId: "G-5CBWQSLNG9"
-    };
-    firebase.initializeApp(firebaseConfig);
+    // Optional: Protect this page
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        localStorage.clear();
+        window.location.href = "index.html";
+      }
+    });
   </script>
 </body>
 </html>
