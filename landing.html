@@ -94,9 +94,10 @@
     </div>
   </div>  <!-- Firebase App and Config -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script> <!-- 🔥 Add this line -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
 <script>
+  // ✅ Your Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -108,8 +109,25 @@
     measurementId: "G-4RSQXZJX44"
   };
 
+  // ✅ Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth(); // ✅ Fix: initialize auth
+
+  // ✅ Initialize Auth
+  const auth = firebase.auth();
+
+  // Example usage:
+  // auth.signInWithEmailAndPassword("test@example.com", "123456")
+  //   .then(userCredential => console.log("Logged in:", userCredential.user))
+  //   .catch(error => console.error("Login error:", error.message));
+</script>
+
+<!-- Register your service worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service Worker Registered'))
+      .catch(err => console.error('❌ SW registration failed:', err));
+  }
 </script>
   
   <script>
