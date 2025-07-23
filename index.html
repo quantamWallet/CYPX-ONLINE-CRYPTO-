@@ -129,7 +129,7 @@
       </div>
       <div class="feature">
         <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" alt="Withdraw" />
-        <p>Withdraw directly to M-Pesa</p>
+        <p>Withdraw directly to Movile Money</p>
       </div>
     </div>
   </section>
@@ -158,31 +158,28 @@
   </section>
 
   <footer>
-    <p>Need help? Email: forexinvestmentclubkampala@gmail.com | Telegram: @QuantumRIO_support</p>
+    <p>Need help? Email: orexinvestmentclubkampala@gmail.com | Telegram: @QuantumRIO_support</p>
     <p>© 2025 CYPX ONLINE CRYPTO. All rights reserved.</p>
   </footer>
 
   <!-- Firebase setup -->
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // Example usage: (uncomment and replace with your actual logic)
-  // signInWithEmailAndPassword(auth, "user@example.com", "password123")
-  //   .then(userCredential => console.log("Logged in:", userCredential.user))
-  //   .catch(error => console.error("Login error:", error.message));
+    // You can use this `auth` object for login/signup functions elsewhere
   </script>
 
   <!-- Register Service Worker -->
