@@ -1,60 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Recharge - CYPX ONLINE CRYPTO</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <title>CYPX ONLINE CRYPTO - VIP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #001f3f;
       color: white;
-      text-align: center;
-      padding-bottom: 80px;
     }
     header {
       background-color: #002f6c;
       padding: 15px;
+      text-align: center;
       font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-weight: bold;
     }
     header img {
-      width: 24px;
       height: 24px;
+      vertical-align: middle;
       margin-right: 8px;
     }
-    .wallet-option {
-      margin: 20px auto;
+    .vip-card {
       background-color: #003366;
-      padding: 10px 20px;
+      margin: 15px;
+      padding: 15px;
       border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
+      position: relative;
     }
-    .wallet-button {
+    .vip-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #ffcc00;
+      color: black;
+      padding: 4px 10px;
+      font-weight: bold;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .vip-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .vip-content img {
+      width: 60px;
+      height: 60px;
+    }
+    .vip-details {
+      flex: 1;
+    }
+    .vip-details div {
+      margin: 4px 0;
+    }
+    .unlock-btn {
       background-color: #ffcc00;
       color: black;
       font-weight: bold;
       border: none;
-      padding: 10px 15px;
+      padding: 10px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
+      margin-top: 10px;
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 15px;
     }
-    .wallet-button img {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      flex-shrink: 0;
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #003050;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 9999;
+      text-align: center;
+      max-width: 80%;
+    }
+    .popup button {
+      background-color: red;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .bottom-space {
+      height: 90px;
     }
     nav {
       position: fixed;
@@ -70,80 +107,15 @@
       color: white;
       text-align: center;
       text-decoration: none;
+      font-size: 14px;
     }
     nav i {
       font-size: 20px;
     }
-  </style>
-</head>
-<body>
-
-  <header>
-    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" />
-    Recharge - CYPX ONLINE CRYPTO
-  </header>
-
-  <!-- MPESA KENYA -->
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='mpesa.html'" style="background-color: #34B233; color: white;">
-      MPESA (Kenya)
-    </button>
-  </div>
-
-  <!-- MTN UGANDA -->
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='mtn.html'" style="background-color: #FFD700; color: black;">
-      MTN (Uganda)
-    </button>
-  </div>
-
-  <!-- VODACOM TANZANIA -->
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='vodacom.html'" style="background-color: #E60000; color: white;">
-      Vodacom (Tanzania)
-    </button>
-  </div>
-
-  <!-- Crypto options -->
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='tron.html'">
-      <img src="https://api.tkteam.cc/static/image/trc20-usdt.jpg" alt="TRC20">
-      Tron (TRC20)
-    </button>
-  </div>
-
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='trx.html'">
-      <img src="https://api.tkteam.cc/static/image/trx.webp" alt="TRX">
-      TRX
-    </button>
-  </div>
-
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='bep20-usdt.html'">
-      <img src="https://api.tkteam.cc/static/image/bep20-usdt.webp" alt="BEP20 USDT">
-      BEP20 - USDT
-    </button>
-  </div>
-
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='bnb.html'">
-      <img src="https://api.tkteam.cc/static/image/bnb.webp" alt="BNB">
-      BNB
-    </button>
-  </div>
-
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
-
-  <!-- Firebase Config Only -->
-  <script type="module">
+  </style>  <!-- ✅ Firebase Config Injected -->  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -157,7 +129,109 @@
     };
 
     const app = initializeApp(firebaseConfig);
-  </script>
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
+    const container = document.getElementById("vip-container");
+    const popup = document.getElementById("popup");
+    const popupText = document.getElementById("popup-text");
+
+    const vipLevels = [
+      { level: 1, interest: 1901, daily: 1901, total: 28515, cost: 13000 },
+      { level: 2, interest: 5600, daily: 5600, total: 84000, cost: 35000 },
+      { level: 3, interest: 8400, daily: 8400, total: 126000, cost: 65000 },
+      { level: 4, interest: 12200, daily: 12200, total: 183000, cost: 90000 },
+      { level: 5, interest: 20200, daily: 20200, total: 303000, cost: 150000 },
+      { level: 6, interest: 24800, daily: 24800, total: 372000, cost: 185000 },
+      { level: 7, interest: 30000, daily: 30000, total: 450000, cost: 226000 },
+      { level: 8, interest: 40400, daily: 40400, total: 606000, cost: 302000 },
+      { level: 9, interest: 53800, daily: 53800, total: 807000, cost: 400000 },
+      { level: 10, interest: 80000, daily: 80000, total: 1200000, cost: 500000 }
+    ];
+
+    let currentUser;
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        location.href = "landing.html";
+      } else {
+        currentUser = user;
+        renderVIP();
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = () => window.history.pushState(null, "", window.location.href);
+      }
+    });
+
+    function renderVIP() {
+      const userId = currentUser.uid;
+      const userRef = ref(db, `users/${userId}`);
+
+      get(userRef).then(snapshot => {
+        let data = snapshot.val() || { balance: 0, vipLevels: [] };
+
+        vipLevels.forEach(vip => {
+          const card = document.createElement("div");
+          card.className = "vip-card";
+          const isUnlocked = data.vipLevels?.includes(vip.level);
+
+          card.innerHTML = `
+            <div class="vip-label">VIP${vip.level}</div>
+            <div class="vip-content">
+              <img src="https://api.tkteam.cc/upload/img/686bfb8b78a0.webp" alt="VIP icon" />
+              <div class="vip-details">
+                <div><strong>Daily Tasks:</strong> 1</div>
+                <div><strong>Simple Interest:</strong> <span style="color:#00ff00;">${vip.interest.toFixed(2)}</span></div>
+                <div><strong>Daily Profit:</strong> ${vip.daily.toFixed(2)} KSH</div>
+                <div><strong>Total Profit:</strong> ${vip.total.toFixed(2)} KSH</div>
+                <button class="unlock-btn" ${isUnlocked ? 'disabled' : ''} onclick="unlockVIP(${vip.level}, ${vip.cost})">
+                  ${isUnlocked ? 'Unlocked' : vip.cost.toFixed(2) + ' KSH Unlock Now'}
+                </button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      });
+    }
+
+    window.unlockVIP = function(level, cost) {
+      const userId = currentUser.uid;
+      const userRef = ref(db, `users/${userId}`);
+
+      get(userRef).then(snapshot => {
+        let data = snapshot.val();
+        if (!data || data.balance < cost) {
+          const deficit = (cost - (data?.balance || 0)).toFixed(2);
+          popupText.textContent = `The recharge balance is automatically unlocked\nNeed to recharge KSH${deficit}`;
+          popup.style.display = "block";
+        } else {
+          const updatedVIPs = data.vipLevels || [];
+          if (!updatedVIPs.includes(level)) updatedVIPs.push(level);
+          update(userRef, {
+            balance: data.balance - cost,
+            vipLevels: updatedVIPs
+          }).then(() => location.reload());
+        }
+      });
+    }
+  </script></head>
+<body>
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
+    CYPX ONLINE CRYPTO - VIP
+  </header>
+  <div id="vip-container"></div>
+  <div class="bottom-space"></div>
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
+  <div id="popup" class="popup" style="display:none;">
+    <div id="popup-text"></div>
+    <button onclick="location.href='recharge.html'">Confirm</button>
+  </div>
 </body>
 </html>
