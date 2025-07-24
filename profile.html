@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CYPX ONLINE CRYPTO - Profile</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -173,10 +174,16 @@
 
   <!-- Logic -->
   <script>
-    // Protect the page: redirect to landing.html if not signed in
+    // Prevent back navigation after logout
+    if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
+      location.reload();
+    }
+
+    // Redirect if not signed in
     auth.onAuthStateChanged(user => {
       if (!user) {
         localStorage.clear();
+        sessionStorage.clear();
         window.location.replace("landing.html");
       }
     });
