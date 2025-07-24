@@ -76,15 +76,12 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #ff4444;
+      background-color: #28a745;
       color: white;
       padding: 15px 30px;
       border-radius: 10px;
       font-weight: bold;
       z-index: 9999;
-    }
-    .popup.success {
-      background-color: #28a745;
     }
   </style>
 </head>
@@ -103,15 +100,15 @@
   </div>
 
   <div class="info-box">
-    1. Copy the address above or scan the QR code and select the BNB Smart Chain (BEP20) network to recharge BNB<br><br>
-    2. Please do not recharge other non-BNB Smart Chain(BEP20)-BNB assets, the funds will arrive in your account in about 1 to 3 minutes after recharging<br><br>
-    3. If it does not arrive for a long time, please refresh the page or contact customer service
+    1. Copy the address above or scan the QR code and select the BNB Smart Chain (BEP20) network to recharge USDT<br><br>
+    2. Please do not recharge other non-BNB Smart Chain (BEP20)-USDT assets.<br><br>
+    3. The funds will arrive in your account in about 1 to 3 minutes after recharging.<br><br>
+    4. If it does not arrive for a long time, please refresh the page or contact customer service.
   </div>
 
   <!-- Firebase + QRious -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
   <script>
@@ -129,56 +126,39 @@
 
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const database = firebase.database();
 
     const address = "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168";
     new QRious({
       element: document.getElementById('qrcode'),
       value: address,
-      size: 140
+      size: 160
     });
 
     function copyAddress() {
       navigator.clipboard.writeText(address).then(() => {
-        showPopup("Address Copied", true);
+        showPopup("Address Copied");
       });
     }
 
     function markRecharge() {
       const btn = document.querySelector(".recharge-btn");
       btn.disabled = true;
-      btn.textContent = "Loading...";
+      btn.textContent = "Processing...";
 
       auth.onAuthStateChanged(user => {
         if (user) {
-          const uid = user.uid;
-          const balanceRef = database.ref("users/" + uid + "/balance");
-
-          balanceRef.once("value").then(snapshot => {
-            let balance = parseFloat(snapshot.val() || 0);
-
-            if (balance >= 10.00) {
-              balanceRef.set((balance - 10.00).toFixed(2));
-              showPopup("Recharge completed", true);
-            } else {
-              showPopup("Insufficient balance", false);
-            }
-
-            btn.disabled = false;
-            btn.textContent = "Recharge Complete";
-          });
-
+          showPopup("Recharge recorded successfully");
         } else {
-          showPopup("Please sign in first", false);
-          btn.disabled = false;
-          btn.textContent = "Recharge Complete";
+          showPopup("Please sign in first");
         }
+        btn.disabled = false;
+        btn.textContent = "Recharge Complete";
       });
     }
 
-    function showPopup(message, success = false) {
+    function showPopup(message) {
       const popup = document.createElement("div");
-      popup.className = "popup" + (success ? " success" : "");
+      popup.className = "popup";
       popup.textContent = message;
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 3000);
