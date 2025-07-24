@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MTN Withdraw - CYPX ONLINE CRYPTO</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #ffeb3b; /* Yellow background for MTN */
+      color: #000;
+      padding-bottom: 80px;
+    }
+    header {
+      background-color: #fdd835;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .section {
+      padding: 20px;
+    }
+    .balance-card {
+      background-color: #fff59d;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .balance-card img {
+      width: 60px;
+      height: 60px;
+    }
+    .balance-card p {
+      margin: 0;
+      font-size: 16px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .summary-box {
+      background-color: #fff9c4;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    .summary-box p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    .confirm-btn {
+      background-color: #000;
+      color: yellow;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      width: 100%;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #4caf50;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+      font-size: 16px;
+      text-align: center;
+      min-width: 250px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="MTN" style="vertical-align: middle; width: 25px; margin-right: 10px;">
+    MTN Withdraw - CYPX ONLINE CRYPTO
+  </header>
+
+  <div class="section">
+    <div class="balance-card">
+      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="MTN">
+      <p><strong>Total Balance:</strong> <span id="balance">0.00</span> KSH</p>
+    </div>
+
+    <div class="form-group">
+      <label>Amount (Quota 2,000 - 1,000,000 KSH):</label>
+      <input type="number" id="amount" placeholder="Enter amount in KSH" />
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number (MTN Uganda):</label>
+      <input type="text" id="phone" placeholder="Enter MTN number" />
+    </div>
+
+    <div class="form-group">
+      <label>Password:</label>
+      <input type="password" id="password" placeholder="Enter password" />
+    </div>
+
+    <div class="summary-box">
+      <p><strong>Converted Amount:</strong> <span id="converted">0 UGX</span></p>
+    </div>
+
+    <button class="confirm-btn" onclick="submitWithdraw()">Confirm</button>
+  </div>
+
+  <script>
+    const balance = 20500.75; // Sample balance
+    const exchangeRate = 1 * 26.75; // KSH to UGX (1 KSH = 26.75 UGX)
+
+    document.getElementById("balance").textContent = balance.toFixed(2);
+
+    document.getElementById("amount").addEventListener("input", function () {
+      const amount = parseFloat(this.value);
+      if (!isNaN(amount)) {
+        const ugx = amount * exchangeRate;
+        document.getElementById("converted").textContent = ugx.toFixed(2) + " UGX";
+      } else {
+        document.getElementById("converted").textContent = "0 UGX";
+      }
+    });
+
+    function submitWithdraw() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const phone = document.getElementById("phone").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!amount || !phone || !password) {
+        return showPopup("Please fill in all fields");
+      }
+
+      if (amount < 2000 || amount > 1000000) {
+        return showPopup("Amount must be between 2,000 and 1,000,000 KSH");
+      }
+
+      if (amount > balance) {
+        return showPopup("Insufficient balance");
+      }
+
+      showPopup("Withdrawal submitted", true);
+    }
+
+    function showPopup(message, success = false) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.style.backgroundColor = success ? "#4caf50" : "#e53935";
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+  </script>
+</body>
+</html>
