@@ -76,12 +76,15 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #28a745;
+      background-color: #ff4444;
       color: white;
       padding: 15px 30px;
       border-radius: 10px;
       font-weight: bold;
       z-index: 9999;
+    }
+    .popup.success {
+      background-color: #28a745;
     }
   </style>
 </head>
@@ -105,10 +108,14 @@
     3. If it does not arrive for a long time, please refresh the page or contact customer service
   </div>
 
-  <!-- Correct QRious Library -->
+  <!-- Firebase + QRious -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
   <script>
-    // Firebase configuration
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -120,9 +127,11 @@
       measurementId: "G-4RSQXZJX44"
     };
 
-    const address = "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168";
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
 
-    // Generate QR Code
+    const address = "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168";
     new QRious({
       element: document.getElementById('qrcode'),
       value: address,
@@ -131,7 +140,7 @@
 
     function copyAddress() {
       navigator.clipboard.writeText(address).then(() => {
-        showPopup("Address Copied");
+        showPopup("Address Copied", true);
       });
     }
 
@@ -139,19 +148,40 @@
       const btn = document.querySelector(".recharge-btn");
       btn.disabled = true;
       btn.textContent = "Loading...";
-      setTimeout(() => {
-        showPopup("Recharge completed");
-        btn.textContent = "Recharge Complete";
-        btn.disabled = false;
-      }, 3000);
+
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          const uid = user.uid;
+          const balanceRef = database.ref("users/" + uid + "/balance");
+
+          balanceRef.once("value").then(snapshot => {
+            let balance = parseFloat(snapshot.val() || 0);
+
+            if (balance >= 10.00) {
+              balanceRef.set((balance - 10.00).toFixed(2));
+              showPopup("Recharge completed", true);
+            } else {
+              showPopup("Insufficient balance", false);
+            }
+
+            btn.disabled = false;
+            btn.textContent = "Recharge Complete";
+          });
+
+        } else {
+          showPopup("Please sign in first", false);
+          btn.disabled = false;
+          btn.textContent = "Recharge Complete";
+        }
+      });
     }
 
-    function showPopup(message) {
+    function showPopup(message, success = false) {
       const popup = document.createElement("div");
-      popup.className = "popup";
+      popup.className = "popup" + (success ? " success" : "");
       popup.textContent = message;
       document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 2500);
+      setTimeout(() => popup.remove(), 3000);
     }
   </script>
 </body>
