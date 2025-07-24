@@ -15,20 +15,20 @@
     }
 
     header {
-      background-color: #ff0000;
+      background-color: #FFCC00;
       padding: 15px;
       font-size: 20px;
       text-align: center;
       font-weight: bold;
-      color: white;
+      color: black;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 10px;
     }
 
     header img {
-      height: 30px;
-      margin-right: 10px;
+      height: 28px;
     }
 
     .container {
@@ -38,6 +38,7 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px #00000050;
+      text-align: center;
     }
 
     .title {
@@ -73,7 +74,7 @@
     }
 
     .recharge-btn {
-      background-color: #ffcc00;
+      background-color: #FFCC00;
       color: black;
       border: none;
       padding: 12px 20px;
@@ -133,70 +134,46 @@
     nav i {
       font-size: 20px;
     }
-
-    .converted {
-      margin-top: 5px;
-      font-size: 14px;
-      color: #00ffcc;
-    }
   </style>
-
-  <!-- Firebase Config -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
-    const app = initializeApp(firebaseConfig);
-  </script>
 </head>
-
 <body>
 
   <header>
-    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="CYPX Logo">
-    CYPX ONLINE CRYPTO - Vodacom Recharge
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="CYPX Icon">
+    CYPX ONLINE CRYPTO
   </header>
 
   <div class="popup" id="popupMsg">Recharge submitted successfully! Please wait for confirmation.</div>
 
   <div class="container">
-    <div class="title">Send Money Details</div>
+    <div class="title">Vodacom Tanzania Recharge</div>
 
     <div class="info">
-      <p><strong>Piga:</strong> *150*00#</p>
-      <p><strong>Tuma Pesa:</strong> Nje ya Nchi → Kenya → Safaricom Mpesa</p>
-      <p><strong>Namba:</strong> 254759527834</p>
-      <p><strong>Jina:</strong> LANGAT ROBERT</p>
+      <p><strong>Send to Phone:</strong> 0755123456</p>
+      <p><strong>Name:</strong> JOHN DOE</p>
     </div>
 
-    <div class="exchange-rate">1 KSH ≈ 27 TZS</div>
+    <div class="exchange-rate" id="exchangeText">1 KSH ≈ 18 TZS</div>
 
     <div class="input-box">
-      <input type="number" id="amount" placeholder="Enter amount in KSH" oninput="convertToTZS(this.value)">
-      <div class="converted" id="convertedValue"></div>
+      <input type="number" id="kshInput" placeholder="Enter amount in KSH" oninput="convertToTZS()">
     </div>
 
     <div class="input-box">
-      <input type="text" id="phoneUsed" placeholder="Enter Vodacom number used">
+      <input type="number" id="tzsResult" placeholder="TZS amount will show here" readonly>
     </div>
 
-    <button class="recharge-btn" onclick="showPopup()">Submit Recharge</button>
+    <div class="input-box">
+      <input type="text" id="phoneUsed" placeholder="Enter phone number used">
+    </div>
+
+    <button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
 
     <div class="note">
       <strong>Note:</strong><br>
-      - Tuma Pesa kutoka Safaricom Mpesa kwenda Vodacom Tanzania.<br>
-      - Recharge itathibitishwa ndani ya dakika 1–3.<br>
-      - Weka namba ya Vodacom uliotumia kutuma pesa.
+      - Only Vodacom M-Pesa transfers are accepted.<br>
+      - Recharge will reflect within 1–3 minutes.<br>
+      - Enter the correct phone number used to send money.
     </div>
   </div>
 
@@ -208,30 +185,79 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
-    function showPopup() {
-      const popup = document.getElementById('popupMsg');
-      const amount = document.getElementById('amount').value;
-      const phoneUsed = document.getElementById('phoneUsed').value;
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "airdrop-usdt-2025.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
 
-      if (!amount || !phoneUsed) {
-        popup.style.backgroundColor = '#dc3545'; // red
-        popup.innerText = "Please enter both amount and Vodacom number used.";
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+  </script>
+
+  <script>
+    const rate = 18;
+
+    function convertToTZS() {
+      const ksh = parseFloat(document.getElementById('kshInput').value);
+      if (!isNaN(ksh)) {
+        const tzs = ksh * rate;
+        document.getElementById('tzsResult').value = tzs.toFixed(2);
       } else {
-        popup.style.backgroundColor = '#28a745'; // green
-        popup.innerText = "Recharge submitted successfully! Please wait for confirmation.";
+        document.getElementById('tzsResult').value = '';
       }
-
-      popup.style.display = 'block';
-      setTimeout(() => {
-        popup.style.display = 'none';
-      }, 3000);
     }
 
-    function convertToTZS(ksh) {
-      const rate = 27;
-      const tzs = parseFloat(ksh) * rate;
-      document.getElementById('convertedValue').innerText = isNaN(tzs) ? "" : `≈ ${tzs.toFixed(2)} TZS`;
+    function showPopup(message, isSuccess) {
+      const popup = document.getElementById('popupMsg');
+      popup.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
+      popup.innerText = message;
+      popup.style.display = 'block';
+      setTimeout(() => { popup.style.display = 'none'; }, 3000);
+    }
+
+    function submitRecharge() {
+      const ksh = document.getElementById('kshInput').value;
+      const tzs = document.getElementById('tzsResult').value;
+      const phone = document.getElementById('phoneUsed').value;
+
+      if (!ksh || !tzs || !phone) {
+        showPopup("Please enter all required fields.", false);
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        showPopup("You must be logged in.", false);
+        return;
+      }
+
+      const rechargeRef = database.ref(`recharges/vodacom/${user.uid}`);
+      const newRecharge = {
+        kshAmount: parseFloat(ksh),
+        tzsAmount: parseFloat(tzs),
+        phoneUsed: phone,
+        timestamp: Date.now()
+      };
+
+      rechargeRef.push(newRecharge)
+        .then(() => {
+          showPopup("Recharge submitted successfully! Please wait for confirmation.", true);
+        })
+        .catch((error) => {
+          showPopup("Error submitting recharge: " + error.message, false);
+        });
     }
   </script>
 
