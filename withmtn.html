@@ -8,7 +8,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #ffeb3b; /* Yellow background for MTN */
+      background-color: #ffeb3b;
       color: #000;
       padding-bottom: 80px;
     }
@@ -21,23 +21,6 @@
     }
     .section {
       padding: 20px;
-    }
-    .balance-card {
-      background-color: #fff59d;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .balance-card img {
-      width: 60px;
-      height: 60px;
-    }
-    .balance-card p {
-      margin: 0;
-      font-size: 16px;
     }
     .form-group {
       margin-bottom: 15px;
@@ -95,11 +78,6 @@
   </header>
 
   <div class="section">
-    <div class="balance-card">
-      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="MTN">
-      <p><strong>Total Balance:</strong> <span id="balance">0.00</span> KSH</p>
-    </div>
-
     <div class="form-group">
       <label>Amount (Quota 2,000 - 1,000,000 KSH):</label>
       <input type="number" id="amount" placeholder="Enter amount in KSH" />
@@ -123,10 +101,7 @@
   </div>
 
   <script>
-    const balance = 20500.75; // Sample balance
-    const exchangeRate = 1 * 26.75; // KSH to UGX (1 KSH = 26.75 UGX)
-
-    document.getElementById("balance").textContent = balance.toFixed(2);
+    const exchangeRate = 26.75; // 1 KSH = 26.75 UGX
 
     document.getElementById("amount").addEventListener("input", function () {
       const amount = parseFloat(this.value);
@@ -149,10 +124,6 @@
 
       if (amount < 2000 || amount > 1000000) {
         return showPopup("Amount must be between 2,000 and 1,000,000 KSH");
-      }
-
-      if (amount > balance) {
-        return showPopup("Insufficient balance");
       }
 
       showPopup("Withdrawal submitted", true);
