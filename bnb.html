@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BEP20 Recharge</title>
+  <title>BNB Recharge</title>
   <style>
     body {
       background-color: #001f3f;
@@ -87,12 +87,12 @@
 </head>
 <body>
   <div class="container">
-    <h2><img src="https://api.tkteam.cc/static/image/bep20-usdt.webp" alt="BEP20" class="token">BEP20 - USDT</h2>
+    <h2><img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="BNB" class="token">BNB Recharge</h2>
 
     <canvas id="qrcode" class="qr"></canvas>
 
     <div class="address-row">
-      <span class="address-text" id="wallet-address">0xe5e959e57ae1937acf0dde128a8b7ee0aa970168</span>
+      <span class="address-text" id="wallet-address">bnb1w34k53py5v5xyluazqpq65agyajavep38dy5n9</span>
       <button class="copy-btn" onclick="copyAddress()">Copy</button>
     </div>
 
@@ -100,10 +100,9 @@
   </div>
 
   <div class="info-box">
-    1. Copy the address above or scan the QR code and select the BNB Smart Chain (BEP20) network to recharge USDT<br><br>
-    2. Please do not recharge other non-BNB Smart Chain (BEP20)-USDT assets.<br><br>
-    3. The funds will arrive in your account in about 1 to 3 minutes after recharging.<br><br>
-    4. If it does not arrive for a long time, please refresh the page or contact customer service.
+    1. Copy the address above or scan the QR code and use Binance Chain (BNB)<br><br>
+    2. Do not send other coins to this address. Use only BNB<br><br>
+    3. Funds typically arrive in 1–3 minutes. If delayed, refresh or contact support.
   </div>
 
   <!-- Firebase + QRious -->
@@ -112,7 +111,6 @@
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -127,7 +125,7 @@
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    const address = "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168";
+    const address = "bnb1w34k53py5v5xyluazqpq65agyajavep38dy5n9";
     new QRious({
       element: document.getElementById('qrcode'),
       value: address,
