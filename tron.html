@@ -134,6 +134,11 @@
 
   <!-- QR Generator -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
     // Firebase configuration
     const firebaseConfig = {
@@ -146,18 +151,51 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
+    firebase.initializeApp(firebaseConfig);
 
-    // Generate QR Code
-    const canvas = document.createElement('canvas');
-    document.getElementById('qrcode').appendChild(canvas);
-    new QRious({
-      element: canvas,
-      value: "TBHiPNGTw3EmAYQcKznHp2a5RERvT7E72K",
-      size: 200,
-      level: 'H'
+    let currentUser = null;
+    let userBalance = 0;
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        const uid = user.uid;
+        firebase.database().ref("users/" + uid + "/balance").once("value").then(snapshot => {
+          userBalance = parseFloat(snapshot.val() || 0);
+        });
+      } else {
+        location.href = "landing.html";
+      }
     });
 
-    // Copy button
+    function startRecharge() {
+      if (!currentUser) return;
+
+      const loader = document.createElement("div");
+      loader.className = "loader-popup";
+      document.body.appendChild(loader);
+
+      setTimeout(() => {
+        loader.remove();
+
+        if (userBalance < 1) {
+          const errPopup = document.createElement("div");
+          errPopup.className = "popup";
+          errPopup.style.backgroundColor = "#dc3545";
+          errPopup.textContent = "Insufficient balance to confirm recharge.";
+          document.body.appendChild(errPopup);
+          setTimeout(() => errPopup.remove(), 2500);
+          return;
+        }
+
+        const popup = document.createElement("div");
+        popup.className = "popup";
+        popup.textContent = "Recharge complete!";
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2500);
+      }, 3000);
+    }
+
     function copyAddress() {
       const address = document.getElementById("wallet-address").textContent;
       navigator.clipboard.writeText(address).then(() => {
@@ -169,21 +207,15 @@
       });
     }
 
-    // Recharge loading + popup
-    function startRecharge() {
-      const loader = document.createElement("div");
-      loader.className = "loader-popup";
-      document.body.appendChild(loader);
-
-      setTimeout(() => {
-        loader.remove();
-        const popup = document.createElement("div");
-        popup.className = "popup";
-        popup.textContent = "Recharge complete!";
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 2500);
-      }, 3000);
-    }
+    // Generate QR code
+    const canvas = document.createElement('canvas');
+    document.getElementById('qrcode').appendChild(canvas);
+    new QRious({
+      element: canvas,
+      value: "TBHiPNGTw3EmAYQcKznHp2a5RERvT7E72K",
+      size: 200,
+      level: 'H'
+    });
   </script>
 </body>
 </html>
