@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Task - CYPX ONLINE CRYPTO</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-  <!-- Firebase SDK (compat version for broad support) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
-  <script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  <!-- Firebase SDK (compat version for broad support) -->  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -20,9 +15,9 @@
       measurementId: "G-4RSQXZJX44"
     };
     firebase.initializeApp(firebaseConfig);
-  </script>
-
-  <style>
+    const auth = firebase.auth();
+    const db = firebase.database();
+  </script>  <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -35,6 +30,13 @@
       text-align: center;
       font-weight: bold;
       font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header img {
+      height: 30px;
+      margin-right: 10px;
     }
     .countdown {
       background-color: #001a33;
@@ -97,15 +99,15 @@
       font-weight: bold;
       z-index: 9999;
     }
-  </style>
-</head>
+  </style></head>
 <body>
-  <div class="header">Task Reset</div>
+  <div class="header">
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
+    CYPX ONLINE CRYPTO
+  </div>
   <div class="countdown">
     Reset In: <span id="countdown">--:--:--</span>
-  </div>
-
-  <div class="task-summary">
+  </div>  <div class="task-summary">
     <div>
       <span id="total-tasks">0</span>
       Today's All Tasks
@@ -114,9 +116,7 @@
       <span id="remaining-tasks">0</span>
       Today's Remaining Tasks
     </div>
-  </div>
-
-  <div class="task-summary">
+  </div>  <div class="task-summary">
     <div>
       <span id="in-progress">0</span>
       In Progress
@@ -125,70 +125,87 @@
       <span id="completed">0</span>
       Completed
     </div>
-  </div>
-
-  <nav>
+  </div>  <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="#" onclick="checkReferrals()"><i class="fas fa-user-friends"></i><br>Details</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
+  </nav>  <script>
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        const uid = user.uid;
+        const vipRef = db.ref('users/' + uid + '/vipLevels');
+        const referralsRef = db.ref('users/' + uid + '/referrals');
 
-  <script>
-    window.onload = function () {
-      // Countdown — synced with dashboard
-      function startCountdown() {
-        const countdown = document.getElementById("countdown");
-        let start = localStorage.getItem("countdownStart");
-        if (!start) {
-          start = Date.now();
-          localStorage.setItem("countdownStart", start);
-        }
-
-        function updateCountdown() {
-          const now = Date.now();
-          let diff = 86400000 - (now - start);
-          if (diff <= 0) {
+        // Countdown
+        function startCountdown() {
+          const countdown = document.getElementById("countdown");
+          let start = localStorage.getItem("countdownStart");
+          if (!start) {
             start = Date.now();
             localStorage.setItem("countdownStart", start);
-            diff = 86400000;
           }
 
-          const h = Math.floor(diff / 3600000),
-                m = Math.floor((diff % 3600000) / 60000),
-                s = Math.floor((diff % 60000) / 1000);
-          countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+          function updateCountdown() {
+            const now = Date.now();
+            let diff = 86400000 - (now - start);
+            if (diff <= 0) {
+              start = Date.now();
+              localStorage.setItem("countdownStart", start);
+              diff = 86400000;
+            }
+
+            const h = Math.floor(diff / 3600000),
+                  m = Math.floor((diff % 3600000) / 60000),
+                  s = Math.floor((diff % 60000) / 1000);
+            countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+          }
+
+          updateCountdown();
+          setInterval(updateCountdown, 1000);
         }
 
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+        function updateTaskCounters() {
+          vipRef.once('value').then(snapshot => {
+            const unlocked = snapshot.val() || [];
+            const total = unlocked.length;
+            const completed = 0;
+            document.getElementById("total-tasks").textContent = total;
+            document.getElementById("remaining-tasks").textContent = total - completed;
+            document.getElementById("in-progress").textContent = total - completed;
+            document.getElementById("completed").textContent = completed;
+          });
+        }
+
+        startCountdown();
+        updateTaskCounters();
+      } else {
+        window.location.href = "landing.html";
       }
+    });
 
-      // Task Counter — only if VIPs are unlocked
-      function updateTaskCounters() {
-        const unlocked = JSON.parse(localStorage.getItem("vipLevels") || "[]");
-        const total = unlocked.length;
-        const completed = 0;
+    function showPopup(msg, red = false) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.style.backgroundColor = red ? "#b30000" : "green";
+      popup.textContent = msg;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
 
-        document.getElementById("total-tasks").textContent = total;
-        document.getElementById("remaining-tasks").textContent = total - completed;
-        document.getElementById("in-progress").textContent = total - completed;
-        document.getElementById("completed").textContent = completed;
-      }
-
-      function showPopup(msg, red = false) {
-        const popup = document.createElement("div");
-        popup.className = "popup";
-        popup.style.backgroundColor = red ? "#b30000" : "green";
-        popup.textContent = msg;
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 3000);
-      }
-
-      startCountdown();
-      updateTaskCounters();
-    };
-  </script>
-</body>
+    function checkReferrals() {
+      const user = auth.currentUser;
+      if (!user) return;
+      const referralsRef = db.ref('users/' + user.uid + '/referrals');
+      referralsRef.once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (!data || Object.keys(data).length === 0) {
+          showPopup("0 referrals", true);
+        } else {
+          showPopup(Object.keys(data).length + " referrals");
+        }
+      });
+    }
+  </script></body>
 </html>
