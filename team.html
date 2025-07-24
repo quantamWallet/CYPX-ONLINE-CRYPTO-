@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -98,57 +97,105 @@
     }
     .team-levels {
       padding-bottom: 80px;
-    }
+    }nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #002244;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
+nav a {
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+}
+nav i {
+  font-size: 20px;
+}
 
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    nav i {
-      font-size: 20px;
-    }
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: green;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  z-index: 9999;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
 
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: green;
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      z-index: 9999;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
   </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth();
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    const uid = user.uid;
+    const refLink = `${location.origin}/register.html?ref=${encodeURIComponent(user.email)}`;
+    document.getElementById("ref-link").value = refLink;
+
+    const teamRef = ref(database, `users/${uid}/teamStats`);
+    onValue(teamRef, snap => {
+      const stats = snap.val() || {};
+      const values = {
+        teamSize: stats.teamSize || 0,
+        recharge: stats.recharge || 0,
+        withdrawal: stats.withdrawal || 0,
+        newTeam: stats.newTeam || 0,
+        firstRecharge: stats.firstRecharge || 0,
+        firstWithdrawal: stats.firstWithdrawal || 0
+      };
+
+      const statBoxes = document.querySelectorAll(".stat-box");
+      statBoxes[0].children[1].textContent = values.teamSize;
+      statBoxes[1].children[1].textContent = `KSH ${values.recharge.toFixed(2)}`;
+      statBoxes[2].children[1].textContent = `KSH ${values.withdrawal.toFixed(2)}`;
+      statBoxes[3].children[1].textContent = values.newTeam;
+      statBoxes[4].children[1].textContent = values.firstRecharge;
+      statBoxes[5].children[1].textContent = values.firstWithdrawal;
+
+      const incomeLevels = [stats.lev1 || 0, stats.lev2 || 0, stats.lev3 || 0];
+      document.querySelectorAll(".level-box").forEach((box, idx) => {
+        box.querySelector(".level-info:last-child span:last-child").textContent = `KSH ${incomeLevels[idx].toFixed(2)}`;
+      });
+    });
+  } else {
+    location.href = "landing.html";
+  }
+});
+
+  </script>
 </head>
 <body>
   <header>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
     CYPX ONLINE CRYPTO - Team
-  </header>
-
-  <div class="referral">
+  </header>  <div class="referral">
     <div>Your Referral Link:</div>
     <input type="text" id="ref-link" readonly />
-  </div>
-
-  <div class="selection-period">Selection period</div>
-
-  <div class="stats">
+  </div>  <div class="selection-period">Selection period</div>  <div class="stats">
     <div class="stat-box">
       <div>Team Size</div>
       <div>0</div>
@@ -173,59 +220,36 @@
       <div>First Withdrawal</div>
       <div>0</div>
     </div>
-  </div>
-
-  <div class="team-levels">
+  </div>  <div class="team-levels">
     <div class="team-section-title">LEV 1</div>
     <div class="level-box">
       <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
       <div class="level-info"><span>Commission Percentage:</span><span>17%</span></div>
       <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
       <button class="details-btn">Details</button>
-    </div>
+    </div><div class="team-section-title">LEV 2</div>
+<div class="level-box">
+  <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
+  <div class="level-info"><span>Commission Percentage:</span><span>2%</span></div>
+  <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
+  <button class="details-btn">Details</button>
+</div>
 
-    <div class="team-section-title">LEV 2</div>
-    <div class="level-box">
-      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
-      <div class="level-info"><span>Commission Percentage:</span><span>2%</span></div>
-      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
-      <button class="details-btn">Details</button>
-    </div>
+<div class="team-section-title">LEV 3</div>
+<div class="level-box">
+  <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
+  <div class="level-info"><span>Commission Percentage:</span><span>1%</span></div>
+  <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
+  <button class="details-btn">Details</button>
+</div>
 
-    <div class="team-section-title">LEV 3</div>
-    <div class="level-box">
-      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
-      <div class="level-info"><span>Commission Percentage:</span><span>1%</span></div>
-      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
-      <button class="details-btn">Details</button>
-    </div>
-  </div>
-
-  <nav>
+  </div>  <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
-
-  <script>
-    // Injected Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
-    const user = localStorage.getItem("userEmail") || "user@example.com";
-    const baseUrl = location.origin + "/register.html?ref=";
-    document.getElementById("ref-link").value = `${baseUrl}${encodeURIComponent(user)}`;
-
+  </nav>  <script>
     const buttons = document.querySelectorAll('.details-btn');
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -242,6 +266,5 @@
         setTimeout(() => popup.remove(), 3000);
       });
     });
-  </script>
-</body>
+  </script></body>
 </html>
