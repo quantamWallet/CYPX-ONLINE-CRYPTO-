@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw - CYPX ONLINE CRYPTO</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      padding-bottom: 80px;
+    }
+    header {
+      background-color: #002f6c;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    header img {
+      width: 28px;
+      height: 28px;
+    }
+    .section {
+      padding: 20px;
+    }
+    .balance-card {
+      background-color: #003366;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .balance-card img {
+      width: 70px;
+      margin-bottom: 10px;
+    }
+    .balance-card p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    .method-box {
+      background-color: #003366;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .method-box label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .method-select {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .method-select button {
+      flex: 1;
+      padding: 10px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      color: black;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .method-select button.active {
+      border: 2px solid white;
+      opacity: 1;
+    }
+    .method-info {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ffcc00;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .summary-box {
+      background-color: #003366;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    .summary-box p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    .confirm-btn {
+      background-color: #ffcc00;
+      color: black;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      width: 100%;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #28a745;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+      font-size: 16px;
+      text-align: center;
+      min-width: 250px;
+    }
+    .tips {
+      margin-top: 30px;
+      background-color: #002b5c;
+      padding: 15px;
+      border-radius: 10px;
+      color: #ffcc00;
+      font-size: 14px;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    nav i {
+      font-size: 20px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
+    CYPX ONLINE CRYPTO
+  </header>
+
+  <div class="section">
+    <div class="balance-card">
+      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
+      <p><strong>Total Balance:</strong> <span id="balance">0.00</span> KSH</p>
+    </div>
+
+    <div class="method-box">
+      <label>Withdrawal Method:</label>
+      <div class="method-select">
+        <button id="btn-trc20" onclick="selectMethod('TRC20')">TRC20-USDT</button>
+        <button id="btn-bep20" onclick="selectMethod('BEP20')">BEP20-USDT</button>
+      </div>
+      <div class="method-info" id="selected-method">Selected: TRC20-USDT</div>
+      <p style="margin-top: 10px;">Fees: <span id="fee">0%</span></p>
+    </div>
+
+    <div class="form-group">
+      <label>Amount (Quota 2,000 - 1,000,000 KSH):</label>
+      <input type="number" id="amount" placeholder="Enter amount in KSH" oninput="updateUSD()">
+    </div>
+
+    <div class="form-group">
+      <label>Withdrawal Address:</label>
+      <input type="text" id="address" placeholder="Enter wallet address">
+    </div>
+
+    <div class="form-group">
+      <label>Password:</label>
+      <input type="password" id="password" placeholder="Enter password">
+    </div>
+
+    <div class="summary-box">
+      <p><strong>Fees:</strong> <span id="feesText">0%</span></p>
+      <p><strong>Actually Received:</strong> <span id="actual">0 KSH</span></p>
+      <p><strong>USD Equivalent:</strong> <span id="usd">0.00 USD</span></p>
+    </div>
+
+    <button class="confirm-btn" onclick="submitWithdraw()">Confirm</button>
+
+    <div class="tips">
+      <p><strong>Tips:</strong></p>
+      <p>It is recommended to use BEP20 (USDT) for withdrawals</p>
+      <p>The minimum withdrawal amount is 2,000 KSH</p>
+      <p>Withdrawals are free of handling fees and available 24 hours a day!</p>
+      <p>Withdrawals can be received in just 1–3 minutes.</p>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
+
+  <!-- Firebase Config -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+  </script>
+
+  <script>
+    let selectedMethod = "TRC20";
+    const balance = 250000; // KSH
+    const conversionRate = 130; // 1 USD = 130 KSH
+    document.getElementById("balance").textContent = balance.toFixed(2);
+    document.getElementById("btn-trc20").classList.add("active");
+
+    function selectMethod(method) {
+      selectedMethod = method;
+      document.getElementById("selected-method").textContent = `Selected: ${method}-USDT`;
+      document.getElementById("fee").textContent = "0%";
+      document.getElementById("feesText").textContent = "0%";
+      document.getElementById("btn-trc20").classList.remove("active");
+      document.getElementById("btn-bep20").classList.remove("active");
+      if (method === "TRC20") {
+        document.getElementById("btn-trc20").classList.add("active");
+      } else {
+        document.getElementById("btn-bep20").classList.add("active");
+      }
+    }
+
+    function updateUSD() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const usd = isNaN(amount) ? 0 : amount / conversionRate;
+      document.getElementById("actual").textContent = `${amount.toFixed(2)} KSH`;
+      document.getElementById("usd").textContent = `${usd.toFixed(2)} USD`;
+    }
+
+    function submitWithdraw() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const address = document.getElementById("address").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!amount || !address || !password) {
+        return showPopup("Please fill in all fields");
+      }
+      if (amount < 2000 || amount > 1000000) {
+        return showPopup("Amount must be between 2,000 and 1,000,000 KSH");
+      }
+      if (amount > balance) {
+        return showPopup("Insufficient balance");
+      }
+
+      showPopup("Withdrawal submitted", true);
+    }
+
+    function showPopup(message, success = false) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.style.backgroundColor = success ? "#28a745" : "#dc3545";
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+  </script>
+</body>
+  </html>
