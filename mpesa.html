@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -12,199 +11,164 @@
       background-color: #001f3f;
       color: white;
       padding-bottom: 100px;
-    }
+    }header {
+  background-color: #34B233;
+  padding: 15px;
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 
-    header {
-      background-color: #34B233;
-      padding: 15px;
-      font-size: 20px;
-      text-align: center;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+header img {
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+}
 
-    header img {
-      height: 28px;
-      width: 28px;
-      border-radius: 50%;
-    }
+.container {
+  max-width: 500px;
+  margin: 30px auto;
+  background-color: #003366;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #00000050;
+}
 
-    .container {
-      max-width: 500px;
-      margin: 30px auto;
-      background-color: #003366;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #00000050;
-    }
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffcc00;
+}
 
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #ffcc00;
-    }
+.info {
+  text-align: left;
+  font-size: 15px;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
 
-    .info {
-      text-align: left;
-      font-size: 15px;
-      margin-bottom: 15px;
-      line-height: 1.6;
-    }
+.exchange-rate {
+  color: #ffcc00;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
 
-    .exchange-rate {
-      color: #ffcc00;
-      font-size: 15px;
-      margin-bottom: 15px;
-    }
+.input-box {
+  margin-bottom: 15px;
+}
 
-    .input-box {
-      margin-bottom: 15px;
-    }
+.input-box input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
 
-    .input-box input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
+.recharge-btn {
+  background-color: #34B233;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+}
 
-    .recharge-btn {
-      background-color: #34B233;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-    }
+.recharge-btn:hover {
+  background-color: #2fa02c;
+}
 
-    .recharge-btn:hover {
-      background-color: #2fa02c;
-    }
+.note {
+  font-size: 13px;
+  margin-top: 25px;
+  background-color: #002f5f;
+  padding: 12px;
+  border-radius: 10px;
+  color: #ffcc00;
+}
 
-    .note {
-      font-size: 13px;
-      margin-top: 25px;
-      background-color: #002f5f;
-      padding: 12px;
-      border-radius: 10px;
-      color: #ffcc00;
-    }
+.popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  box-shadow: 0 0 10px black;
+  display: none;
+  z-index: 1000;
+}
 
-    .popup {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #28a745;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      box-shadow: 0 0 10px black;
-      display: none;
-      z-index: 1000;
-    }
+nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #002244;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
 
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
+nav a {
+  color: white;
+  text-align: center;
+  text-decoration: none;
+}
 
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-    }
+nav i {
+  font-size: 20px;
+}
 
-    nav i {
-      font-size: 20px;
-    }
   </style>
 </head>
-<body>
-
-  <header>
+<body>  <header>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
     CYPX ONLINE CRYPTO
-  </header>
+  </header>  <div class="popup" id="popupMsg">Recharge submitted successfully! Please wait for confirmation.</div>  <div class="container">
+    <div class="title">Send Money Details</div><div class="info">
+  <p><strong>Send to Phone:</strong> 0759527834</p>
+  <p><strong>Name:</strong> LANGAT ROBERT</p>
+</div>
 
-  <div class="popup" id="popupMsg">Recharge submitted successfully! Please wait for confirmation.</div>
+<div class="exchange-rate">1 USD ≈ 129 KES</div>
 
-  <div class="container">
-    <div class="title">Send Money Details</div>
+<div class="input-box">
+  <input type="number" id="amount" placeholder="Enter amount in KES">
+</div>
 
-    <div class="info">
-      <p><strong>Send to Phone:</strong> 0759527834</p>
-      <p><strong>Name:</strong> LANGAT ROBERT</p>
-    </div>
+<div class="input-box">
+  <input type="text" id="code" placeholder="Enter M-PESA transaction code">
+</div>
 
-    <div class="exchange-rate">1 USD ≈ 129 KES</div>
+<button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
 
-    <div class="input-box">
-      <input type="number" id="amount" placeholder="Enter amount in KES">
-    </div>
+<div class="note">
+  <strong>Note:</strong><br>
+  - Only M-PESA Send Money is accepted here.<br>
+  - Recharge will reflect within 1–3 minutes.<br>
+  - Enter the correct M-PESA code for verification.
+</div>
 
-    <div class="input-box">
-      <input type="text" id="code" placeholder="Enter M-PESA transaction code">
-    </div>
-
-    <button class="recharge-btn" onclick="showPopup()">Submit Recharge</button>
-
-    <div class="note">
-      <strong>Note:</strong><br>
-      - Only M-PESA Send Money is accepted here.<br>
-      - Recharge will reflect within 1–3 minutes.<br>
-      - Enter the correct M-PESA code for verification.
-    </div>
-  </div>
-
-  <nav>
+  </div>  <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
-
-  <script>
-    function showPopup() {
-      const popup = document.getElementById('popupMsg');
-      const amount = document.getElementById('amount').value;
-      const code = document.getElementById('code').value;
-
-      if (!amount || !code) {
-        popup.style.backgroundColor = '#dc3545';
-        popup.innerText = "Please enter both amount and M-PESA code.";
-      } else {
-        popup.style.backgroundColor = '#28a745';
-        popup.innerText = "Recharge submitted successfully! Please wait for confirmation.";
-      }
-
-      popup.style.display = 'block';
-      setTimeout(() => {
-        popup.style.display = 'none';
-      }, 3000);
-    }
-  </script>
-
-  <!-- Firebase Initialization -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script>
+  </nav>  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -216,7 +180,35 @@
       measurementId: "G-4RSQXZJX44"
     };
     firebase.initializeApp(firebaseConfig);
-  </script>
 
-</body>
+    function submitRecharge() {
+      const popup = document.getElementById('popupMsg');
+      const amount = document.getElementById('amount').value;
+      const code = document.getElementById('code').value;
+      const user = firebase.auth().currentUser;
+
+      if (!amount || !code) {
+        popup.style.backgroundColor = '#dc3545';
+        popup.innerText = "Please enter both amount and M-PESA code.";
+      } else if (user) {
+        const rechargeRef = firebase.database().ref('recharges/' + user.uid).push();
+        rechargeRef.set({
+          amount: parseFloat(amount).toFixed(2),
+          code: code,
+          method: "M-PESA",
+          timestamp: Date.now()
+        });
+        popup.style.backgroundColor = '#28a745';
+        popup.innerText = "Recharge submitted successfully! Please wait for confirmation.";
+      } else {
+        popup.style.backgroundColor = '#dc3545';
+        popup.innerText = "You must be logged in to submit a recharge.";
+      }
+
+      popup.style.display = 'block';
+      setTimeout(() => {
+        popup.style.display = 'none';
+      }, 3000);
+    }
+  </script></body>
 </html>
