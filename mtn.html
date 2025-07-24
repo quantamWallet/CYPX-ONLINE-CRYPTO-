@@ -168,7 +168,7 @@
       <input type="text" id="phoneUsed" placeholder="Enter phone number used">
     </div>
 
-    <button class="recharge-btn" onclick="showPopup()">Submit Recharge</button>
+    <button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
 
     <div class="note">
       <strong>Note:</strong><br>
@@ -186,8 +186,11 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Firebase Config -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -199,7 +202,6 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
-
     firebase.initializeApp(firebaseConfig);
   </script>
 
@@ -208,33 +210,48 @@
 
     function convertToUGX() {
       const ksh = parseFloat(document.getElementById('kshInput').value);
-      if (!isNaN(ksh)) {
-        const ugx = ksh * rate;
-        document.getElementById('ugxResult').value = ugx.toFixed(2);
-      } else {
-        document.getElementById('ugxResult').value = '';
-      }
+      document.getElementById('ugxResult').value = !isNaN(ksh) ? (ksh * rate).toFixed(2) : '';
     }
 
-    function showPopup() {
+    function showPopup(message, color) {
       const popup = document.getElementById('popupMsg');
-      const phoneUsed = document.getElementById('phoneUsed').value;
-      const ugx = document.getElementById('ugxResult').value;
+      popup.innerText = message;
+      popup.style.backgroundColor = color;
+      popup.style.display = 'block';
+      setTimeout(() => popup.style.display = 'none', 3000);
+    }
 
-      if (!ugx || !phoneUsed) {
-        popup.style.backgroundColor = '#dc3545';
-        popup.innerText = "Please enter all required fields.";
-      } else {
-        popup.style.backgroundColor = '#28a745';
-        popup.innerText = "Recharge submitted successfully! Please wait for confirmation.";
+    function submitRecharge() {
+      const ksh = document.getElementById('kshInput').value.trim();
+      const ugx = document.getElementById('ugxResult').value.trim();
+      const phoneUsed = document.getElementById('phoneUsed').value.trim();
+
+      if (!ksh || !ugx || !phoneUsed) {
+        showPopup("Please enter all required fields.", "#dc3545");
+        return;
       }
 
-      popup.style.display = 'block';
-      setTimeout(() => {
-        popup.style.display = 'none';
-      }, 3000);
+      firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+          const uid = user.uid;
+          const rechargeData = {
+            method: "MTN Uganda",
+            kshAmount: parseFloat(ksh),
+            ugxAmount: parseFloat(ugx),
+            phoneUsed: phoneUsed,
+            timestamp: Date.now()
+          };
+          firebase.database().ref("recharges/" + uid).push(rechargeData).then(() => {
+            showPopup("Recharge submitted successfully! Please wait for confirmation.", "#28a745");
+            document.getElementById("kshInput").value = '';
+            document.getElementById("ugxResult").value = '';
+            document.getElementById("phoneUsed").value = '';
+          });
+        } else {
+          showPopup("Please sign in first.", "#dc3545");
+        }
+      });
     }
   </script>
-
 </body>
 </html>
