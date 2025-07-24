@@ -132,15 +132,14 @@
     const db = getDatabase(app);
 
     let currentUID = null;
-    let userBalance = 0;
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUID = user.uid;
         const balanceRef = ref(db, 'users/' + currentUID + '/balance');
         onValue(balanceRef, (snapshot) => {
-          userBalance = parseFloat(snapshot.val() || 0);
-          document.getElementById("balance").textContent = `Balance: KSH ${userBalance.toFixed(2)}`;
+          const balance = parseFloat(snapshot.val() || 0);
+          document.getElementById("balance").textContent = `Balance: KSH ${balance.toFixed(2)}`;
         });
       } else {
         window.location.href = "landing.html";
@@ -155,14 +154,7 @@
     }
 
     window.recharge = function () {
-      if (userBalance < 1) {
-        showPopup("Insufficient balance");
-      } else {
-        showPopup("Processing...");
-        setTimeout(() => {
-          showPopup("Recharge completed");
-        }, 3000);
-      }
+      showPopup("Recharge marked. Awaiting confirmation...");
     }
 
     window.showPopup = function (message) {
