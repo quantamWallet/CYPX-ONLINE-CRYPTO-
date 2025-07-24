@@ -116,88 +116,88 @@
   </style>
 
   <!-- ✅ Firebase Config Injected -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, get, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  <!-- ONLY the <script type="module"> part is updated below -->
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, get, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
 
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const vipLevels = [
+    { level: 1, interest: 1901, daily: 1901, total: 28515, cost: 13000 },
+    { level: 2, interest: 5600, daily: 5600, total: 84000, cost: 35000 },
+    { level: 3, interest: 8400, daily: 8400, total: 126000, cost: 65000 },
+    { level: 4, interest: 12200, daily: 12200, total: 183000, cost: 90000 },
+    { level: 5, interest: 20200, daily: 20200, total: 303000, cost: 150000 },
+    { level: 6, interest: 24800, daily: 24800, total: 372000, cost: 185000 },
+    { level: 7, interest: 30000, daily: 30000, total: 450000, cost: 226000 },
+    { level: 8, interest: 40400, daily: 40400, total: 606000, cost: 302000 },
+    { level: 9, interest: 53800, daily: 53800, total: 807000, cost: 400000 },
+    { level: 10, interest: 80000, daily: 80000, total: 1200000, cost: 500000 }
+  ];
+
+  let currentUser;
+
+  window.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById("vip-container");
     const popup = document.getElementById("popup");
     const popupText = document.getElementById("popup-text");
-
-    const vipLevels = [
-      { level: 1, interest: 1901, daily: 1901, total: 28515, cost: 13000 },
-      { level: 2, interest: 5600, daily: 5600, total: 84000, cost: 35000 },
-      { level: 3, interest: 8400, daily: 8400, total: 126000, cost: 65000 },
-      { level: 4, interest: 12200, daily: 12200, total: 183000, cost: 90000 },
-      { level: 5, interest: 20200, daily: 20200, total: 303000, cost: 150000 },
-      { level: 6, interest: 24800, daily: 24800, total: 372000, cost: 185000 },
-      { level: 7, interest: 30000, daily: 30000, total: 450000, cost: 226000 },
-      { level: 8, interest: 40400, daily: 40400, total: 606000, cost: 302000 },
-      { level: 9, interest: 53800, daily: 53800, total: 807000, cost: 400000 },
-      { level: 10, interest: 80000, daily: 80000, total: 1200000, cost: 500000 }
-    ];
-
-    let currentUser;
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         location.href = "landing.html";
       } else {
         currentUser = user;
-        renderVIP();
+        const userId = user.uid;
+        const userRef = ref(db, `users/${userId}`);
+
+        get(userRef).then(snapshot => {
+          let data = snapshot.val() || { balance: 0, vipLevels: [] };
+
+          vipLevels.forEach(vip => {
+            const card = document.createElement("div");
+            card.className = "vip-card";
+            const isUnlocked = data.vipLevels?.includes(vip.level);
+
+            card.innerHTML = `
+              <div class="vip-label">VIP${vip.level}</div>
+              <div class="vip-content">
+                <img src="https://api.tkteam.cc/upload/img/686bfb8b78a0.webp" alt="VIP icon" />
+                <div class="vip-details">
+                  <div><strong>Daily Tasks:</strong> 1</div>
+                  <div><strong>Simple Interest:</strong> <span style="color:#00ff00;">${vip.interest.toFixed(2)}</span></div>
+                  <div><strong>Daily Profit:</strong> ${vip.daily.toFixed(2)} KSH</div>
+                  <div><strong>Total Profit:</strong> ${vip.total.toFixed(2)} KSH</div>
+                  <button class="unlock-btn" ${isUnlocked ? 'disabled' : ''} onclick="unlockVIP(${vip.level}, ${vip.cost})">
+                    ${isUnlocked ? 'Unlocked' : vip.cost.toFixed(2) + ' KSH Unlock Now'}
+                  </button>
+                </div>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        });
+
         // Prevent back navigation after logout
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = () => window.history.pushState(null, "", window.location.href);
       }
     });
-
-    function renderVIP() {
-      const userId = currentUser.uid;
-      const userRef = ref(db, `users/${userId}`);
-
-      get(userRef).then(snapshot => {
-        let data = snapshot.val() || { balance: 0, vipLevels: [] };
-
-        vipLevels.forEach(vip => {
-          const card = document.createElement("div");
-          card.className = "vip-card";
-          const isUnlocked = data.vipLevels?.includes(vip.level);
-
-          card.innerHTML = `
-            <div class="vip-label">VIP${vip.level}</div>
-            <div class="vip-content">
-              <img src="https://api.tkteam.cc/upload/img/686bfb8b78a0.webp" alt="VIP icon" />
-              <div class="vip-details">
-                <div><strong>Daily Tasks:</strong> 1</div>
-                <div><strong>Simple Interest:</strong> <span style="color:#00ff00;">${vip.interest.toFixed(2)}</span></div>
-                <div><strong>Daily Profit:</strong> ${vip.daily.toFixed(2)} KSH</div>
-                <div><strong>Total Profit:</strong> ${vip.total.toFixed(2)} KSH</div>
-                <button class="unlock-btn" ${isUnlocked ? 'disabled' : ''} onclick="unlockVIP(${vip.level}, ${vip.cost})">
-                  ${isUnlocked ? 'Unlocked' : vip.cost.toFixed(2) + ' KSH Unlock Now'}
-                </button>
-              </div>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      });
-    }
 
     window.unlockVIP = function(level, cost) {
       const userId = currentUser.uid;
@@ -218,8 +218,9 @@
           }).then(() => location.reload());
         }
       });
-    }
-  </script>
+    };
+  });
+    </script>
 </head>
 <body>
   <header>
