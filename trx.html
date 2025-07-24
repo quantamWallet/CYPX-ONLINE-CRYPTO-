@@ -139,7 +139,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -154,34 +153,14 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    let currentUserUid = null;
-    let userBalance = 0;
-    const MIN_BALANCE_KSH = 50; // Example minimum required balance
 
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUserUid = user.uid;
-        const balanceRef = ref(db, 'users/' + currentUserUid + '/balance');
-        get(balanceRef).then(snapshot => {
-          if (snapshot.exists()) {
-            userBalance = parseFloat(snapshot.val());
-          } else {
-            userBalance = 0;
-          }
-        });
-      } else {
+      if (!user) {
         window.location.href = "landing.html";
       }
     });
 
     window.startRecharge = function () {
-      if (userBalance < MIN_BALANCE_KSH) {
-        showPopup("Insufficient balance!");
-        return;
-      }
-
       const loader = document.createElement("div");
       loader.className = "loader-popup";
       loader.textContent = "Processing...";
@@ -193,6 +172,13 @@
       }, 3000);
     };
 
+    window.copyAddress = function () {
+      const address = document.getElementById("wallet-address").textContent;
+      navigator.clipboard.writeText(address).then(() => {
+        showPopup("Address copied!");
+      });
+    };
+
     function showPopup(msg) {
       const popup = document.createElement("div");
       popup.className = "popup";
@@ -200,13 +186,6 @@
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 2500);
     }
-
-    window.copyAddress = function () {
-      const address = document.getElementById("wallet-address").textContent;
-      navigator.clipboard.writeText(address).then(() => {
-        showPopup("Address copied!");
-      });
-    };
 
     // Generate QR
     const canvas = document.createElement('canvas');
