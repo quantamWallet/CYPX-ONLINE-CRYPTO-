@@ -153,9 +153,8 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
-  <!-- Firebase Config + Auth Init -->
+  <!-- Firebase Config -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -170,38 +169,40 @@
 
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database();
   </script>
 
-  <!-- Profile Logic -->
+  <!-- Logic -->
   <script>
-    const userEmail = localStorage.getItem("userEmail") || "user@example.com";
-    document.getElementById("user-email").textContent = userEmail;
+    // Protect the page: redirect to landing.html if not signed in
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        localStorage.clear();
+        window.location.replace("landing.html");
+      }
+    });
 
-    // Example balance values
-    const totalBalanceKsh = 0.0559 * 155;
-    const rechargeAmountKsh = 0 * 155;
-    document.getElementById("total-balance").textContent = totalBalanceKsh.toFixed(2);
-    document.getElementById("recharge-amount").textContent = rechargeAmountKsh.toFixed(2);
+    // Set user info and balances
+    document.addEventListener("DOMContentLoaded", () => {
+      const userEmail = localStorage.getItem("userEmail") || "user@example.com";
+      document.getElementById("user-email").textContent = userEmail;
+
+      const totalBalanceKsh = (0.0559 * 155).toFixed(2);
+      const rechargeAmountKsh = (0 * 155).toFixed(2);
+
+      document.getElementById("total-balance").textContent = totalBalanceKsh;
+      document.getElementById("recharge-amount").textContent = rechargeAmountKsh;
+    });
 
     // Sign out securely
     function signOutUser() {
       auth.signOut().then(() => {
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = "index.html";
-      }).catch((error) => {
-        alert("Error signing out: " + error.message);
+        window.location.replace("landing.html");
+      }).catch(error => {
+        alert("Sign-out failed: " + error.message);
       });
     }
-
-    // Optional: Protect this page
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        localStorage.clear();
-        window.location.href = "index.html";
-      }
-    });
   </script>
 </body>
 </html>
