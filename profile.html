@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CYPX ONLINE CRYPTO - Profile</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -17,6 +14,7 @@
     .top-bar {
       background-color: #001b33;
       display: flex;
+      justify-content: space-between;
       align-items: center;
       padding: 10px 15px;
     }
@@ -27,10 +25,9 @@
       display: flex;
       align-items: center;
     }
-    .top-bar img {
-      width: 24px;
-      height: 24px;
-      margin-right: 8px;
+    .top-bar .title img {
+      height: 25px;
+      margin-right: 10px;
     }
     .profile-section {
       background-color: #072544;
@@ -38,6 +35,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    .profile-info {
+      color: white;
     }
     .profile-info .email {
       font-size: 14px;
@@ -48,8 +48,8 @@
       padding: 3px 8px;
       border-radius: 6px;
       font-size: 12px;
-      margin-top: 4px;
       display: inline-block;
+      margin-top: 4px;
     }
     .profile-icon {
       width: 60px;
@@ -111,52 +111,41 @@
 <body>  
   <div class="top-bar">
     <div class="title">
-      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
+      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" />
       CYPX ONLINE CRYPTO
     </div>
   </div>  
-
   <div class="profile-section">
     <div class="profile-info">
       <div class="email" id="user-email">user@example.com</div>
-      <div class="vip">vip0</div>
+      <div class="vip" id="user-vip">vip0</div>
     </div>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Profile" class="profile-icon" />
   </div>  
-
   <div class="balance-box">
     <div>
-      <div>Total balance (Ksh)</div>
+      <div>Total balance (KSH)</div>
       <div id="total-balance">0.00</div>
     </div>
     <div>
-      <div>Recharge amount (Ksh)</div>
+      <div>Recharge amount (KSH)</div>
       <div id="recharge-amount">0.00</div>
     </div>
   </div>  
-
   <div class="menu">
     <a href="recharge.html" class="menu-item"><i class="fas fa-bank"></i>Recharge</a>
     <a href="withdraw.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i>Withdraw</a>
     <a href="financial.html" class="menu-item"><i class="fas fa-file-invoice-dollar"></i>Financial records</a>
     <a href="password.html" class="menu-item"><i class="fas fa-key"></i>Change Password</a>
-    <a href="#" class="menu-item" onclick="signOutUser()"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
+    <a href="#" class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
   </div>  
-
   <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>  
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
-  <!-- Firebase Config -->
-  <script>
+  </nav>    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -167,49 +156,31 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
-
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-  </script>
+    const db = firebase.database();
 
-  <!-- Logic -->
-  <script>
-    // Prevent back navigation after logout
-    if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
-      location.reload();
-    }
-
-    // Redirect if not signed in
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.replace("landing.html");
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById("user-email").textContent = user.email;
+        const userId = user.uid;
+        const userRef = db.ref("users/" + userId);
+        userRef.once("value").then(snapshot => {
+          const data = snapshot.val() || {};
+          document.getElementById("total-balance").textContent = parseFloat(data.balance || 0).toFixed(2);
+          document.getElementById("recharge-amount").textContent = parseFloat(data.recharge || 0).toFixed(2);
+          document.getElementById("user-vip").textContent = data.vipLevel || "vip0";
+        });
+      } else {
+        window.location.href = "landing.html";
       }
     });
 
-    // Set user info and balances
-    document.addEventListener("DOMContentLoaded", () => {
-      const userEmail = localStorage.getItem("userEmail") || "user@example.com";
-      document.getElementById("user-email").textContent = userEmail;
-
-      const totalBalanceKsh = (0.0559 * 155).toFixed(2);
-      const rechargeAmountKsh = (0 * 155).toFixed(2);
-
-      document.getElementById("total-balance").textContent = totalBalanceKsh;
-      document.getElementById("recharge-amount").textContent = rechargeAmountKsh;
-    });
-
-    // Sign out securely
-    function signOutUser() {
+    function logout() {
       auth.signOut().then(() => {
         localStorage.clear();
-        sessionStorage.clear();
-        window.location.replace("landing.html");
-      }).catch(error => {
-        alert("Sign-out failed: " + error.message);
+        window.location.href = "landing.html";
       });
     }
-  </script>
-</body>
+  </script></body>
 </html>
