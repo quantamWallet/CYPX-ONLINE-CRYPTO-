@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -113,11 +112,11 @@
     nav i {
       font-size: 20px;
     }
-  </style>
-
-  <!-- ✅ Firebase Config Injected -->
-  <script type="module">
+  </style>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -128,33 +127,48 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
-    initializeApp(firebaseConfig);
-  </script>
-</head>
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getDatabase();
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        location.replace("landing.html");
+      } else {
+        const balanceRef = ref(db, `users/${user.uid}/balance`);
+        get(balanceRef).then(snapshot => {
+          if (snapshot.exists()) {
+            const balance = parseFloat(snapshot.val());
+            localStorage.setItem("balance", balance);
+          }
+        });
+      }
+    });
+
+    window.onload = () => {
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = () => {
+          window.history.go(1);
+        };
+      }
+    };
+  </script></head>
 <body>
   <header>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
     CYPX ONLINE CRYPTO - VIP
-  </header>
-
-  <div id="vip-container"></div>
-
-  <div class="bottom-space"></div>
-
-  <nav>
+  </header>  <div id="vip-container"></div>  <div class="bottom-space"></div>  <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
-
-  <div id="popup" class="popup" style="display:none;">
+  </nav>  <div id="popup" class="popup" style="display:none;">
     <div id="popup-text"></div>
     <button onclick="location.href='recharge.html'">Confirm</button>
-  </div>
-
-  <script>
+  </div>  <script>
     const vipLevels = [
       { level: 1, interest: 1901, daily: 1901, total: 28515, cost: 13000 },
       { level: 2, interest: 5600, daily: 5600, total: 84000, cost: 35000 },
@@ -210,6 +224,5 @@
         document.getElementById("popup").style.display = "block";
       }
     }
-  </script>
-</body>
+  </script></body>
 </html>
