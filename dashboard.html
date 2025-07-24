@@ -9,7 +9,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
       storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
@@ -19,6 +19,7 @@
     firebase.initializeApp(firebaseConfig);
   </script>
   <style>
+    /* [unchanged styles from original] */
     body { margin: 0; font-family: Arial, sans-serif; background-color: #001f3f; color: white; }
     header { background-color: #002f6c; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
     .announcement { background-color: #00274d; color: #fff700; padding: 10px; white-space: nowrap; overflow: hidden; box-sizing: border-box; border-top: 1px solid #003; border-bottom: 1px solid #003; cursor: pointer; }
@@ -57,9 +58,13 @@
       <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" style="height: 30px;" />
       <h2 style="margin: 0;">CYPX ONLINE CRYPTO</h2>
     </div>
-  </header>  <div class="announcement" id="ann-btn">
+  </header>
+
+  <div class="announcement" id="ann-btn">
     <div class="announcement-content">🛒Welcome to CYPX ONLINE CRYPTO 🛒 Recruiting investors and agents worldwide!</div>
-  </div>  <div class="balance-section">
+  </div>
+
+  <div class="balance-section">
     <div class="email" id="user-email"></div>
     <div class="balance" id="user-balance">Balance: KSh 0.00</div>
     <div class="balance-buttons">
@@ -67,101 +72,132 @@
       <button onclick="location.href='withdraw.html'"><i class="fas fa-hand-holding-usd"></i>Withdraw</button>
       <button onclick="location.href='company.html'"><i class="fas fa-building"></i>Company</button>
     </div>
-  </div>  <div class="extra-info">
+  </div>
+
+  <div class="extra-info">
     <img src="https://api.tkteam.cc/upload/img/686bf98e78c7.webp" alt="Floating Banner">
     <p>Improve VIP task rules on the same day. Upgrading the VIP level allows you to complete more tasks without restriction.</p>
     <button class="claim-btn" id="claim-btn">Claim 250.00 KES</button>
-  </div>  <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>
+  </div>
+
+  <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>
   <div class="vip-list" id="vip-list"></div>
   <div class="vip-images">
     <img src="https://api.tkteam.cc/upload/img/683c2ce69148.webp" alt="VIP Banner 1">
     <img src="https://api.tkteam.cc/upload/img/683c2cd8a27e.webp" alt="VIP Banner 2">
-  </div>  <nav>
+  </div>
+
+  <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>  <script>
-    window.onload = function () {
-      const userEmail = localStorage.getItem("userEmail") || "kiproticnicel@gmail.com";
-      document.getElementById("user-email").textContent = userEmail;
-      let balance = parseFloat(localStorage.getItem("balance") || "0");
-      document.getElementById("user-balance").textContent = `Balance: KSh ${balance.toFixed(2)}`;
-      const claimBtn = document.getElementById("claim-btn");
-      const hasClaimed = localStorage.getItem("hasClaimedBonus") === "true";
-      if (hasClaimed) {
-        claimBtn.textContent = "Completed";
-        claimBtn.disabled = true;
-      }
-      claimBtn.onclick = function () {
-        if (localStorage.getItem("hasClaimedBonus") === "true") return;
-        balance += 250;
-        localStorage.setItem("balance", balance.toFixed(2));
-        document.getElementById("user-balance").textContent = `Balance: KSh ${balance.toFixed(2)}`;
-        claimBtn.textContent = "Completed";
-        claimBtn.disabled = true;
-        localStorage.setItem("hasClaimedBonus", "true");
-        showPopup("250 KSh successfully Claimed");
-      };
+  </nav>
 
-      function showPopup(msg, red = false) {
-        const popup = document.createElement("div");
-        popup.className = "popup" + (red ? " red" : "");
-        popup.textContent = msg;
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 3000);
-      }
-
-      const vipData = [13000, 35000, 65000, 90000, 150000, 185000, 226000, 302000, 400000, 500000];
-      function renderVIPList() {
-        const list = document.getElementById("vip-list");
-        list.innerHTML = "";
-        const unlocked = JSON.parse(localStorage.getItem("vipLevels") || "[]");
-        vipData.forEach((amt, idx) => {
-          const lvl = idx + 1;
-          const lockIcon = unlocked.includes(lvl) ? "🔓" : "🔐";
-          const div = document.createElement("div");
-          div.className = "vip-box";
-          div.innerHTML = `
-            <img src="https://api.tkteam.cc/upload/img/686bfbaa6b3a.webp" alt="VIP Icon">
-            <div class="info">
-              <p>Unlock amount: <span class="amount">KSh ${amt.toFixed(2)}</span></p>
-              <p>${lockIcon} VIP${lvl}</p>
-            </div>
-            <div class="arrow">&raquo;</div>
-          `;
-          div.querySelector(".arrow").onclick = () => {
-            showPopup("Please unlock your VIP levels first", true);
-          };
-          list.appendChild(div);
-        });
-      }
-      renderVIPList();
-
-      function startCountdown() {
-        const countdown = document.getElementById("countdown");
-        let start = localStorage.getItem("countdownStart");
-        if (!start) {
-          start = Date.now();
-          localStorage.setItem("countdownStart", start);
+  <script>
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        localStorage.clear();
+        window.location.href = "landing.html";
+      } else {
+        // Prevent back after logout
+        if (performance.navigation.type === 2) {
+          firebase.auth().signOut().then(() => {
+            window.location.replace("landing.html");
+          });
         }
-        function update() {
-          const now = Date.now();
-          let diff = 86400000 - (now - start);
-          if (diff <= 0) {
+
+        const userEmail = user.email;
+        document.getElementById("user-email").textContent = userEmail;
+
+        // Load balance from Firebase
+        const userRef = firebase.database().ref("users/" + user.uid);
+        userRef.child("balance").once("value").then(snapshot => {
+          let balance = parseFloat(snapshot.val() || "0");
+          localStorage.setItem("balance", balance.toFixed(2));
+          document.getElementById("user-balance").textContent = `Balance: KSh ${balance.toFixed(2)}`;
+        });
+
+        const claimBtn = document.getElementById("claim-btn");
+        const hasClaimed = localStorage.getItem("hasClaimedBonus") === "true";
+        if (hasClaimed) {
+          claimBtn.textContent = "Completed";
+          claimBtn.disabled = true;
+        }
+
+        claimBtn.onclick = () => {
+          if (localStorage.getItem("hasClaimedBonus") === "true") return;
+          let balance = parseFloat(localStorage.getItem("balance") || "0");
+          balance += 250;
+          localStorage.setItem("balance", balance.toFixed(2));
+          document.getElementById("user-balance").textContent = `Balance: KSh ${balance.toFixed(2)}`;
+          userRef.child("balance").set(balance.toFixed(2)); // Update Firebase
+          claimBtn.textContent = "Completed";
+          claimBtn.disabled = true;
+          localStorage.setItem("hasClaimedBonus", "true");
+          showPopup("250 KSh successfully Claimed");
+        };
+
+        function showPopup(msg, red = false) {
+          const popup = document.createElement("div");
+          popup.className = "popup" + (red ? " red" : "");
+          popup.textContent = msg;
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 3000);
+        }
+
+        const vipData = [13000, 35000, 65000, 90000, 150000, 185000, 226000, 302000, 400000, 500000];
+        function renderVIPList() {
+          const list = document.getElementById("vip-list");
+          list.innerHTML = "";
+          const unlocked = JSON.parse(localStorage.getItem("vipLevels") || "[]");
+          vipData.forEach((amt, idx) => {
+            const lvl = idx + 1;
+            const lockIcon = unlocked.includes(lvl) ? "🔓" : "🔐";
+            const div = document.createElement("div");
+            div.className = "vip-box";
+            div.innerHTML = `
+              <img src="https://api.tkteam.cc/upload/img/686bfbaa6b3a.webp" alt="VIP Icon">
+              <div class="info">
+                <p>Unlock amount: <span class="amount">KSh ${amt.toFixed(2)}</span></p>
+                <p>${lockIcon} VIP${lvl}</p>
+              </div>
+              <div class="arrow">&raquo;</div>
+            `;
+            div.querySelector(".arrow").onclick = () => {
+              showPopup("Please unlock your VIP levels first", true);
+            };
+            list.appendChild(div);
+          });
+        }
+        renderVIPList();
+
+        function startCountdown() {
+          const countdown = document.getElementById("countdown");
+          let start = localStorage.getItem("countdownStart");
+          if (!start) {
             start = Date.now();
             localStorage.setItem("countdownStart", start);
-            diff = 86400000;
           }
-          const h = Math.floor(diff / 3600000),
-                m = Math.floor((diff % 3600000)/60000),
-                s = Math.floor((diff %60000)/1000);
-          countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+          function update() {
+            const now = Date.now();
+            let diff = 86400000 - (now - start);
+            if (diff <= 0) {
+              start = Date.now();
+              localStorage.setItem("countdownStart", start);
+              diff = 86400000;
+            }
+            const h = Math.floor(diff / 3600000),
+                  m = Math.floor((diff % 3600000)/60000),
+                  s = Math.floor((diff %60000)/1000);
+            countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+          }
+          setInterval(update,1000);
         }
-        setInterval(update,1000);
+        startCountdown();
       }
-      startCountdown();
-    }
-  </script></body>
+    });
+  </script>
+</body>
 </html>
