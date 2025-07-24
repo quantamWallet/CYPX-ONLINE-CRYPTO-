@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -112,10 +113,13 @@
     nav i {
       font-size: 20px;
     }
-  </style>  <script type="module">
+  </style>
+
+  <!-- ✅ Firebase Config Injected -->
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -129,46 +133,13 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getDatabase();
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        location.replace("landing.html");
-      } else {
-        const balanceRef = ref(db, `users/${user.uid}/balance`);
-        get(balanceRef).then(snapshot => {
-          if (snapshot.exists()) {
-            const balance = parseFloat(snapshot.val());
-            localStorage.setItem("balance", balance);
-          }
-        });
-      }
-    });
+    const container = document.getElementById("vip-container");
+    const popup = document.getElementById("popup");
+    const popupText = document.getElementById("popup-text");
 
-    window.onload = () => {
-      if (window.history && window.history.pushState) {
-        window.history.pushState(null, null, window.location.href);
-        window.onpopstate = () => {
-          window.history.go(1);
-        };
-      }
-    };
-  </script></head>
-<body>
-  <header>
-    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
-    CYPX ONLINE CRYPTO - VIP
-  </header>  <div id="vip-container"></div>  <div class="bottom-space"></div>  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>  <div id="popup" class="popup" style="display:none;">
-    <div id="popup-text"></div>
-    <button onclick="location.href='recharge.html'">Confirm</button>
-  </div>  <script>
     const vipLevels = [
       { level: 1, interest: 1901, daily: 1901, total: 28515, cost: 13000 },
       { level: 2, interest: 5600, daily: 5600, total: 84000, cost: 35000 },
@@ -182,47 +153,91 @@
       { level: 10, interest: 80000, daily: 80000, total: 1200000, cost: 500000 }
     ];
 
-    const container = document.getElementById("vip-container");
-    const userBalance = parseFloat(localStorage.getItem("balance") || "0");
-    const unlocked = JSON.parse(localStorage.getItem("vipLevels") || "[]");
+    let currentUser;
 
-    vipLevels.forEach(vip => {
-      const card = document.createElement("div");
-      card.className = "vip-card";
-
-      card.innerHTML = `
-        <div class="vip-label">VIP${vip.level}</div>
-        <div class="vip-content">
-          <img src="https://api.tkteam.cc/upload/img/686bfb8b78a0.webp" alt="VIP icon" />
-          <div class="vip-details">
-            <div><strong>Daily Tasks:</strong> 1</div>
-            <div><strong>Simple Interest:</strong> <span style="color:#00ff00;">${vip.interest.toFixed(2)}</span></div>
-            <div><strong>Daily Profit:</strong> ${vip.daily.toFixed(2)} KSH</div>
-            <div><strong>Total Profit:</strong> ${vip.total.toFixed(2)} KSH</div>
-            <button class="unlock-btn" onclick="unlockVIP(${vip.level}, ${vip.cost})">
-              ${vip.cost.toFixed(2)} KSH Unlock Now
-            </button>
-          </div>
-        </div>
-      `;
-      container.appendChild(card);
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        location.href = "landing.html";
+      } else {
+        currentUser = user;
+        renderVIP();
+        // Prevent back navigation after logout
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = () => window.history.pushState(null, "", window.location.href);
+      }
     });
 
-    function unlockVIP(level, cost) {
-      if (userBalance >= cost) {
-        const current = JSON.parse(localStorage.getItem("vipLevels") || "[]");
-        if (!current.includes(level)) {
-          current.push(level);
-          localStorage.setItem("vipLevels", JSON.stringify(current));
-        }
-        alert("VIP Level Unlocked!");
-        location.reload();
-      } else {
-        const deficit = (cost - userBalance).toFixed(2);
-        document.getElementById("popup-text").textContent =
-          `The recharge balance is automatically unlocked\nNeed to recharge KSH${deficit}`;
-        document.getElementById("popup").style.display = "block";
-      }
+    function renderVIP() {
+      const userId = currentUser.uid;
+      const userRef = ref(db, `users/${userId}`);
+
+      get(userRef).then(snapshot => {
+        let data = snapshot.val() || { balance: 0, vipLevels: [] };
+
+        vipLevels.forEach(vip => {
+          const card = document.createElement("div");
+          card.className = "vip-card";
+          const isUnlocked = data.vipLevels?.includes(vip.level);
+
+          card.innerHTML = `
+            <div class="vip-label">VIP${vip.level}</div>
+            <div class="vip-content">
+              <img src="https://api.tkteam.cc/upload/img/686bfb8b78a0.webp" alt="VIP icon" />
+              <div class="vip-details">
+                <div><strong>Daily Tasks:</strong> 1</div>
+                <div><strong>Simple Interest:</strong> <span style="color:#00ff00;">${vip.interest.toFixed(2)}</span></div>
+                <div><strong>Daily Profit:</strong> ${vip.daily.toFixed(2)} KSH</div>
+                <div><strong>Total Profit:</strong> ${vip.total.toFixed(2)} KSH</div>
+                <button class="unlock-btn" ${isUnlocked ? 'disabled' : ''} onclick="unlockVIP(${vip.level}, ${vip.cost})">
+                  ${isUnlocked ? 'Unlocked' : vip.cost.toFixed(2) + ' KSH Unlock Now'}
+                </button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      });
     }
-  </script></body>
+
+    window.unlockVIP = function(level, cost) {
+      const userId = currentUser.uid;
+      const userRef = ref(db, `users/${userId}`);
+
+      get(userRef).then(snapshot => {
+        let data = snapshot.val();
+        if (!data || data.balance < cost) {
+          const deficit = (cost - (data?.balance || 0)).toFixed(2);
+          popupText.textContent = `The recharge balance is automatically unlocked\nNeed to recharge KSH${deficit}`;
+          popup.style.display = "block";
+        } else {
+          const updatedVIPs = data.vipLevels || [];
+          if (!updatedVIPs.includes(level)) updatedVIPs.push(level);
+          update(userRef, {
+            balance: data.balance - cost,
+            vipLevels: updatedVIPs
+          }).then(() => location.reload());
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="logo">
+    CYPX ONLINE CRYPTO - VIP
+  </header>
+  <div id="vip-container"></div>
+  <div class="bottom-space"></div>
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
+  <div id="popup" class="popup" style="display:none;">
+    <div id="popup-text"></div>
+    <button onclick="location.href='recharge.html'">Confirm</button>
+  </div>
+</body>
 </html>
