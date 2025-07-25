@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,189 +6,178 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #ff0000; /* changed from #001f3f */
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      padding-bottom: 100px;
+    }header {
+  background-color: #FFCC00;
+  padding: 15px;
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+header img {
+  height: 28px;
+}
+
+.container {
+  max-width: 500px;
+  margin: 30px auto;
+  background-color: #b30000; /* red page container for Vodacom */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #00000050;
+  text-align: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffcc00;
+}
+
+.info {
+  text-align: left;
+  font-size: 15px;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.exchange-rate {
+  color: #ffcc00;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+.input-box {
+  margin-bottom: 15px;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+.recharge-btn {
+  background-color: #FFCC00;
+  color: black;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+}
+
+.recharge-btn:hover {
+  background-color: #e6b800;
+}
+
+.note {
+  font-size: 13px;
+  margin-top: 25px;
+  background-color: #002f5f;
+  padding: 12px;
+  border-radius: 10px;
+  color: #ffcc00;
+}
+
+.popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
   color: white;
-  padding-bottom: 100px;
-    }
+  padding: 15px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  box-shadow: 0 0 10px black;
+  display: none;
+  z-index: 1000;
+}
 
-    header {
-      background-color: #FFCC00;
-      padding: 15px;
-      font-size: 20px;
-      text-align: center;
-      font-weight: bold;
-      color: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #002244;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
 
-    header img {
-      height: 28px;
-    }
+nav a {
+  color: white;
+  text-align: center;
+  text-decoration: none;
+}
 
-    .container {
-      max-width: 500px;
-      margin: 30px auto;
-      background-color: #003366;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #00000050;
-      text-align: center;
-    }
+nav i {
+  font-size: 20px;
+}
 
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #ffcc00;
-    }
-
-    .info {
-      text-align: left;
-      font-size: 15px;
-      margin-bottom: 15px;
-      line-height: 1.6;
-    }
-
-    .exchange-rate {
-      color: #ffcc00;
-      font-size: 15px;
-      margin-bottom: 15px;
-    }
-
-    .input-box {
-      margin-bottom: 15px;
-    }
-
-    .input-box input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-
-    .recharge-btn {
-      background-color: #FFCC00;
-      color: black;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .recharge-btn:hover {
-      background-color: #e6b800;
-    }
-
-    .note {
-      font-size: 13px;
-      margin-top: 25px;
-      background-color: #002f5f;
-      padding: 12px;
-      border-radius: 10px;
-      color: #ffcc00;
-    }
-
-    .popup {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #28a745;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      box-shadow: 0 0 10px black;
-      display: none;
-      z-index: 1000;
-    }
-
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-    }
-
-    nav i {
-      font-size: 20px;
-    }
   </style>
 </head>
-<body>
-
-  <header>
+<body>  <header>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="CYPX Icon">
     CYPX ONLINE CRYPTO
-  </header>
+  </header>  <div class="popup" id="popupMsg">Recharge submitted successfully! Please wait for confirmation.</div>  <div class="container">
+    <div class="title">Vodacom Tanzania Recharge</div><div class="info">
+  <p>Piga *150*00#</p>
+  <p>Tuma pesa</p>
+  <p>Nje ya nchi</p>
+  <p>Kenya</p>
+  <p>Safaricom mpesa</p>
+  <p><strong>254759527834</strong></p>
+  <p><strong>LANGAT ROBERT</strong></p>
+</div>
 
-  <div class="popup" id="popupMsg">Recharge submitted successfully! Please wait for confirmation.</div>
+<div class="exchange-rate" id="exchangeText">1 KSH ≈ 18 TZS</div>
 
-  <div class="container">
-    <div class="title">Vodacom Tanzania Recharge</div>
+<div class="input-box">
+  <input type="number" id="kshInput" placeholder="Enter amount in KSH" oninput="convertToTZS()">
+</div>
 
-    <div class="info">
-      <p><strong>Send to Phone:</strong> 0755123456</p>
-      <p><strong>Name:</strong> JOHN DOE</p>
-    </div>
+<div class="input-box">
+  <input type="number" id="tzsResult" placeholder="TZS amount will show here" readonly>
+</div>
 
-    <div class="exchange-rate" id="exchangeText">1 KSH ≈ 18 TZS</div>
+<div class="input-box">
+  <input type="text" id="phoneUsed" placeholder="Enter phone number used">
+</div>
 
-    <div class="input-box">
-      <input type="number" id="kshInput" placeholder="Enter amount in KSH" oninput="convertToTZS()">
-    </div>
+<button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
 
-    <div class="input-box">
-      <input type="number" id="tzsResult" placeholder="TZS amount will show here" readonly>
-    </div>
+<div class="note">
+  <strong>Note:</strong><br>
+  - Only Vodacom M-Pesa transfers are accepted.<br>
+  - Recharge will reflect within 1–3 minutes.<br>
+  - Enter the correct phone number used to send money.
+</div>
 
-    <div class="input-box">
-      <input type="text" id="phoneUsed" placeholder="Enter phone number used">
-    </div>
-
-    <button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
-
-    <div class="note">
-      <strong>Note:</strong><br>
-      - Only Vodacom M-Pesa transfers are accepted.<br>
-      - Recharge will reflect within 1–3 minutes.<br>
-      - Enter the correct phone number used to send money.
-    </div>
-  </div>
-
-  <nav>
+  </div>  <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script>
+  </nav>  <!-- Firebase -->  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -204,9 +192,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
-  </script>
-
-  <script>
+  </script>  <script>
     const rate = 18;
 
     function convertToTZS() {
@@ -259,7 +245,5 @@
           showPopup("Error submitting recharge: " + error.message, false);
         });
     }
-  </script>
-
-</body>
+  </script></body>
 </html>
