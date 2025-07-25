@@ -93,11 +93,9 @@
 
   <div class="phone-group">
     <select id="countrySelector"></select>
-    <input type="tel" id="phone" placeholder="Phone Number" required />
   </div>
-</form>
 
-<script>
+  <script>
   const countries = [
   { dial: "+93", flag: "🇦🇫", code: "AF" },
   { dial: "+355", flag: "🇦🇱", code: "AL" },
@@ -315,7 +313,7 @@
   { dial: "+670", flag: "🇹🇱", code: "TL" },
   { dial: "+593", flag: "🇪🇨", code: "EC" },
   { dial: "+20", flag: "🇪🇬", code: "EG" },
-    { dial: "+503", flag: "🇸🇻", code: "SV" },
+  { dial: "+503", flag: "🇸🇻", code: "SV" },
   { dial: "+240", flag: "🇬🇶", code: "GQ" },
   { dial: "+291", flag: "🇪🇷", code: "ER" },
   { dial: "+372", flag: "🇪🇪", code: "EE" },
@@ -344,7 +342,7 @@
   { dial: "+224", flag: "🇬🇳", code: "GN" },
   { dial: "+245", flag: "🇬🇼", code: "GW" },
   { dial: "+592", flag: "🇬🇾", code: "GY" },
-    { dial: "+509", flag: "🇭🇹", code: "HT" },
+  { dial: "+509", flag: "🇭🇹", code: "HT" },
   { dial: "+39-06", flag: "🇭🇲", code: "HM" },
   { dial: "+504", flag: "🇭🇳", code: "HN" },
   { dial: "+852", flag: "🇭🇰", code: "HK" },
@@ -372,7 +370,7 @@
   { dial: "+996", flag: "🇰🇬", code: "KG" },
   { dial: "+856", flag: "🇱🇦", code: "LA" },
   { dial: "+371", flag: "🇱🇻", code: "LV" },
-    { dial: "+961", flag: "🇱🇧", code: "LB" },
+  { dial: "+961", flag: "🇱🇧", code: "LB" },
   { dial: "+266", flag: "🇱🇸", code: "LS" },
   { dial: "+231", flag: "🇱🇷", code: "LR" },
   { dial: "+218", flag: "🇱🇾", code: "LY" },
@@ -401,7 +399,7 @@
   { dial: "+212", flag: "🇲🇦", code: "MA" },
   { dial: "+258", flag: "🇲🇿", code: "MZ" },
   { dial: "+95", flag: "🇲🇲", code: "MM" },
-    { dial: "+264", flag: "🇳🇦", code: "NA" },
+  { dial: "+264", flag: "🇳🇦", code: "NA" },
   { dial: "+674", flag: "🇳🇷", code: "NR" },
   { dial: "+977", flag: "🇳🇵", code: "NP" },
   { dial: "+31", flag: "🇳🇱", code: "NL" },
@@ -457,7 +455,7 @@
   { dial: "+82", flag: "🇰🇷", code: "KR" },
   { dial: "+211", flag: "🇸🇸", code: "SS" },
   { dial: "+34", flag: "🇪🇸", code: "ES" },
-    { dial: "+94", flag: "🇱🇰", code: "LK" },
+  { dial: "+94", flag: "🇱🇰", code: "LK" },
   { dial: "+249", flag: "🇸🇩", code: "SD" },
   { dial: "+597", flag: "🇸🇷", code: "SR" },
   { dial: "+46", flag: "🇸🇪", code: "SE" },
@@ -491,7 +489,13 @@
   { dial: "+263", flag: "🇿🇼", code: "ZW" }
 ];
   const selector = document.getElementById("countrySelector");
-      </script>
+    countries.forEach(country => {
+      const option = document.createElement("option");
+      option.value = country.code;
+      option.textContent = `${country.dial} ${country.flag} ${country.code}`;
+      selector.appendChild(option);
+    });
+  </script>
   
     <input type="password" id="password" placeholder="Password" required />
     <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
