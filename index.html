@@ -109,7 +109,7 @@
   <h2>Grow Your Wealth With AI-Powered Trading</h2>
   <p>We invest in Bitcoin, binary, and forex markets using advanced AI trading bots to give you up to <strong>200% ROI in 24 hours</strong>.</p>
   <div style="text-align: center; margin-bottom: 40px;">
-    <a href="landing.html" class="btn">Get Started</a>
+    <a href="signup.html" class="btn">Get Started</a>
   </div>
 
   <section class="section">
@@ -154,7 +154,7 @@
 
   <section class="section" style="text-align:center">
     <h3>Ready to invest?</h3>
-    <a href="landing.html" class="btn">Create Your Account</a>
+    <a href="signup.html" class="btn">Create Your Account</a>
   </section>
 
   <footer>
@@ -165,7 +165,7 @@
   <!-- Firebase setup -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -178,8 +178,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
-    // You can use this `auth` object for login/signup functions elsewhere
+    window.auth = auth; // Make auth globally available
   </script>
 
   <!-- Register Service Worker -->
