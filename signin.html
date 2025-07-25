@@ -47,9 +47,36 @@
     h2 {
       text-align: center;
     }
+
+    /* Notification popup style */
+    #notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #00cc99;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      animation: fadeInOut 4s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    }
   </style>
 </head>
 <body>
+  <!-- Notification -->
+  <div id="notification"></div>
+
   <form id="signinForm">
     <h2>Sign In</h2>
     <input type="email" id="email" placeholder="Email" required />
@@ -76,6 +103,16 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    const showNotification = (message, color = "#00cc99") => {
+      const notif = document.getElementById("notification");
+      notif.textContent = message;
+      notif.style.backgroundColor = color;
+      notif.style.display = "block";
+      setTimeout(() => {
+        notif.style.display = "none";
+      }, 4000);
+    };
+
     document.getElementById("signinForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -84,10 +121,12 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        alert("Signed in successfully! Redirecting...");
-        window.location.href = "dashboard.html";
+        showNotification("Signed in successfully! Redirecting...");
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 2000);
       } catch (error) {
-        alert(error.message);
+        showNotification(error.message, "#cc3300"); // red background for error
       }
     });
   </script>
