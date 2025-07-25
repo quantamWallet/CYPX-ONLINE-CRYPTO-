@@ -139,7 +139,7 @@
     </div>
 
     <div class="summary-box">
-      <p><strong>KSH:</strong> <span id="ksh">0</span></p>
+      <p><strong>KSH:</strong> <span id="ksh">0.00</span></p>
       <p><strong>Equivalent USD:</strong> <span id="usd">0.00</span> USD</p>
     </div>
 
@@ -222,9 +222,10 @@
 
     document.getElementById("amount").addEventListener("input", function () {
       const ksh = parseFloat(this.value) || 0;
-      const usdRate = 145;
+      const usdRate = 130;
       const usd = ksh / usdRate;
-      document.getElementById("ksh").textContent = ksh.toFixed(2);
+
+      document.getElementById("ksh").textContent = ksh.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
       document.getElementById("usd").textContent = usd.toFixed(2);
     });
   </script>
