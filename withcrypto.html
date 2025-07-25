@@ -3,50 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crypto Withdrawal - CYPX ONLINE CRYPTO</title>
+  <title>Withdraw - CYPX ONLINE CRYPTO</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     body {
-      background-color: #1e1e1e;
-      color: white;
-      font-family: Arial, sans-serif;
-      padding-bottom: 80px;
       margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      padding-bottom: 80px;
     }
     header {
-      background-color: #000;
+      background-color: #002f6c;
       padding: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      text-align: center;
       font-size: 20px;
-    }
-    header img {
-      width: 28px;
-      height: 28px;
     }
     .section {
       padding: 20px;
     }
-    .method-toggle {
-      display: flex;
-      justify-content: space-around;
+    .balance-card {
+      background-color: #003366;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .balance-card img {
+      width: 70px;
+      margin-bottom: 10px;
+    }
+    .balance-card p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    .method-box {
+      background-color: #003366;
+      padding: 15px;
+      border-radius: 10px;
       margin-bottom: 20px;
     }
-    .method-toggle button {
+    .method-box label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .method-select {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .method-select button {
       flex: 1;
       padding: 10px;
-      border: none;
-      border-radius: 5px;
-      margin: 0 5px;
-      background-color: #444;
-      color: white;
       font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffcc00;
+      color: black;
       cursor: pointer;
+      opacity: 0.7;
     }
-    .method-toggle .active {
-      background-color: #28a745;
+    .method-select button.active {
+      border: 2px solid white;
+      opacity: 1;
+    }
+    .method-info {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ffcc00;
     }
     .form-group {
       margin-bottom: 15px;
@@ -54,29 +81,31 @@
     .form-group input {
       width: 100%;
       padding: 10px;
-      border-radius: 6px;
       border: none;
+      border-radius: 8px;
       font-size: 16px;
     }
     .summary-box {
-      background: #333;
+      background-color: #003366;
       padding: 15px;
       border-radius: 10px;
-      margin-top: 10px;
+      margin-top: 15px;
     }
     .summary-box p {
       margin: 5px 0;
+      font-size: 16px;
     }
     .confirm-btn {
-      width: 100%;
-      padding: 12px;
       background-color: #ffcc00;
       color: black;
-      font-weight: bold;
+      padding: 12px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-weight: bold;
       font-size: 18px;
+      width: 100%;
       margin-top: 15px;
+      cursor: pointer;
     }
     .popup {
       position: fixed;
@@ -93,58 +122,85 @@
       text-align: center;
       min-width: 250px;
     }
+    .tips {
+      margin-top: 30px;
+      background-color: #002b5c;
+      padding: 15px;
+      border-radius: 10px;
+      color: #ffcc00;
+      font-size: 14px;
+    }
     nav {
       position: fixed;
       bottom: 0;
-      width: 100%;
-      background-color: #000;
+      left: 0;
+      right: 0;
+      background-color: #002244;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
+      z-index: 1000;
     }
     nav a {
-      text-align: center;
       color: white;
+      text-align: center;
       text-decoration: none;
+      font-size: 14px;
     }
     nav i {
-      display: block;
       font-size: 20px;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo"> CYPX ONLINE CRYPTO
-  </header>
-
+  <header>Withdraw - CYPX ONLINE CRYPTO</header>
   <div class="section">
-    <div class="method-toggle">
-      <button id="trcBtn" class="active" onclick="selectMethod('TRC20')">TRC20</button>
-      <button id="bepBtn" onclick="selectMethod('BEP20')">BEP20</button>
+    <div class="balance-card">
+      <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo">
+      <p><strong>Total Balance:</strong> <span id="balance">0.00</span> KSH</p>
+    </div>
+
+    <div class="method-box">
+      <label>Withdrawal Method:</label>
+      <div class="method-select">
+        <button id="btn-trc20" onclick="selectMethod('TRC20')">TRC20</button>
+        <button id="btn-bep20" onclick="selectMethod('BEP20')">BEP20</button>
+      </div>
+      <div class="method-info" id="selected-method">Selected: TRC20</div>
+      <p style="margin-top: 10px;">Fees: <span id="fee">0%</span></p>
+      <p>1 USD = 130 KSH</p>
     </div>
 
     <div class="form-group">
-      <label>Amount (KSH):</label>
-      <input type="number" id="amount" placeholder="Enter KSH amount" />
+      <label>Amount (Quota 2,000 - 1,000,000):</label>
+      <input type="number" id="amount" placeholder="Enter amount to withdraw">
     </div>
 
     <div class="form-group">
-      <label>Wallet Address:</label>
-      <input type="text" id="wallet" placeholder="Enter wallet address" />
+      <label>Withdrawal Address:</label>
+      <input type="text" id="address" placeholder="Enter wallet address">
     </div>
 
     <div class="form-group">
       <label>Password:</label>
-      <input type="password" id="password" placeholder="Enter password" />
+      <input type="password" id="password" placeholder="Enter password">
     </div>
 
     <div class="summary-box">
-      <p><strong>KSH:</strong> <span id="kshDisplay">0.00</span></p>
-      <p><strong>USD Equivalent:</strong> <span id="usdDisplay">0.00</span></p>
+      <p><strong>Fees:</strong> <span id="feesText">0%</span></p>
+      <p><strong>Actually Received:</strong> <span id="actual">0 KSH</span></p>
     </div>
 
-    <button class="confirm-btn" onclick="submitWithdraw()">Confirm Withdrawal</button>
+    <button class="confirm-btn" onclick="submitWithdraw()">Confirm</button>
+
+    <div class="tips">
+      <p><strong>Tips:</strong></p>
+      <p>Use BEP20 for faster withdrawals</p>
+      <p>Minimum TRC20 withdrawal is 10 USDT (≈1300 KSH)</p>
+      <p>Minimum BEP20 withdrawal is 1 USDT (≈130 KSH)</p>
+      <p>Withdrawals are free and 24/7 available</p>
+    </div>
   </div>
 
   <nav>
@@ -155,7 +211,7 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
@@ -170,53 +226,63 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
-
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const database = firebase.database();
+    const db = firebase.database();
 
-    let selectedMethod = "TRC20";
-    let userBalance = 0;
+    let currentUserUID = null;
+    let currentBalance = 0;
 
     auth.onAuthStateChanged(user => {
       if (user) {
-        const uid = user.uid;
-        database.ref("users/" + uid + "/balance").on("value", snapshot => {
-          if (snapshot.exists()) {
-            userBalance = parseFloat(snapshot.val()) || 0;
-          }
+        currentUserUID = user.uid;
+        db.ref(`users/${currentUserUID}/balance`).on('value', snap => {
+          currentBalance = parseFloat(snap.val()) || 0;
+          document.getElementById('balance').textContent = currentBalance.toFixed(2);
         });
+      } else {
+        window.location.href = "landing.html";
       }
     });
+
+    let selectedMethod = "TRC20";
+    document.getElementById("btn-trc20").classList.add("active");
 
     function selectMethod(method) {
       selectedMethod = method;
-      document.getElementById("trcBtn").classList.remove("active");
-      document.getElementById("bepBtn").classList.remove("active");
-      document.getElementById(method === "TRC20" ? "trcBtn" : "bepBtn").classList.add("active");
-    }
+      document.getElementById("selected-method").textContent = `Selected: ${method}`;
+      document.getElementById("fee").textContent = "0%";
+      document.getElementById("feesText").textContent = "0%";
 
-    document.getElementById("amount").addEventListener("input", () => {
-      const ksh = parseFloat(document.getElementById("amount").value) || 0;
-      const usd = ksh / 130;
-      document.getElementById("kshDisplay").textContent = ksh.toFixed(2);
-      document.getElementById("usdDisplay").textContent = usd.toFixed(2);
-    });
+      document.getElementById("btn-trc20").classList.remove("active");
+      document.getElementById("btn-bep20").classList.remove("active");
+      if (method === "TRC20") {
+        document.getElementById("btn-trc20").classList.add("active");
+      } else {
+        document.getElementById("btn-bep20").classList.add("active");
+      }
+    }
 
     function submitWithdraw() {
       const amount = parseFloat(document.getElementById("amount").value);
-      const wallet = document.getElementById("wallet").value.trim();
+      const address = document.getElementById("address").value.trim();
       const password = document.getElementById("password").value.trim();
 
-      if (!amount || !wallet || !password) {
-        return showPopup("All fields required");
+      if (!amount || !address || !password) {
+        return showPopup("Please fill in all fields");
       }
 
-      if (amount > userBalance) {
+      if (amount < 2000 || amount > 1000000) {
+        return showPopup("Amount must be between 2,000 and 1,000,000 KSH");
+      }
+
+      if (amount > currentBalance) {
         return showPopup("Insufficient balance");
       }
 
-      showPopup(`${selectedMethod} withdrawal submitted`, true);
+      const newBalance = currentBalance - amount;
+      db.ref(`users/${currentUserUID}/balance`).set(newBalance);
+      showPopup("Withdrawal submitted successfully", true);
     }
 
     function showPopup(message, success = false) {
