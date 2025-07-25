@@ -1,4 +1,3 @@
-<!-- 👇 FULL CODE FOR withcrypto.html STARTS HERE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -177,8 +176,8 @@
     <div class="method-box">
       <label>Withdrawal Method:</label>
       <div class="method-select">
-        <button id="btn-trc20" onclick="selectMethod('TRC20')">TRC20-USDT</button>
-        <button id="btn-bep20" onclick="selectMethod('BEP20')">BEP20-USDT</button>
+        <button id="btn-trc20">TRC20-USDT</button>
+        <button id="btn-bep20">BEP20-USDT</button>
       </div>
       <div class="method-info" id="selected-method">Selected: TRC20-USDT</div>
       <p style="margin-top: 10px;">Fees: <span id="fee">0%</span></p>
@@ -186,7 +185,7 @@
 
     <div class="form-group">
       <label>Amount (Quota 2,000 - 1,000,000 KSH):</label>
-      <input type="number" id="amount" placeholder="Enter amount in KSH" oninput="updateUSD()">
+      <input type="number" id="amount" placeholder="Enter amount in KSH">
     </div>
 
     <div class="form-group">
@@ -224,7 +223,7 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Firebase Config -->
+  <!-- Firebase + Logic -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
@@ -239,13 +238,14 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
+
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-
     let userId = null;
     let balance = 0;
     const conversionRate = 130;
+    let selectedMethod = "TRC20";
 
     auth.onAuthStateChanged(user => {
       if (user) {
@@ -257,25 +257,30 @@
       }
     });
 
-    function selectMethod(method) {
-      selectedMethod = method;
-      document.getElementById("selected-method").textContent = `Selected: ${method}-USDT`;
-      document.getElementById("fee").textContent = "0%";
-      document.getElementById("feesText").textContent = "0%";
-      document.getElementById("btn-trc20").classList.remove("active");
-      document.getElementById("btn-bep20").classList.remove("active");
-      if (method === "TRC20") {
-        document.getElementById("btn-trc20").classList.add("active");
-      } else {
-        document.getElementById("btn-bep20").classList.add("active");
-      }
-    }
-
     function updateUSD() {
       const amount = parseFloat(document.getElementById("amount").value);
       const usd = isNaN(amount) ? 0 : amount / conversionRate;
-      document.getElementById("actual").textContent = `${amount.toFixed(2)} KSH`;
+      document.getElementById("actual").textContent = isNaN(amount) ? "0 KSH" : `${amount.toFixed(2)} KSH`;
       document.getElementById("usd").textContent = `${usd.toFixed(2)} USD`;
+    }
+
+    document.getElementById("amount").addEventListener("input", updateUSD);
+
+    document.getElementById("btn-trc20").addEventListener("click", () => {
+      selectedMethod = "TRC20";
+      document.getElementById("selected-method").textContent = "Selected: TRC20-USDT";
+      toggleButtons();
+    });
+
+    document.getElementById("btn-bep20").addEventListener("click", () => {
+      selectedMethod = "BEP20";
+      document.getElementById("selected-method").textContent = "Selected: BEP20-USDT";
+      toggleButtons();
+    });
+
+    function toggleButtons() {
+      document.getElementById("btn-trc20").classList.toggle("active", selectedMethod === "TRC20");
+      document.getElementById("btn-bep20").classList.toggle("active", selectedMethod === "BEP20");
     }
 
     function submitWithdraw() {
@@ -306,9 +311,8 @@
       setTimeout(() => popup.remove(), 3000);
     }
 
-    let selectedMethod = "TRC20";
-    document.getElementById("btn-trc20").classList.add("active");
+    // Initial UI
+    toggleButtons();
   </script>
 </body>
 </html>
-<!-- 👆 FULL CODE FOR withcrypto.html ENDS HERE -->
