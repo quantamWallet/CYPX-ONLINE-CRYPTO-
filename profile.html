@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CYPX ONLINE CRYPTO - Profile</title>
@@ -115,6 +117,7 @@
       CYPX ONLINE CRYPTO
     </div>
   </div>  
+
   <div class="profile-section">
     <div class="profile-info">
       <div class="email" id="user-email">user@example.com</div>
@@ -122,6 +125,7 @@
     </div>
     <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Profile" class="profile-icon" />
   </div>  
+
   <div class="balance-box">
     <div>
       <div>Total balance (KSH)</div>
@@ -132,20 +136,28 @@
       <div id="recharge-amount">0.00</div>
     </div>
   </div>  
+
   <div class="menu">
     <a href="recharge.html" class="menu-item"><i class="fas fa-bank"></i>Recharge</a>
     <a href="withdraw.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i>Withdraw</a>
     <a href="financial.html" class="menu-item"><i class="fas fa-file-invoice-dollar"></i>Financial records</a>
     <a href="password.html" class="menu-item"><i class="fas fa-key"></i>Change Password</a>
+    <a href="company.html" class="menu-item"><i class="fas fa-building"></i>Company</a> <!-- ✅ Company button -->
     <a href="#" class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
   </div>  
+
   <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
     <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
     <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
+  </nav>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -182,5 +194,6 @@
         window.location.href = "landing.html";
       });
     }
-  </script></body>
+  </script>
+</body>
 </html>
