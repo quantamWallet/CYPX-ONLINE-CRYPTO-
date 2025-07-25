@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BNB Recharge</title>
+  <title>BEP20 Recharge</title>
   <style>
     body {
       background-color: #001f3f;
@@ -87,12 +87,12 @@
 </head>
 <body>
   <div class="container">
-    <h2><img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="BNB" class="token">BNB Recharge</h2>
+    <h2><img src="https://api.tkteam.cc/static/image/bep20-usdt.webp" alt="BEP20" class="token">BEP20 - KSH</h2>
 
     <canvas id="qrcode" class="qr"></canvas>
 
     <div class="address-row">
-      <span class="address-text" id="wallet-address">bnb1w34k53py5v5xyluazqpq65agyajavep38dy5n9</span>
+      <span class="address-text" id="wallet-address">0xe5e959e57ae1937acf0dde128a8b7ee0aa970168</span>
       <button class="copy-btn" onclick="copyAddress()">Copy</button>
     </div>
 
@@ -100,17 +100,26 @@
   </div>
 
   <div class="info-box">
-    1. Copy the address above or scan the QR code and use Binance Chain (BNB)<br><br>
-    2. Do not send other coins to this address. Use only BNB<br><br>
-    3. Funds typically arrive in 1–3 minutes. If delayed, refresh or contact support.
+    1. Copy the address above or scan the QR code and select the BNB Smart Chain (BEP20) network to recharge KSH<br><br>
+    2. Please do not recharge other non-BNB Smart Chain(BEP20)-KSH assets, the funds will arrive in your account in about 1 to 3 minutes after recharging<br><br>
+    3. If it does not arrive for a long time, please refresh the page or contact customer service
   </div>
 
-  <!-- Firebase + QRious -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      set
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -122,44 +131,68 @@
       measurementId: "G-4RSQXZJX44"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    const address = "bnb1w34k53py5v5xyluazqpq65agyajavep38dy5n9";
+    const address = "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168";
+
+    // Generate QR Code
     new QRious({
       element: document.getElementById('qrcode'),
       value: address,
-      size: 160
+      size: 140
     });
 
-    function copyAddress() {
+    let currentUID = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUID = user.uid;
+      } else {
+        window.location.href = "landing.html";
+      }
+    });
+
+    window.copyAddress = function () {
       navigator.clipboard.writeText(address).then(() => {
         showPopup("Address Copied");
       });
     }
 
-    function markRecharge() {
+    window.markRecharge = function () {
+      if (!currentUID) {
+        showPopup("Not logged in.");
+        return;
+      }
+
       const btn = document.querySelector(".recharge-btn");
       btn.disabled = true;
-      btn.textContent = "Processing...";
+      btn.textContent = "Submitting...";
 
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          showPopup("Recharge recorded successfully");
-        } else {
-          showPopup("Please sign in first");
-        }
-        btn.disabled = false;
+      const rechargeRef = push(ref(db, 'recharges/' + currentUID));
+      set(rechargeRef, {
+        method: "BEP20 KSH",
+        address: address,
+        status: "pending",
+        timestamp: new Date().toISOString()
+      }).then(() => {
+        showPopup("Recharge marked. Await confirmation...");
         btn.textContent = "Recharge Complete";
+        btn.disabled = false;
+      }).catch((error) => {
+        showPopup("Error: " + error.message);
+        btn.textContent = "Recharge Complete";
+        btn.disabled = false;
       });
     }
 
-    function showPopup(message) {
+    window.showPopup = function (message) {
       const popup = document.createElement("div");
       popup.className = "popup";
       popup.textContent = message;
       document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 3000);
+      setTimeout(() => popup.remove(), 2500);
     }
   </script>
 </body>
