@@ -110,7 +110,7 @@
   <!-- Header Title -->
   <div>
     <img src="https://api.tkteam.cc/static/image/trc20-usdt.jpg" alt="TRC20 USDT" class="title-icon">
-    <h2>Tron (TRC20) - USDT</h2>
+    <h2>Tron (TRC20) - KSH</h2>
   </div>
 
   <!-- QR Code -->
@@ -127,20 +127,18 @@
 
   <!-- Floating Info -->
   <div class="info-box">
-    <p>1. Copy the address above or scan the QR code and select Tron (TRC20) network to deposit USDT</p>
-    <p>2. Please do not recharge other non-Tron(TRC20)-USDT assets. The funds will arrive in your account in about 1 to 3 minutes</p>
+    <p>1. Copy the address above or scan the QR code and select Tron (TRC20) network to deposit KSH</p>
+    <p>2. Please do not recharge other non-Tron(TRC20)-KSH assets. The funds will arrive in your account in about 1 to 3 minutes</p>
     <p>3. If it does not arrive for a long time, please refresh the page or contact customer service</p>
   </div>
 
-  <!-- QR Generator -->
+  <!-- Firebase + QR Code -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script>
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -151,63 +149,12 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
-    firebase.initializeApp(firebaseConfig);
 
-    let currentUser = null;
-    let userBalance = 0;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-        const uid = user.uid;
-        firebase.database().ref("users/" + uid + "/balance").once("value").then(snapshot => {
-          userBalance = parseFloat(snapshot.val() || 0);
-        });
-      } else {
-        location.href = "landing.html";
-      }
-    });
-
-    function startRecharge() {
-      if (!currentUser) return;
-
-      const loader = document.createElement("div");
-      loader.className = "loader-popup";
-      document.body.appendChild(loader);
-
-      setTimeout(() => {
-        loader.remove();
-
-        if (userBalance < 1) {
-          const errPopup = document.createElement("div");
-          errPopup.className = "popup";
-          errPopup.style.backgroundColor = "#dc3545";
-          errPopup.textContent = "Insufficient balance to confirm recharge.";
-          document.body.appendChild(errPopup);
-          setTimeout(() => errPopup.remove(), 2500);
-          return;
-        }
-
-        const popup = document.createElement("div");
-        popup.className = "popup";
-        popup.textContent = "Recharge complete!";
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 2500);
-      }, 3000);
-    }
-
-    function copyAddress() {
-      const address = document.getElementById("wallet-address").textContent;
-      navigator.clipboard.writeText(address).then(() => {
-        const popup = document.createElement("div");
-        popup.className = "popup";
-        popup.textContent = "Address copied!";
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 2500);
-      });
-    }
-
-    // Generate QR code
+    // Generate QR Code
     const canvas = document.createElement('canvas');
     document.getElementById('qrcode').appendChild(canvas);
     new QRious({
@@ -216,6 +163,47 @@
       size: 200,
       level: 'H'
     });
+
+    // Copy button
+    window.copyAddress = function () {
+      const address = document.getElementById("wallet-address").textContent;
+      navigator.clipboard.writeText(address).then(() => {
+        const popup = document.createElement("div");
+        popup.className = "popup";
+        popup.textContent = "Address copied!";
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2500);
+      });
+    };
+
+    // Recharge simulation and balance update
+    window.startRecharge = function () {
+      const loader = document.createElement("div");
+      loader.className = "loader-popup";
+      document.body.appendChild(loader);
+
+      setTimeout(() => {
+        loader.remove();
+        const popup = document.createElement("div");
+        popup.className = "popup";
+        popup.textContent = "Recharge complete!";
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2500);
+      }, 3000);
+
+      // Firebase balance update after 3 sec
+      onAuthStateChanged(auth, user => {
+        if (user) {
+          const uid = user.uid;
+          const userRef = ref(db, `users/${uid}`);
+          get(userRef).then(snapshot => {
+            const currentBalance = parseFloat(snapshot.val()?.balance || 0);
+            const newBalance = currentBalance + 1000; // Simulated KSH deposit
+            update(userRef, { balance: newBalance.toFixed(2) });
+          });
+        }
+      });
+    };
   </script>
 </body>
 </html>
