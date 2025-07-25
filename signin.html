@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In - CYPX ONLINE CRYPTO</title>
+  <style>
+    body {
+      background: #005f3c;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background: #003322;
+      padding: 20px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    header img {
+      height: 32px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+    }
+    form {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+    }
+    input {
+      display: block;
+      width: 100%;
+      margin: 15px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    p {
+      text-align: center;
+      margin-top: 20px;
+    }
+    a {
+      color: #00cec9;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" />
+    <h1>CYPX ONLINE CRYPTO</h1>
+  </header>
+
+  <form id="signinForm">
+    <h2 style="text-align:center">Sign In</h2>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Sign In</button>
+    <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+  </form>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('signinForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Login successful!");
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
