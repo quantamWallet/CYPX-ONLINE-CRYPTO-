@@ -226,27 +226,35 @@
   <!-- Firebase Config -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
       databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
+      storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-  </script>
+    const db = firebase.database();
 
-  <script>
-    let selectedMethod = "TRC20";
-    const balance = 250000; // KSH
-    const conversionRate = 130; // 1 USD = 130 KSH
-    document.getElementById("balance").textContent = balance.toFixed(2);
-    document.getElementById("btn-trc20").classList.add("active");
+    let userId = null;
+    let balance = 0;
+    const conversionRate = 130;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        userId = user.uid;
+        db.ref("users/" + userId + "/balance").on("value", snapshot => {
+          balance = parseFloat(snapshot.val()) || 0;
+          document.getElementById("balance").textContent = balance.toFixed(2);
+        });
+      }
+    });
 
     function selectMethod(method) {
       selectedMethod = method;
@@ -284,6 +292,7 @@
         return showPopup("Insufficient balance");
       }
 
+      db.ref("users/" + userId + "/balance").set(balance - amount);
       showPopup("Withdrawal submitted", true);
     }
 
@@ -295,6 +304,9 @@
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 3000);
     }
+
+    let selectedMethod = "TRC20";
+    document.getElementById("btn-trc20").classList.add("active");
   </script>
 </body>
-  </html>
+</html>
