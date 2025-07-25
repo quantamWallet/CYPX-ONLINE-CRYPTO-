@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - CYPX ONLINE CRYPTO</title>
+  <style>
+    body {
+      background: #005f3c;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background: #003322;
+      padding: 20px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    header img {
+      height: 32px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      margin: 0;
+    }
+    form {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+    }
+    input, select {
+      display: block;
+      width: 100%;
+      margin: 12px 0;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    p {
+      text-align: center;
+      margin-top: 20px;
+    }
+    a {
+      color: #00cec9;
+      text-decoration: none;
+    }
+    .phone-group {
+      display: flex;
+      gap: 10px;
+    }
+    .phone-group select {
+      flex: 1.3;
+    }
+    .phone-group input {
+      flex: 2;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://tkteam.cc/assets/my-58d9e81d.gif" alt="Logo" />
+    <h1>CYPX ONLINE CRYPTO</h1>
+  </header>
+
+  <form id="signupForm">
+    <h2 style="text-align:center">Sign Up</h2>
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+
+    <div class="phone-group">
+      <select id="country" required>
+        <option value="+254 🇰🇪 KE">+254 🇰🇪 KE</option>
+        <option value="+255 🇹🇿 TZ">+255 🇹🇿 TZ</option>
+        <option value="+256 🇺🇬 UG">+256 🇺🇬 UG</option>
+        <option value="+250 🇷🇼 RW">+250 🇷🇼 RW</option>
+        <option value="+251 🇪🇹 ET">+251 🇪🇹 ET</option>
+        <option value="+27 🇿🇦 ZA">+27 🇿🇦 ZA</option>
+        <option value="+234 🇳🇬 NG">+234 🇳🇬 NG</option>
+        <!-- Add more if needed -->
+      </select>
+      <input type="tel" id="phone" placeholder="Phone Number" required />
+    </div>
+
+    <input type="password" id="password" placeholder="Password" required />
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+    <button type="submit">Create Account</button>
+    <p>Already have an account? <a href="signin.html">Sign In</a></p>
+  </form>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const country = document.getElementById('country').value;
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+
+        await set(ref(db, "users/" + uid), {
+          name: name,
+          email: email,
+          country: country,
+          phone: phone,
+          balance: 0
+        });
+
+        alert("Account created! Redirecting...");
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>
