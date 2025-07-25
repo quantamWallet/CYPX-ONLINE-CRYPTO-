@@ -312,6 +312,25 @@
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
+    function showNotification(message, duration = 3000) {
+    const note = document.getElementById("notification");
+    note.textContent = message;
+    note.style.display = "block";
+    setTimeout(() => {
+      note.style.display = "none";
+    }, duration);
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      localStorage.clear();
+      showNotification("Signed out successfully"); // ✅ Use this instead of alert()
+      setTimeout(() => {
+        window.location.href = "signin.html";
+      }, 2000); // Give user time to see notification
+    });
+  }
+</script>
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -328,7 +347,7 @@
       const confirmPassword = document.getElementById("confirmPassword").value;
 
       if (password !== confirmPassword) {
-        alert("Passwords do not match.");
+        showNotification("Passwords do not match.");
         return;
       }
 
@@ -344,12 +363,27 @@
           balance: 0
         });
 
-        alert("Account created! Redirecting...");
+        showNotification("Account created! Redirecting...");
         window.location.href = "dashboard.html";
       } catch (error) {
         alert(error.message);
       }
     });
   </script>
+  <div id="notification" style="
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #00cc66;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+">
+  </div>
 </body>
 </html>
