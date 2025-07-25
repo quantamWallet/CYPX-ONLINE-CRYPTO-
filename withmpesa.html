@@ -221,7 +221,7 @@
     }
 
     document.getElementById("amount").addEventListener("input", function () {
-      const ksh = parseFloat(this.value) || 0;
+      const ksh = parseFloat(this.value) || 1;
       const usdRate = 130;
       const usd = ksh / usdRate;
 
