@@ -88,14 +88,23 @@
 
   <form id="signupForm">
   <h2 style="text-align:center">Sign Up</h2>
+  
   <input type="text" id="name" placeholder="Full Name" required />
   <input type="email" id="email" placeholder="Email" required />
 
   <div class="phone-group">
-    <select id="countrySelector"></select>
+    <select id="countrySelector" required></select>
+    <input type="text" id="phone" placeholder="Phone Number" required />
   </div>
 
-  <script>
+  <input type="password" id="password" placeholder="Password" required />
+  <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+  
+  <button type="submit">Create Account</button>
+  <p>Already have an account? <a href="signin.html">Sign In</a></p>
+</form>
+
+<script>
   const countries = [
   { dial: "+93", flag: "🇦🇫", code: "AF" },
   { dial: "+355", flag: "🇦🇱", code: "AL" },
