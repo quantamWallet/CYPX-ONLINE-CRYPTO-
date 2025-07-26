@@ -47,9 +47,24 @@
     h2 {
       text-align: center;
     }
+
+    #notification {
+      display: none;
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00cc99;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
+  <div id="notification"></div>
+
   <form id="signupForm">
     <h2>Sign Up</h2>
     <input type="text" id="name" placeholder="Full Name" required />
@@ -67,7 +82,32 @@
   </form>
 
   <script>
-  const countries = [
+    function showNotification(message, duration = 3000) {
+      const note = document.getElementById("notification");
+      note.textContent = message;
+      note.style.display = "block";
+      setTimeout(() => {
+        note.style.display = "none";
+      }, duration);
+    }
+
+    function getFriendlyFirebaseError(error) {
+      const code = error.code;
+      const messages = {
+        "auth/invalid-email": "Invalid email address",
+        "auth/email-already-in-use": "Email is already in use",
+        "auth/weak-password": "Password is too weak (min 6 characters)",
+        "auth/missing-password": "Please enter a password",
+        "auth/internal-error": "Something went wrong. Try again",
+        "auth/network-request-failed": "Network error. Please check your connection",
+        "auth/too-many-requests": "Too many attempts. Try again later"
+      };
+      return messages[code] || "Signup failed. Please check your details.";
+    }
+  </script>
+
+  <script>
+    const countries = [
 { dial: "+93", flag: "🇦🇫", code: "AF" },
 { dial: "+355", flag: "🇦🇱", code: "AL" },
 { dial: "+213", flag: "🇩🇿", code: "DZ" },
@@ -288,7 +328,8 @@
 { dial: "+260", flag: "🇿🇲", code: "ZM" },
 { dial: "+263", flag: "🇿🇼", code: "ZW" },
 ];
-  const selector = document.getElementById("countrySelector");
+
+    const selector = document.getElementById("countrySelector");
     countries.forEach(country => {
       const option = document.createElement("option");
       option.value = country.code;
@@ -345,9 +386,12 @@
         });
 
         showNotification("Account created! Redirecting...");
-        window.location.href = "dashboard.html";
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1500);
       } catch (error) {
-        alert(error.message);
+        const message = getFriendlyFirebaseError(error);
+        showNotification(message);
       }
     });
   </script>
