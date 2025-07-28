@@ -156,7 +156,6 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Hidden popup element -->
   <div id="popup" class="popup-container"></div>
 
   <!-- Firebase Scripts -->
@@ -169,7 +168,7 @@
       authDomain: "quantum-rio.firebaseapp.com",
       databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
+      storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
@@ -215,6 +214,10 @@
         return showPopup("Insufficient balance.");
       }
 
+      if (!currentUser) {
+        return showPopup("User not authenticated.");
+      }
+
       const uid = currentUser.uid;
       const timestamp = new Date().toISOString();
       const withdrawalData = {
@@ -235,7 +238,7 @@
           showPopup("Withdrawal submitted for approval", true);
         })
         .catch(error => {
-          console.error(error);
+          console.error("Firebase error:", error);
           showPopup("Error submitting withdrawal");
         });
     }
