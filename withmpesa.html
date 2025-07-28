@@ -73,20 +73,22 @@
       margin-top: 15px;
       cursor: pointer;
     }
-    .popup {
+    .popup-container {
       position: fixed;
-      top: 50%;
+      top: 30%;
       left: 50%;
       transform: translate(-50%, -50%);
       background-color: #28a745;
       color: white;
-      padding: 20px;
+      padding: 20px 30px;
       border-radius: 10px;
       font-weight: bold;
       z-index: 9999;
       font-size: 16px;
       text-align: center;
       min-width: 250px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      display: none;
     }
     nav {
       position: fixed;
@@ -154,6 +156,9 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
+  <!-- Hidden popup element -->
+  <div id="popup" class="popup-container"></div>
+
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
@@ -175,9 +180,11 @@
     const database = firebase.database();
 
     let userBalance = 0;
+    let currentUser = null;
 
     auth.onAuthStateChanged(user => {
       if (user) {
+        currentUser = user;
         const uid = user.uid;
         const balanceRef = database.ref("users/" + uid + "/balance");
         balanceRef.on("value", snapshot => {
@@ -208,16 +215,40 @@
         return showPopup("Insufficient balance.");
       }
 
-      showPopup("Withdrawal submitted", true);
+      const uid = currentUser.uid;
+      const timestamp = new Date().toISOString();
+      const withdrawalData = {
+        amount: amount,
+        phone: phone,
+        timestamp: timestamp,
+        status: "pending",
+        method: "M-Pesa"
+      };
+
+      const newKey = database.ref().child("withdrawals/" + uid).push().key;
+      const updates = {};
+      updates["/withdrawals/" + uid + "/" + newKey] = withdrawalData;
+      updates["/users/" + uid + "/balance"] = userBalance - amount;
+
+      database.ref().update(updates)
+        .then(() => {
+          showPopup("Withdrawal submitted for approval", true);
+        })
+        .catch(error => {
+          console.error(error);
+          showPopup("Error submitting withdrawal");
+        });
     }
 
     function showPopup(message, success = false) {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.style.backgroundColor = success ? "#28a745" : "#dc3545";
+      const popup = document.getElementById("popup");
       popup.textContent = message;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 3000);
+      popup.style.backgroundColor = success ? "#28a745" : "#dc3545";
+      popup.style.display = "block";
+
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 3000);
     }
 
     document.getElementById("amount").addEventListener("input", function () {
