@@ -124,7 +124,7 @@
     </div>
 
     <div class="form-group">
-      <label>Amount (KSH 2,000 - 1,000,000):</label>
+      <label>Amount (KSH 1,000 - 600,000):</label>
       <input type="number" id="amount" placeholder="Enter amount in KSH">
     </div>
 
@@ -184,7 +184,7 @@
         return showPopup("Please fill in all fields");
       }
 
-      if (amount < 2000 || amount > 1000000) {
+      if (amount < 1000 || amount > 500000) {
         return showPopup("Amount must be between 2,000 and 1,000,000 KSH");
       }
 
