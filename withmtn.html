@@ -144,8 +144,8 @@
         return showPopup("Please fill in all fields");
       }
 
-      if (amount < 2000 || amount > 1000000) {
-        return showPopup("Amount must be between 2,000 and 1,000,000 KSH");
+      if (amount < 1000 || amount > 500000) {
+        return showPopup("Amount must be between 1,000 and 500,000 KSH");
       }
 
       auth.onAuthStateChanged(user => {
