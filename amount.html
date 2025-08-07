@@ -95,7 +95,7 @@
 
   <div class="box">
     <h2>Enter Amount to Withdraw</h2>
-    <input type="number" id="amount" placeholder="e.g. 50000 UGX" />
+    <input type="number" id="amount" placeholder="e.g. 50000 KSH" />
     <button onclick="submitWithdrawal()">Submit Withdrawal</button>
   </div>
 
@@ -140,7 +140,7 @@
       const amount = parseInt(amountInput.value);
 
       if (isNaN(amount) || amount < 1000 || amount > 500000) {
-        showToast("Enter amount between 1,000 and 500,000 UGX");
+        showToast("Enter amount between 1,000 and 500,000 KSH");
         return;
       }
 
