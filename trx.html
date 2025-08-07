@@ -38,7 +38,7 @@
       justify-content: space-between;
       gap: 10px;
       font-size: 14px;
-      word-break: break-all;
+      word-break: break-word;
     }
 
     .copy-btn {
@@ -49,7 +49,6 @@
       font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
-      flex-shrink: 0;
     }
 
     .recharge-btn {
@@ -75,7 +74,7 @@
       text-align: left;
     }
 
-    .popup, .loader-popup {
+    .popup {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -86,15 +85,6 @@
       border-radius: 10px;
       font-weight: bold;
       z-index: 9999;
-    }
-
-    .loader-popup {
-      background-color: rgba(0, 0, 0, 0.85);
-    }
-
-    .loader-popup::after {
-      content: "Loading...";
-      display: inline-block;
       font-size: 16px;
     }
   </style>
@@ -110,7 +100,7 @@
     <button class="copy-btn" onclick="copyAddress()">Copy</button>
   </div>
 
-  <button class="recharge-btn" onclick="startRecharge()">Recharge Complete</button>
+  <button class="recharge-btn" onclick="showPopup('Recharge completed')">Recharge Complete</button>
 
   <div class="info-box">
     <p>1. Copy the address above or scan the QR code and select Tron (TRC20) network to recharge TRX</p>
@@ -118,11 +108,14 @@
     <p>3. If it does not arrive for a long time, please refresh the page or contact customer service</p>
   </div>
 
+  <!-- QR Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getDatabase } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -139,7 +132,7 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // Generate QR Code
+    // Generate QR
     const canvas = document.createElement('canvas');
     document.getElementById('qrcode').appendChild(canvas);
     new QRious({
@@ -149,51 +142,22 @@
       level: 'H'
     });
 
+    // Copy
     window.copyAddress = function () {
       const address = document.getElementById("wallet-address").textContent;
       navigator.clipboard.writeText(address).then(() => {
         showPopup("Address copied!");
       });
-    };
+    }
 
-    function showPopup(msg) {
+    // Show popup
+    window.showPopup = function (msg) {
       const popup = document.createElement("div");
       popup.className = "popup";
       popup.textContent = msg;
       document.body.appendChild(popup);
       setTimeout(() => popup.remove(), 2500);
     }
-
-    window.startRecharge = function () {
-      const loader = document.createElement("div");
-      loader.className = "loader-popup";
-      document.body.appendChild(loader);
-
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          const uid = user.uid;
-          const userRef = ref(db, "users/" + uid);
-
-          get(userRef).then((snapshot) => {
-            let currentBal = 0;
-            if (snapshot.exists()) {
-              const data = snapshot.val();
-              currentBal = parseFloat(data.balance || 0);
-            }
-
-            const newBal = currentBal + 300; // Recharge amount (KSH)
-
-            update(userRef, { balance: newBal.toFixed(2) }).then(() => {
-              loader.remove();
-              showPopup("Recharge completed. +KSH 300.00");
-            });
-          });
-        } else {
-          loader.remove();
-          showPopup("Not signed in");
-        }
-      });
-    };
   </script>
 </body>
 </html>
