@@ -1,182 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MTN Withdraw - CYPX ONLINE CRYPTO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTN Uganda - Phone Entry</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #ffeb3b;
-      color: #000;
-      padding-bottom: 80px;
-    }
-    header {
-      background-color: navy;
-      padding: 15px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      color: white;
-    }
-    .section {
-      padding: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #000;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    .summary-box {
-      background-color: #fff9c4;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-    .summary-box p {
-      margin: 5px 0;
-      font-size: 16px;
-    }
-    .confirm-btn {
-      background-color: #000;
-      color: yellow;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 18px;
-      width: 100%;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #4caf50;
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      z-index: 9999;
-      font-size: 16px;
-      text-align: center;
-      min-width: 250px;
-    }
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fff700, #fcd800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }.container {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  color: #333;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.container h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #000;
+}
+
+input[type="tel"] {
+  padding: 12px 15px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #333;
+}
+
   </style>
 </head>
 <body>
-  <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="MTN" style="vertical-align: middle; width: 25px; margin-right: 10px;">
-    MTN Withdraw - CYPX ONLINE CRYPTO
-  </header>
-
-  <div class="section">
-    <div class="form-group">
-      <label>Amount (Quota 2,000 - 1,000,000 KSH):</label>
-      <input type="number" id="amount" placeholder="Enter amount in KSH" />
-    </div>
-
-    <div class="form-group">
-      <label>Phone Number (MTN Uganda):</label>
-      <input type="text" id="phone" placeholder="Enter MTN number" />
-    </div>
-
-    <div class="form-group">
-      <label>Password:</label>
-      <input type="password" id="password" placeholder="Enter password" />
-    </div>
-
-    <div class="summary-box">
-      <p><strong>Converted Amount:</strong> <span id="converted">0 UGX</span></p>
-    </div>
-
-    <button class="confirm-btn" onclick="submitWithdraw()">Confirm</button>
-  </div>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-  </script>
-
-  <script>
-    const exchangeRate = 26.75;
-
-    document.getElementById("amount").addEventListener("input", function () {
-      const amount = parseFloat(this.value);
-      if (!isNaN(amount)) {
-        const ugx = amount * exchangeRate;
-        document.getElementById("converted").textContent = ugx.toFixed(2) + " UGX";
-      } else {
-        document.getElementById("converted").textContent = "0 UGX";
+  <div class="container">
+    <h2>Enter MTN Phone Number</h2>
+    <input type="tel" id="phone" placeholder="e.g. 0772XXXXXX" />
+    <button onclick="submitPhone()">Continue</button>
+  </div>  <script>
+    function submitPhone() {
+      const phone = document.getElementById('phone').value.trim();
+      if (!phone) {
+        alert("Please enter your MTN number");
+        return;
       }
-    });
-
-    function submitWithdraw() {
-      const amount = parseFloat(document.getElementById("amount").value);
-      const phone = document.getElementById("phone").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      if (!amount || !phone || !password) {
-        return showPopup("Please fill in all fields");
-      }
-
-      if (amount < 1000 || amount > 500000) {
-        return showPopup("Amount must be between 1,000 and 500,000 KSH");
-      }
-
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          const uid = user.uid;
-          const userRef = database.ref("users/" + uid);
-
-          userRef.once("value").then(snapshot => {
-            const balance = parseFloat(snapshot.val()?.balance || 0);
-            if (amount > balance) {
-              showPopup("Insufficient balance");
-            } else {
-              showPopup("Withdrawal submitted", true);
-              // Optionally deduct amount and update database
-              // userRef.update({ balance: balance - amount });
-            }
-          });
-        } else {
-          showPopup("Not logged in");
-        }
-      });
+      // Store temporarily in local storage (or push to Firebase if needed)
+      localStorage.setItem("mtnPhone", phone);
+      window.location.href = "aamount.html";
     }
-
-    function showPopup(message, success = false) {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.style.backgroundColor = success ? "#4caf50" : "#e53935";
-      popup.textContent = message;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 3000);
-    }
-  </script>
-</body>
+  </script></body>
 </html>
