@@ -14,12 +14,6 @@
       padding: 20px;
     }
 
-    .title-icon {
-      width: 50px;
-      vertical-align: middle;
-      margin-right: 10px;
-    }
-
     h2 {
       font-size: 22px;
       color: #ffcc00;
@@ -107,10 +101,7 @@
 </head>
 <body>
 
-  <div>
-    <img src="https://images.app.goo.gl/9hsKCAZ97AtcKsXP9" alt="TRX Logo" class="title-icon">
-    <h2>Tron (TRC20) - TRX (KSH)</h2>
-  </div>
+  <h2>Tron (TRC20) - TRX (KSH)</h2>
 
   <div id="qrcode"></div>
 
@@ -129,17 +120,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script type="module">
-    // ✅ Correct Firebase Config
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
       databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
+      storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
@@ -159,12 +149,12 @@
       level: 'H'
     });
 
-    function copyAddress() {
+    window.copyAddress = function () {
       const address = document.getElementById("wallet-address").textContent;
       navigator.clipboard.writeText(address).then(() => {
         showPopup("Address copied!");
       });
-    }
+    };
 
     function showPopup(msg) {
       const popup = document.createElement("div");
@@ -174,7 +164,7 @@
       setTimeout(() => popup.remove(), 2500);
     }
 
-    function startRecharge() {
+    window.startRecharge = function () {
       const loader = document.createElement("div");
       loader.className = "loader-popup";
       document.body.appendChild(loader);
@@ -191,7 +181,7 @@
               currentBal = parseFloat(data.balance || 0);
             }
 
-            const newBal = currentBal + 300; // 💰 Add 300 KSH
+            const newBal = currentBal + 300; // Recharge amount (KSH)
 
             update(userRef, { balance: newBal.toFixed(2) }).then(() => {
               loader.remove();
@@ -203,7 +193,7 @@
           showPopup("Not signed in");
         }
       });
-    }
+    };
   </script>
 </body>
 </html>
