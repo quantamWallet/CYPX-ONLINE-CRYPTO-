@@ -1,108 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Withdraw Amount - CYPX ONLINE CRYPTO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(to bottom, #005500, #003300);
       font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #004d00, #007700);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      overflow: hidden;
     }
-
-    .box {
+    .container {
       background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(14px);
-      border-radius: 25px;
-      padding: 30px;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      text-align: center;
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      text-align: center;
     }
-
-    .box h2 {
-      margin-bottom: 20px;
-    }
-
-    .box input {
+    input[type="number"] {
       width: 100%;
-      padding: 14px;
-      font-size: 18px;
+      padding: 15px;
       border: none;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      background: rgba(255,255,255,0.2);
-      color: #fff;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      margin-top: 20px;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.2);
     }
-
-    .box input::placeholder {
-      color: #ccc;
-    }
-
-    .box button {
+    button {
+      margin-top: 20px;
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(145deg, #28a745, #34d058);
+      padding: 15px;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 14px;
-      font-size: 16px;
+      border-radius: 10px;
+      background: #00cc00;
+      color: white;
       font-weight: bold;
       cursor: pointer;
-      color: white;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-      transition: all 0.2s ease-in-out;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
-
-    .box button:hover {
-      transform: scale(1.03);
+    button:hover {
+      background: #00e600;
     }
-
-    .toast {
+    .popup {
       position: fixed;
-      bottom: 30px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 255, 0, 0.85);
-      color: white;
-      padding: 16px 24px;
-      border-radius: 16px;
-      font-weight: 600;
-      font-size: 16px;
-      opacity: 0;
-      transition: all 0.4s ease;
+      background: #222;
+      color: #fff;
+      padding: 15px 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+      font-weight: bold;
       z-index: 9999;
+      animation: fadein 0.4s, fadeout 0.4s 2.5s;
     }
-
-    .toast.show {
-      opacity: 1;
+    @keyframes fadein {
+      from { opacity: 0; top: 0; }
+      to { opacity: 1; top: 20px; }
+    }
+    @keyframes fadeout {
+      from { opacity: 1; top: 20px; }
+      to { opacity: 0; top: 0; }
     }
   </style>
 </head>
 <body>
-
-  <div class="box">
+  <div class="container">
     <h2>Enter Amount to Withdraw</h2>
-    <input type="number" id="amount" placeholder="e.g. 50000 KSH" />
+    <input type="number" id="amount" placeholder="e.g. 5000 KSH" min="1000" />
     <button onclick="submitWithdrawal()">Submit Withdrawal</button>
-  </div>
-
-  <div id="toast" class="toast">Withdrawal submitted for approval.</div>
-
-  <script>
-    // Initialize Firebase
+  </div>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -114,77 +91,64 @@
       measurementId: "G-4RSQXZJX44"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let currentUser = null;
 
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        currentUser = user;
-      } else {
-        alert("You must be logged in to use this page.");
-        window.location.href = "login.html";
-      }
-    });
-
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 4000);
+    function showPopup(message) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
     }
 
     function submitWithdrawal() {
-      const amountInput = document.getElementById("amount");
-      const amount = parseInt(amountInput.value);
+      const amount = parseInt(document.getElementById("amount").value);
 
       if (isNaN(amount) || amount < 1000 || amount > 500000) {
-        showToast("Enter amount between 1,000 and 500,000 KSH");
+        showPopup("Enter amount between 1,000 and 500,000 KSH");
         return;
       }
 
-      if (!currentUser) {
-        alert("Not authenticated.");
-        return;
-      }
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          const uid = user.uid;
+          const userRef = db.ref("users/" + uid);
 
-      const uid = currentUser.uid;
-      const phone = localStorage.getItem("mPesaPhone") || "Unknown";
+          userRef.once("value").then(snapshot => {
+            const userData = snapshot.val();
+            const balance = userData?.balance || 0;
 
-      const userRef = db.ref("users/" + uid);
-      const withdrawRef = db.ref("withdrawals/" + uid + "/" + Date.now());
+            if (balance < amount) {
+              showPopup("Insufficient balance");
+              return;
+            }
 
-      userRef.once("value").then(snapshot => {
-        const userData = snapshot.val();
-        const balance = userData && userData.balance ? parseInt(userData.balance) : 0;
+            // Deduct and update
+            const newBalance = balance - amount;
+            userRef.update({ balance: newBalance });
 
-        if (balance < amount) {
-          showToast("Insufficient balance.");
-          return;
-        }
+            // Save withdrawal request
+            const withdrawData = {
+              amount: amount,
+              currency: "KSH",
+              status: "pending",
+              timestamp: new Date().toISOString()
+            };
 
-        // Save withdrawal request
-        withdrawRef.set({
-          phone: phone,
-          amount: amount,
-          status: "pending",
-          timestamp: Date.now()
-        }).then(() => {
-          // Deduct from balance
-          userRef.update({
-            balance: balance - amount
+            db.ref("withdrawals/" + uid).push(withdrawData)
+              .then(() => {
+                showPopup("Withdrawal submitted for approval");
+                document.getElementById("amount").value = "";
+              });
+
           });
 
-          amountInput.value = "";
-          showToast("Withdrawal submitted for approval.");
-        }).catch(error => {
-          console.error("Error writing withdrawal:", error);
-          showToast("Failed to submit withdrawal.");
-        });
+        } else {
+          showPopup("You must be logged in to withdraw");
+        }
       });
     }
-  </script>
-
-</body>
+  </script></body>
 </html>
