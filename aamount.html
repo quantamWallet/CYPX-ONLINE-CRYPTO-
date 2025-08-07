@@ -1,185 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Withdraw Amount</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Withdraw Amount - CYPX</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #fff700;
       margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffea00, #fff700); /* Yellow Background */
+      color: black;
       display: flex;
-      height: 100vh;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      padding: 30px;
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      padding: 40px;
       width: 90%;
-      max-width: 350px;
+      max-width: 400px;
       text-align: center;
+      backdrop-filter: blur(15px);
     }
 
     input {
-      width: 100%;
       padding: 12px;
-      font-size: 16px;
-      margin-bottom: 15px;
+      width: 100%;
       border-radius: 10px;
       border: none;
-    }
-
-    .conversion {
-      font-size: 14px;
-      color: #444;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      font-size: 18px;
     }
 
     button {
-      padding: 12px;
-      width: 100%;
-      background-color: #222;
-      color: #fff;
+      background-color: #007a00;
       border: none;
-      font-size: 16px;
+      color: white;
+      padding: 14px 20px;
+      font-size: 18px;
       border-radius: 10px;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      width: 100%;
+      transition: 0.3s;
     }
 
-    .popup {
+    button:hover {
+      background-color: #005700;
+    }
+
+    #popup {
       position: fixed;
-      top: 20%;
+      top: 30%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #000;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.6);
-      z-index: 9999;
-      display: none;
+      background-color: white;
+      color: black;
+      padding: 20px 30px;
+      border-radius: 15px;
       font-size: 16px;
-      animation: fadeIn 0.3s ease;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      display: none;
+      z-index: 1000;
     }
 
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translate(-50%, -60%);}
-      to {opacity: 1; transform: translate(-50%, -50%);}
+    #ugxDisplay {
+      font-weight: bold;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <h2>Withdraw Amount</h2>
-    <input type="number" id="amountInput" placeholder="Enter amount in KSH">
-    <div class="conversion" id="conversionDisplay">~ UGX 0</div>
-    <button id="submitBtn">Submit Withdrawal</button>
+    <h2>Enter Amount to Withdraw</h2>
+    <input type="number" id="amount" placeholder="Amount in KSH" oninput="convertToUGX()" />
+    <div id="ugxDisplay">UGX: 0</div>
+    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
   </div>
 
-  <div class="popup" id="popup"></div>
+  <div id="popup"></div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script>
-    window.onload = () => {
-      // Firebase config
-      const firebaseConfig = {
-        apiKey: "AIzaSyD2Dqz6jg8YACBvg_G_7yIR6c8sSH39BsQ",
-        authDomain: "quantum-rio.firebaseapp.com",
-        databaseURL: "https://quantum-rio-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "quantum-rio",
-        storageBucket: "quantum-rio.firebasestorage.app",
-        messagingSenderId: "857500807275",
-        appId: "1:857500807275:web:0e04242866ff30bec3812e"
-      };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    };
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.database();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-      const amountInput = document.getElementById('amountInput');
-      const conversionDisplay = document.getElementById('conversionDisplay');
-      const popup = document.getElementById('popup');
-      const submitBtn = document.getElementById('submitBtn');
+    function showPopup(message) {
+      const popup = document.getElementById("popup");
+      popup.innerText = message;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 3000);
+    }
 
-      amountInput.addEventListener('input', () => {
-        const ksh = parseFloat(amountInput.value);
-        const rate = 28.5;
-        if (!isNaN(ksh)) {
-          const ugx = ksh * rate;
-          conversionDisplay.textContent = `~ UGX ${ugx.toLocaleString()}`;
-        } else {
-          conversionDisplay.textContent = `~ UGX 0`;
-        }
-      });
+    function convertToUGX() {
+      const ksh = parseFloat(document.getElementById("amount").value);
+      const ugxRate = 28.5;
+      const ugx = !isNaN(ksh) ? (ksh * ugxRate).toLocaleString() : 0;
+      document.getElementById("ugxDisplay").innerText = `UGX: ${ugx}`;
+    }
 
-      function showPopup(message, color = '#000') {
-        popup.textContent = message;
-        popup.style.backgroundColor = color;
-        popup.style.display = 'block';
-        setTimeout(() => {
-          popup.style.display = 'none';
-        }, 3000);
+    function submitWithdrawal() {
+      const amount = parseInt(document.getElementById("amount").value);
+      if (isNaN(amount) || amount < 1000 || amount > 500000) {
+        showPopup("Enter amount between 1,000 and 500,000 KSH");
+        return;
       }
 
-      submitBtn.addEventListener('click', () => {
-        const amount = parseFloat(amountInput.value);
-        if (isNaN(amount) || amount < 1000 || amount > 500000) {
-          showPopup('Enter amount between 1,000 and 500,000 KSH', '#e53935');
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          showPopup("Please log in to submit withdrawal.");
           return;
         }
 
-        auth.onAuthStateChanged(user => {
-          if (!user) {
-            showPopup("User not logged in", "#e53935");
+        const uid = user.uid;
+        const balanceRef = db.ref("users/" + uid + "/balance");
+
+        balanceRef.once("value").then(snapshot => {
+          const balance = snapshot.val();
+          if (balance < amount) {
+            showPopup("Insufficient balance.");
             return;
           }
 
-          const uid = user.uid;
-          const userRef = db.ref("users/" + uid);
+          const newBalance = balance - amount;
+          balanceRef.set(newBalance);
 
-          userRef.once("value").then(snapshot => {
-            const userData = snapshot.val();
-            const currentBalance = parseFloat(userData?.balance) || 0;
-
-            if (amount > currentBalance) {
-              showPopup("Insufficient balance", "#e53935");
-              return;
-            }
-
-            // Update balance and save withdrawal
-            userRef.update({ balance: currentBalance - amount });
-
-            const withdrawalRef = db.ref("withdrawals").push();
-            withdrawalRef.set({
-              uid,
-              amount,
-              currency: "KSH",
-              status: "pending",
-              timestamp: Date.now()
-            });
-
-            showPopup("Withdrawal submitted for approval", "#00c853");
-            amountInput.value = "";
-            conversionDisplay.textContent = "~ UGX 0";
+          const withdrawalRef = db.ref("withdrawals/" + uid).push();
+          withdrawalRef.set({
+            amount: amount,
+            currency: "KSH",
+            status: "pending",
+            timestamp: Date.now()
           });
+
+          showPopup("Withdrawal submitted for approval");
+          document.getElementById("amount").value = "";
+          document.getElementById("ugxDisplay").innerText = "UGX: 0";
         });
       });
-    };
+    }
   </script>
-
 </body>
 </html>
