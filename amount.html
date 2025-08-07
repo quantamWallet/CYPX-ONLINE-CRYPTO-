@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw Amount - CYPX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #003300, #006622);
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px rgba(0, 255, 100, 0.6);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(to right, #ffd700, #ffcc00);
+      color: black;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3);
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(255, 204, 0, 0.5);
+    }
+
+    .error {
+      color: #ff6b6b;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: #00ff99;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Enter Withdrawal Amount</h2>
+    <input type="number" id="amount" placeholder="Amount in KSH (1000 - 500000)">
+    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+    <div id="feedback" class="error"></div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script>
+    // ✅ Firebase configuration (your existing one)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    function submitWithdrawal() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const phone = localStorage.getItem("mPesaPhone");
+      const feedback = document.getElementById("feedback");
+
+      if (!phone) {
+        feedback.textContent = "Missing phone number. Please go back.";
+        return;
+      }
+
+      if (isNaN(amount) || amount < 1000 || amount > 500000) {
+        feedback.textContent = "Enter a valid amount between 1,000 and 500,000 KSH.";
+        return;
+      }
+
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          feedback.textContent = "User not authenticated.";
+          return;
+        }
+
+        const uid = user.uid;
+        const timestamp = new Date().toISOString();
+        const withdrawal = {
+          amount: amount,
+          phone: phone,
+          method: "M-Pesa",
+          status: "pending",
+          timestamp: timestamp
+        };
+
+        const newKey = database.ref().child("withdrawals/" + uid).push().key;
+        const updates = {};
+        updates["/withdrawals/" + uid + "/" + newKey] = withdrawal;
+
+        database.ref().update(updates)
+          .then(() => {
+            feedback.textContent = "Withdrawal submitted for approval.";
+            feedback.className = "success";
+            document.getElementById("amount").value = "";
+            localStorage.removeItem("mPesaPhone"); // Optional clear
+          })
+          .catch(err => {
+            feedback.textContent = "Error submitting withdrawal.";
+            feedback.className = "error";
+            console.error(err);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
