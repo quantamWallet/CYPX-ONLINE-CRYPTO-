@@ -1,91 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Withdraw Amount - CYPX ONLINE CRYPTO</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(145deg, #004d00, #007300);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-    }
-    h2 {
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      margin-bottom: 20px;
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      background: #ffcc00;
-      color: black;
-      font-weight: bold;
-      font-size: 18px;
-      cursor: pointer;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-      transition: all 0.2s ease-in-out;
-    }
-    button:hover {
-      transform: scale(1.03);
-      background: #ffd700;
-    }
-    .popup {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #28a745;
-      padding: 15px 25px;
-      border-radius: 10px;
-      font-weight: bold;
-      display: none;
-      color: white;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      z-index: 999;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Enter Amount to Withdraw</h2>
-    <input type="number" id="amountInput" placeholder="Amount in KSH" min="1000" max="500000" />
-    <button id="submitBtn" disabled>Submit Withdrawal</button>
-  </div>
-
-  <div class="popup" id="popup"></div>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #005500, #003300);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      border-radius: 25px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .box h2 {
+      margin-bottom: 20px;
+    }
+
+    .box input {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    .box input::placeholder {
+      color: #ccc;
+    }
+
+    .box button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(145deg, #28a745, #34d058);
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .box button:hover {
+      transform: scale(1.03);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 255, 0, 0.85);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 16px;
+      font-weight: 600;
+      font-size: 16px;
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <h2>Enter Amount to Withdraw</h2>
+    <input type="number" id="amount" placeholder="e.g. 50000 UGX" />
+    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+  </div>
+
+  <div id="toast" class="toast">Withdrawal submitted for approval.</div>
+
   <script>
-    // Firebase config
+    // Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -97,65 +114,77 @@
       measurementId: "G-4RSQXZJX44"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const database = firebase.database();
-
+    const db = firebase.database();
     let currentUser = null;
 
-    // Show popup
-    function showPopup(message, color = "#28a745") {
-      const popup = document.getElementById("popup");
-      popup.textContent = message;
-      popup.style.backgroundColor = color;
-      popup.style.display = "block";
-      setTimeout(() => {
-        popup.style.display = "none";
-      }, 3000);
-    }
-
-    // Only enable button once user is authenticated
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
-        document.getElementById("submitBtn").disabled = false;
-        document.getElementById("submitBtn").addEventListener("click", submitWithdrawal);
       } else {
-        showPopup("You must be logged in.", "#dc3545");
-        document.getElementById("submitBtn").disabled = true;
+        alert("You must be logged in to use this page.");
+        window.location.href = "login.html";
       }
     });
 
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4000);
+    }
+
     function submitWithdrawal() {
-      const amount = parseFloat(document.getElementById("amountInput").value);
-      if (!amount || amount < 1000 || amount > 500000) {
-        return showPopup("Enter amount between 1,000 and 500,000 KSH", "#ffc107");
+      const amountInput = document.getElementById("amount");
+      const amount = parseInt(amountInput.value);
+
+      if (isNaN(amount) || amount < 1000 || amount > 500000) {
+        showToast("Enter amount between 1,000 and 500,000 UGX");
+        return;
+      }
+
+      if (!currentUser) {
+        alert("Not authenticated.");
+        return;
       }
 
       const uid = currentUser.uid;
-      const timestamp = new Date().toISOString();
-      const withdrawalData = {
-        amount: amount,
-        timestamp: timestamp,
-        status: "pending",
-        method: "M-Pesa"
-      };
+      const phone = localStorage.getItem("mPesaPhone") || "Unknown";
 
-      const newKey = database.ref().child("withdrawals/" + uid).push().key;
-      const updates = {};
-      updates["/withdrawals/" + uid + "/" + newKey] = withdrawalData;
+      const userRef = db.ref("users/" + uid);
+      const withdrawRef = db.ref("withdrawals/" + uid + "/" + Date.now());
 
-      database.ref().update(updates)
-        .then(() => {
-          showPopup("Withdrawal submitted for approval", "#28a745");
-          document.getElementById("amountInput").value = "";
-        })
-        .catch(error => {
-          console.error(error);
-          showPopup("Error submitting withdrawal", "#dc3545");
+      userRef.once("value").then(snapshot => {
+        const userData = snapshot.val();
+        const balance = userData && userData.balance ? parseInt(userData.balance) : 0;
+
+        if (balance < amount) {
+          showToast("Insufficient balance.");
+          return;
+        }
+
+        // Save withdrawal request
+        withdrawRef.set({
+          phone: phone,
+          amount: amount,
+          status: "pending",
+          timestamp: Date.now()
+        }).then(() => {
+          // Deduct from balance
+          userRef.update({
+            balance: balance - amount
+          });
+
+          amountInput.value = "";
+          showToast("Withdrawal submitted for approval.");
+        }).catch(error => {
+          console.error("Error writing withdrawal:", error);
+          showToast("Failed to submit withdrawal.");
         });
+      });
     }
   </script>
+
 </body>
 </html>
