@@ -74,10 +74,10 @@
   <div class="container">
     <h2>Enter Amount to Withdraw</h2>
     <input type="number" id="amountInput" placeholder="Amount in KSH" min="1000" max="500000" />
-    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+    <button id="submitBtn" disabled>Submit Withdrawal</button>
   </div>
 
-  <div class="popup" id="popup">Withdrawal submitted for approval</div>
+  <div class="popup" id="popup"></div>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
@@ -104,30 +104,33 @@
 
     let currentUser = null;
 
+    // Show popup
+    function showPopup(message, color = "#28a745") {
+      const popup = document.getElementById("popup");
+      popup.textContent = message;
+      popup.style.backgroundColor = color;
+      popup.style.display = "block";
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 3000);
+    }
+
+    // Only enable button once user is authenticated
     auth.onAuthStateChanged(user => {
       if (user) {
         currentUser = user;
+        document.getElementById("submitBtn").disabled = false;
+        document.getElementById("submitBtn").addEventListener("click", submitWithdrawal);
       } else {
-        alert("You must be logged in.");
-        // Optionally redirect to login page
+        showPopup("You must be logged in.", "#dc3545");
+        document.getElementById("submitBtn").disabled = true;
       }
     });
-
-    function showPopup(msg) {
-      const popup = document.getElementById("popup");
-      popup.textContent = msg;
-      popup.style.display = "block";
-      setTimeout(() => popup.style.display = "none", 3000);
-    }
 
     function submitWithdrawal() {
       const amount = parseFloat(document.getElementById("amountInput").value);
       if (!amount || amount < 1000 || amount > 500000) {
-        return showPopup("Enter amount between 1,000 and 500,000 KSH");
-      }
-
-      if (!currentUser) {
-        return showPopup("You must be logged in.");
+        return showPopup("Enter amount between 1,000 and 500,000 KSH", "#ffc107");
       }
 
       const uid = currentUser.uid;
@@ -145,12 +148,12 @@
 
       database.ref().update(updates)
         .then(() => {
-          showPopup("Withdrawal submitted for approval");
+          showPopup("Withdrawal submitted for approval", "#28a745");
           document.getElementById("amountInput").value = "";
         })
         .catch(error => {
           console.error(error);
-          showPopup("Error submitting withdrawal");
+          showPopup("Error submitting withdrawal", "#dc3545");
         });
     }
   </script>
