@@ -183,6 +183,7 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -202,43 +203,71 @@
     let currentUser = null;
 
     firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        currentUser = user;
-      }
+      if (user) currentUser = user;
     });
 
-    function submitRecharge() {
+    function showPopup(msg, color) {
       const popup = document.getElementById('popupMsg');
-      const code = document.getElementById('code').value.trim();
+      popup.innerText = msg;
+      popup.style.backgroundColor = color;
+      popup.style.display = 'block';
+      setTimeout(() => popup.style.display = 'none', 4000);
+    }
+
+    function isValidMpesaCode(code) {
+      return /^[A-Z0-9]{10,12}$/i.test(code); // M-PESA format: 10–12 alphanumeric characters
+    }
+
+    async function isDuplicateCode(code) {
+      const snapshot = await firebase.database().ref('recharges').once('value');
+      let exists = false;
+      snapshot.forEach(userSnap => {
+        userSnap.forEach(txnSnap => {
+          if (txnSnap.val().code && txnSnap.val().code.toLowerCase() === code.toLowerCase()) {
+            exists = true;
+          }
+        });
+      });
+      return exists;
+    }
+
+    async function submitRecharge() {
+      const codeInput = document.getElementById('code');
+      const code = codeInput.value.trim();
 
       if (!code) {
-        popup.style.backgroundColor = '#dc3545';
-        popup.innerText = "Please enter your M-PESA transaction code.";
-      } else if (currentUser) {
-        const rechargeRef = firebase.database().ref('recharges/' + currentUser.uid).push();
-        rechargeRef.set({
-          code: code,
-          method: "M-PESA",
-          status: "Pending",
-          timestamp: new Date().toISOString()
-        }).then(() => {
-          popup.style.backgroundColor = '#28a745';
-          popup.innerText = "Recharge submitted for approval.";
-          document.getElementById('code').value = "";
-        }).catch((error) => {
-          popup.style.backgroundColor = '#dc3545';
-          popup.innerText = "Failed to submit recharge. Try again.";
-          console.error("Error saving to Firebase:", error);
-        });
-      } else {
-        popup.style.backgroundColor = '#dc3545';
-        popup.innerText = "You must be logged in to submit a recharge.";
+        showPopup("Please enter your M-PESA transaction code.", "#dc3545");
+        return;
       }
 
-      popup.style.display = 'block';
-      setTimeout(() => {
-        popup.style.display = 'none';
-      }, 4000);
+      if (!isValidMpesaCode(code)) {
+        showPopup("Invalid code format. Check and try again.", "#dc3545");
+        return;
+      }
+
+      if (!currentUser) {
+        showPopup("You must be logged in to submit a recharge.", "#dc3545");
+        return;
+      }
+
+      if (await isDuplicateCode(code)) {
+        showPopup("This code has already been used.", "#dc3545");
+        return;
+      }
+
+      const rechargeRef = firebase.database().ref('recharges/' + currentUser.uid).push();
+      rechargeRef.set({
+        code: code,
+        method: "M-PESA",
+        status: "Pending",
+        timestamp: new Date().toISOString()
+      }).then(() => {
+        showPopup("Recharge submitted for approval.", "#28a745");
+        codeInput.value = "";
+      }).catch((error) => {
+        console.error("Error saving to Firebase:", error);
+        showPopup("Failed to submit recharge. Try again.", "#dc3545");
+      });
     }
   </script>
 </body>
