@@ -1,7 +1,8 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MTN Uganda - Phone Entry</title>
   <style>
     body {
@@ -12,53 +13,78 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-    }.container {
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 30px;
-  width: 90%;
-  max-width: 400px;
-  color: #333;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
+    }
 
-.container h2 {
-  margin-bottom: 20px;
-  font-size: 22px;
-  color: #000;
-}
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      color: #333;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
 
-input[type="tel"] {
-  padding: 12px 15px;
-  width: 100%;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
+    .container h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+      color: #000;
+    }
 
-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  background-color: #000;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+    input[type="tel"] {
+      padding: 12px 15px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
 
-button:hover {
-  background-color: #333;
-}
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background-color: #000;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
 
+    button:hover {
+      background-color: #333;
+    }
+
+    /* Notification popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ff4d4d;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      font-weight: bold;
+      font-size: 16px;
+      animation: fadeInOut 2.5s ease forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -60%); }
+      10% { opacity: 1; transform: translate(-50%, -50%); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -40%); }
+    }
   </style>
 </head>
 <body>
@@ -66,16 +92,37 @@ button:hover {
     <h2>Enter MTN Phone Number</h2>
     <input type="tel" id="phone" placeholder="e.g. 0772XXXXXX" />
     <button onclick="submitPhone()">Continue</button>
-  </div>  <script>
+  </div>
+
+  <script>
+    function showPopup(message) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 2500);
+    }
+
     function submitPhone() {
       const phone = document.getElementById('phone').value.trim();
+
       if (!phone) {
-        alert("Please enter your MTN number");
+        showPopup("Please enter your MTN number");
         return;
       }
-      // Store temporarily in local storage (or push to Firebase if needed)
+
+      // Optionally validate MTN format
+      if (!/^07\d{8}$/.test(phone)) {
+        showPopup("Invalid MTN number format");
+        return;
+      }
+
+      // Save to localStorage
       localStorage.setItem("mtnPhone", phone);
+
+      // Go to next page
       window.location.href = "aamount.html";
     }
-  </script></body>
+  </script>
+</body>
 </html>
