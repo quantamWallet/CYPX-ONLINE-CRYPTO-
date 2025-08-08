@@ -193,57 +193,67 @@ nav i {
     const auth = firebase.auth();
     const database = firebase.database();
   </script>  <script>
-    const rate = 18;
+  const rate = 18;
 
-    function convertToTZS() {
-      const ksh = parseFloat(document.getElementById('kshInput').value);
-      if (!isNaN(ksh)) {
-        const tzs = ksh * rate;
-        document.getElementById('tzsResult').value = tzs.toFixed(2);
-      } else {
-        document.getElementById('tzsResult').value = '';
-      }
+  function convertToTZS() {
+    const ksh = parseFloat(document.getElementById('kshInput').value);
+    if (!isNaN(ksh)) {
+      const tzs = ksh * rate;
+      document.getElementById('tzsResult').value = tzs.toFixed(2);
+    } else {
+      document.getElementById('tzsResult').value = '';
+    }
+  }
+
+  function showPopup(message, isSuccess) {
+    const popup = document.getElementById('popupMsg');
+    popup.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
+    popup.innerText = message;
+    popup.style.display = 'block';
+    setTimeout(() => { popup.style.display = 'none'; }, 3000);
+  }
+
+  function isValidTanzaniaPhone(phone) {
+    const pattern = /^(065|067|068|075|076|078)\d{7}$/;
+    return pattern.test(phone);
+  }
+
+  function submitRecharge() {
+    const ksh = document.getElementById('kshInput').value;
+    const tzs = document.getElementById('tzsResult').value;
+    const phone = document.getElementById('phoneUsed').value;
+
+    if (!ksh || !tzs || !phone) {
+      showPopup("Please enter all required fields.", false);
+      return;
     }
 
-    function showPopup(message, isSuccess) {
-      const popup = document.getElementById('popupMsg');
-      popup.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
-      popup.innerText = message;
-      popup.style.display = 'block';
-      setTimeout(() => { popup.style.display = 'none'; }, 3000);
+    if (!isValidTanzaniaPhone(phone)) {
+      showPopup("Enter a valid Tigo, Vodacom, or Airtel TZ number.", false);
+      return;
     }
 
-    function submitRecharge() {
-      const ksh = document.getElementById('kshInput').value;
-      const tzs = document.getElementById('tzsResult').value;
-      const phone = document.getElementById('phoneUsed').value;
-
-      if (!ksh || !tzs || !phone) {
-        showPopup("Please enter all required fields.", false);
-        return;
-      }
-
-      const user = auth.currentUser;
-      if (!user) {
-        showPopup("You must be logged in.", false);
-        return;
-      }
-
-      const rechargeRef = database.ref(`recharges/vodacom/${user.uid}`);
-      const newRecharge = {
-        kshAmount: parseFloat(ksh),
-        tzsAmount: parseFloat(tzs),
-        phoneUsed: phone,
-        timestamp: Date.now()
-      };
-
-      rechargeRef.push(newRecharge)
-        .then(() => {
-          showPopup("Recharge submitted successfully! Please wait for confirmation.", true);
-        })
-        .catch((error) => {
-          showPopup("Error submitting recharge: " + error.message, false);
-        });
+    const user = auth.currentUser;
+    if (!user) {
+      showPopup("You must be logged in.", false);
+      return;
     }
-  </script></body>
+
+    const rechargeRef = database.ref(`recharges/vodacom/${user.uid}`);
+    const newRecharge = {
+      kshAmount: parseFloat(ksh),
+      tzsAmount: parseFloat(tzs),
+      phoneUsed: phone,
+      timestamp: Date.now()
+    };
+
+    rechargeRef.push(newRecharge)
+      .then(() => {
+        showPopup("Recharge submitted successfully! Please wait for confirmation.", true);
+      })
+      .catch((error) => {
+        showPopup("Error submitting recharge: " + error.message, false);
+      });
+  }
+    </script></body>
 </html>
