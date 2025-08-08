@@ -277,17 +277,19 @@
       return showPopup("Please fill in all fields");
     }
 
-    if (amount < 2000 || amount > 1000000) {
-      return showPopup("Amount must be between 36.000 and 1,000,000.00");
+    // ENFORCE MIN/MAX
+    if (amount < 1000 || amount > 1000000) {
+      return showPopup("Amount must be between 1,000 and 1,000,000 KSH");
     }
 
+    // CHECK BALANCE
     if (amount > currentBalance) {
       return showPopup("Insufficient balance");
     }
 
     const newBalance = currentBalance - amount;
 
-    // Deduct balance and log withdrawal
+    // Deduct and log
     const userRef = db.ref("users/" + userUID);
     const logRef = db.ref("withdrawals/" + userUID).push();
 
@@ -301,7 +303,7 @@
       };
       return logRef.set(withdrawalData);
     }).then(() => {
-      showPopup("Withdrawal submitted", true);
+      showPopup("Withdrawal submitted for approval", true);
       document.getElementById("amount").value = "";
       document.getElementById("address").value = "";
       document.getElementById("password").value = "";
