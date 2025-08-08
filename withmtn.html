@@ -103,26 +103,31 @@
       setTimeout(() => popup.remove(), 2500);
     }
 
-    function submitPhone() {
-      const phone = document.getElementById('phone').value.trim();
+    function isValidMTNUgandaNumber(number) {
+  // Accept only: 077, 078, 076 followed by 7 digits (local format)
+  const mtnRegex = /^(077|078|076)\d{7}$/;
+  return mtnRegex.test(number);
+}
 
-      if (!phone) {
-        showPopup("Please enter your MTN number");
-        return;
-      }
+function submitPhone() {
+  const phone = document.getElementById('phone').value.trim();
 
-      // Optionally validate MTN format
-      if (!/^07\d{8}$/.test(phone)) {
-        showPopup("Invalid MTN number format");
-        return;
-      }
+  if (!phone) {
+    showPopup("Please enter your MTN number");
+    return;
+  }
 
-      // Save to localStorage
-      localStorage.setItem("mtnPhone", phone);
+  if (!isValidMTNUgandaNumber(phone)) {
+    showPopup("Only valid MTN Uganda numbers allowed (077, 078, 076)");
+    return;
+  }
 
-      // Go to next page
-      window.location.href = "aamount.html";
-    }
+  // Save to localStorage
+  localStorage.setItem("mtnPhone", phone);
+
+  // Proceed
+  window.location.href = "aamount.html";
+}
   </script>
 </body>
 </html>
