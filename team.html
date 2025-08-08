@@ -143,7 +143,7 @@
       authDomain: "quantum-rio.firebaseapp.com",
       databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
+      storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
@@ -173,7 +173,12 @@
         refInput.addEventListener("click", () => {
           refInput.select();
           document.execCommand("copy");
-          alert("Referral link copied!");
+
+          const popup = document.createElement("div");
+          popup.className = "popup";
+          popup.textContent = "Referral link copied!";
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 3000);
         });
       });
 
