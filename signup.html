@@ -330,70 +330,91 @@
 ];
 
     const selector = document.getElementById("countrySelector");
-    countries.forEach(country => {
-      const option = document.createElement("option");
-      option.value = country.code;
-      option.textContent = `${country.dial} ${country.flag} ${country.code}`;
-      selector.appendChild(option);
+countries.forEach(country => {
+  const option = document.createElement("option");
+  option.value = country.code;
+  option.textContent = `${country.dial} ${country.flag} ${country.code}`;
+  selector.appendChild(option);
+});
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+
+  const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// Capture referral code from URL
+const urlParams = new URLSearchParams(window.location.search);
+const referrerCode = urlParams.get('ref');
+
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const countryCode = document.getElementById("countrySelector").value;
+  const phone = document.getElementById("phone").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  // Show error if passwords don't match
+  if (password !== confirmPassword) {
+    document.getElementById("error-message").innerText = "Passwords do not match.";
+    document.getElementById("error-message").style.display = "block";
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    // Save new user with referrer info
+    await set(ref(db, "users/" + uid), {
+      name: name,
+      email: email,
+      country: countryCode,
+      phone: phone,
+      balance: 0,
+      referrer: referrerCode || null,
+      hasDeposited: false // Track first deposit
     });
-  </script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+   // Hide error and show success notification
+document.getElementById("error-message").style.display = "none";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const countryCode = document.getElementById("countrySelector").value;
-      const phone = document.getElementById("phone").value.trim();
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-
-      if (password !== confirmPassword) {
-        showNotification("Passwords do not match.");
-        return;
-      }
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const uid = userCredential.user.uid;
-
-        await set(ref(db, "users/" + uid), {
-          name: name,
-          email: email,
-          country: countryCode,
-          phone: phone,
-          balance: 0
-        });
-
-        showNotification("Account created! Redirecting...");
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 1500);
-      } catch (error) {
-        const message = getFriendlyFirebaseError(error);
-        showNotification(message);
-      }
+try {
+  // If user registered via referral, record them under referrer
+  if (referrerCode) {
+    const referrerRef = ref(db, "users/" + referrerCode + "/referrals/" + uid);
+    await set(referrerRef, {
+      referredUser: uid,
+      bonusGiven: false
     });
-  </script>
+  }
+
+  showNotification("Account created! Redirecting...");
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 1500);
+} catch (error) {
+  document.getElementById("error-message").innerText = getFriendlyFirebaseError(error);
+  document.getElementById("error-message").style.display = "block";
+}  });
+</script>
 </body>
-</html>
+        </html>
