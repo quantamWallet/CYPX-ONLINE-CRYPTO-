@@ -246,8 +246,10 @@
           const userData = snapshot.val() || {};
           const username = userData.username || (user.email ? user.email.split('@')[0] : uid);
 
-          const origin = (location.protocol === 'file:') ? '' : `${location.protocol}//${location.host}`;
-          const shortLink = `${origin}/signup.html?ref=${encodeURIComponent(username)}`;
+          // FIX: preserve GitHub Pages subpath
+          const base = location.href.substring(0, location.href.lastIndexOf('/'));
+          const shortLink = `${base}/signup.html?ref=${encodeURIComponent(username)}`;
+          
           refInput.value = shortLink;
 
           if (!copyListenerAdded) {
@@ -294,17 +296,19 @@
   </script>
 
   <script>
-    const buttons = document.querySelectorAll('.details-btn');
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const teamSize = document.querySelectorAll('.stat-box')[0].children[1].textContent || "0";
-        const popup = document.createElement("div");
-        popup.className = "popup";
-        popup.textContent = `You have ${teamSize} referral${Number(teamSize) !== 1 ? "s" : ""}`;
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 3000);
+    document.addEventListener('DOMContentLoaded', () => {
+      const buttons = document.querySelectorAll('.details-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const teamSize = document.querySelectorAll('.stat-box')[0].children[1].textContent || "0";
+          const popup = document.createElement("div");
+          popup.className = "popup";
+          popup.textContent = `You have ${teamSize} referral${Number(teamSize) !== 1 ? "s" : ""}`;
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 3000);
+        });
       });
     });
   </script>
 </body>
-  </html>
+</html>
