@@ -133,82 +133,6 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth();
-
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        location.href = "signup.html";
-        return;
-      }
-
-      const uid = user.uid;
-      const userRef = ref(db, `users/${uid}`);
-
-      onValue(userRef, snapshot => {
-        const userData = snapshot.val();
-        const username = userData?.username || user.email.split("@")[0];
-
-        const shortLink = `${location.origin}/signup.html?ref=${encodeURIComponent(username)}`;
-        const refInput = document.getElementById("ref-link");
-        refInput.value = shortLink;
-
-        refInput.addEventListener("click", () => {
-          refInput.select();
-          document.execCommand("copy");
-
-          const popup = document.createElement("div");
-          popup.className = "popup";
-          popup.textContent = "Referral link copied!";
-          document.body.appendChild(popup);
-          setTimeout(() => popup.remove(), 3000);
-        });
-      });
-
-      const teamRef = ref(db, `users/${uid}/teamStats`);
-      onValue(teamRef, snap => {
-        const stats = snap.val() || {};
-        const values = {
-          teamSize: stats.teamSize || 0,
-          recharge: stats.recharge || 0,
-          withdrawal: stats.withdrawal || 0,
-          newTeam: stats.newTeam || 0,
-          firstRecharge: stats.firstRecharge || 0,
-          firstWithdrawal: stats.firstWithdrawal || 0
-        };
-
-        const statBoxes = document.querySelectorAll(".stat-box");
-        statBoxes[0].children[1].textContent = values.teamSize;
-        statBoxes[1].children[1].textContent = `KSH ${values.recharge.toFixed(2)}`;
-        statBoxes[2].children[1].textContent = `KSH ${values.withdrawal.toFixed(2)}`;
-        statBoxes[3].children[1].textContent = values.newTeam;
-        statBoxes[4].children[1].textContent = values.firstRecharge;
-        statBoxes[5].children[1].textContent = values.firstWithdrawal;
-
-        const incomeLevels = [stats.lev1 || 0, stats.lev2 || 0, stats.lev3 || 0];
-        document.querySelectorAll(".level-box").forEach((box, idx) => {
-          box.querySelector(".level-info:last-child span:last-child").textContent = `KSH ${incomeLevels[idx].toFixed(2)}`;
-        });
-      });
-    });
-  </script>
 </head>
 <body>
   <header>
@@ -266,23 +190,121 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
+  <!-- Firebase & referral logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const refInput = document.getElementById('ref-link');
+      let copyListenerAdded = false;
+
+      async function copyText(text) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+          } else {
+            refInput.select();
+            document.execCommand('copy');
+          }
+          const popup = document.createElement('div');
+          popup.className = 'popup';
+          popup.textContent = 'Referral link copied!';
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 2000);
+        } catch (err) {
+          console.error('Copy failed', err);
+        }
+      }
+
+      onAuthStateChanged(auth, user => {
+        if (!user) {
+          location.href = "signup.html";
+          return;
+        }
+
+        const uid = user.uid;
+        const userRef = ref(db, `users/${uid}`);
+
+        onValue(userRef, snapshot => {
+          const userData = snapshot.val() || {};
+          const username = userData.username || (user.email ? user.email.split('@')[0] : uid);
+
+          const origin = (location.protocol === 'file:') ? '' : `${location.protocol}//${location.host}`;
+          const shortLink = `${origin}/signup.html?ref=${encodeURIComponent(username)}`;
+          refInput.value = shortLink;
+
+          if (!copyListenerAdded) {
+            refInput.addEventListener('click', () => copyText(shortLink));
+            copyListenerAdded = true;
+          }
+
+          // Get referrals from DB
+          const q = query(ref(db, 'users'), orderByChild('referredBy'), equalTo(username));
+          onValue(q, snap => {
+            const matches = snap.val() || {};
+            const count = Object.keys(matches).length;
+            document.querySelectorAll('.stat-box')[0].children[1].textContent = count;
+          });
+        });
+
+        const teamRef = ref(db, `users/${uid}/teamStats`);
+        onValue(teamRef, snap => {
+          const stats = snap.val() || {};
+          const values = {
+            teamSize: stats.teamSize || 0,
+            recharge: stats.recharge || 0,
+            withdrawal: stats.withdrawal || 0,
+            newTeam: stats.newTeam || 0,
+            firstRecharge: stats.firstRecharge || 0,
+            firstWithdrawal: stats.firstWithdrawal || 0
+          };
+
+          const statBoxes = document.querySelectorAll(".stat-box");
+          if (statBoxes[1]) statBoxes[1].children[1].textContent = `KSH ${Number(values.recharge).toFixed(2)}`;
+          if (statBoxes[2]) statBoxes[2].children[1].textContent = `KSH ${Number(values.withdrawal).toFixed(2)}`;
+          if (statBoxes[3]) statBoxes[3].children[1].textContent = values.newTeam;
+          if (statBoxes[4]) statBoxes[4].children[1].textContent = values.firstRecharge;
+          if (statBoxes[5]) statBoxes[5].children[1].textContent = values.firstWithdrawal;
+
+          const incomeLevels = [stats.lev1 || 0, stats.lev2 || 0, stats.lev3 || 0];
+          document.querySelectorAll(".level-box").forEach((box, idx) => {
+            const targetSpan = box.querySelector(".level-info:last-child span:last-child");
+            if (targetSpan) targetSpan.textContent = `KSH ${Number(incomeLevels[idx]).toFixed(2)}`;
+          });
+        });
+      });
+    });
+  </script>
+
   <script>
     const buttons = document.querySelectorAll('.details-btn');
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
-        const referrals = JSON.parse(localStorage.getItem("referrals")) || [];
-        const count = referrals.length || 0;
-
+        const teamSize = document.querySelectorAll('.stat-box')[0].children[1].textContent || "0";
         const popup = document.createElement("div");
         popup.className = "popup";
-        popup.textContent = count === 0 
-          ? "No referrals yet. Count: 0" 
-          : `You have ${count} referral${count > 1 ? "s" : ""}`;
-
+        popup.textContent = `You have ${teamSize} referral${Number(teamSize) !== 1 ? "s" : ""}`;
         document.body.appendChild(popup);
         setTimeout(() => popup.remove(), 3000);
       });
     });
   </script>
 </body>
-</html>
+  </html>
