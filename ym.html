@@ -1,0 +1,464 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYPX ONLINE CRYPTO - VIP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+    }
+    header {
+      background-color: #002f6c;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    header img {
+      height: 24px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .vip-card {
+      background-color: #003366;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .vip-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #ffcc00;
+      color: black;
+      padding: 4px 10px;
+      font-weight: bold;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .vip-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .vip-content img {
+      width: 60px;
+      height: 60px;
+    }
+    .vip-details {
+      flex: 1;
+    }
+    .vip-details div {
+      margin: 4px 0;
+    }
+    .unlock-btn {
+      background-color: #ffcc00;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+    .unlock-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* receive button (green) */
+    .receive-btn {
+      background-color: #00c853;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+    .receive-btn:disabled { background-color: gray; cursor: not-allowed; opacity:0.8; }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #003050;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 9999;
+      text-align: center;
+      max-width: 80%;
+    }
+    .popup button {
+      background-color: red;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .bottom-space {
+      height: 90px;
+    }
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    nav i {
+      font-size: 20px;
+    }
+
+    /* notification toast (floating) */
+    #toast {
+      position: fixed;
+      right: 18px;
+      bottom: 120px;
+      min-width: 220px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      z-index: 99999;
+      display: none;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      color: #042a5e;
+    }
+    #toast.success { background: #c7ffd8; color: #034d2b; }
+    #toast.warn { background: #fff2c6; color: #6a4b00; }
+    #toast.info { background: #dbe9ff; color: #042a5e; }
+
+    /* small badge for days */
+    .badge { background: rgba(255,255,255,0.05); padding:6px 8px; border-radius:8px; font-size:13px; color:#cfe6ff; display:inline-block; margin-right:8px; }
+
+    /* responsive tweaks */
+    @media (min-width:900px){
+      .vip-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; padding:8px; }
+    }
+    @media (max-width:899px){
+      .vip-grid{ display:block; padding:8px; }
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const container = document.getElementById("vip-container");
+    const popup = document.getElementById("popup");
+    const popupText = document.getElementById("popup-text");
+    const toast = document.getElementById("toast");
+
+    // use the Simple Interest values from your original array
+    const vipLevels = [
+      { level: 1, interest: 750, daily: 750, total: 12000, cost: 3000 },
+      { level: 2, interest: 1250, daily: 1250, total: 15000, cost: 5000 },
+      { level: 3, interest: 2750, daily: 2750, total: 33000, cost: 11000 },
+      { level: 4, interest: 5250, daily: 5250, total: 63000, cost: 21000 },
+      { level: 5, interest: 9375, daily: 9375, total: 108000, cost: 36000 },
+      { level: 6, interest: 18750, daily: 18750, total: 2250000, cost: 75000 },
+      { level: 7, interest: 28250, daily: 28250, total: 339000, cost: 113000 },
+      { level: 8, interest: 37750, daily: 37750, total: 453000, cost: 151000 },
+      { level: 9, interest: 50000, daily: 50000, total: 600000, cost: 200000 },
+      { level: 10, interest: 62500, daily: 62500, total: 750000, cost: 250000 }
+    ];
+
+    const MS_DAY = 24*60*60*1000;
+    let currentUser = null;
+    let userRef = null;
+    let localData = null;
+    const timers = {};
+
+    function showToast(message, type='info', duration=3200){
+      toast.textContent = message;
+      toast.className = type;
+      toast.classList.add('show');
+      toast.style.display = 'block';
+      // style class mapping
+      if(type==='success') toast.classList.add('success');
+      else if(type==='warn') toast.classList.add('warn');
+      else toast.classList.add('info');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=>{ toast.style.display='none'; toast.className=''; }, duration);
+    }
+
+    function msToHMS(ms){
+      if(ms<=0) return '00:00:00';
+      const s = Math.floor(ms/1000);
+      const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60); const sec = s%60;
+      const p = n=>String(n).padStart(2,'0');
+      return `${p(h)}:${p(m)}:${p(sec)}`;
+    }
+
+    // listen auth & user data
+    onAuthStateChanged(auth, user=>{
+      if(!user) { location.href='landing.html'; return; }
+      currentUser = user;
+      userRef = ref(db, `users/${currentUser.uid}`);
+      // live updates
+      onValue(userRef, snap=>{
+        localData = snap.val() || { balance:0, vipLevels:[], vipClaims:{} };
+        renderAll();
+      });
+    });
+
+    function renderAll(){
+      container.innerHTML = '';
+      // ensure vipClaims structure exists
+      localData.vipClaims = localData.vipClaims || {};
+
+      vipLevels.forEach(v=>{
+        const lvl = v.level;
+        const isUnlocked = (localData.vipLevels || []).includes(lvl);
+        const claim = localData.vipClaims[lvl] || { lastClaim: 0, daysClaimed: 0 };
+        const days = claim.daysClaimed || 0;
+        const last = claim.lastClaim || 0;
+        const timeSince = Date.now() - last;
+        const canClaim = isUnlocked && days < 12 && (last===0 || timeSince >= MS_DAY);
+        const remainingDays = Math.max(0, 12 - days);
+
+        const card = document.createElement('div');
+        card.className = 'vip-card';
+
+        card.innerHTML = `
+          <div class="vip-label">VIP${lvl}</div>
+          <div class="vip-content">
+            <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" />
+            <div class="vip-details">
+              <div><strong>Daily Tasks:</strong> 1</div>
+              <div><strong>Simple Interest:</strong> <span style="color:#00ff00;">${Number(v.interest).toFixed(2)}</span></div>
+              <div><strong>Daily Profit:</strong> ${Number(v.daily).toFixed(2)} KSH</div>
+              <div><strong>Total Profit:</strong> ${Number(v.total).toFixed(2)} KSH</div>
+
+              <div style="margin-top:8px;">
+                <span class="badge">Days claimed: <span id="days-${lvl}">${days}</span>/12</span>
+                <span class="badge">Remaining: <span id="rem-${lvl}">${remainingDays}</span></span>
+              </div>
+
+              <div style="margin-top:10px;">
+                ${isUnlocked
+                  ? `<button id="receive-${lvl}" class="receive-btn" ${canClaim ? '' : 'disabled'}>${canClaim ? 'Receive' : (days>=12 ? 'Completed' : 'Available in 24h')}</button>`
+                  : `<button id="unlock-${lvl}" class="unlock-btn">${Number(v.cost).toFixed(2)} KSH Unlock Now</button>`
+                }
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+
+        // attach handlers
+        if (isUnlocked) {
+          const receiveBtn = document.getElementById(`receive-${lvl}`);
+          if (receiveBtn) {
+            receiveBtn.addEventListener('click', ()=>{
+              // double-check unlock & eligibility before action
+              handleReceive(lvl, Number(v.interest));
+            });
+            // start per-second countdown to update button label/state
+            startTimerForLevel(lvl);
+          }
+        } else {
+          const unlockBtn = document.getElementById(`unlock-${lvl}`);
+          if (unlockBtn) unlockBtn.addEventListener('click', ()=> handleUnlock(lvl, Number(v.cost)));
+        }
+      });
+    }
+
+    function startTimerForLevel(lvl){
+      // clear existing
+      if (timers[lvl]) clearInterval(timers[lvl]);
+      timers[lvl] = setInterval(()=> {
+        // if localData missing skip
+        if(!localData) return;
+        const claim = (localData.vipClaims && localData.vipClaims[lvl]) || { lastClaim:0, daysClaimed:0 };
+        const days = claim.daysClaimed || 0;
+        const last = claim.lastClaim || 0;
+        const btn = document.getElementById(`receive-${lvl}`);
+        const daysEl = document.getElementById(`days-${lvl}`);
+        const remEl = document.getElementById(`rem-${lvl}`);
+        if (daysEl) daysEl.textContent = days;
+        if (remEl) remEl.textContent = Math.max(0, 12 - days);
+
+        if (!btn) { clearInterval(timers[lvl]); return; }
+        if (days >= 12) { btn.disabled = true; btn.textContent = 'Completed'; clearInterval(timers[lvl]); return; }
+
+        const now = Date.now();
+        const diff = now - last;
+        if (last===0 || diff >= MS_DAY) {
+          btn.disabled = false;
+          btn.textContent = 'Receive';
+        } else {
+          const remaining = MS_DAY - diff;
+          btn.disabled = true;
+          btn.textContent = 'Available in ' + msToHMSShort(remaining);
+        }
+      }, 1000);
+    }
+
+    function msToHMSShort(ms){
+      if(ms<=0) return '00:00:00';
+      const s = Math.floor(ms/1000);
+      const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60);
+      const p = n=>String(n).padStart(2,'0');
+      return `${p(h)}:${p(m)}`;
+    }
+
+    async function handleUnlock(level, cost){
+      try {
+        const snap = await get(userRef);
+        const data = snap.val() || { balance:0, vipLevels:[], vipClaims:{} };
+        const bal = Number(data.balance || 0);
+        if (bal < cost) {
+          const deficit = (cost - bal).toFixed(2);
+          popupText.textContent = `The recharge balance is automatically unlocked\nNeed to recharge KSH${deficit}`;
+          popup.style.display = "block";
+          return;
+        }
+        const updatedVIPs = data.vipLevels || [];
+        if (!updatedVIPs.includes(level)) updatedVIPs.push(level);
+
+        // ensure vipClaims entry exists
+        const vipClaims = data.vipClaims || {};
+        if (!vipClaims[level]) vipClaims[level] = { lastClaim: 0, daysClaimed: 0 };
+
+        // deduct and save
+        await update(userRef, {
+          balance: bal - cost,
+          vipLevels: updatedVIPs,
+          vipClaims: vipClaims
+        });
+
+        showToast(`VIP${level} unlocked!`, 'success');
+        // localData will update because onValue is active
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to unlock. Try again.', 'warn');
+      }
+    }
+
+    async function handleReceive(level, amount){
+      try {
+        const snap = await get(userRef);
+        const data = snap.val() || { balance:0, vipLevels:[], vipClaims:{} };
+
+        // verify unlocked
+        const unlocked = (data.vipLevels || []).includes(level);
+        if (!unlocked) {
+          showToast('You need to unlock this VIP level before claiming.', 'warn');
+          return;
+        }
+
+        const vipClaims = data.vipClaims || {};
+        const claim = vipClaims[level] || { lastClaim: 0, daysClaimed: 0 };
+        const days = claim.daysClaimed || 0;
+        const last = claim.lastClaim || 0;
+        const now = Date.now();
+
+        if (days >= 12) {
+          showToast('12-day limit reached for this VIP.', 'info');
+          return;
+        }
+        if (last && (now - last) < MS_DAY) {
+          const remaining = MS_DAY - (now - last);
+          showToast(`You already claimed today. Next in ${msToHMSShort(remaining)}.`, 'warn');
+          return;
+        }
+
+        // compute new values
+        const newDays = days + 1;
+        const newLast = now;
+        const newBalance = Number(data.balance || 0) + Number(amount);
+
+        // update minimal fields
+        const updates = {
+          balance: newBalance,
+          [`vipClaims/${level}/lastClaim`]: newLast,
+          [`vipClaims/${level}/daysClaimed`]: newDays
+        };
+
+        await update(userRef, updates);
+
+        showToast(`${Number(amount).toLocaleString()} KSH added to balance`, 'success');
+
+        // if completed show extra info
+        if (newDays >= 12) showToast(`VIP${level} fully claimed (12 days).`, 'info');
+
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to claim. Try again.', 'warn');
+      }
+    }
+
+    // hide recharge popup when clicking outside or after confirm (confirm redirects)
+    window.addEventListener('click', (ev)=>{
+      if(!popup) return;
+      const rect = popup.getBoundingClientRect();
+      // if click outside popup and popup visible, hide it
+      if (popup.style.display === 'block' && (ev.clientX < rect.left || ev.clientX > rect.right || ev.clientY < rect.top || ev.clientY > rect.bottom)) {
+        popup.style.display = 'none';
+      }
+    });
+
+    // cleanup timers on unload
+    window.addEventListener('beforeunload', ()=> {
+      Object.values(timers).forEach(t=>clearInterval(t));
+    });
+
+  </script>
+</head>
+<body>
+  <header>
+    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
+    CYPX ONLINE CRYPTO - VIP
+  </header>
+  <div id="vip-container" class="vip-grid"></div>
+  <div class="bottom-space"></div>
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
+  <div id="popup" class="popup" style="display:none;">
+    <div id="popup-text"></div>
+    <button onclick="location.href='recharge.html'">Confirm</button>
+  </div>
+
+  <div id="toast"></div>
+</body>
+  </html>
