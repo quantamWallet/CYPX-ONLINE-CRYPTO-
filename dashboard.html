@@ -530,5 +530,43 @@
     }
   };
 </script>
+    <!-- WhatsApp Floating Button -->
+<a href="https://chat.whatsapp.com/E2ZA6uHhf15BOrLkwDwdd2?mode=ac_t" 
+   target="_blank" 
+   class="whatsapp-float" 
+   title="Join our WhatsApp Group">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+         alt="WhatsApp" 
+         class="whatsapp-icon">
+</a>
+
+<style>
+/* Floating WhatsApp Button */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 20px;  /* Adjust if you want it higher/lower */
+    right: 20px;
+    background-color: #25D366;
+    border-radius: 50%;
+    text-align: center;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.whatsapp-icon {
+    width: 35px;
+    height: 35px;
+}
+
+.whatsapp-float:hover {
+    background-color: #1ebe5d;
+}
+</style>
 </body>
 </html>
