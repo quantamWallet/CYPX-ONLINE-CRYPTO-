@@ -3,212 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Account</title>
+  <title>Sign Up - CYPX ONLINE CRYPTO</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      height: 100vh; 
-      background: linear-gradient(135deg, #001f3f, #003366); 
-      margin: 0;
+    body {
+      background-color: navy;
+      font-family: Arial, sans-serif;
+      color: white;
+      padding: 20px;
     }
-    .container { 
-      background: #001f3f; /* navy blue floating card */
-      padding: 20px; 
-      border-radius: 15px; 
-      width: 340px; 
-      box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.2);
-      transform: translateY(0);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      color: #fff;
+
+    form {
+      max-width: 400px;
+      margin: auto;
+      background-color: #1a1a40;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
-    .container:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3);
-    }
-    .container h2 { 
-      text-align: center; 
-      margin-bottom: 15px;
-      color: #ffffff;
-    }
-    input, select, button { 
-      width: 100%; 
-      padding: 10px; 
-      margin: 8px 0; 
-      border-radius: 8px; 
-      border: 1px solid #ccc; 
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
       font-size: 14px;
-      outline: none;
-      background-color: #ffffff;
-      color: #000;
-      transition: box-shadow 0.2s ease;
     }
-    input:focus, select:focus {
-      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-      border-color: #007bff;
+
+    input, select {
+      background-color: #e0e0e0;
+      color: black;
     }
-    select { 
-      background: #fff url('data:image/svg+xml;utf8,<svg fill="black" height="12" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
-      appearance: none;
-    }
-    button { 
-      background: #007bff; 
-      color: #fff; 
-      border: none; 
-      cursor: pointer;
+
+    button {
+      background-color: #00cc99;
+      color: white;
       font-weight: bold;
-      transition: background 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
+      transition: transform 0.2s ease;
     }
-    button:hover { 
-      background: #0056b3; 
+
+    button:hover {
       transform: translateY(-2px);
     }
-    .error { 
-      color: #ff4d4d; 
-      display: none; 
-      margin-top: 5px; 
-      font-size: 13px;
+
+    a {
+      color: #00ccff;
     }
-    .success-message { 
-      text-align: center; 
-      padding: 20px; 
-      color: #fff;
+
+    h2 {
+      text-align: center;
     }
-    .signin-link { 
-      text-align: center; 
-      margin-top: 10px; 
-      font-size: 14px;
-      color: #fff;
+
+    #notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #00cc99;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      animation: fadeInOut 4s ease-in-out;
     }
-    .signin-link a {
-      color: #00aced;
-      text-decoration: none;
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
     }
   </style>
 </head>
 <body>
+  <div id="notification"></div>
 
-<div class="container">
-  <h2>Create Account</h2>
-  <div id="error-message" class="error"></div>
   <form id="signupForm">
-    <input type="text" id="username" placeholder="Username" required>
-    <select id="countrySelector" required>
-      <option value="+254">🇰🇪 Kenya (+254)</option>
-      <option value="+256">🇺🇬 Uganda (+256)</option>
-      <option value="+255">🇹🇿 Tanzania (+255)</option>
+    <h2>Create Account</h2>
+    <input type="text" id="username" placeholder="Username" required />
+    <select id="country" required>
+      <option value="">Select Country</option>
+      <option value="Kenya">🇰🇪 Kenya</option>
+      <option value="Uganda">🇺🇬 Uganda</option>
+      <option value="Tanzania">🇹🇿 Tanzania</option>
     </select>
-    <input type="tel" id="phone" placeholder="Phone Number" required>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
+    <input type="tel" id="phone" placeholder="Phone Number" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
     <button type="submit">Create Account</button>
+    <p>Already have an account? <a href="signin.html">Sign In</a></p>
   </form>
-  <div class="signin-link">Already have an account? <a href="signin.html">Sign in</a></div>
-</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-// ✅ Your Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-// Referral
-const urlParams = new URLSearchParams(window.location.search);
-const referralUsername = urlParams.get('ref') || null;
+    const showNotification = (message, color = "#00cc99") => {
+      const notif = document.getElementById("notification");
+      notif.textContent = message;
+      notif.style.backgroundColor = color;
+      notif.style.display = "block";
+      setTimeout(() => {
+        notif.style.display = "none";
+      }, 4000);
+    };
 
-// Find UID by username
-async function findUIDByUsername(username) {
-  const usersSnap = await get(ref(db, "users"));
-  if (!usersSnap.exists()) return null;
-  const users = usersSnap.val();
-  for (let uid in users) {
-    if (users[uid].username === username) {
-      return uid;
-    }
-  }
-  return null;
-}
+    // Capture referral from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralUsername = urlParams.get("ref");
 
-// Signup
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  let username = document.getElementById("username").value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
-  const countryDial = document.getElementById("countrySelector").value;
-  const phone = document.getElementById("phone").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const errorMsg = document.getElementById("error-message");
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  if (username.length < 3) {
-    errorMsg.textContent = "Username must be at least 3 characters.";
-    errorMsg.style.display = "block";
-    return;
-  }
+      const username = document.getElementById("username").value.trim();
+      const country = document.getElementById("country").value;
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-  try {
-    const exists = await findUIDByUsername(username);
-    if (exists) {
-      errorMsg.textContent = "❌ Username is already taken.";
-      errorMsg.style.display = "block";
-      return;
-    }
+      try {
+        let referrerUID = null;
 
-    let referrerUID = null;
-    if (referralUsername) {
-      const cleanRef = referralUsername.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
-      referrerUID = await findUIDByUsername(cleanRef);
-    }
+        // If referral username exists, find the UID
+        if (referralUsername) {
+          const snapshot = await get(child(ref(db), "users"));
+          snapshot.forEach(userSnap => {
+            if (userSnap.val().username === referralUsername) {
+              referrerUID = userSnap.key;
+            }
+          });
+        }
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-    await set(ref(db, "users/" + uid), {
-      username,
-      email,
-      phone: countryDial + phone,
-      balance: 0,
-      referrer: referrerUID || null,
-      hasDeposited: false,
-      createdAt: new Date().toISOString()
+        await set(ref(db, "users/" + user.uid), {
+          username,
+          country,
+          phone,
+          email,
+          balance: 0,
+          referrer: referrerUID,
+          hasDeposited: false,
+          createdAt: new Date().toISOString()
+        });
+
+        showNotification("Account created successfully!");
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 2000);
+
+      } catch (error) {
+        showNotification(error.message, "#cc3300");
+      }
     });
-
-    if (referrerUID) {
-      await set(ref(db, "users/" + referrerUID + "/referrals/" + uid), {
-        referredUser: uid,
-        bonusGiven: false
-      });
-    }
-
-    document.body.innerHTML = `
-      <div class="success-message">
-        <h2>✅ Account Created Successfully!</h2>
-        <p>Redirecting to your dashboard...</p>
-      </div>
-    `;
-    setTimeout(() => window.location.href = "dashboard.html", 2000);
-
-  } catch (error) {
-    errorMsg.textContent = error.message;
-    errorMsg.style.display = "block";
-  }
-});
-</script>
+  </script>
 </body>
 </html>
