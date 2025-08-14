@@ -3,418 +3,212 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up - CYPX ONLINE CRYPTO</title>
+  <title>Create Account</title>
   <style>
-    body {
-      background-color: navy;
-      font-family: Arial, sans-serif;
-      color: white;
-      padding: 20px;
+    body { 
+      font-family: Arial, sans-serif; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      background: linear-gradient(135deg, #001f3f, #003366); 
+      margin: 0;
     }
-
-    form {
-      max-width: 400px;
-      margin: auto;
-      background-color: #1a1a40;
-      padding: 20px;
-      border-radius: 10px;
+    .container { 
+      background: #001f3f; /* navy blue floating card */
+      padding: 20px; 
+      border-radius: 15px; 
+      width: 340px; 
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.2);
+      transform: translateY(0);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      color: #fff;
     }
-
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
+    .container:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3);
     }
-
-    input, select {
-      background-color: #e0e0e0;
-      color: black;
+    .container h2 { 
+      text-align: center; 
+      margin-bottom: 15px;
+      color: #ffffff;
     }
-
-    button {
-      background-color: #00cc99;
-      color: white;
-      font-weight: bold;
+    input, select, button { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 8px 0; 
+      border-radius: 8px; 
+      border: 1px solid #ccc; 
+      font-size: 14px;
+      outline: none;
+      background-color: #ffffff;
+      color: #000;
+      transition: box-shadow 0.2s ease;
+    }
+    input:focus, select:focus {
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      border-color: #007bff;
+    }
+    select { 
+      background: #fff url('data:image/svg+xml;utf8,<svg fill="black" height="12" viewBox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+      appearance: none;
+    }
+    button { 
+      background: #007bff; 
+      color: #fff; 
+      border: none; 
       cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
-
-    a {
-      color: #00ccff;
+    button:hover { 
+      background: #0056b3; 
+      transform: translateY(-2px);
     }
-
-    h2 {
-      text-align: center;
+    .error { 
+      color: #ff4d4d; 
+      display: none; 
+      margin-top: 5px; 
+      font-size: 13px;
     }
-
-    #notification {
-      display: none;
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #00cc99;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      z-index: 1000;
+    .success-message { 
+      text-align: center; 
+      padding: 20px; 
+      color: #fff;
+    }
+    .signin-link { 
+      text-align: center; 
+      margin-top: 10px; 
+      font-size: 14px;
+      color: #fff;
+    }
+    .signin-link a {
+      color: #00aced;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <div id="notification"></div>
 
+<div class="container">
+  <h2>Create Account</h2>
+  <div id="error-message" class="error"></div>
   <form id="signupForm">
-    <h2>Sign Up</h2>
-    <input type="text" id="name" placeholder="Full Name" required />
-    <input type="email" id="email" placeholder="Email" required />
-
-    <div class="phone-group">
-      <select id="countrySelector" required></select>
-      <input type="text" id="phone" placeholder="Phone Number" required />
-    </div>
-
-    <input type="password" id="password" placeholder="Password" required />
-    <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+    <input type="text" id="username" placeholder="Username" required>
+    <select id="countrySelector" required>
+      <option value="+254">🇰🇪 Kenya (+254)</option>
+      <option value="+256">🇺🇬 Uganda (+256)</option>
+      <option value="+255">🇹🇿 Tanzania (+255)</option>
+    </select>
+    <input type="tel" id="phone" placeholder="Phone Number" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
     <button type="submit">Create Account</button>
-    <p>Already have an account? <a href="signin.html">Sign In</a></p>
   </form>
-
-  <script>
-    function showNotification(message, duration = 3000) {
-      const note = document.getElementById("notification");
-      note.textContent = message;
-      note.style.display = "block";
-      setTimeout(() => {
-        note.style.display = "none";
-      }, duration);
-    }
-
-    function getFriendlyFirebaseError(error) {
-      const code = error.code;
-      const messages = {
-        "auth/invalid-email": "Invalid email address",
-        "auth/email-already-in-use": "Email is already in use",
-        "auth/weak-password": "Password is too weak (min 6 characters)",
-        "auth/missing-password": "Please enter a password",
-        "auth/internal-error": "Something went wrong. Try again",
-        "auth/network-request-failed": "Network error. Please check your connection",
-        "auth/too-many-requests": "Too many attempts. Try again later"
-      };
-      return messages[code] || "Signup failed. Please check your details.";
-    }
-  </script>
-
-  <script>
-    const countries = [
-{ dial: "+93", flag: "🇦🇫", code: "AF" },
-{ dial: "+355", flag: "🇦🇱", code: "AL" },
-{ dial: "+213", flag: "🇩🇿", code: "DZ" },
-{ dial: "+376", flag: "🇦🇩", code: "AD" },
-{ dial: "+244", flag: "🇦🇴", code: "AO" },
-{ dial: "+1", flag: "🇦🇮", code: "AI" },
-{ dial: "+1", flag: "🇦🇬", code: "AG" },
-{ dial: "+54", flag: "🇦🇷", code: "AR" },
-{ dial: "+374", flag: "🇦🇲", code: "AM" },
-{ dial: "+297", flag: "🇦🇼", code: "AW" },
-{ dial: "+61", flag: "🇦🇺", code: "AU" },
-{ dial: "+43", flag: "🇦🇹", code: "AT" },
-{ dial: "+994", flag: "🇦🇿", code: "AZ" },
-{ dial: "+1", flag: "🇧🇸", code: "BS" },
-{ dial: "+973", flag: "🇧🇭", code: "BH" },
-{ dial: "+880", flag: "🇧🇩", code: "BD" },
-{ dial: "+1", flag: "🇧🇧", code: "BB" },
-{ dial: "+375", flag: "🇧🇾", code: "BY" },
-{ dial: "+32", flag: "🇧🇪", code: "BE" },
-{ dial: "+501", flag: "🇧🇿", code: "BZ" },
-{ dial: "+229", flag: "🇧🇯", code: "BJ" },
-{ dial: "+975", flag: "🇧🇹", code: "BT" },
-{ dial: "+591", flag: "🇧🇴", code: "BO" },
-{ dial: "+387", flag: "🇧🇦", code: "BA" },
-{ dial: "+267", flag: "🇧🇼", code: "BW" },
-{ dial: "+55", flag: "🇧🇷", code: "BR" },
-{ dial: "+246", flag: "🇮🇴", code: "IO" },
-{ dial: "+673", flag: "🇧🇳", code: "BN" },
-{ dial: "+359", flag: "🇧🇬", code: "BG" },
-{ dial: "+226", flag: "🇧🇫", code: "BF" },
-{ dial: "+257", flag: "🇧🇮", code: "BI" },
-{ dial: "+855", flag: "🇰🇭", code: "KH" },
-{ dial: "+237", flag: "🇨🇲", code: "CM" },
-{ dial: "+1", flag: "🇨🇦", code: "CA" },
-{ dial: "+238", flag: "🇨🇻", code: "CV" },
-{ dial: "+236", flag: "🇨🇫", code: "CF" },
-{ dial: "+235", flag: "🇹🇩", code: "TD" },
-{ dial: "+56", flag: "🇨🇱", code: "CL" },
-{ dial: "+86", flag: "🇨🇳", code: "CN" },
-{ dial: "+57", flag: "🇨🇴", code: "CO" },
-{ dial: "+269", flag: "🇰🇲", code: "KM" },
-{ dial: "+682", flag: "🇨🇰", code: "CK" },
-{ dial: "+506", flag: "🇨🇷", code: "CR" },
-{ dial: "+385", flag: "🇭🇷", code: "HR" },
-{ dial: "+53", flag: "🇨🇺", code: "CU" },
-{ dial: "+357", flag: "🇨🇾", code: "CY" },
-{ dial: "+420", flag: "🇨🇿", code: "CZ" },
-{ dial: "+243", flag: "🇨🇩", code: "CD" },
-{ dial: "+45", flag: "🇩🇰", code: "DK" },
-{ dial: "+253", flag: "🇩🇯", code: "DJ" },
-{ dial: "+1", flag: "🇩🇲", code: "DM" },
-{ dial: "+1", flag: "🇩🇴", code: "DO" },
-{ dial: "+593", flag: "🇪🇨", code: "EC" },
-{ dial: "+20", flag: "🇪🇬", code: "EG" },
-{ dial: "+503", flag: "🇸🇻", code: "SV" },
-{ dial: "+240", flag: "🇬🇶", code: "GQ" },
-{ dial: "+291", flag: "🇪🇷", code: "ER" },
-{ dial: "+372", flag: "🇪🇪", code: "EE" },
-{ dial: "+268", flag: "🇸🇿", code: "SZ" },
-{ dial: "+251", flag: "🇪🇹", code: "ET" },
-{ dial: "+679", flag: "🇫🇯", code: "FJ" },
-{ dial: "+358", flag: "🇫🇮", code: "FI" },
-{ dial: "+33", flag: "🇫🇷", code: "FR" },
-{ dial: "+594", flag: "🇬🇫", code: "GF" },
-{ dial: "+689", flag: "🇵🇫", code: "PF" },
-{ dial: "+241", flag: "🇬🇦", code: "GA" },
-{ dial: "+220", flag: "🇬🇲", code: "GM" },
-{ dial: "+995", flag: "🇬🇪", code: "GE" },
-{ dial: "+49", flag: "🇩🇪", code: "DE" },
-{ dial: "+233", flag: "🇬🇭", code: "GH" },
-{ dial: "+350", flag: "🇬🇮", code: "GI" },
-{ dial: "+30", flag: "🇬🇷", code: "GR" },
-{ dial: "+299", flag: "🇬🇱", code: "GL" },
-{ dial: "+1", flag: "🇬🇩", code: "GD" },
-{ dial: "+590", flag: "🇬🇵", code: "GP" },
-{ dial: "+1", flag: "🇬🇺", code: "GU" },
-{ dial: "+502", flag: "🇬🇹", code: "GT" },
-{ dial: "+44", flag: "🇬🇬", code: "GG" },
-{ dial: "+224", flag: "🇬🇳", code: "GN" },
-{ dial: "+245", flag: "🇬🇼", code: "GW" },
-{ dial: "+592", flag: "🇬🇾", code: "GY" },
-{ dial: "+509", flag: "🇭🇹", code: "HT" },
-{ dial: "+504", flag: "🇭🇳", code: "HN" },
-{ dial: "+852", flag: "🇭🇰", code: "HK" },
-{ dial: "+36", flag: "🇭🇺", code: "HU" },
-{ dial: "+354", flag: "🇮🇸", code: "IS" },
-{ dial: "+91", flag: "🇮🇳", code: "IN" },
-{ dial: "+62", flag: "🇮🇩", code: "ID" },
-{ dial: "+98", flag: "🇮🇷", code: "IR" },
-{ dial: "+964", flag: "🇮🇶", code: "IQ" },
-{ dial: "+353", flag: "🇮🇪", code: "IE" },
-{ dial: "+44", flag: "🇮🇲", code: "IM" },
-{ dial: "+972", flag: "🇮🇱", code: "IL" },
-{ dial: "+39", flag: "🇮🇹", code: "IT" },
-{ dial: "+225", flag: "🇨🇮", code: "CI" },
-{ dial: "+1", flag: "🇯🇲", code: "JM" },
-{ dial: "+81", flag: "🇯🇵", code: "JP" },
-{ dial: "+44", flag: "🇯🇪", code: "JE" },
-{ dial: "+962", flag: "🇯🇴", code: "JO" },
-{ dial: "+7", flag: "🇰🇿", code: "KZ" },
-{ dial: "+254", flag: "🇰🇪", code: "KE" },
-{ dial: "+686", flag: "🇰🇮", code: "KI" },
-{ dial: "+850", flag: "🇰🇵", code: "KP" },
-{ dial: "+82", flag: "🇰🇷", code: "KR" },
-{ dial: "+965", flag: "🇰🇼", code: "KW" },
-{ dial: "+996", flag: "🇰🇬", code: "KG" },
-{ dial: "+856", flag: "🇱🇦", code: "LA" },
-{ dial: "+371", flag: "🇱🇻", code: "LV" },
-{ dial: "+961", flag: "🇱🇧", code: "LB" },
-{ dial: "+266", flag: "🇱🇸", code: "LS" },
-{ dial: "+231", flag: "🇱🇷", code: "LR" },
-{ dial: "+218", flag: "🇱🇾", code: "LY" },
-{ dial: "+423", flag: "🇱🇮", code: "LI" },
-{ dial: "+370", flag: "🇱🇹", code: "LT" },
-{ dial: "+352", flag: "🇱🇺", code: "LU" },
-{ dial: "+853", flag: "🇲🇴", code: "MO" },
-{ dial: "+389", flag: "🇲🇰", code: "MK" },
-{ dial: "+261", flag: "🇲🇬", code: "MG" },
-{ dial: "+265", flag: "🇲🇼", code: "MW" },
-{ dial: "+60", flag: "🇲🇾", code: "MY" },
-{ dial: "+960", flag: "🇲🇻", code: "MV" },
-{ dial: "+223", flag: "🇲🇱", code: "ML" },
-{ dial: "+356", flag: "🇲🇹", code: "MT" },
-{ dial: "+692", flag: "🇲🇭", code: "MH" },
-{ dial: "+596", flag: "🇲🇶", code: "MQ" },
-{ dial: "+222", flag: "🇲🇷", code: "MR" },
-{ dial: "+230", flag: "🇲🇺", code: "MU" },
-{ dial: "+262", flag: "🇾🇹", code: "YT" },
-{ dial: "+52", flag: "🇲🇽", code: "MX" },
-{ dial: "+691", flag: "🇫🇲", code: "FM" },
-{ dial: "+373", flag: "🇲🇩", code: "MD" },
-{ dial: "+377", flag: "🇲🇨", code: "MC" },
-{ dial: "+976", flag: "🇲🇳", code: "MN" },
-{ dial: "+382", flag: "🇲🇪", code: "ME" },
-{ dial: "+212", flag: "🇲🇦", code: "MA" },
-{ dial: "+258", flag: "🇲🇿", code: "MZ" },
-{ dial: "+95", flag: "🇲🇲", code: "MM" },
-{ dial: "+264", flag: "🇳🇦", code: "NA" },
-{ dial: "+674", flag: "🇳🇷", code: "NR" },
-{ dial: "+977", flag: "🇳🇵", code: "NP" },
-{ dial: "+31", flag: "🇳🇱", code: "NL" },
-{ dial: "+687", flag: "🇳🇨", code: "NC" },
-{ dial: "+64", flag: "🇳🇿", code: "NZ" },
-{ dial: "+505", flag: "🇳🇮", code: "NI" },
-{ dial: "+227", flag: "🇳🇪", code: "NE" },
-{ dial: "+234", flag: "🇳🇬", code: "NG" },
-{ dial: "+683", flag: "🇳🇺", code: "NU" },
-{ dial: "+672", flag: "🇳🇫", code: "NF" },
-{ dial: "+47", flag: "🇳🇴", code: "NO" },
-{ dial: "+968", flag: "🇴🇲", code: "OM" },
-{ dial: "+92", flag: "🇵🇰", code: "PK" },
-{ dial: "+680", flag: "🇵🇼", code: "PW" },
-{ dial: "+970", flag: "🇵🇸", code: "PS" },
-{ dial: "+507", flag: "🇵🇦", code: "PA" },
-{ dial: "+675", flag: "🇵🇬", code: "PG" },
-{ dial: "+595", flag: "🇵🇾", code: "PY" },
-{ dial: "+51", flag: "🇵🇪", code: "PE" },
-{ dial: "+63", flag: "🇵🇭", code: "PH" },
-{ dial: "+48", flag: "🇵🇱", code: "PL" },
-{ dial: "+351", flag: "🇵🇹", code: "PT" },
-{ dial: "+1", flag: "🇵🇷", code: "PR" },
-{ dial: "+974", flag: "🇶🇦", code: "QA" },
-{ dial: "+242", flag: "🇨🇬", code: "CG" },
-{ dial: "+40", flag: "🇷🇴", code: "RO" },
-{ dial: "+7", flag: "🇷🇺", code: "RU" },
-{ dial: "+250", flag: "🇷🇼", code: "RW" },
-{ dial: "+590", flag: "🇬🇵", code: "GP" },
-{ dial: "+290", flag: "🇸🇭", code: "SH" },
-{ dial: "+1", flag: "🇰🇳", code: "KN" },
-{ dial: "+1", flag: "🇱🇨", code: "LC" },
-{ dial: "+1", flag: "🇻🇨", code: "VC" },
-{ dial: "+685", flag: "🇼🇸", code: "WS" },
-{ dial: "+378", flag: "🇸🇲", code: "SM" },
-{ dial: "+239", flag: "🇸🇹", code: "ST" },
-{ dial: "+966", flag: "🇸🇦", code: "SA" },
-{ dial: "+221", flag: "🇸🇳", code: "SN" },
-{ dial: "+381", flag: "🇷🇸", code: "RS" },
-{ dial: "+248", flag: "🇸🇨", code: "SC" },
-{ dial: "+232", flag: "🇸🇱", code: "SL" },
-{ dial: "+65", flag: "🇸🇬", code: "SG" },
-{ dial: "+421", flag: "🇸🇰", code: "SK" },
-{ dial: "+386", flag: "🇸🇮", code: "SI" },
-{ dial: "+677", flag: "🇸🇧", code: "SB" },
-{ dial: "+252", flag: "🇸🇴", code: "SO" },
-{ dial: "+27", flag: "🇿🇦", code: "ZA" },
-{ dial: "+82", flag: "🇰🇷", code: "KR" },
-{ dial: "+211", flag: "🇸🇸", code: "SS" },
-{ dial: "+34", flag: "🇪🇸", code: "ES" },
-{ dial: "+94", flag: "🇱🇰", code: "LK" },
-{ dial: "+249", flag: "🇸🇩", code: "SD" },
-{ dial: "+597", flag: "🇸🇷", code: "SR" },
-{ dial: "+46", flag: "🇸🇪", code: "SE" },
-{ dial: "+41", flag: "🇨🇭", code: "CH" },
-{ dial: "+963", flag: "🇸🇾", code: "SY" },
-{ dial: "+886", flag: "🇹🇼", code: "TW" },
-{ dial: "+992", flag: "🇹🇯", code: "TJ" },
-{ dial: "+255", flag: "🇹🇿", code: "TZ" },
-{ dial: "+66", flag: "🇹🇭", code: "TH" },
-{ dial: "+228", flag: "🇹🇬", code: "TG" },
-{ dial: "+676", flag: "🇹🇴", code: "TO" },
-{ dial: "+1", flag: "🇹🇹", code: "TT" },
-{ dial: "+216", flag: "🇹🇳", code: "TN" },
-{ dial: "+90", flag: "🇹🇷", code: "TR" },
-{ dial: "+993", flag: "🇹🇲", code: "TM" },
-{ dial: "+688", flag: "🇹🇻", code: "TV" },
-{ dial: "+256", flag: "🇺🇬", code: "UG" },
-{ dial: "+380", flag: "🇺🇦", code: "UA" },
-{ dial: "+971", flag: "🇦🇪", code: "AE" },
-{ dial: "+44", flag: "🇬🇧", code: "GB" },
-{ dial: "+1", flag: "🇺🇸", code: "US" },
-{ dial: "+598", flag: "🇺🇾", code: "UY" },
-{ dial: "+998", flag: "🇺🇿", code: "UZ" },
-{ dial: "+678", flag: "🇻🇺", code: "VU" },
-{ dial: "+58", flag: "🇻🇪", code: "VE" },
-{ dial: "+84", flag: "🇻🇳", code: "VN" },
-{ dial: "+681", flag: "🇼🇫", code: "WF" },
-{ dial: "+967", flag: "🇾🇪", code: "YE" },
-{ dial: "+260", flag: "🇿🇲", code: "ZM" },
-{ dial: "+263", flag: "🇿🇼", code: "ZW" },
-];
-
-    const selector = document.getElementById("countrySelector");
-countries.forEach(country => {
-  const option = document.createElement("option");
-  option.value = country.code;
-  option.textContent = `${country.dial} ${country.flag} ${country.code}`;
-  selector.appendChild(option);
-});
-</script>
+  <div class="signin-link">Already have an account? <a href="signin.html">Sign in</a></div>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
+// ✅ Your Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
 
-  const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Capture referral code from URL
+// Referral
 const urlParams = new URLSearchParams(window.location.search);
-const referrerCode = urlParams.get('ref');
+const referralUsername = urlParams.get('ref') || null;
 
+// Find UID by username
+async function findUIDByUsername(username) {
+  const usersSnap = await get(ref(db, "users"));
+  if (!usersSnap.exists()) return null;
+  const users = usersSnap.val();
+  for (let uid in users) {
+    if (users[uid].username === username) {
+      return uid;
+    }
+  }
+  return null;
+}
+
+// Signup
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const countryCode = document.getElementById("countrySelector").value;
+  let username = document.getElementById("username").value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+  const countryDial = document.getElementById("countrySelector").value;
   const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
+  const errorMsg = document.getElementById("error-message");
 
-  // Show error if passwords don't match
-  if (password !== confirmPassword) {
-    document.getElementById("error-message").innerText = "Passwords do not match.";
-    document.getElementById("error-message").style.display = "block";
+  if (username.length < 3) {
+    errorMsg.textContent = "Username must be at least 3 characters.";
+    errorMsg.style.display = "block";
     return;
   }
 
   try {
+    const exists = await findUIDByUsername(username);
+    if (exists) {
+      errorMsg.textContent = "❌ Username is already taken.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    let referrerUID = null;
+    if (referralUsername) {
+      const cleanRef = referralUsername.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+      referrerUID = await findUIDByUsername(cleanRef);
+    }
+
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const uid = userCredential.user.uid;
 
-    // Save new user with referrer info
     await set(ref(db, "users/" + uid), {
-      name: name,
-      email: email,
-      country: countryCode,
-      phone: phone,
+      username,
+      email,
+      phone: countryDial + phone,
       balance: 0,
-      referrer: referrerCode || null,
-      hasDeposited: false // Track first deposit
+      referrer: referrerUID || null,
+      hasDeposited: false,
+      createdAt: new Date().toISOString()
     });
 
-   // Hide error and show success notification
-document.getElementById("error-message").style.display = "none";
+    if (referrerUID) {
+      await set(ref(db, "users/" + referrerUID + "/referrals/" + uid), {
+        referredUser: uid,
+        bonusGiven: false
+      });
+    }
 
-try {
-  // If user registered via referral, record them under referrer
-  if (referrerCode) {
-    const referrerRef = ref(db, "users/" + referrerCode + "/referrals/" + uid);
-    await set(referrerRef, {
-      referredUser: uid,
-      bonusGiven: false
-    });
+    document.body.innerHTML = `
+      <div class="success-message">
+        <h2>✅ Account Created Successfully!</h2>
+        <p>Redirecting to your dashboard...</p>
+      </div>
+    `;
+    setTimeout(() => window.location.href = "dashboard.html", 2000);
+
+  } catch (error) {
+    errorMsg.textContent = error.message;
+    errorMsg.style.display = "block";
   }
-
-  showNotification("Account created! Redirecting...");
-  setTimeout(() => {
-    window.location.href = "dashboard.html";
-  }, 1500);
-} catch (error) {
-  document.getElementById("error-message").innerText = getFriendlyFirebaseError(error);
-  document.getElementById("error-message").style.display = "block";
-}  });
+});
 </script>
 </body>
-        </html>
+</html>
