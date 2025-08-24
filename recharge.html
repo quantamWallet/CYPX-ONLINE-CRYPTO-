@@ -7,14 +7,71 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background-color: #001f3f; color: white; text-align: center; padding-bottom: 80px; }
-    header { background-color: #002f6c; padding: 15px; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    body { 
+      margin: 0; 
+      font-family: Arial, sans-serif; 
+      background-color: #001f3f; 
+      color: white; 
+      text-align: center; 
+      padding-bottom: 80px; 
+    }
+    header { 
+      background-color: #002f6c; 
+      padding: 15px; 
+      font-size: 20px; 
+      font-weight: bold; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
     header img { height: 30px; margin-right: 10px; }
-    .wallet-option { margin: 20px auto; background-color: #003366; padding: 10px 20px; border-radius: 10px; width: 90%; max-width: 400px; }
-    .wallet-button { background-color: #ffcc00; color: black; font-weight: bold; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 15px; }
-    .wallet-button img { width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0; }
-    nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: #002244; display: flex; justify-content: space-around; padding: 10px 0; }
-    nav a { color: white; text-align: center; text-decoration: none; }
+    .wallet-option { 
+      margin: 20px auto; 
+      background-color: #003366; 
+      padding: 10px 20px; 
+      border-radius: 10px; 
+      width: 90%; 
+      max-width: 400px; 
+    }
+    .wallet-button { 
+      border: none; 
+      padding: 15px; 
+      border-radius: 10px; 
+      cursor: pointer; 
+      font-size: 18px; 
+      width: 100%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 15px; 
+      font-weight: bold; 
+      transition: 0.3s ease; 
+    }
+    .wallet-button:hover { 
+      transform: scale(1.05); 
+      opacity: 0.9; 
+    }
+
+    /* Wallet Specific Colors */
+    .mpesa { background-color: #34B233; color: white; }   /* M-PESA green */
+    .equity { background-color: #6D0C0C; color: white; }  /* Equity maroon */
+
+    nav { 
+      position: fixed; 
+      bottom: 0; 
+      left: 0; 
+      right: 0; 
+      background-color: #002244; 
+      display: flex; 
+      justify-content: space-around; 
+      padding: 10px 0; 
+    }
+    nav a { 
+      color: white; 
+      text-align: center; 
+      text-decoration: none; 
+      font-size: 14px; 
+    }
     nav i { font-size: 20px; }
   </style>
 </head>
@@ -24,53 +81,19 @@
     Recharge - CYPX ONLINE CRYPTO
   </header>
 
-  <!-- M-PESA KENYA -->
+  <!-- M-PESA SEND MONEY -->
   <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='mpesa.html'" style="background-color: #34B233; color: white;">
-      MPESA (Kenya)
+    <button class="wallet-button mpesa" onclick="redirect('mpesa.html')">
+      <i class="fas fa-mobile-alt"></i>
+      M-PESA Send Money (Kenya)
     </button>
   </div>
 
-  <!-- MTN UGANDA -->
+  <!-- EQUITY PLAYBILL -->
   <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='mtn.html'" style="background-color: #FFD700; color: black;">
-      MTN (Uganda)
-    </button>
-  </div>
-
-  <!-- VODACOM TANZANIA -->
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='vodacom.html'" style="background-color: #E60000; color: white;">
-      Vodacom (Tanzania)
-    </button>
-  </div>
-
-  <!-- CRYPTO OPTIONS -->
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='tron.html'">
-      <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="TRC20">
-      Tron (TRC20)
-    </button>
-  </div>
-
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='trx.html'">
-      <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="TRX">
-      TRX
-    </button>
-  </div>
-
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='bep20-usdt.html'">
-      <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="BEP20 USDT">
-      BEP20 - USDT
-    </button>
-  </div>
-
-  <div class="wallet-option">
-    <button class="wallet-button" onclick="location.href='bnb.html'">
-      <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="BNB">
-      BNB
+    <button class="wallet-button equity" onclick="redirect('equity.html')">
+      <i class="fas fa-university"></i>
+      Equity Playbill (Uganda)
     </button>
   </div>
 
@@ -102,6 +125,11 @@
         window.location.href = "landing.html";
       }
     });
+
+    // Redirect function
+    function redirect(page) {
+      window.location.href = page;
+    }
   </script>
 </body>
 </html>
