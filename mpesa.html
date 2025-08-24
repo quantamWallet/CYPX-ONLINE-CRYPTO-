@@ -185,9 +185,9 @@
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -200,12 +200,7 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    let currentUser = null;
-
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) currentUser = user;
-    });
-
+    // Popup message
     function showPopup(msg, color) {
       const popup = document.getElementById('popupMsg');
       popup.innerText = msg;
@@ -214,23 +209,24 @@
       setTimeout(() => popup.style.display = 'none', 4000);
     }
 
+    // Validate Mpesa Code (10–12 alphanumeric)
     function isValidMpesaCode(code) {
-      return /^[A-Z0-9]{10,12}$/i.test(code); // M-PESA format: 10–12 alphanumeric characters
+      return /^[A-Z0-9]{10,12}$/i.test(code);
     }
 
+    // Check if duplicate exists
     async function isDuplicateCode(code) {
       const snapshot = await firebase.database().ref('recharges').once('value');
       let exists = false;
-      snapshot.forEach(userSnap => {
-        userSnap.forEach(txnSnap => {
-          if (txnSnap.val().code && txnSnap.val().code.toLowerCase() === code.toLowerCase()) {
-            exists = true;
-          }
-        });
+      snapshot.forEach(txnSnap => {
+        if (txnSnap.val().code && txnSnap.val().code.toLowerCase() === code.toLowerCase()) {
+          exists = true;
+        }
       });
       return exists;
     }
 
+    // Submit recharge
     async function submitRecharge() {
       const codeInput = document.getElementById('code');
       const code = codeInput.value.trim();
@@ -245,17 +241,12 @@
         return;
       }
 
-      if (!currentUser) {
-        showPopup("You must be logged in to submit a recharge.", "#dc3545");
-        return;
-      }
-
       if (await isDuplicateCode(code)) {
         showPopup("This code has already been used.", "#dc3545");
         return;
       }
 
-      const rechargeRef = firebase.database().ref('recharges/' + currentUser.uid).push();
+      const rechargeRef = firebase.database().ref('recharges').push();
       rechargeRef.set({
         code: code,
         method: "M-PESA",
