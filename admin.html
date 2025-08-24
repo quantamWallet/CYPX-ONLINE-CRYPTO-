@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Deposits</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    button {
+      padding: 6px 12px;
+      margin: 2px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .approve {
+      background: #28a745;
+      color: white;
+    }
+    .reject {
+      background: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel - Manage Deposits</h1>
+
+  <table id="depositsTable">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Deposit ID</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+
+  <script>
+    // ✅ Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.appspot.com",
+      messagingSenderId: "755513301604",
+      appId: "1:755513301604:web:42c087ef62c5ee24a21411"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const tableBody = document.querySelector("#depositsTable tbody");
+
+    // Load deposits into table
+    function loadDeposits() {
+      db.ref("deposits").on("value", (snapshot) => {
+        tableBody.innerHTML = "";
+        const deposits = snapshot.val();
+        if (!deposits) return;
+
+        for (let uid in deposits) {
+          for (let depositId in deposits[uid]) {
+            const dep = deposits[uid][depositId];
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+              <td>${uid}</td>
+              <td>${depositId}</td>
+              <td>${dep.amount}</td>
+              <td>${dep.status}</td>
+              <td>
+                <button class="approve" onclick="approveDeposit('${uid}','${depositId}',${dep.amount})">Approve</button>
+                <button class="reject" onclick="updateStatus('${uid}','${depositId}','rejected')">Reject</button>
+              </td>
+            `;
+            tableBody.appendChild(tr);
+          }
+        }
+      });
+    }
+
+    // Approve deposit: update status, add to balance, apply referral bonus
+    async function approveDeposit(uid, depositId, amount) {
+      try {
+        // Mark deposit as approved
+        await db.ref(`deposits/${uid}/${depositId}/status`).set("approved");
+
+        // Get user balance
+        const userBalanceSnap = await db.ref(`users/${uid}/balance`).once("value");
+        let balance = userBalanceSnap.val() || 0;
+
+        // Update user balance
+        balance += amount;
+        await db.ref(`users/${uid}/balance`).set(balance);
+
+        // ✅ Check if user has referrer
+        const referrerSnap = await db.ref(`users/${uid}/referrer`).once("value");
+        const referrerId = referrerSnap.val();
+
+        if (referrerId) {
+          let bonus = 0;
+          if (amount >= 50000) {
+            bonus = 15500 + 500; // 16,000 KSH
+          } else {
+            bonus = 500;
+          }
+
+          const refBalanceSnap = await db.ref(`users/${referrerId}/balance`).once("value");
+          let refBalance = refBalanceSnap.val() || 0;
+
+          refBalance += bonus;
+          await db.ref(`users/${referrerId}/balance`).set(refBalance);
+
+          console.log(`Referral bonus ${bonus} KSH sent to ${referrerId}`);
+        }
+
+        alert(`Deposit APPROVED for ${uid}. Balance updated.`);
+      } catch (error) {
+        console.error("Error approving deposit:", error);
+        alert("Error approving deposit, check console.");
+      }
+    }
+
+    // Reject deposit only
+    function updateStatus(uid, depositId, status) {
+      db.ref(`deposits/${uid}/${depositId}/status`).set(status);
+      alert(`Deposit ${status.toUpperCase()} for ${uid}`);
+    }
+
+    loadDeposits();
+  </script>
+</body>
+</html>
