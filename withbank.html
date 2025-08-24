@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw to Bank</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #001f3f, #003366); /* Navy Blue */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      overflow: hidden;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      padding: 40px 30px;
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .card h2 {
+      margin-bottom: 25px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+      box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+      background: rgba(255,255,255,0.15);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(to right, #ffd700, #ffcc00);
+      color: black;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(255, 204, 0, 0.6);
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .error { color: #ff6b6b; }
+    .success { color: #4caf50; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Withdraw to Bank</h2>
+    <select id="bank">
+      <option value="">-- Select Bank --</option>
+      <option value="Equity">Equity Bank</option>
+      <option value="KCB">KCB Bank</option>
+      <option value="Co-operative">Co-operative Bank</option>
+      <option value="NCBA">NCBA Bank</option>
+      <option value="Absa">Absa Bank Kenya</option>
+      <option value="Stanbic">Stanbic Bank</option>
+      <option value="Diamond Trust">Diamond Trust Bank (DTB)</option>
+      <option value="I&M">I&M Bank</option>
+      <option value="Standard Chartered">Standard Chartered Bank</option>
+      <option value="Family">Family Bank</option>
+    </select>
+    <input type="text" id="accountNumber" placeholder="Account Number" maxlength="20"/>
+    <input type="number" id="amount" placeholder="Enter Amount (min 1,000 Ksh)" min="1000"/>
+    <button onclick="withdraw()">Withdraw</button>
+    <div id="feedback" class="feedback"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
+  <script>
+    // TODO: Replace with your Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function withdraw() {
+      const bank = document.getElementById("bank").value;
+      const accountNumber = document.getElementById("accountNumber").value.trim();
+      const amount = document.getElementById("amount").value.trim();
+      const feedback = document.getElementById("feedback");
+
+      if (!bank || !accountNumber || !amount) {
+        feedback.innerHTML = "<span class='error'>❌ Please fill all fields</span>";
+        return;
+      }
+
+      if (amount < 1000) {
+        feedback.innerHTML = "<span class='error'>❌ Minimum withdrawal is 1,000 Ksh</span>";
+        return;
+      }
+
+      try {
+        await db.collection("bankWithdrawals").add({
+          bank: bank,
+          accountNumber: accountNumber,
+          amount: parseFloat(amount),
+          timestamp: new Date()
+        });
+        feedback.innerHTML = "<span class='success'>✅ Withdrawal request submitted!</span>";
+        document.getElementById("accountNumber").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("bank").value = "";
+      } catch (error) {
+        feedback.innerHTML = "<span class='error'>❌ Error: " + error.message + "</span>";
+      }
+    }
+  </script>
+</body>
+</html>
