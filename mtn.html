@@ -1,195 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Recharge with MTN - CYPX ONLINE CRYPTO</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <title>Recharge via M-PESA - CYPX ONLINE CRYPTO</title>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #001f3f;
-      color: white;
-      padding-bottom: 100px;
+    :root {
+      --bg: #001a33;
+      --bg2: #07284a;
+      --brand: #34B233;
+      --accent: #ffcc00;
+      --text: #ffffff;
+      --muted: #a7bdd8;
+      --card: #0b2f5a;
+      --card-2: #0e3a6f;
+      --border: #1e477a;
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+      --radius: 16px;
     }
 
-    header {
-      background-color: #FFCC00;
-      padding: 15px;
-      font-size: 20px;
-      text-align: center;
-      font-weight: bold;
-      color: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:0; background: linear-gradient(180deg, var(--bg) 0%, #001f3f 100%); color: var(--text); font-family: system-ui, sans-serif; }
+    header { display:flex; align-items:center; gap:10px; padding:14px 18px; background:rgba(0,0,0,0.6); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+    header img { height:28px; border-radius:6px; }
+    .container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
+    .hero { background: linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:18px; border-radius:var(--radius); }
+    .hero p { font-size:14px; color:var(--muted); }
 
-    header img {
-      height: 28px;
-      vertical-align: middle;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: 30px auto;
-      background-color: #003366;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #00000050;
-      text-align: center;
-    }
-
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #ffcc00;
-    }
-
-    .info {
-      text-align: left;
-      font-size: 15px;
-      margin-bottom: 15px;
-      line-height: 1.6;
-    }
-
-    .exchange-rate {
-      color: #ffcc00;
-      font-size: 15px;
-      margin-bottom: 15px;
-    }
-
-    .input-box {
-      margin-bottom: 15px;
-    }
-
-    .input-box input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-
-    .recharge-btn {
-      background-color: #FFCC00;
-      color: black;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .recharge-btn:hover {
-      background-color: #e6b800;
-    }
-
-    .note {
-      font-size: 13px;
-      margin-top: 25px;
-      background-color: #002f5f;
-      padding: 12px;
-      border-radius: 10px;
-      color: #ffcc00;
-    }
-
-    .popup {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #28a745;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      box-shadow: 0 0 10px black;
-      display: none;
-      z-index: 1000;
-    }
-
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-    }
-
-    nav i {
-      font-size: 20px;
-    }
+    .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:18px; border-radius:var(--radius); margin-top:16px; }
+    .label { font-size:13px; color:#cfe3ff; margin-bottom:6px; display:block; }
+    .input, .textarea, .file { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; }
+    .btn { padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; background:linear-gradient(180deg,#2bbf59,var(--brand)); }
+    .btn.secondary { background:linear-gradient(180deg,#184a88,#113b6f); color:#dfeeff; }
+    .muted-line { font-size:12px; color:var(--muted); }
+    .copy { background:#08335e; border:1px dashed var(--border); padding:6px 10px; border-radius:10px; cursor:pointer; }
+    nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
+    nav a { color:white; text-align:center; font-size:12px; }
+    .toast { position:fixed; top:18px; right:18px; background:#072d12; color:#d8ffe6; padding:12px 14px; border-radius:12px; display:none; }
+    .toast.error { background:#3a1111; color:#ffd7d7; }
   </style>
 </head>
 <body>
-
   <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="CYPX Icon">
-    CYPX ONLINE CRYPTO
+    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png"/>
+    <div>Recharge via M-PESA</div>
   </header>
 
-  <div class="popup" id="popupMsg">Recharge submitted successfully! Please wait for confirmation.</div>
-
   <div class="container">
-    <div class="title">MTN Uganda Recharge</div>
-
-    <div class="info">
-      <p><strong>Send to MTN:</strong> 0784513172</p>
-      <p><strong>Name:</strong> DAVID MAKWA</p>
+    <div class="hero">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div class="mpesa-badge"><i class="fa-solid fa-mobile-screen-button"></i> M-PESA (Kenya)</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="copy" data-copy="247247">Paybill: <strong>247247</strong></button>
+          <button class="copy" data-copy="1220184577990">Account: <strong>1220184577990</strong></button>
+        </div>
+      </div>
+      <p>Lipa na M-PESA → Paybill <strong>247247</strong>, Account <strong>1220184577990</strong>. Then submit your M-PESA code below.</p>
     </div>
 
-    <div class="exchange-rate" id="exchangeText">1 KSH ≈ 27 UGX</div>
-
-    <div class="input-box">
-      <input type="number" id="kshInput" placeholder="Enter amount in KSH" oninput="convertToUGX()">
-    </div>
-
-    <div class="input-box">
-      <input type="number" id="ugxResult" placeholder="UGX amount will show here" readonly>
-    </div>
-
-    <div class="input-box">
-      <input type="text" id="phoneUsed" placeholder="Enter phone number used">
-    </div>
-
-    <button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
-
-    <div class="note">
-      <strong>Note:</strong><br>
-      - Only MTN Send Money is accepted here.<br>
-      - Recharge will reflect within 1–3 minutes.<br>
-      - Enter the correct phone number used to send money.
+    <div class="card">
+      <h2><i class="fa-solid fa-coins"></i> Submit Recharge</h2>
+      <form id="rechargeForm">
+        <div class="field">
+          <label class="label" for="amount">Amount (KES)</label>
+          <input id="amount" class="input" type="number" min="3000" placeholder="e.g. 5000" required/>
+          <div class="muted-line">Minimum deposit is 3,000 KES.</div>
+        </div>
+        <div class="field">
+          <label class="label" for="phone">M-PESA Phone</label>
+          <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
+        </div>
+        <div class="field">
+          <label class="label" for="code">M-PESA Code</label>
+          <input id="code" class="input" type="text" placeholder="e.g. QLN3XYZ0AB" required/>
+        </div>
+        <div class="field">
+          <label class="label" for="note">Note (optional)</label>
+          <textarea id="note" class="textarea"></textarea>
+        </div>
+        <div class="field">
+          <label class="label" for="receipt">Receipt / Screenshot (optional)</label>
+          <input id="receipt" class="file" type="file" accept="image/*"/>
+        </div>
+        <button type="submit" class="btn">Submit Recharge</button>
+      </form>
     </div>
   </div>
 
   <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+    <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i>Me</a>
   </nav>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <div id="toast" class="toast"></div>
 
   <script>
     const firebaseConfig = {
@@ -197,61 +110,56 @@
       authDomain: "quantum-rio.firebaseapp.com",
       databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
-      storageBucket: "airdrop-usdt-2025.firebasestorage.app",
+      storageBucket: "quantum-rio.firebasestorage.app",
       messagingSenderId: "805433999377",
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
     firebase.initializeApp(firebaseConfig);
-  </script>
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    const auth = firebase.auth();
 
-  <script>
-    const rate = 27;
-
-    function convertToUGX() {
-      const ksh = parseFloat(document.getElementById('kshInput').value);
-      document.getElementById('ugxResult').value = !isNaN(ksh) ? (ksh * rate).toFixed(2) : '';
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='ok') {
+      toast.textContent = msg;
+      toast.className = 'toast ' + (type==='error'?'error':'');
+      toast.style.display = 'block';
+      setTimeout(()=>toast.style.display='none',3000);
     }
 
-    function showPopup(message, color) {
-      const popup = document.getElementById('popupMsg');
-      popup.innerText = message;
-      popup.style.backgroundColor = color;
-      popup.style.display = 'block';
-      setTimeout(() => popup.style.display = 'none', 3000);
-    }
-
-    function submitRecharge() {
-      const ksh = document.getElementById('kshInput').value.trim();
-      const ugx = document.getElementById('ugxResult').value.trim();
-      const phoneUsed = document.getElementById('phoneUsed').value.trim();
-
-      if (!ksh || !ugx || !phoneUsed) {
-        showPopup("Please enter all required fields.", "#dc3545");
-        return;
+    document.querySelectorAll('.copy').forEach(btn=>{
+      btn.onclick=async()=>{
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        showToast('Copied: '+btn.dataset.copy);
       }
+    });
 
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          const uid = user.uid;
-          const rechargeData = {
-            method: "MTN Uganda",
-            kshAmount: parseFloat(ksh),
-            ugxAmount: parseFloat(ugx),
-            phoneUsed: phoneUsed,
-            timestamp: Date.now()
-          };
-          firebase.database().ref("recharges/" + uid).push(rechargeData).then(() => {
-            showPopup("Recharge submitted successfully! Please wait for confirmation.", "#28a745");
-            document.getElementById("kshInput").value = '';
-            document.getElementById("ugxResult").value = '';
-            document.getElementById("phoneUsed").value = '';
-          });
-        } else {
-          showPopup("Please sign in first.", "#dc3545");
-        }
-      });
-    }
+    const form = document.getElementById('rechargeForm');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const user = auth.currentUser;
+      if(!user) return showToast('Login required','error');
+
+      const amount = parseInt(document.getElementById('amount').value);
+      const phone = document.getElementById('phone').value.trim();
+      const code = document.getElementById('code').value.trim().toUpperCase();
+      const note = document.getElementById('note').value;
+      const file = document.getElementById('receipt').files[0];
+
+      if(amount<3000) return showToast('Minimum deposit is 3,000 KES','error');
+
+      const ref=db.collection('recharges').doc();
+      const data={uid:user.uid,amount,phone,code,note,status:'pending',paybill:'247247',account:'1220184577990',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+      if(file){
+        const path=`receipts/${user.uid}/${ref.id}-${file.name}`;
+        const snap=await storage.ref(path).put(file);
+        data.receiptUrl=await snap.ref.getDownloadURL();
+      }
+      await ref.set(data);
+      showToast('Recharge submitted!');
+      form.reset();
+    });
   </script>
 </body>
-</html>
+    </html>
