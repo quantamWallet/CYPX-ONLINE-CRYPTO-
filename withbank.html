@@ -51,13 +51,8 @@
       transition: 0.3s;
     }
 
-    select option {
-      color: black;
-    }
-
-    input:focus, select:focus {
-      box-shadow: 0 0 10px rgba(0, 255, 200, 0.6);
-    }
+    select option { color: black; }
+    input:focus, select:focus { box-shadow: 0 0 10px rgba(0, 255, 200, 0.6); }
 
     button {
       width: 100%;
@@ -73,19 +68,10 @@
       transition: all 0.3s ease;
     }
 
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 25px rgba(255, 204, 0, 0.6);
-    }
+    button:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255, 204, 0, 0.6); }
 
-    #balance {
-      font-size: 16px;
-      margin-bottom: 20px;
-      font-weight: bold;
-      color: #00ffcc;
-    }
+    #balance { font-size: 16px; margin-bottom: 20px; font-weight: bold; color: #00ffcc; }
 
-    /* Notification styles */
     .notification {
       position: absolute;
       top: -60px;
@@ -105,15 +91,8 @@
     .error { background: #dc3545; color: white; }
     .info { background: #17a2b8; color: white; }
 
-    @keyframes fadein {
-      from { opacity: 0; top: -80px; }
-      to { opacity: 1; top: -60px; }
-    }
-
-    @keyframes fadeout {
-      from { opacity: 1; top: -60px; }
-      to { opacity: 0; top: -80px; }
-    }
+    @keyframes fadein { from { opacity: 0; top: -80px; } to { opacity: 1; top: -60px; } }
+    @keyframes fadeout { from { opacity: 1; top: -60px; } to { opacity: 0; top: -80px; } }
   </style>
 </head>
 <body>
@@ -145,53 +124,48 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // Replace with your Firebase project credentials
+    // Your config
     const firebaseConfig = {
-        apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-        authDomain: "quantum-rio.firebaseapp.com",
-        databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-        projectId: "quantum-rio",
-        storageBucket: "quantum-rio.firebasestorage.app",
-        messagingSenderId: "805433999377",
-        appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-        measurementId: "G-4RSQXZJX44"
-      };
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
 
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db = firebase.database();
     const auth = firebase.auth();
 
     let currentBalance = 0;
 
-    // Notification function
     function showNotification(message, type) {
       const notif = document.getElementById("notification");
       notif.textContent = message;
       notif.className = "notification " + type;
       notif.style.display = "block";
-      setTimeout(() => {
-        notif.style.display = "none";
-      }, 3500);
+      setTimeout(() => { notif.style.display = "none"; }, 3500);
     }
 
-    // Load balance
-    auth.onAuthStateChanged(async user => {
+    // Load balance in real-time
+    auth.onAuthStateChanged(user => {
       if (!user) {
         showNotification("Please login first!", "error");
         setTimeout(() => window.location.href = "login.html", 2000);
         return;
       }
 
-      const userDoc = await db.collection("users").doc(user.uid).get();
-      if (userDoc.exists) {
-        currentBalance = userDoc.data().balance || 0;
+      const balanceRef = db.ref("users/" + user.uid + "/balance");
+      balanceRef.on("value", snapshot => {
+        currentBalance = snapshot.val() || 0;
         document.getElementById("balance").textContent = "Balance: Ksh " + currentBalance;
-      } else {
-        document.getElementById("balance").textContent = "Balance: Ksh 0";
-      }
+      });
     });
 
     async function withdraw() {
@@ -199,42 +173,26 @@
       const accountNumber = document.getElementById("accountNumber").value.trim();
       const amount = parseInt(document.getElementById("amount").value);
 
-      if (!bank) {
-        showNotification("Please select a bank.", "error");
-        return;
-      }
-
-      if (accountNumber.length < 6) {
-        showNotification("Enter a valid account number.", "error");
-        return;
-      }
-
-      if (isNaN(amount) || amount < 1000) {
-        showNotification("Minimum withdrawal is 1,000 Ksh.", "error");
-        return;
-      }
-
-      if (amount > currentBalance) {
-        showNotification("Insufficient Balance! Current: Ksh " + currentBalance, "error");
-        return;
-      }
+      if (!bank) { showNotification("Please select a bank.", "error"); return; }
+      if (accountNumber.length < 6) { showNotification("Enter a valid account number.", "error"); return; }
+      if (isNaN(amount) || amount < 1000) { showNotification("Minimum withdrawal is 1,000 Ksh.", "error"); return; }
+      if (amount > currentBalance) { showNotification("Insufficient Balance! Current: Ksh " + currentBalance, "error"); return; }
 
       const user = auth.currentUser;
       if (!user) return;
 
       try {
-        // Deduct balance
-        await db.collection("users").doc(user.uid).update({
-          balance: currentBalance - amount
-        });
+        // Deduct balance atomically
+        const userBalanceRef = db.ref("users/" + user.uid + "/balance");
+        await userBalanceRef.transaction(balance => (balance || 0) - amount);
 
         // Save withdrawal request
-        await db.collection("bankWithdrawals").add({
+        await db.ref("bankWithdrawals").push({
           bank,
           accountNumber,
           amount,
           userId: user.uid,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          timestamp: new Date().toISOString()
         });
 
         showNotification("Withdrawal request submitted successfully!", "success");
@@ -247,4 +205,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
