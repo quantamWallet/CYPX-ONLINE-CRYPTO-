@@ -50,10 +50,13 @@
       color: white;
       box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
       transition: 0.3s;
+      text-align: center;
+      letter-spacing: 1px;
     }
 
     input:focus {
       box-shadow: 0 0 10px rgba(0, 255, 150, 0.6);
+      background: rgba(255,255,255,0.15);
     }
 
     button {
@@ -79,6 +82,13 @@
       color: #ff6b6b;
       font-size: 14px;
       margin-top: 10px;
+      min-height: 20px;
+    }
+
+    .success {
+      color: #4caf50;
+      font-size: 14px;
+      margin-top: 10px;
     }
 
     @keyframes fadeIn {
@@ -90,29 +100,39 @@
 <body>
   <div class="card">
     <h2>Enter Your M-Pesa Number</h2>
-    <input type="text" id="phone" placeholder="e.g. 0712345678" />
+    <input type="text" id="phone" placeholder="e.g. 0712345678" maxlength="10" />
     <button onclick="proceed()">Continue</button>
-    <div id="error" class="error"></div>
+    <div id="feedback"></div>
   </div>
 
   <script>
     function proceed() {
       const phone = document.getElementById("phone").value.trim();
-      const errorBox = document.getElementById("error");
+      const feedback = document.getElementById("feedback");
 
+      // Kenyan Safaricom number validation (07xxxxxxxx)
       if (!phone.match(/^07\d{8}$/)) {
-        errorBox.textContent = "Please enter a valid Safaricom number";
+        feedback.innerHTML = "<span class='error'>❌ Please enter a valid Safaricom number</span>";
         return;
       }
 
-      errorBox.textContent = "";
+      feedback.innerHTML = "<span class='success'>✅ Number accepted! Redirecting...</span>";
 
       // Save to localStorage if needed
       localStorage.setItem("mPesaPhone", phone);
 
-      // Redirect to amount.html
-      window.location.href = "amount.html";
+      // Delay redirect for effect
+      setTimeout(() => {
+        window.location.href = "amount.html";
+      }, 1200);
     }
+
+    // Allow Enter key to submit
+    document.getElementById("phone").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        proceed();
+      }
+    });
   </script>
 </body>
 </html>
