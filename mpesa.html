@@ -13,7 +13,6 @@
       color: white;
       padding-bottom: 100px;
     }
-
     header {
       background-color: #34B233;
       padding: 15px;
@@ -26,13 +25,7 @@
       gap: 10px;
       box-shadow: 0 4px 8px #00000060;
     }
-
-    header img {
-      height: 28px;
-      width: 28px;
-      border-radius: 50%;
-    }
-
+    header img { height: 28px; width: 28px; border-radius: 50%; }
     .container {
       max-width: 500px;
       margin: 40px auto;
@@ -43,108 +36,37 @@
       backdrop-filter: blur(10px);
       border: 1px solid #00ffcc30;
     }
-
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #ffcc00;
-      text-align: center;
-    }
-
-    .info {
-      font-size: 15px;
-      margin-bottom: 20px;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    .exchange-rate {
-      color: #ffcc00;
-      font-size: 15px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .input-box {
-      margin-bottom: 20px;
-    }
-
+    .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #ffcc00; text-align: center; }
+    .info, .exchange-rate { font-size: 15px; margin-bottom: 20px; line-height: 1.6; text-align: center; }
+    .exchange-rate { color: #ffcc00; }
+    .input-box { margin-bottom: 20px; }
     .input-box input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: none;
-      font-size: 16px;
-      background: #f1f1f1;
-      box-shadow: inset 2px 2px 5px #999, inset -2px -2px 5px #fff;
+      width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px;
+      background: #f1f1f1; box-shadow: inset 2px 2px 5px #999, inset -2px -2px 5px #fff;
     }
-
     .recharge-btn {
-      background-color: #34B233;
-      color: white;
-      border: none;
-      padding: 14px 20px;
-      border-radius: 10px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 4px 12px #00000070;
-      transition: background 0.3s ease;
+      background-color: #34B233; color: white; border: none; padding: 14px 20px;
+      border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer;
+      width: 100%; box-shadow: 0 4px 12px #00000070; transition: background 0.3s ease;
     }
-
-    .recharge-btn:hover {
-      background-color: #2fa02c;
-    }
-
+    .recharge-btn:hover { background-color: #2fa02c; }
     .note {
-      font-size: 13px;
-      margin-top: 25px;
-      background-color: #002f5f;
-      padding: 12px;
-      border-radius: 12px;
-      color: #ffcc00;
+      font-size: 13px; margin-top: 25px; background-color: #002f5f;
+      padding: 12px; border-radius: 12px; color: #ffcc00;
     }
-
     .popup {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #28a745;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      box-shadow: 0 0 10px black;
-      display: none;
-      z-index: 1000;
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background-color: #28a745; color: white; padding: 15px 20px;
+      border-radius: 10px; font-weight: bold; font-size: 15px;
+      box-shadow: 0 0 10px black; display: none; z-index: 1000;
     }
-
     nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      box-shadow: 0 -4px 10px #00000050;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background-color: #002244; display: flex; justify-content: space-around;
+      padding: 10px 0; box-shadow: 0 -4px 10px #00000050;
     }
-
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-size: 13px;
-    }
-
-    nav i {
-      font-size: 20px;
-    }
+    nav a { color: white; text-align: center; text-decoration: none; font-size: 13px; }
+    nav i { font-size: 20px; }
   </style>
 </head>
 <body>
@@ -161,15 +83,11 @@
       <p><strong>Send to Phone:</strong> 0707207201</p>
       <p><strong>Name:</strong> LANGAT ROBERT</p>
     </div>
-
     <div class="exchange-rate">1 USD ≈ 129 KES</div>
-
     <div class="input-box">
       <input type="text" id="code" placeholder="Enter M-PESA code e.g. QBC70ABZE1">
     </div>
-
     <button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
-
     <div class="note">
       <strong>Note:</strong><br>
       - Use M-PESA Send Money option.<br>
@@ -186,11 +104,10 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -203,7 +120,6 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Popup helper
     function showPopup(msg, color) {
       const popup = document.getElementById('popupMsg');
       popup.innerText = msg;
@@ -212,12 +128,10 @@
       setTimeout(() => popup.style.display = 'none', 4000);
     }
 
-    // Validate Mpesa Code (10–12 chars, letters+digits)
     function isValidMpesaCode(code) {
       return /^[A-Z0-9]{10,12}$/i.test(code);
     }
 
-    // Check for duplicate code
     async function isDuplicateCode(code) {
       const snapshot = await firebase.database().ref('sendMoneyRecharges').once('value');
       let exists = false;
@@ -229,7 +143,6 @@
       return exists;
     }
 
-    // Submit recharge
     async function submitRecharge() {
       const codeInput = document.getElementById('code');
       const code = codeInput.value.trim();
@@ -238,31 +151,34 @@
         showPopup("Please enter your M-PESA transaction code.", "#dc3545");
         return;
       }
-
       if (!isValidMpesaCode(code)) {
         showPopup("Invalid code format. Example: QBC70ABZE1", "#dc3545");
         return;
       }
-
       if (await isDuplicateCode(code)) {
         showPopup("This code has already been used.", "#dc3545");
         return;
       }
 
-      const rechargeRef = firebase.database().ref('sendMoneyRecharges').push();
-      rechargeRef.set({
-        code: code,
-        method: "M-PESA Send Money",
-        status: "Pending",
-        timestamp: new Date().toISOString()
-      }).then(() => {
+      try {
+        const rechargeRef = firebase.database().ref('sendMoneyRecharges').push();
+        await rechargeRef.set({
+          code: code,
+          method: "M-PESA Send Money",
+          status: "Pending",
+          timestamp: new Date().toISOString()
+        });
         showPopup("Recharge submitted for approval.", "#28a745");
         codeInput.value = "";
-      }).catch((error) => {
-        console.error("Error saving to Firebase:", error);
-        showPopup("Failed to submit recharge. Try again.", "#dc3545");
-      });
+      } catch (error) {
+        console.error("Firebase Error:", error);
+        if (error.code === "PERMISSION_DENIED") {
+          showPopup("Permission denied. Fix Firebase Database rules.", "#dc3545");
+        } else {
+          showPopup("Failed to submit recharge. Try again.", "#dc3545");
+        }
+      }
     }
   </script>
 </body>
-    </html>
+</html>
