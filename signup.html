@@ -73,21 +73,23 @@
 <body>
   <div class="card">
     <h2>Create Account</h2>
-    <input type="text" id="username" placeholder="Username" required />
-    <input type="text" id="phone" placeholder="Phone Number" required />
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button class="btn" id="signupBtn">Create Account</button>
+    <!-- ✅ wrap everything in a form -->
+    <form id="signupForm">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="text" id="phone" placeholder="Phone Number" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button class="btn" type="submit">Create Account</button>
+    </form>
     <a href="signin.html" class="link">Already have an account? Sign In</a>
   </div>
 
-  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-    // 🔹 Your Firebase Config (replace with yours)
+    // 🔹 Your Firebase Config
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_AUTH_DOMAIN",
@@ -102,17 +104,20 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // 🔹 Notification function
+    // 🔹 Toast function
     function showToast(message, success=false) {
       const toast = document.createElement("div");
       toast.className = "toast";
-      toast.style.background = success ? "#28a745" : "#ff4d4f"; // green if success
+      toast.style.background = success ? "#28a745" : "#ff4d4f";
       toast.innerText = message;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 4000);
     }
 
-    document.getElementById("signupBtn").addEventListener("click", () => {
+    // ✅ Signup form event listener
+    document.getElementById("signupForm").addEventListener("submit", (e) => {
+      e.preventDefault(); // stop form from refreshing
+
       const username = document.getElementById("username").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const email = document.getElementById("email").value.trim();
@@ -126,18 +131,17 @@
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-
-          // Save user data to DB
+          // Save user data
           return set(ref(db, "users/" + user.uid), {
             username: username,
             phone: phone,
             email: email
           }).then(() => user);
         })
-        .then((user) => {
+        .then(() => {
           showToast("Account created successfully!", true);
           setTimeout(() => {
-            window.location.href = "dashboard.html"; // ✅ redirect
+            window.location.href = "dashboard.html";
           }, 1500);
         })
         .catch((error) => {
@@ -149,7 +153,7 @@
           } else if (error.code === "auth/invalid-email") {
             message = "Invalid email address.";
           } else if (error.code === "permission-denied") {
-            message = "Database permission denied.";
+            message = "Database permission denied (check rules).";
           }
           showToast(message);
         });
