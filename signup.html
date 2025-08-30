@@ -1,58 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign Up - CYPX ONLINE CRYPTO</title>
   <style>
     body {
-      background-color: navy;
-      font-family: Arial, sans-serif;
-      color: white;
-      padding: 20px;
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #141e30, #243b55);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
     form {
-      max-width: 400px;
-      margin: auto;
-      background-color: #1a1a40;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-    }
-
-    input, button {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 30px;
+      border-radius: 15px;
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-
-    input {
-      background-color: #e0e0e0;
-      color: black;
-    }
-
-    button {
-      background-color: #00cc99;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-    }
-
-    a {
-      color: #00ccff;
+      max-width: 420px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+      animation: fadeIn 1s ease-in-out;
     }
 
     h2 {
       text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #00f7ff;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 8px;
+      background: #e0e0e0;
+      color: #000;
+      font-size: 14px;
+      outline: none;
+      transition: box-shadow 0.3s;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px #00f7ff;
+    }
+
+    .phone-input {
+      display: flex;
+      align-items: center;
+      background: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .phone-input .prefix {
+      background: #ccc;
+      padding: 12px;
+      font-weight: bold;
+      color: black;
+    }
+
+    .phone-input input {
+      border: none;
+      flex: 1;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #00c6ff;
+    }
+
+    p {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    a {
+      color: #00f7ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
 
     #notification {
@@ -63,7 +116,7 @@
       background-color: #00cc99;
       color: white;
       padding: 12px 20px;
-      border-radius: 5px;
+      border-radius: 8px;
       font-weight: bold;
       display: none;
       z-index: 1000;
@@ -78,30 +131,9 @@
       100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
     }
 
-    /* Phone input with flag + code */
-    .phone-input {
-      display: flex;
-      align-items: center;
-      background: #e0e0e0;
-      border-radius: 5px;
-      overflow: hidden;
-      margin: 10px 0;
-    }
-
-    .phone-input .prefix {
-      background: #ccc;
-      padding: 10px;
-      font-weight: bold;
-      color: black;
-      white-space: nowrap;
-    }
-
-    .phone-input input {
-      border: none;
-      flex: 1;
-      padding: 10px;
-      font-size: 14px;
-      outline: none;
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
     }
   </style>
 </head>
@@ -148,9 +180,7 @@
       notif.textContent = message;
       notif.style.backgroundColor = color;
       notif.style.display = "block";
-      setTimeout(() => {
-        notif.style.display = "none";
-      }, 4000);
+      setTimeout(() => { notif.style.display = "none"; }, 4000);
     };
 
     // Capture referral username from URL
@@ -174,11 +204,15 @@
       const phone = "+254" + rawPhone;
 
       try {
-        // Check if username already exists
+        // ✅ First create user in Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // ✅ Now check if username exists (since we're authenticated now)
         const usersSnapshot = await get(child(ref(db), "users"));
         let usernameTaken = false;
         usersSnapshot.forEach(userSnap => {
-          if (userSnap.val().username.toLowerCase() === username.toLowerCase()) {
+          if (userSnap.val().username?.toLowerCase() === username.toLowerCase()) {
             usernameTaken = true;
           }
         });
@@ -187,6 +221,7 @@
           return;
         }
 
+        // ✅ Handle referral
         let referrerUID = null;
         if (referralUsername) {
           usersSnapshot.forEach(userSnap => {
@@ -196,11 +231,7 @@
           });
         }
 
-        // Create user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Save user record
+        // ✅ Save user record
         await set(ref(db, "users/" + user.uid), {
           username,
           phone,
