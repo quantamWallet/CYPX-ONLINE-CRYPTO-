@@ -144,40 +144,47 @@
     }
 
     async function submitRecharge() {
-      const codeInput = document.getElementById('code');
-      const code = codeInput.value.trim();
+  const codeInput = document.getElementById('code');
+  const code = codeInput.value.trim();
 
-      if (!code) {
-        showPopup("Please enter your M-PESA transaction code.", "#dc3545");
-        return;
-      }
-      if (!isValidMpesaCode(code)) {
-        showPopup("Invalid code format. Example: QBC70ABZE1", "#dc3545");
-        return;
-      }
-      if (await isDuplicateCode(code)) {
-        showPopup("This code has already been used.", "#dc3545");
-        return;
-      }
+  if (!code) {
+    showPopup("Please enter your M-PESA transaction code.", "#dc3545");
+    return;
+  }
+  if (!isValidMpesaCode(code)) {
+    showPopup("Invalid code format. Example: QBC70ABZE1", "#dc3545");
+    return;
+  }
+  if (await isDuplicateCode(code)) {
+    showPopup("This code has already been used.", "#dc3545");
+    return;
+  }
 
-      try {
-        const rechargeRef = firebase.database().ref('sendMoneyRecharges').push();
-        await rechargeRef.set({
-          code: code,
-          method: "M-PESA Send Money",
-          status: "Pending",
-          timestamp: new Date().toISOString()
-        });
-        showPopup("Recharge submitted for approval.", "#28a745");
-        codeInput.value = "";
-      } catch (error) {
-        console.error("Firebase Error:", error);
-        if (error.code === "PERMISSION_DENIED") {
-          showPopup("Permission denied. Fix Firebase Database rules.", "#dc3545");
-        } else {
-          showPopup("Failed to submit recharge. Try again.", "#dc3545");
-        }
-      }
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    showPopup("Please sign in first.", "#dc3545");
+    return;
+  }
+
+  try {
+    const rechargeRef = firebase.database().ref("deposits").push();
+    await rechargeRef.set({
+      uid: user.uid,                   // who submitted
+      code: code,
+      method: "M-PESA Send Money",
+      status: "Pending",               // admin will later approve
+      timestamp: new Date().toISOString()
+    });
+    showPopup("Recharge submitted for approval.", "#28a745");
+    codeInput.value = "";
+  } catch (error) {
+    console.error("Firebase Error:", error);
+    if (error.code === "PERMISSION_DENIED") {
+      showPopup("Permission denied. Fix Firebase Database rules.", "#dc3545");
+    } else {
+      showPopup("Failed to submit recharge. Try again.", "#dc3545");
+    }
+  }
     }
   </script>
 </body>
