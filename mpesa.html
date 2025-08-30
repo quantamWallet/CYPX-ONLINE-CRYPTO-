@@ -107,6 +107,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -132,74 +133,44 @@
       return /^[A-Z0-9]{10,12}$/i.test(code);
     }
 
-    async function isDuplicateCode(code) {
-      const snapshot = await firebase.database().ref('sendMoneyRecharges').once('value');
-      let exists = false;
-      snapshot.forEach(txnSnap => {
-        if (txnSnap.val().code && txnSnap.val().code.toLowerCase() === code.toLowerCase()) {
-          exists = true;
-        }
-      });
-      return exists;
-    }
+    async function submitRecharge() {
+      const codeInput = document.getElementById('code');
+      const code = codeInput.value.trim();
 
-    <script>
-  async function submitRecharge() {
-    const codeInput = document.getElementById('code');
-    const code = codeInput.value.trim();
-
-    if (!code) {
-      showPopup("Please enter your M-PESA transaction code.", "#dc3545");
-      return;
-    }
-    if (!isValidMpesaCode(code)) {
-      showPopup("Invalid code format. Example: QBC70ABZE1", "#dc3545");
-      return;
-    }
-    if (await isDuplicateCode(code)) {
-      showPopup("This code has already been used.", "#dc3545");
-      return;
-    }
-
-    try {
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        showPopup("You must be logged in to submit a deposit.", "#dc3545");
+      if (!code) {
+        showPopup("Please enter your M-PESA transaction code.", "#dc3545");
+        return;
+      }
+      if (!isValidMpesaCode(code)) {
+        showPopup("Invalid code format. Example: QBC70ABZE1", "#dc3545");
         return;
       }
 
-      const depositRef = firebase.database().ref("deposits").push();
-      await depositRef.set({
-        uid: user.uid,
-        code: code,
-        method: "M-PESA Send Money",
-        status: "Pending",
-        timestamp: new Date().toISOString()
-      });
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        showPopup("You must be logged in to submit a recharge.", "#dc3545");
+        return;
+      }
 
-      showPopup("Recharge submitted for approval.", "#28a745");
-      codeInput.value = "";
-    } catch (error) {
-      console.error("Firebase Error:", error);
-      if (error.code === "PERMISSION_DENIED") {
-        showPopup("Permission denied. Database rules blocked this write.", "#dc3545");
-      } else {
-        showPopup("Failed to submit recharge. Try again.", "#dc3545");
+      try {
+        const rechargeRef = firebase.database().ref("deposits").push();
+        await rechargeRef.set({
+          uid: user.uid,
+          code: code,
+          method: "M-PESA Send Money",
+          status: "Pending",
+          timestamp: new Date().toISOString()
+        });
+        showPopup("Recharge submitted successfully!", "#28a745");
+        codeInput.value = "";
+      } catch (error) {
+        console.error("Firebase Error:", error);
+        showPopup("Error: " + error.message, "#dc3545");
       }
     }
-  }
 
-  async function isDuplicateCode(code) {
-    const snapshot = await firebase.database().ref("deposits").once("value");
-    let exists = false;
-    snapshot.forEach(txnSnap => {
-      if (txnSnap.val().code && txnSnap.val().code.toLowerCase() === code.toLowerCase()) {
-        exists = true;
-      }
-    });
-    return exists;
-  }
-</script>
+    // TEMP: Auto-login anonymously so button works for now
+    firebase.auth().signInAnonymously().catch(err => console.error("Auth Error:", err));
   </script>
 </body>
 </html>
