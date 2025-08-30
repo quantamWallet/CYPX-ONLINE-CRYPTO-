@@ -121,7 +121,7 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    function showPopup(msg, color) {
+    function showPopup(msg, color = "#28a745") {
       const popup = document.getElementById('popupMsg');
       popup.innerText = msg;
       popup.style.backgroundColor = color;
@@ -153,14 +153,15 @@
       }
 
       try {
-        const rechargeRef = firebase.database().ref("deposits").push();
-        await rechargeRef.set({
-          uid: user.uid,
+        // Save deposit under this user’s UID
+        const depositRef = firebase.database().ref(`users/${user.uid}/deposits`).push();
+        await depositRef.set({
           code: code,
           method: "M-PESA Send Money",
           status: "Pending",
           timestamp: new Date().toISOString()
         });
+
         showPopup("Recharge submitted successfully!", "#28a745");
         codeInput.value = "";
       } catch (error) {
@@ -169,7 +170,7 @@
       }
     }
 
-    // TEMP: Auto-login anonymously so button works for now
+    // TEMP for testing: auto login anonymously
     firebase.auth().signInAnonymously().catch(err => console.error("Auth Error:", err));
   </script>
 </body>
