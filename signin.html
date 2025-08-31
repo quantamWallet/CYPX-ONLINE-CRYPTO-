@@ -17,7 +17,6 @@
       overflow: hidden;
     }
 
-    /* BTC background */
     body::before {
       content: "";
       position: absolute;
@@ -42,9 +41,7 @@
       z-index: 1;
     }
 
-    .card h2 {
-      margin-bottom: 20px;
-    }
+    .card h2 { margin-bottom: 20px; }
 
     .card input {
       width: 100%;
@@ -67,9 +64,7 @@
       margin-top: 10px;
     }
 
-    .btn:hover {
-      opacity: 0.9;
-    }
+    .btn:hover { opacity: 0.9; }
 
     .link {
       margin-top: 10px;
@@ -78,7 +73,6 @@
       text-decoration: none;
     }
 
-    /* Toast notification */
     .toast {
       position: fixed;
       top: 20px;
@@ -102,7 +96,7 @@
   <div class="card">
     <h2>Login</h2>
     <form id="loginForm">
-      <input type="text" id="identifier" placeholder="Email or Phone" required />
+      <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
       <button class="btn" type="submit">Login</button>
     </form>
@@ -111,7 +105,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
     // 🔹 Your Firebase Config
     const firebaseConfig = {
@@ -125,7 +119,7 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const auth = getAuth(app);
 
     // 🔹 Toast function
     function showToast(message, success=false) {
@@ -137,44 +131,34 @@
       setTimeout(() => toast.remove(), 4000);
     }
 
-    // 🔹 Login logic
+    // 🔹 Login logic using Firebase Auth
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const identifier = document.getElementById("identifier").value.trim();
-  const password = document.getElementById("password").value;
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-  if (!identifier || !password) {
-    showToast("Please fill in all fields.");
-    return;
-  }
-
-  try {
-    const snapshot = await get(ref(db, "users"));
-    if (!snapshot.exists()) {
-      showToast("No users found in database.");
-      return;
-    }
-
-    let found = false;
-    snapshot.forEach(childSnap => {
-      const user = childSnap.val();
-      if ((user.email?.toLowerCase() === identifier.toLowerCase() || user.phone === identifier) 
-          && user.password === password) {
-        found = true;
-        showToast("Login successful!", true);
-        setTimeout(() => window.location.href = "dashboard.html", 1500);
+      if (!email || !password) {
+        showToast("Please fill in all fields.");
         return;
       }
-    });
 
-    if (!found) {
-      showToast("Invalid credentials.");
-    }
-  } catch (err) {
-    console.error(err);
-    showToast("Error logging in.");
-  }
-});
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast("Login successful!", true);
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 1500);
+      } catch (error) {
+        if (error.code === "auth/user-not-found") {
+          showToast("No account found with this email.");
+        } else if (error.code === "auth/wrong-password") {
+          showToast("Incorrect password.");
+        } else {
+          showToast("Error logging in.");
+          console.error(error);
+        }
+      }
+    });
   </script>
 </body>
 </html>
