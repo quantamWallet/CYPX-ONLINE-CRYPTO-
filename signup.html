@@ -6,22 +6,65 @@
   <title>Create Account</title>
   <style>
     body {
-      background: linear-gradient(135deg, #141E30, #243B55);
+      margin: 0;
       font-family: Arial, sans-serif;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      background: linear-gradient(135deg, #141E30, #243B55);
+      overflow: hidden;
+      position: relative;
     }
+
+    /* ✅ BTC Background */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
+      background-repeat: repeat;
+      background-size: 150px;
+      opacity: 0.07;
+      z-index: 0;
+    }
+
     .card {
-      background: #1E293B;
+      position: relative;
+      z-index: 1;
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(10px);
       padding: 30px;
       border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      width: 320px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      width: 350px;
       color: white;
       text-align: center;
     }
+
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .tabs button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: #ccc;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .tabs button.active {
+      background: linear-gradient(90deg, #00C6FF, #0072FF);
+      color: white;
+    }
+
     .card input {
       width: 100%;
       padding: 12px;
@@ -29,6 +72,7 @@
       border-radius: 8px;
       border: none;
       outline: none;
+      font-size: 14px;
     }
     .btn {
       width: 100%;
@@ -40,17 +84,24 @@
       font-weight: bold;
       cursor: pointer;
       margin-top: 10px;
+      font-size: 15px;
     }
-    .btn:hover {
-      opacity: 0.9;
-    }
+    .btn:hover { opacity: 0.9; }
+
     .link {
       margin-top: 10px;
       display: block;
       color: #00C6FF;
       text-decoration: none;
     }
-    /* Notification style */
+
+    .referrer {
+      margin: 10px 0;
+      font-size: 13px;
+      color: #00C6FF;
+    }
+
+    /* Toast */
     .toast {
       position: fixed;
       top: 20px;
@@ -73,11 +124,22 @@
 <body>
   <div class="card">
     <h2>Create Account</h2>
-    <!-- ✅ wrap everything in a form -->
+    <div class="tabs">
+      <button id="phoneTab" class="active">Phone Register</button>
+      <button id="emailTab">Email Register</button>
+    </div>
+
+    <!-- ✅ Referral badge -->
+    <div id="referrer" class="referrer"></div>
+
     <form id="signupForm">
       <input type="text" id="username" placeholder="Username" required />
-      <input type="text" id="phone" placeholder="Phone Number" required />
-      <input type="email" id="email" placeholder="Email" required />
+      <div id="phoneFields">
+        <input type="text" id="phone" placeholder="Phone Number" />
+      </div>
+      <div id="emailFields" style="display:none;">
+        <input type="email" id="email" placeholder="Email" />
+      </div>
       <input type="password" id="password" placeholder="Password" required />
       <button class="btn" type="submit">Create Account</button>
     </form>
@@ -86,10 +148,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+    import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-    // 🔹 Your Firebase Config
+    // ✅ Your Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -101,10 +162,36 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // 🔹 Toast function
+    // ✅ Tabs
+    const phoneTab = document.getElementById("phoneTab");
+    const emailTab = document.getElementById("emailTab");
+    const phoneFields = document.getElementById("phoneFields");
+    const emailFields = document.getElementById("emailFields");
+
+    phoneTab.addEventListener("click", () => {
+      phoneTab.classList.add("active");
+      emailTab.classList.remove("active");
+      phoneFields.style.display = "block";
+      emailFields.style.display = "none";
+    });
+
+    emailTab.addEventListener("click", () => {
+      emailTab.classList.add("active");
+      phoneTab.classList.remove("active");
+      phoneFields.style.display = "none";
+      emailFields.style.display = "block";
+    });
+
+    // ✅ Referral from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrer = urlParams.get("ref");
+    if (referrer) {
+      document.getElementById("referrer").innerText = "Referred by " + referrer;
+    }
+
+    // ✅ Toast
     function showToast(message, success=false) {
       const toast = document.createElement("div");
       toast.className = "toast";
@@ -114,49 +201,50 @@
       setTimeout(() => toast.remove(), 4000);
     }
 
-    // ✅ Signup form event listener
-    document.getElementById("signupForm").addEventListener("submit", (e) => {
-      e.preventDefault(); // stop form from refreshing
+    // ✅ Signup logic
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
       const username = document.getElementById("username").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
-      if (!username || !phone || !email || !password) {
-        showToast("Please fill in all fields.");
+      if (!username || !password || (!phone && !email)) {
+        showToast("Please fill all required fields.");
         return;
       }
 
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          // Save user data
-          return set(ref(db, "users/" + user.uid), {
-            username: username,
-            phone: phone,
-            email: email
-          }).then(() => user);
-        })
-        .then(() => {
-          showToast("Account created successfully!", true);
-          setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 1500);
-        })
-        .catch((error) => {
-          let message = "Something went wrong!";
-          if (error.code === "auth/email-already-in-use") {
-            message = "This email is already registered. Please sign in.";
-          } else if (error.code === "auth/weak-password") {
-            message = "Password is too weak (min 6 chars).";
-          } else if (error.code === "auth/invalid-email") {
-            message = "Invalid email address.";
-          } else if (error.code === "permission-denied") {
-            message = "Database permission denied (check rules).";
-          }
-          showToast(message);
-        });
+      // Generate simple UID
+      const uid = "uid_" + Date.now();
+
+      // Save user
+      await set(ref(db, "users/" + uid), {
+        username,
+        phone: phone || "",
+        email: email || "",
+        password,
+        referrer: referrer || ""
+      });
+
+      // Update referrer referrals count
+      if (referrer) {
+        const snap = await get(child(ref(db), "users"));
+        if (snap.exists()) {
+          Object.entries(snap.val()).forEach(([id, user]) => {
+            if (user.username === referrer) {
+              update(ref(db, "users/" + id), {
+                referrals: (user.referrals || 0) + 1
+              });
+            }
+          });
+        }
+      }
+
+      showToast("Account created successfully!", true);
+      setTimeout(() => {
+        window.location.href = "signin.html";
+      }, 1500);
     });
   </script>
 </body>
