@@ -5,120 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Create Account</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #141E30, #243B55);
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* ✅ BTC Background */
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
-      background-repeat: repeat;
-      background-size: 150px;
-      opacity: 0.07;
-      z-index: 0;
-    }
-
-    .card {
-      position: relative;
-      z-index: 1;
-      background: rgba(30, 41, 59, 0.85);
-      backdrop-filter: blur(10px);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
-      width: 350px;
-      color: white;
-      text-align: center;
-    }
-
-    .tabs {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .tabs button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: transparent;
-      color: #ccc;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .tabs button.active {
-      background: linear-gradient(90deg, #00C6FF, #0072FF);
-      color: white;
-    }
-
-    .card input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      font-size: 14px;
-    }
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(90deg, #00C6FF, #0072FF);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-      font-size: 15px;
-    }
-    .btn:hover { opacity: 0.9; }
-
-    .link {
-      margin-top: 10px;
-      display: block;
-      color: #00C6FF;
-      text-decoration: none;
-    }
-
-    .referrer {
-      margin: 10px 0;
-      font-size: 13px;
-      color: #00C6FF;
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ff4d4f;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
-      font-size: 14px;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
+    body { margin:0; font-family:Arial,sans-serif; height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#141E30,#243B55); overflow:hidden; position:relative; }
+    body::before { content:""; position:absolute; inset:0; background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg"); background-repeat:repeat; background-size:150px; opacity:0.07; z-index:0; }
+    .card { position:relative; z-index:1; background:rgba(30,41,59,0.85); backdrop-filter:blur(10px); padding:30px; border-radius:20px; box-shadow:0 4px 30px rgba(0,0,0,0.4); width:350px; color:white; text-align:center; }
+    .tabs { display:flex; justify-content:space-between; margin-bottom:20px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; }
+    .tabs button { flex:1; padding:10px; border:none; background:transparent; color:#ccc; font-weight:bold; cursor:pointer; transition:0.3s; }
+    .tabs button.active { background:linear-gradient(90deg,#00C6FF,#0072FF); color:white; }
+    .card input { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; outline:none; font-size:14px; }
+    .btn { width:100%; padding:12px; border:none; border-radius:8px; background:linear-gradient(90deg,#00C6FF,#0072FF); color:white; font-weight:bold; cursor:pointer; margin-top:10px; font-size:15px; }
+    .btn:hover { opacity:0.9; }
+    .link { margin-top:10px; display:block; color:#00C6FF; text-decoration:none; }
+    .referrer { margin:10px 0; font-size:13px; color:#00C6FF; }
+    .toast { position:fixed; top:20px; right:20px; background:#ff4d4f; color:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000; font-size:14px; animation:fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
   </style>
 </head>
 <body>
@@ -128,10 +27,7 @@
       <button id="phoneTab" class="active">Phone Register</button>
       <button id="emailTab">Email Register</button>
     </div>
-
-    <!-- ✅ Referral badge -->
     <div id="referrer" class="referrer"></div>
-
     <form id="signupForm">
       <input type="text" id="username" placeholder="Username" required />
       <div id="phoneFields">
@@ -148,9 +44,8 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-  // ✅ Your Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -164,7 +59,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ✅ Tabs
+  // Tabs
   const phoneTab = document.getElementById("phoneTab");
   const emailTab = document.getElementById("emailTab");
   const phoneFields = document.getElementById("phoneFields");
@@ -184,14 +79,12 @@
     emailFields.style.display = "block";
   });
 
-  // ✅ Referral from URL
+  // Referral
   const urlParams = new URLSearchParams(window.location.search);
   const referrer = urlParams.get("ref");
-  if (referrer) {
-    document.getElementById("referrer").innerText = "Referred by " + referrer;
-  }
+  if (referrer) document.getElementById("referrer").innerText = "Referred by " + referrer;
 
-  // ✅ Toast
+  // Toast
   function showToast(message, success=false) {
     const toast = document.createElement("div");
     toast.className = "toast";
@@ -201,74 +94,64 @@
     setTimeout(() => toast.remove(), 4000);
   }
 
-  // ✅ Signup logic with duplicate check
+  // Signup logic
   document.getElementById("signupForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const username = document.getElementById("username").value.trim();
     const phone = document.getElementById("phone").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    if (!username || !password || (!phone && !email)) {
+    if (!username || !password || (phoneTab.classList.contains("active") && !phone) || (emailTab.classList.contains("active") && !email)) {
       showToast("Please fill all required fields.");
       return;
     }
 
     try {
-      const snapshot = await get(child(ref(db), "users"));
-      if (snapshot.exists()) {
-        let duplicate = false;
-        Object.values(snapshot.val()).forEach(user => {
-          if (email && user.email === email) {
-            showToast("This email is already registered.");
-            duplicate = true;
-          }
-          if (phone && user.phone === phone) {
-            showToast("This phone number is already registered.");
-            duplicate = true;
-          }
-        });
-        if (duplicate) return; // stop if duplicate found
+      const usersRef = ref(db, "users");
+      const snapshot = await get(usersRef);
+      const users = snapshot.exists() ? snapshot.val() : {};
+      
+      // Duplicate check
+      for (const id in users) {
+        const user = users[id];
+        if (email && user.email === email) {
+          showToast("This email is already registered.");
+          return;
+        }
+        if (phone && user.phone === phone) {
+          showToast("This phone number is already registered.");
+          return;
+        }
       }
 
-      // Generate simple UID
+      // Generate UID and save
       const uid = "uid_" + Date.now();
-
-      // Save user
       await set(ref(db, "users/" + uid), {
         username,
         phone: phone || "",
         email: email || "",
         password,
-        referrer: referrer || ""
+        referrer: referrer || "",
+        referrals: 0
       });
 
-      // Update referrer referrals count
+      // Update referrer count
       if (referrer) {
-        const snap = await get(child(ref(db), "users"));
-        if (snap.exists()) {
-          Object.entries(snap.val()).forEach(([id, user]) => {
-            if (user.username === referrer) {
-              update(ref(db, "users/" + id), {
-                referrals: (user.referrals || 0) + 1
-              });
-            }
-          });
+        for (const id in users) {
+          if (users[id].username === referrer) {
+            update(ref(db, "users/" + id), { referrals: (users[id].referrals || 0) + 1 });
+          }
         }
       }
 
       showToast("Account created successfully!", true);
-      setTimeout(() => {
-        window.location.href = "signin.html";
-      }, 1500);
-
+      setTimeout(() => window.location.href = "signin.html", 1500);
     } catch (err) {
       console.error(err);
       showToast("Signup failed, try again.");
     }
   });
-  </script>
   </script>
 </body>
 </html>
