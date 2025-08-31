@@ -147,72 +147,89 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getDatabase, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-    // ✅ Your Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-    };
+  // ✅ Your Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-    // ✅ Tabs
-    const phoneTab = document.getElementById("phoneTab");
-    const emailTab = document.getElementById("emailTab");
-    const phoneFields = document.getElementById("phoneFields");
-    const emailFields = document.getElementById("emailFields");
+  // ✅ Tabs
+  const phoneTab = document.getElementById("phoneTab");
+  const emailTab = document.getElementById("emailTab");
+  const phoneFields = document.getElementById("phoneFields");
+  const emailFields = document.getElementById("emailFields");
 
-    phoneTab.addEventListener("click", () => {
-      phoneTab.classList.add("active");
-      emailTab.classList.remove("active");
-      phoneFields.style.display = "block";
-      emailFields.style.display = "none";
-    });
+  phoneTab.addEventListener("click", () => {
+    phoneTab.classList.add("active");
+    emailTab.classList.remove("active");
+    phoneFields.style.display = "block";
+    emailFields.style.display = "none";
+  });
 
-    emailTab.addEventListener("click", () => {
-      emailTab.classList.add("active");
-      phoneTab.classList.remove("active");
-      phoneFields.style.display = "none";
-      emailFields.style.display = "block";
-    });
+  emailTab.addEventListener("click", () => {
+    emailTab.classList.add("active");
+    phoneTab.classList.remove("active");
+    phoneFields.style.display = "none";
+    emailFields.style.display = "block";
+  });
 
-    // ✅ Referral from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const referrer = urlParams.get("ref");
-    if (referrer) {
-      document.getElementById("referrer").innerText = "Referred by " + referrer;
+  // ✅ Referral from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const referrer = urlParams.get("ref");
+  if (referrer) {
+    document.getElementById("referrer").innerText = "Referred by " + referrer;
+  }
+
+  // ✅ Toast
+  function showToast(message, success=false) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.style.background = success ? "#28a745" : "#ff4d4f";
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  // ✅ Signup logic with duplicate check
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!username || !password || (!phone && !email)) {
+      showToast("Please fill all required fields.");
+      return;
     }
 
-    // ✅ Toast
-    function showToast(message, success=false) {
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.style.background = success ? "#28a745" : "#ff4d4f";
-      toast.innerText = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
-    }
-
-    // ✅ Signup logic
-    document.getElementById("signupForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const username = document.getElementById("username").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      if (!username || !password || (!phone && !email)) {
-        showToast("Please fill all required fields.");
-        return;
+    try {
+      const snapshot = await get(child(ref(db), "users"));
+      if (snapshot.exists()) {
+        let duplicate = false;
+        Object.values(snapshot.val()).forEach(user => {
+          if (email && user.email === email) {
+            showToast("This email is already registered.");
+            duplicate = true;
+          }
+          if (phone && user.phone === phone) {
+            showToast("This phone number is already registered.");
+            duplicate = true;
+          }
+        });
+        if (duplicate) return; // stop if duplicate found
       }
 
       // Generate simple UID
@@ -245,7 +262,13 @@
       setTimeout(() => {
         window.location.href = "signin.html";
       }, 1500);
-    });
+
+    } catch (err) {
+      console.error(err);
+      showToast("Signup failed, try again.");
+    }
+  });
+  </script>
   </script>
 </body>
 </html>
