@@ -139,39 +139,42 @@
 
     // 🔹 Login logic
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const identifier = document.getElementById("identifier").value.trim();
-      const password = document.getElementById("password").value;
+  e.preventDefault();
+  const identifier = document.getElementById("identifier").value.trim();
+  const password = document.getElementById("password").value;
 
-      if (!identifier || !password) {
-        showToast("Please fill in all fields.");
+  if (!identifier || !password) {
+    showToast("Please fill in all fields.");
+    return;
+  }
+
+  try {
+    const snapshot = await get(ref(db, "users"));
+    if (!snapshot.exists()) {
+      showToast("No users found in database.");
+      return;
+    }
+
+    let found = false;
+    snapshot.forEach(childSnap => {
+      const user = childSnap.val();
+      if ((user.email?.toLowerCase() === identifier.toLowerCase() || user.phone === identifier) 
+          && user.password === password) {
+        found = true;
+        showToast("Login successful!", true);
+        setTimeout(() => window.location.href = "dashboard.html", 1500);
         return;
       }
-
-      try {
-        const snapshot = await get(ref(db, "users"));
-        if (snapshot.exists()) {
-          let found = false;
-          snapshot.forEach(childSnap => {
-            const user = childSnap.val();
-            if ((user.email === identifier || user.phone === identifier) && user.password === password) {
-              found = true;
-              showToast("Login successful!", true);
-              setTimeout(() => {
-                window.location.href = "dashboard.html";
-              }, 1500);
-            }
-          });
-          if (!found) {
-            showToast("Invalid credentials.");
-          }
-        } else {
-          showToast("No users found in database.");
-        }
-      } catch (err) {
-        showToast("Error logging in.");
-      }
     });
+
+    if (!found) {
+      showToast("Invalid credentials.");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Error logging in.");
+  }
+});
   </script>
 </body>
 </html>
