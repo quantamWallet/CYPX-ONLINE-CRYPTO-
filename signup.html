@@ -1,157 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Create Account</title>
-  <style>
-    body { margin:0; font-family:Arial,sans-serif; height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#141E30,#243B55); overflow:hidden; position:relative; }
-    body::before { content:""; position:absolute; inset:0; background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg"); background-repeat:repeat; background-size:150px; opacity:0.07; z-index:0; }
-    .card { position:relative; z-index:1; background:rgba(30,41,59,0.85); backdrop-filter:blur(10px); padding:30px; border-radius:20px; box-shadow:0 4px 30px rgba(0,0,0,0.4); width:350px; color:white; text-align:center; }
-    .tabs { display:flex; justify-content:space-between; margin-bottom:20px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; }
-    .tabs button { flex:1; padding:10px; border:none; background:transparent; color:#ccc; font-weight:bold; cursor:pointer; transition:0.3s; }
-    .tabs button.active { background:linear-gradient(90deg,#00C6FF,#0072FF); color:white; }
-    .card input { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; outline:none; font-size:14px; }
-    .btn { width:100%; padding:12px; border:none; border-radius:8px; background:linear-gradient(90deg,#00C6FF,#0072FF); color:white; font-weight:bold; cursor:pointer; margin-top:10px; font-size:15px; }
-    .btn:hover { opacity:0.9; }
-    .link { margin-top:10px; display:block; color:#00C6FF; text-decoration:none; }
-    .referrer { margin:10px 0; font-size:13px; color:#00C6FF; }
-    .toast { position:fixed; top:20px; right:20px; background:#ff4d4f; color:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000; font-size:14px; animation:fadeIn 0.3s ease; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Create Account</title>
+<style>
+body { margin:0; font-family:Arial,sans-serif; height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#141E30,#243B55); overflow:hidden; position:relative; }
+body::before { content:""; position:absolute; inset:0; background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg"); background-repeat:repeat; background-size:150px; opacity:0.07; z-index:0; }
+.card { position:relative; z-index:1; background:rgba(30,41,59,0.85); backdrop-filter:blur(10px); padding:30px; border-radius:20px; box-shadow:0 4px 30px rgba(0,0,0,0.4); width:350px; color:white; text-align:center; }
+.card input { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; outline:none; font-size:14px; }
+.btn { width:100%; padding:12px; border:none; border-radius:8px; background:linear-gradient(90deg,#00C6FF,#0072FF); color:white; font-weight:bold; cursor:pointer; margin-top:10px; font-size:15px; }
+.btn:hover { opacity:0.9; }
+.link { margin-top:10px; display:block; color:#00C6FF; text-decoration:none; }
+.toast { position:fixed; top:20px; right:20px; background:#ff4d4f; color:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000; font-size:14px; animation:fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h2>Create Account</h2>
-    <div class="tabs">
-      <button id="phoneTab" class="active">Phone Register</button>
-      <button id="emailTab">Email Register</button>
-    </div>
-    <div id="referrer" class="referrer"></div>
-    <form id="signupForm">
-      <input type="text" id="username" placeholder="Username" required />
-      <div id="phoneFields">
-        <input type="text" id="phone" placeholder="Phone Number" />
-      </div>
-      <div id="emailFields" style="display:none;">
-        <input type="email" id="email" placeholder="Email" />
-      </div>
-      <input type="password" id="password" placeholder="Password" required />
-      <button class="btn" type="submit">Create Account</button>
-    </form>
-    <a href="signin.html" class="link">Already have an account? Sign In</a>
-  </div>
+<div class="card">
+  <h2>Create Account</h2>
+  <form id="signupForm">
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button class="btn" type="submit">Create Account</button>
+  </form>
+  <a href="signin.html" class="link">Already have an account? Sign In</a>
+</div>
 
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  // Tabs
-  const phoneTab = document.getElementById("phoneTab");
-  const emailTab = document.getElementById("emailTab");
-  const phoneFields = document.getElementById("phoneFields");
-  const emailFields = document.getElementById("emailFields");
+function showToast(message, success=false) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.style.background = success ? "#28a745" : "#ff4d4f";
+  toast.innerText = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
 
-  phoneTab.addEventListener("click", () => {
-    phoneTab.classList.add("active");
-    emailTab.classList.remove("active");
-    phoneFields.style.display = "block";
-    emailFields.style.display = "none";
-  });
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
 
-  emailTab.addEventListener("click", () => {
-    emailTab.classList.add("active");
-    phoneTab.classList.remove("active");
-    phoneFields.style.display = "none";
-    emailFields.style.display = "block";
-  });
-
-  // Referral
-  const urlParams = new URLSearchParams(window.location.search);
-  const referrer = urlParams.get("ref");
-  if (referrer) document.getElementById("referrer").innerText = "Referred by " + referrer;
-
-  // Toast
-  function showToast(message, success=false) {
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.style.background = success ? "#28a745" : "#ff4d4f";
-    toast.innerText = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
+  if (!email || !password || !username) {
+    showToast("Please fill all fields.");
+    return;
   }
 
-  // Signup logic
-  document.getElementById("signupForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const username = document.getElementById("username").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    showToast("Account created successfully!", true);
 
-    if (!username || !password || (phoneTab.classList.contains("active") && !phone) || (emailTab.classList.contains("active") && !email)) {
-      showToast("Please fill all required fields.");
-      return;
-    }
+    // Optionally, store username in Realtime Database under user UID
+    /*
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+    const db = getDatabase(app);
+    await set(ref(db, "users/" + userCredential.user.uid), { username, email });
+    */
 
-    try {
-      const usersRef = ref(db, "users");
-      const snapshot = await get(usersRef);
-      const users = snapshot.exists() ? snapshot.val() : {};
-      
-      // Duplicate check
-      for (const id in users) {
-        const user = users[id];
-        if (email && user.email === email) {
-          showToast("This email is already registered.");
-          return;
-        }
-        if (phone && user.phone === phone) {
-          showToast("This phone number is already registered.");
-          return;
-        }
-      }
-
-      // Generate UID and save
-      const uid = "uid_" + Date.now();
-      await set(ref(db, "users/" + uid), {
-        username,
-        phone: phone || "",
-        email: email || "",
-        password,
-        referrer: referrer || "",
-        referrals: 0
-      });
-
-      // Update referrer count
-      if (referrer) {
-        for (const id in users) {
-          if (users[id].username === referrer) {
-            update(ref(db, "users/" + id), { referrals: (users[id].referrals || 0) + 1 });
-          }
-        }
-      }
-
-      showToast("Account created successfully!", true);
-      setTimeout(() => window.location.href = "signin.html", 1500);
-    } catch (err) {
-      console.error(err);
-      showToast("Signup failed, try again.");
-    }
-  });
-  </script>
+    setTimeout(() => window.location.href = "signin.html", 1500);
+  } catch (error) {
+    if (error.code === "auth/email-already-in-use") showToast("Email is already registered.");
+    else if (error.code === "auth/weak-password") showToast("Password should be at least 6 characters.");
+    else showToast("Signup failed, try again.");
+    console.error(error);
+  }
+});
+</script>
 </body>
 </html>
