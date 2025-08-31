@@ -76,7 +76,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     await set(ref(db, "users/" + userCredential.user.uid), { username, email });
     */
 
-    setTimeout(() => window.location.href = "signin.html", 1500);
+    setTimeout(() => window.location.href = "dashboard.html", 1500);
   } catch (error) {
     if (error.code === "auth/email-already-in-use") showToast("Email is already registered.");
     else if (error.code === "auth/weak-password") showToast("Password should be at least 6 characters.");
