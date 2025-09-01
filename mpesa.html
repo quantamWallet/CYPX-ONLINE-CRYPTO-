@@ -1,173 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>M-PESA Send Money - CYPX ONLINE CRYPTO</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(145deg, #001f3f, #002b5c);
-      color: white;
-      padding-bottom: 100px;
-    }
-    header {
-      background-color: #34B233;
-      padding: 15px;
-      font-size: 20px;
-      text-align: center;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 8px #00000060;
-    }
-    header img { height: 28px; width: 28px; border-radius: 50%; }
-    .container {
-      max-width: 500px;
-      margin: 40px auto;
-      background: rgba(0, 51, 102, 0.85);
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px #00000050;
-      backdrop-filter: blur(10px);
-      border: 1px solid #00ffcc30;
-    }
-    .title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #ffcc00; text-align: center; }
-    .info, .exchange-rate { font-size: 15px; margin-bottom: 20px; line-height: 1.6; text-align: center; }
-    .exchange-rate { color: #ffcc00; }
-    .input-box { margin-bottom: 20px; }
-    .input-box input {
-      width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px;
-      background: #f1f1f1; box-shadow: inset 2px 2px 5px #999, inset -2px -2px 5px #fff;
-    }
-    .recharge-btn {
-      background-color: #34B233; color: white; border: none; padding: 14px 20px;
-      border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer;
-      width: 100%; box-shadow: 0 4px 12px #00000070; transition: background 0.3s ease;
-    }
-    .recharge-btn:hover { background-color: #2fa02c; }
-    .note {
-      font-size: 13px; margin-top: 25px; background-color: #002f5f;
-      padding: 12px; border-radius: 12px; color: #ffcc00;
-    }
-    .popup {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-      background-color: #28a745; color: white; padding: 15px 20px;
-      border-radius: 10px; font-weight: bold; font-size: 15px;
-      box-shadow: 0 0 10px black; display: none; z-index: 1000;
-    }
-    nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background-color: #002244; display: flex; justify-content: space-around;
-      padding: 10px 0; box-shadow: 0 -4px 10px #00000050;
-    }
-    nav a { color: white; text-align: center; text-decoration: none; font-size: 13px; }
-    nav i { font-size: 20px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finance Dashboard - CYPX ONLINE CRYPTO</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  body { margin:0; font-family:'Segoe UI', sans-serif; background: linear-gradient(145deg,#001f3f,#002b5c); color:white; padding-bottom:120px; }
+  header { background-color:#34B233; padding:15px; font-size:20px; text-align:center; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 4px 8px #00000060; }
+  header img{ height:28px;width:28px;border-radius:50%; }
+  .container{ max-width:500px; margin:40px auto; background:rgba(0,51,102,0.85); padding:25px; border-radius:20px; box-shadow:0 10px 25px #00000050; backdrop-filter:blur(10px); border:1px solid #00ffcc30; }
+  .title{ font-size:18px; font-weight:bold; margin-bottom:15px; color:#ffcc00; text-align:center; }
+  .input-box{ margin-bottom:15px; }
+  .input-box input{ width:100%; padding:14px; border-radius:10px; border:none; font-size:16px; background:#f1f1f1; box-shadow: inset 2px 2px 5px #999, inset -2px -2px 5px #fff; }
+  button{ background-color:#34B233;color:white;border:none;padding:14px 20px;border-radius:10px;font-size:16px;font-weight:bold; cursor:pointer; width:100%; margin-bottom:15px; box-shadow:0 4px 12px #00000070; transition:0.3s; }
+  button:hover{ background-color:#2fa02c; }
+  .note{ font-size:13px; background-color:#002f5f; padding:12px; border-radius:12px; color:#ffcc00; margin-bottom:15px; }
+  .popup{ position: fixed; top:20px; left:50%; transform:translateX(-50%); background-color:#28a745; color:white; padding:15px 20px; border-radius:10px; font-weight:bold; font-size:15px; box-shadow:0 0 10px black; display:none; z-index:1000; }
+  nav{ position:fixed; bottom:0; left:0; right:0; background-color:#002244; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -4px 10px #00000050; }
+  nav a{ color:white; text-align:center; text-decoration:none; font-size:13px; }
+  nav i{ font-size:20px; }
+</style>
 </head>
 <body>
-  <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo">
-    CYPX ONLINE CRYPTO
-  </header>
 
-  <div class="popup" id="popupMsg"></div>
+<header>
+  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo">
+  CYPX ONLINE CRYPTO
+</header>
 
-  <div class="container">
-    <div class="title">Send Money Details (Min: 3,000 KSH)</div>
-    <div class="info">
-      <p><strong>Send to Phone:</strong> 0707207201</p>
-      <p><strong>Name:</strong> LANGAT ROBERT</p>
-    </div>
-    <div class="exchange-rate">1 USD ≈ 129 KES</div>
-    <div class="input-box">
-      <input type="text" id="code" placeholder="Enter M-PESA code e.g. QBC70ABZE1">
-    </div>
-    <button class="recharge-btn" onclick="submitRecharge()">Submit Recharge</button>
-    <div class="note">
-      <strong>Note:</strong><br>
-      - Use M-PESA Send Money option.<br>
-      - Recharge reflects in 1–3 minutes.<br>
-      - Enter the correct M-PESA code for verification.
-    </div>
+<div class="popup" id="popupMsg"></div>
+
+<div class="container">
+  <div class="title">Send M-PESA Recharge</div>
+  <div class="input-box">
+    <input type="text" id="mpesaCode" placeholder="Enter M-PESA code e.g. QBC70ABZE1">
   </div>
+  <button onclick="submitRecharge()">Submit Recharge</button>
 
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
+  <div class="title">Claim Daily Interest</div>
+  <button onclick="claimInterest()">Claim Interest</button>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-    firebase.initializeApp(firebaseConfig);
+  <div class="title">Submit Withdrawal</div>
+  <div class="input-box">
+    <input type="number" id="withdrawAmount" placeholder="Enter amount to withdraw">
+  </div>
+  <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+</div>
 
-    function showPopup(msg, color="#28a745") {
-      const popup = document.getElementById('popupMsg');
-      popup.innerText = msg;
-      popup.style.backgroundColor = color;
-      popup.style.display = 'block';
-      setTimeout(() => popup.style.display = 'none', 4000);
-    }
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
 
-    function isValidMpesaCode(code) {
-      return /^[A-Z0-9]{10,12}$/i.test(code);
-    }
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
 
-    // Check if user is logged in
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        showPopup("Please log in to submit deposits.", "#dc3545");
-        document.querySelector(".recharge-btn").disabled = true;
-      } else {
-        document.querySelector(".recharge-btn").disabled = false;
-      }
-    });
+function showPopup(msg, color="#28a745"){
+  const popup = document.getElementById('popupMsg');
+  popup.innerText = msg;
+  popup.style.backgroundColor = color;
+  popup.style.display = 'block';
+  setTimeout(()=> popup.style.display='none', 4000);
+}
 
-    async function submitRecharge() {
-      const codeInput = document.getElementById('code');
-      const code = codeInput.value.trim();
+function isValidCode(code){ return /^[A-Z0-9]{10,12}$/i.test(code); }
 
-      if (!code) { showPopup("Enter M-PESA code", "#dc3545"); return; }
-      if (!isValidMpesaCode(code)) { showPopup("Invalid code", "#dc3545"); return; }
+async function submitRecharge(){
+  const code = document.getElementById('mpesaCode').value.trim();
+  if(!code){ showPopup("Enter M-PESA code","#dc3545"); return; }
+  if(!isValidCode(code)){ showPopup("Invalid code","#dc3545"); return; }
 
-      const user = firebase.auth().currentUser;
-      if (!user) { showPopup("Login required", "#dc3545"); return; }
+  const user = firebase.auth().currentUser;
+  if(!user){ showPopup("Login required","#dc3545"); return; }
 
-      try {
-        const depositRef = firebase.database().ref(`Deposits/${user.uid}`).push();
-        await depositRef.set({
-          code: code,
-          method: "M-PESA Send Money",
-          status: "Pending",
-          timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-        showPopup("Recharge submitted successfully!", "#28a745");
-        codeInput.value = "";
-      } catch (err) {
-        console.error(err);
-        showPopup("Error: " + err.message, "#dc3545");
-      }
-    }
-  </script>
+  try{
+    const ref = firebase.database().ref(`Deposits/${user.uid}`).push();
+    await ref.set({ code, method:"M-PESA Send Money", status:"Pending", timestamp: firebase.database.ServerValue.TIMESTAMP });
+    showPopup("Recharge submitted!");
+    document.getElementById('mpesaCode').value="";
+  }catch(err){ showPopup("Error: "+err.message,"#dc3545"); }
+}
+
+function claimInterest(){
+  const user = firebase.auth().currentUser;
+  if(!user){ showPopup("Login required","#dc3545"); return; }
+  const interest = 50; // daily simple interest example
+
+  const balanceRef = firebase.database().ref(`users/${user.uid}/balance`);
+  balanceRef.transaction(current=>{
+    if(current===null) return interest;
+    return current+interest;
+  }, (err, committed, snapshot)=>{
+    if(err){ showPopup("Error: "+err.message,"#dc3545"); }
+    else if(!committed){ showPopup("Interest not added","#dc3545"); }
+    else{ showPopup(`Interest claimed: +${interest} KSH`); }
+  });
+}
+
+function submitWithdrawal(){
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  if(!amount || amount<=0){ showPopup("Enter valid amount","#dc3545"); return; }
+
+  const user = firebase.auth().currentUser;
+  if(!user){ showPopup("Login required","#dc3545"); return; }
+
+  const withdrawalRef = firebase.database().ref(`Withdrawals/${user.uid}`).push();
+  withdrawalRef.set({ amount, status:"Pending", timestamp:firebase.database.ServerValue.TIMESTAMP })
+    .then(()=> showPopup("Withdrawal submitted!"))
+    .catch(err=> showPopup("Error: "+err.message,"#dc3545"));
+}
+
+// Auto login for demo; replace with real auth in production
+firebase.auth().signInAnonymously().catch(err=> console.error("Auth error:", err));
+</script>
+
 </body>
 </html>
