@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deposit Bonus - CYPX ONLINE CRYPTO</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #001f3f, #002b5c);
+    color: white;
+  }
+  header {
+    background-color: #34B233;
+    padding: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 10px #00000060;
+  }
+  .bonus-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 30px 10px;
+    gap: 20px;
+  }
+  .bonus-box {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid #00ffcc;
+    border-radius: 20px;
+    width: 180px;
+    text-align: center;
+    padding: 20px;
+    box-shadow: 0 10px 25px #00000050;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .bonus-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px #00ffcc70;
+  }
+  .bonus-box h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #ffcc00;
+  }
+  .bonus-box p {
+    font-size: 16px;
+    margin: 5px 0;
+    color: #ffffffcc;
+  }
+  .bonus-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px; /* moved 2cm left */
+    background-color: #34B233;
+    color: white;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 50%;
+    font-size: 14px;
+    box-shadow: 0 4px 10px #00000080;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  CYPX ONLINE CRYPTO - Deposit Bonus
+</header>
+
+<div class="bonus-container" id="bonusContainer">
+  <!-- Bonus boxes injected here by JS -->
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // --- Your Firebase config injected ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  // --- Deposit bonuses config ---
+const depositBonuses = [
+  {deposit: 3000, bonus: 100},
+  {deposit: 5000, bonus: 500},
+  {deposit: 11000, bonus: 1000},
+  {deposit: 21000, bonus: 2100},
+  {deposit: 36000, bonus: 3400},
+  {deposit: 75000, bonus: 5000},
+  {deposit: 113000, bonus: 9200},
+  {deposit: 151000, bonus: 11700},
+  {deposit: 200000, bonus: 16220},
+  {deposit: 250000, bonus: 21200},
+];
+
+const container = document.getElementById('bonusContainer');
+
+depositBonuses.forEach(item => {
+  const box = document.createElement('div');
+  box.className = 'bonus-box';
+  box.innerHTML = `
+    <div class="bonus-badge">+${item.bonus}</div>
+    <h2>${item.deposit.toLocaleString()} KSH</h2>
+    <p>Deposit Amount</p>
+    <p>Bonus: ${item.bonus.toLocaleString()} KSH</p>
+  `;
+
+  // Make box clickable: redirect to mpesa.html with deposit amount in query
+  box.style.cursor = "pointer";
+  box.onclick = () => {
+    window.location.href = `mpesa.html?amount=${item.deposit}&bonus=${item.bonus}`;
+  };
+
+  container.appendChild(box);
+});
+</script>
+
+</body>
+</html>
