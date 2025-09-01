@@ -1,77 +1,105 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Withdraw Amount - CYPX</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw via M-Pesa - CYPX ONLINE CRYPTO</title>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #005700, #007a00);
+    :root {
+      --bg: #001a33;
+      --bg2: #07284a;
+      --brand: #25d366;
+      --text: #ffffff;
+      --muted: #a7bdd8;
+      --card: #0b2f5a;
+      --card-2: #0e3a6f;
+      --border: #1e477a;
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif; }
+    header { padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; font-weight:600; font-size:16px; }
+    .container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
+    .hero { background:linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
+    .hero p { font-size:14px; color:var(--muted); margin-top:10px; }
+    .bank-badge { background:linear-gradient(90deg,#128c7e,var(--brand)); padding:6px 12px; border-radius:10px; font-size:13px; font-weight:600; color:white; display:flex; align-items:center; gap:6px; box-shadow:inset 0 0 10px rgba(0,0,0,0.25); }
+    .account-info { margin-top:8px; font-size:14px; color:#99ffcc; font-weight:600; }
+    .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); }
+    .card h2 { margin-top:0; margin-bottom:14px; font-size:18px; font-weight:700; color:#99ffcc; }
+    .label { font-size:13px; color:#cfe3ff; margin-bottom:6px; display:block; }
+    .input { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; font-size:14px; }
+    .btn { margin-top:14px; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#2ecc71,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.25s ease; }
+    .btn:hover { transform:translateY(-2px); }
+    nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
+    nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
+    nav i { display:block; font-size:16px; margin-bottom:2px; }
+
+    /* Center popup */
+    .popup {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      background: #0e3a6f;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }.container {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  padding: 40px;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-  backdrop-filter: blur(15px);
-}
-
-input {
-  padding: 12px;
-  width: 100%;
-  border-radius: 10px;
-  border: none;
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-button {
-  background-color: #00cc00;
-  border: none;
-  color: white;
-  padding: 14px 20px;
-  font-size: 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  width: 100%;
-  transition: 0.3s;
-}
-
-button:hover {
-  background-color: #00a300;
-}
-
-#popup {
-  position: fixed;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  color: black;
-  padding: 20px 30px;
-  border-radius: 15px;
-  font-size: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  display: none;
-  z-index: 1000;
-}
-
+      padding: 20px 24px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      display: none;
+      text-align: center;
+      max-width: 90%;
+      z-index: 999;
+      font-size: 14px;
+    }
+    .popup.error { background:#3a1111; color:#ffd7d7; }
+    .popup.success { background:#0d4220; color:#d6ffd6; }
   </style>
 </head>
 <body>
+  <header>
+    Withdraw via M-Pesa
+  </header>
+
   <div class="container">
-    <h2>Enter Amount to Withdraw</h2>
-    <input type="number" id="amount" placeholder="Amount in KSH" />
-    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
-  </div>  <div id="popup"></div>  <!-- Firebase -->  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
+    <div class="hero">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div class="bank-badge"><i class="fa-solid fa-mobile-screen"></i> M-Pesa (Kenya)</div>
+        <div class="account-info">Minimum withdrawal is <strong>1,000 KSH</strong></div>
+      </div>
+      <p>Withdrawals will be sent directly to your registered Safaricom number.</p>
+    </div>
+
+    <div class="card">
+      <h2><i class="fa-solid fa-money-bill-transfer"></i> Request Withdrawal</h2>
+      <form id="withdrawForm">
+        <label class="label" for="amount">Withdrawal Amount (KES)</label>
+        <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required/>
+        <button type="submit" class="btn">Submit Withdrawal</button>
+      </form>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i>Me</a>
+  </nav>
+
+  <div id="popup" class="popup"></div>
+
+  <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -79,59 +107,56 @@ button:hover {
       projectId: "quantum-rio",
       storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
     };
     firebase.initializeApp(firebaseConfig);
-
     const auth = firebase.auth();
     const db = firebase.database();
 
-    function showPopup(message) {
-      const popup = document.getElementById("popup");
-      popup.innerText = message;
-      popup.style.display = "block";
-      setTimeout(() => popup.style.display = "none", 3000);
+    const popup = document.getElementById('popup');
+    function showPopup(msg, type='success') {
+      popup.textContent = msg;
+      popup.className = 'popup ' + type;
+      popup.style.display = 'block';
+      setTimeout(()=> popup.style.display='none', 3000);
     }
 
-    function submitWithdrawal() {
-      const amount = parseInt(document.getElementById("amount").value);
-      if (isNaN(amount) || amount < 5000 || amount > 500000) {
-        showPopup("Enter amount between 5,000 and 500,000 KSH");
-        return;
+    const form = document.getElementById('withdrawForm');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const user = auth.currentUser;
+      if(!user) return showPopup('Login required','error');
+
+      const amount = parseInt(document.getElementById('amount').value);
+
+      const snap = await db.ref(`users/${user.uid}`).once('value');
+      const userData = snap.val() || {};
+      const balance = userData.balance || 0;
+      const referrals = userData.referrals || 0;
+
+      if(balance < 1000 || amount < 1000 || balance < amount){
+        return showPopup('Insufficient balance','error');
       }
+      if(referrals < 2){
+  showToast('You must at least have two referrals who has deposited 3,000 KSH','error');
+  setTimeout(()=>window.location.href='team.html',1500);
+  return;
+}
 
-      auth.onAuthStateChanged(user => {
-        if (!user) {
-          showPopup("Please log in to submit withdrawal.");
-          return;
-        }
-
-        const uid = user.uid;
-        const balanceRef = db.ref("users/" + uid + "/balance");
-
-        balanceRef.once("value").then(snapshot => {
-          const balance = snapshot.val();
-          if (balance < amount) {
-            showPopup("Insufficient balance.");
-            return;
-          }
-
-          // Deduct and save withdrawal request
-          const newBalance = balance - amount;
-          balanceRef.set(newBalance);
-
-          const withdrawalRef = db.ref("withdrawals/" + uid).push();
-          withdrawalRef.set({
-            amount: amount,
-            currency: "KSH",
-            status: "pending",
-            timestamp: Date.now()
-          });
-
-          showPopup("Withdrawal submitted for approval");
-          document.getElementById("amount").value = "";
-        });
+      const ref = db.ref('withdrawals').push();
+      await ref.set({
+        uid: user.uid,
+        amount,
+        status:'pending',
+        createdAt: Date.now()
       });
-    }
-  </script></body>
+
+      await db.ref(`users/${user.uid}/balance`).set(balance - amount);
+
+      showPopup('Withdrawal request submitted!','success');
+      form.reset();
+    });
+  </script>
+</body>
 </html>
