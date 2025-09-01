@@ -79,12 +79,12 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
   const vipRef = db.ref('users/' + uid + '/vipLevels');
-  const totalVipLevels = 10; // total available VIP levels
+  const totalVipLevels = 10; // VIP levels 1 to 10
 
   function updateTaskCounters() {
     vipRef.on('value', snapshot => {
       const vipData = snapshot.val() || {}; 
-      const unlocked = Object.keys(vipData); // unlocked levels
+      const unlocked = Object.keys(vipData).map(Number); // convert keys to numbers
       let inProgressCount = 0;
       let completedCount = 0;
 
@@ -92,7 +92,7 @@ auth.onAuthStateChanged(user => {
 
       unlocked.forEach(lvl => {
         const lvlData = vipData[lvl];
-        // Check if user has claimed simple interest or 12 days have passed
+        // Check if simple interest claimed or 12 days have passed
         if(lvlData.simpleInterestClaimed || (lvlData.unlockTimestamp && now - lvlData.unlockTimestamp >= 12*24*60*60*1000)) {
           completedCount++;
         } else {
@@ -109,7 +109,7 @@ auth.onAuthStateChanged(user => {
 
       const vipContainer = document.getElementById("vip-levels");
       vipContainer.innerHTML = '<strong>Unlocked VIP Levels:</strong> ';
-      unlocked.forEach(lvl => {
+      unlocked.sort((a,b)=>a-b).forEach(lvl => {
         const span = document.createElement('span');
         span.textContent = 'VIP' + lvl;
         vipContainer.appendChild(span);
