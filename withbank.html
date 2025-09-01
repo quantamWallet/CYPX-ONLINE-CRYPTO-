@@ -31,10 +31,16 @@
     }
 
     h2 {
-      margin-bottom: 25px;
+      margin-bottom: 10px;
       font-size: 22px;
       font-weight: 600;
       color: #ffd700;
+    }
+
+    .note {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #ffcc00;
     }
 
     select, input {
@@ -98,6 +104,7 @@
 <body>
   <div class="card">
     <h2>Withdraw to Bank</h2>
+    <div class="note">Minimum withdrawal is 1,000 KSH</div>
     <div id="balance">Balance: Loading...</div>
 
     <select id="bank">
@@ -115,7 +122,7 @@
     </select>
 
     <input type="text" id="accountNumber" placeholder="Enter Account Number" />
-    <input type="number" id="amount" placeholder="Enter Amount (Min 5000)" />
+    <input type="number" id="amount" placeholder="Enter Amount" />
     <button onclick="withdraw()">Submit Withdrawal</button>
     
     <div id="notification" class="notification"></div>
@@ -127,7 +134,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-  // Your config
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -230,6 +237,6 @@
       showNotification("Something went wrong. Try again!", "error");
     }
   }
-                            </script>
+  </script>
 </body>
-  </html>
+</html>
