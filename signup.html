@@ -22,6 +22,7 @@ body::before { content:""; position:absolute; inset:0; background-image:url("htt
   <form id="signupForm">
     <input type="text" id="username" placeholder="Username" required />
     <input type="email" id="email" placeholder="Email" required />
+    <input type="tel" id="phone" placeholder="Phone Number" required />
     <input type="password" id="password" placeholder="Password" required />
     <button class="btn" type="submit">Create Account</button>
   </form>
@@ -31,6 +32,7 @@ body::before { content:""; position:absolute; inset:0; background-image:url("htt
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -44,6 +46,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getDatabase(app);
 
 function showToast(message, success=false) {
   const toast = document.createElement("div");
@@ -59,23 +62,24 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const username = document.getElementById("username").value.trim();
+  const phone = document.getElementById("phone").value.trim();
 
-  if (!email || !password || !username) {
+  if (!email || !password || !username || !phone) {
     showToast("Please fill all fields.");
     return;
   }
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Store username, email & phone in Realtime Database under user UID
+    await set(ref(db, "users/" + userCredential.user.uid), {
+      username,
+      email,
+      phone
+    });
+
     showToast("Account created successfully!", true);
-
-    // Optionally, store username in Realtime Database under user UID
-    /*
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-    const db = getDatabase(app);
-    await set(ref(db, "users/" + userCredential.user.uid), { username, email });
-    */
-
     setTimeout(() => window.location.href = "dashboard.html", 1500);
   } catch (error) {
     if (error.code === "auth/email-already-in-use") showToast("Email is already registered.");
