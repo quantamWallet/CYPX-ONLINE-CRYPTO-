@@ -1,196 +1,118 @@
-<!DOCTYPE html><html lang="en"><head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Task - CYPX ONLINE CRYPTO</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  <!-- Firebase SDK (compat version for broad support) -->  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-  </script>  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #001f3f;
-      color: white;
-    }
-    .header {
-      background-color: #002f6c;
-      padding: 15px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .header img {
-      height: 30px;
-      margin-right: 10px;
-    }
-    .countdown {
-      background-color: #001a33;
-      text-align: center;
-      padding: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #ffcc00;
-    }
-    .task-summary {
-      display: flex;
-      justify-content: space-around;
-      padding: 20px 10px;
-      background-color: #003366;
-      border-bottom: 1px solid #002244;
-      flex-wrap: wrap;
-    }
-    .task-summary div {
-      flex: 1;
-      min-width: 120px;
-      text-align: center;
-      padding: 10px;
-      border-radius: 8px;
-      background-color: #004080;
-      margin: 5px;
-    }
-    .task-summary div span {
-      display: block;
-      font-size: 18px;
-      font-weight: bold;
-      color: #ffcc00;
-    }
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-    }
-    nav i {
-      font-size: 20px;
-    }
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: green;
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      z-index: 9999;
-    }
-  </style></head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Task - CYPX ONLINE CRYPTO</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+</script>
+<style>
+body { margin:0; font-family: Arial,sans-serif; background-color:#001f3f; color:white; }
+.header { background-color:#002f6c; padding:15px; text-align:center; font-weight:bold; font-size:20px; display:flex; align-items:center; justify-content:center; }
+.header img { height:30px; margin-right:10px; }
+.task-summary { display:flex; justify-content:space-around; padding:20px 10px; background-color:#003366; border-bottom:1px solid #002244; flex-wrap:wrap; }
+.task-summary div { flex:1; min-width:120px; text-align:center; padding:10px; border-radius:8px; background-color:#004080; margin:5px; }
+.task-summary div span { display:block; font-size:18px; font-weight:bold; color:#ffcc00; }
+#vip-levels { padding:15px; margin:10px; background-color:#003366; border-radius:10px; }
+#vip-levels span { display:inline-block; background:rgba(255,255,255,0.05); padding:6px 10px; border-radius:8px; margin:4px; color:#cfe6ff; font-weight:bold; }
+nav { position:fixed; bottom:0; left:0; right:0; background-color:#002244; display:flex; justify-content:space-around; padding:10px 0; }
+nav a { color:white; text-align:center; text-decoration:none; }
+nav i { font-size:20px; }
+.popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:green; color:white; padding:20px; border-radius:10px; font-weight:bold; z-index:9999; }
+</style>
+</head>
 <body>
-  <div class="header">
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
-    CYPX ONLINE CRYPTO
+<div class="header">
+  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
+  CYPX ONLINE CRYPTO
+</div>
+
+<div class="task-summary">
+  <div>
+    <span id="total-tasks">0</span>
+    Total Tasks
   </div>
-  <div class="countdown">
-    Reset In: <span id="countdown">--:--:--</span>
-  </div>  <div class="task-summary">
-    <div>
-      <span id="total-tasks">0</span>
-      Today's All Tasks
-    </div>
-    <div>
-      <span id="remaining-tasks">0</span>
-      Today's Remaining Tasks
-    </div>
-  </div>  <div class="task-summary">
-    <div>
-      <span id="in-progress">0</span>
-      In Progress
-    </div>
-    <div>
-      <span id="completed">0</span>
-      Completed
-    </div>
-  </div>  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>  <script>
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        const uid = user.uid;
-        const vipRef = db.ref('users/' + uid + '/vipLevels');
-        const referralsRef = db.ref('users/' + uid + '/referrals');// Countdown
-    function startCountdown() {
-      const countdown = document.getElementById("countdown");
-      let start = localStorage.getItem("countdownStart");
-      if (!start) {
-        start = Date.now();
-        localStorage.setItem("countdownStart", start);
-      }
+  <div>
+    <span id="remaining-tasks">0</span>
+    Remaining
+  </div>
+  <div>
+    <span id="in-progress">0</span>
+    In Progress
+  </div>
+  <div>
+    <span id="completed">0</span>
+    Completed
+  </div>
+</div>
 
-      function updateCountdown() {
-        const now = Date.now();
-        let diff = 86400000 - (now - start);
-        if (diff <= 0) {
-          start = Date.now();
-          localStorage.setItem("countdownStart", start);
-          diff = 86400000;
-        }
+<div id="vip-levels">
+  <strong>Unlocked VIP Levels:</strong>
+</div>
 
-        const h = Math.floor(diff / 3600000),
-              m = Math.floor((diff % 3600000) / 60000),
-              s = Math.floor((diff % 60000) / 1000);
-        countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-      }
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
 
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }
+<script>
+auth.onAuthStateChanged(user => {
+  if(!user){ window.location.href="landing.html"; return; }
 
-    function updateTaskCounters() {
-      vipRef.once('value').then(snapshot => {
-        const unlocked = snapshot.val() || [];
-        const total = unlocked.length;
-        const completed = 0;
-        document.getElementById("total-tasks").textContent = total;
-        document.getElementById("remaining-tasks").textContent = total - completed;
-        document.getElementById("in-progress").textContent = total - completed;
-        document.getElementById("completed").textContent = completed;
+  const uid = user.uid;
+  const vipRef = db.ref('users/' + uid + '/vipLevels');
+
+  function updateTaskCounters() {
+    vipRef.on('value', snapshot => {
+      const unlocked = snapshot.val() || [];
+      const total = unlocked.length;
+      const completed = total; // consider all unlocked as completed
+      const inProgress = total - completed;
+
+      document.getElementById("total-tasks").textContent = total;
+      document.getElementById("remaining-tasks").textContent = 0; // no pending tasks
+      document.getElementById("in-progress").textContent = inProgress;
+      document.getElementById("completed").textContent = completed;
+
+      const vipContainer = document.getElementById("vip-levels");
+      vipContainer.innerHTML = '<strong>Unlocked VIP Levels:</strong> ';
+      unlocked.forEach(lvl => {
+        const span = document.createElement('span');
+        span.textContent = 'VIP' + lvl;
+        vipContainer.appendChild(span);
       });
-    }
-
-    startCountdown();
-    updateTaskCounters();
-  } else {
-    window.location.href = "landing.html";
+    });
   }
+
+  updateTaskCounters();
 });
 
-function showPopup(msg, red = false) {
+function showPopup(msg, red=false){
   const popup = document.createElement("div");
-  popup.className = "popup";
+  popup.className="popup";
   popup.style.backgroundColor = red ? "#b30000" : "green";
   popup.textContent = msg;
   document.body.appendChild(popup);
-  setTimeout(() => popup.remove(), 3000);
+  setTimeout(()=>popup.remove(),3000);
 }
-
-</script></body>
-
+</script>
+</body>
 </html>
