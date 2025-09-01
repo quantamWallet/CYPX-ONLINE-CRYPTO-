@@ -374,31 +374,34 @@
           document.getElementById("user-balance").textContent = `Balance: KSh ${balance.toFixed(2)}`;
         });
 
-        // Handle claim bonus (unchanged)
-        const claimBtn = document.getElementById("claim-btn");
-        claimedRef.once("value").then((snap) => {
-          const claimed = snap.val() === true;
-          if (claimed) {
-            claimBtn.textContent = "Completed";
-            claimBtn.disabled = true;
-          }
+        // Handle claim bonus
+const claimBtn = document.getElementById("claim-btn");
+claimedRef.once("value").then((snap) => {
+  const claimed = snap.val() === true;
+  if (claimed) {
+    claimBtn.textContent = "Completed";
+    claimBtn.disabled = true;
+  }
 
-          claimBtn.onclick = function () {
-            if (claimBtn.disabled) return;
+  claimBtn.onclick = function () {
+    if (claimBtn.disabled) return;
 
-            balanceRef.once("value").then((b) => {
-              let currentBalance = parseFloat(b.val() || 0);
-              const newBalance = currentBalance + 100;
+    balanceRef.once("value").then((b) => {
+      let currentBalance = parseFloat(b.val() || 0);
+      const newBalance = currentBalance + 100;
 
-              balanceRef.set(newBalance.toFixed(2));
-              claimedRef.set(true);
+      // ✅ Save new balance and mark bonus claimed
+      database.ref("users/" + uid).update({
+        balance: newBalance,
+        hasClaimedBonus: true
+      });
 
-              claimBtn.textContent = "Completed";
-              claimBtn.disabled = true;
-              showPopup("100 KSh successfully Claimed");
-            });
-          };
-        });
+      claimBtn.textContent = "Completed";
+      claimBtn.disabled = true;
+      showPopup("100 KSh successfully Claimed");
+    });
+  };
+});
 
         // Render VIP list and handle arrow clicks & messages
         function renderVIPList() {
