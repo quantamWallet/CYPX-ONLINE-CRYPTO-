@@ -34,6 +34,7 @@
     .container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
     .hero { background:linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
     .hero p { font-size:14px; color:var(--muted); margin-top:10px; }
+    .note { font-size:13px; color:#ffcc00; font-weight:600; margin:6px 0; }
     .bank-badge { background:linear-gradient(90deg,#128c7e,var(--brand)); padding:6px 12px; border-radius:10px; font-size:13px; font-weight:600; color:white; display:flex; align-items:center; gap:6px; box-shadow:inset 0 0 10px rgba(0,0,0,0.25); }
     .account-info { margin-top:8px; font-size:14px; color:#99ffcc; font-weight:600; }
     .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); }
@@ -60,6 +61,7 @@
     <div class="hero">
       <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
         <div class="bank-badge"><i class="fa-solid fa-mobile-screen"></i> M-Pesa (Kenya)</div>
+        <div class="note">Minimum deposit: 3,000 KSH</div>
         <div>
           <button class="copy" data-copy="0707207201">
             Mpesa Number: <strong>0707207201</strong>
@@ -75,7 +77,7 @@
       <form id="depositForm">
         <label class="label" for="amount">Amount (KES)</label>
         <input id="amount" class="input" type="number" min="3000" placeholder="e.g. 3000" required/>
-        <label class="label" for="phone">Your phone number</label>
+        <label class="label" for="phone">Your Phone number</label>
         <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
         <label class="label" for="code">Transaction Code</label>
         <input id="code" class="input" type="text" placeholder="e.g. QJK123ABC" required/>
@@ -142,7 +144,7 @@
       const code = document.getElementById('code').value.trim().toUpperCase();
       const file = document.getElementById('receipt').files[0];
 
-      if(amount<3000) return showToast('Minimum deposit is 3000 KES','error');
+      if(amount < 3000) return showToast('Minimum deposit is 3000 KES','error');
 
       const ref = db.ref('mpesaDeposits').push();
       const data = {
