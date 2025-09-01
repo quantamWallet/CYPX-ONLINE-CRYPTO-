@@ -388,14 +388,14 @@
 
             balanceRef.once("value").then((b) => {
               let currentBalance = parseFloat(b.val() || 0);
-              const newBalance = currentBalance + 250;
+              const newBalance = currentBalance + 100;
 
               balanceRef.set(newBalance.toFixed(2));
               claimedRef.set(true);
 
               claimBtn.textContent = "Completed";
               claimBtn.disabled = true;
-              showPopup("250 KSh successfully Claimed");
+              showPopup("100 KSh successfully Claimed");
             });
           };
         });
