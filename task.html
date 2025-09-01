@@ -79,60 +79,31 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
   const vipRef = db.ref('users/' + uid + '/vipLevels');
-  const interestRef = db.ref('users/' + uid + '/simpleInterestClaims');
+  const totalVipLevels = 10; // total available VIP levels
 
   function updateTaskCounters() {
     vipRef.on('value', snapshot => {
       const unlocked = snapshot.val() || [];
-      interestRef.once('value').then(claimSnapshot => {
-        const claims = claimSnapshot.val() || {};
-        let completedCount = 0;
-        let inProgressCount = 0;
+      const completedCount = unlocked.length;
+      const remainingCount = totalVipLevels - completedCount;
 
-        unlocked.forEach(level => {
-          const claim = claims[level];
-          if(claim){
-            const elapsedDays = (Date.now() - claim.timestamp) / (1000*60*60*24);
-            if(elapsedDays >= 12){
-              completedCount++;
-            } else {
-              inProgressCount++;
-            }
-          } else {
-            inProgressCount++;
-          }
-        });
+      document.getElementById("total-tasks").textContent = totalVipLevels;
+      document.getElementById("remaining-tasks").textContent = remainingCount;
+      document.getElementById("in-progress").textContent = 0; // in this model, in-progress not used
+      document.getElementById("completed").textContent = completedCount;
 
-        const total = unlocked.length;
-        const remaining = inProgressCount;
-
-        document.getElementById("total-tasks").textContent = total;
-        document.getElementById("remaining-tasks").textContent = remaining;
-        document.getElementById("in-progress").textContent = inProgressCount;
-        document.getElementById("completed").textContent = completedCount;
-
-        const vipContainer = document.getElementById("vip-levels");
-        vipContainer.innerHTML = '<strong>Unlocked VIP Levels:</strong> ';
-        unlocked.forEach(lvl => {
-          const span = document.createElement('span');
-          span.textContent = 'VIP' + lvl;
-          vipContainer.appendChild(span);
-        });
+      const vipContainer = document.getElementById("vip-levels");
+      vipContainer.innerHTML = '<strong>Unlocked VIP Levels:</strong> ';
+      unlocked.forEach(lvl => {
+        const span = document.createElement('span');
+        span.textContent = 'VIP' + lvl;
+        vipContainer.appendChild(span);
       });
     });
   }
 
   updateTaskCounters();
 });
-
-function showPopup(msg, red=false){
-  const popup = document.createElement("div");
-  popup.className="popup";
-  popup.style.backgroundColor = red ? "#b30000" : "green";
-  popup.textContent = msg;
-  document.body.appendChild(popup);
-  setTimeout(()=>popup.remove(),3000);
-}
 </script>
 </body>
 </html>
