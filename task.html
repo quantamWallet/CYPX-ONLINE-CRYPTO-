@@ -84,12 +84,10 @@ auth.onAuthStateChanged(user => {
   function updateTaskCounters() {
     vipRef.on('value', snapshot => {
       const unlocked = snapshot.val() || [];
-      const total = unlocked.length;
-
-      // Track completion based on simple interest claims
-      interestRef.once('value').then(interestSnap => {
-        const claims = interestSnap.val() || {};
+      interestRef.once('value').then(claimSnapshot => {
+        const claims = claimSnapshot.val() || {};
         let completedCount = 0;
+        let inProgressCount = 0;
 
         unlocked.forEach(level => {
           const claim = claims[level];
@@ -97,15 +95,20 @@ auth.onAuthStateChanged(user => {
             const elapsedDays = (Date.now() - claim.timestamp) / (1000*60*60*24);
             if(elapsedDays >= 12){
               completedCount++;
+            } else {
+              inProgressCount++;
             }
+          } else {
+            inProgressCount++;
           }
         });
 
-        const inProgress = total - completedCount;
+        const total = unlocked.length;
+        const remaining = inProgressCount;
 
         document.getElementById("total-tasks").textContent = total;
-        document.getElementById("remaining-tasks").textContent = inProgress;
-        document.getElementById("in-progress").textContent = inProgress;
+        document.getElementById("remaining-tasks").textContent = remaining;
+        document.getElementById("in-progress").textContent = inProgressCount;
         document.getElementById("completed").textContent = completedCount;
 
         const vipContainer = document.getElementById("vip-levels");
@@ -121,6 +124,15 @@ auth.onAuthStateChanged(user => {
 
   updateTaskCounters();
 });
+
+function showPopup(msg, red=false){
+  const popup = document.createElement("div");
+  popup.className="popup";
+  popup.style.backgroundColor = red ? "#b30000" : "green";
+  popup.textContent = msg;
+  document.body.appendChild(popup);
+  setTimeout(()=>popup.remove(),3000);
+}
 </script>
 </body>
 </html>
