@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Recharge via M-PESA - CYPX ONLINE CRYPTO</title>
+  <title>Recharge via Equity Bank - CYPX ONLINE CRYPTO</title>
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+  <!-- Firebase (version 8 for compatibility) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
   <style>
     :root {
       --bg: #001a33;
       --bg2: #07284a;
-      --brand: #34B233;
+      --brand: #ff6600;
       --accent: #ffcc00;
       --text: #ffffff;
       --muted: #a7bdd8;
@@ -25,71 +28,54 @@
       --shadow: 0 10px 30px rgba(0,0,0,0.25);
       --radius: 16px;
     }
-
     * { box-sizing: border-box; }
-    body { margin:0; padding:0; background: linear-gradient(180deg, var(--bg) 0%, #001f3f 100%); color: var(--text); font-family: system-ui, sans-serif; }
-    header { display:flex; align-items:center; gap:10px; padding:14px 18px; background:rgba(0,0,0,0.6); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
-    header img { height:28px; border-radius:6px; }
+    body { margin:0; padding:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif; }
+    header { padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; font-weight:600; font-size:16px; }
     .container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
-    .hero { background: linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:18px; border-radius:var(--radius); }
-    .hero p { font-size:14px; color:var(--muted); }
-
-    .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:18px; border-radius:var(--radius); margin-top:16px; }
+    .hero { background:linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
+    .hero p { font-size:14px; color:var(--muted); margin-top:10px; }
+    .bank-badge { background:linear-gradient(90deg,#a8322d,var(--brand)); padding:6px 12px; border-radius:10px; font-size:13px; font-weight:600; color:white; display:flex; align-items:center; gap:6px; box-shadow:inset 0 0 10px rgba(0,0,0,0.25); }
+    .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); }
+    .card h2 { margin-top:0; margin-bottom:14px; font-size:18px; font-weight:700; color:#ffcc66; }
     .label { font-size:13px; color:#cfe3ff; margin-bottom:6px; display:block; }
-    .input, .textarea, .file { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; }
-    .btn { padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; background:linear-gradient(180deg,#2bbf59,var(--brand)); }
-    .btn.secondary { background:linear-gradient(180deg,#184a88,#113b6f); color:#dfeeff; }
-    .muted-line { font-size:12px; color:var(--muted); }
-    .copy { background:#08335e; border:1px dashed var(--border); padding:6px 10px; border-radius:10px; cursor:pointer; }
+    .input, .file { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; font-size:14px; }
+    .btn { margin-top:14px; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#ff7a2b,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.25s ease; }
+    .btn:hover { transform:translateY(-2px); }
+    .copy { background:#08335e; border:1px dashed var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; font-size:13px; color:#ffcc66; transition:background 0.25s; }
+    .copy:hover { background:#0b3d72; }
     nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
-    nav a { color:white; text-align:center; font-size:12px; }
-    .toast { position:fixed; top:18px; right:18px; background:#072d12; color:#d8ffe6; padding:12px 14px; border-radius:12px; display:none; }
+    nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
+    nav i { display:block; font-size:16px; margin-bottom:2px; }
+    .toast { position:fixed; top:18px; right:18px; background:#072d12; color:#d8ffe6; padding:12px 14px; border-radius:12px; display:none; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:13px; }
     .toast.error { background:#3a1111; color:#ffd7d7; }
   </style>
 </head>
 <body>
   <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png"/>
-    <div>Recharge via M-PESA</div>
+    Recharge via Equity Bank
   </header>
 
   <div class="container">
     <div class="hero">
       <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-        <div class="mpesa-badge"><i class="fa-solid fa-mobile-screen-button"></i> M-PESA (Kenya)</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="copy" data-copy="247247">Paybill: <strong>247247</strong></button>
-          <button class="copy" data-copy="1220184577990">Account: <strong>1220184577990</strong></button>
-        </div>
+        <div class="bank-badge"><i class="fa-solid fa-building-columns"></i> Equity Bank (Kenya)</div>
+        <div><button class="copy" data-copy="1220184577990">Account: <strong>1220184577990</strong></button></div>
       </div>
-      <p>Lipa na M-PESA → Paybill <strong>247247</strong>, Account <strong>1220184577990</strong>. Then submit your M-PESA code below.</p>
+      <p>Deposit directly into Equity Bank Account <strong>1220184577990</strong>. After deposit, submit details below.</p>
     </div>
 
     <div class="card">
-      <h2><i class="fa-solid fa-coins"></i> Submit Recharge</h2>
-      <form id="rechargeForm">
-        <div class="field">
-          <label class="label" for="amount">Amount (KES)</label>
-          <input id="amount" class="input" type="number" min="3000" placeholder="e.g. 5000" required/>
-          <div class="muted-line">Minimum deposit is 3,000 KES.</div>
-        </div>
-        <div class="field">
-          <label class="label" for="phone">M-PESA Phone</label>
-          <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
-        </div>
-        <div class="field">
-          <label class="label" for="code">M-PESA Code</label>
-          <input id="code" class="input" type="text" placeholder="e.g. QLN3XYZ0AB" required/>
-        </div>
-        <div class="field">
-          <label class="label" for="note">Note (optional)</label>
-          <textarea id="note" class="textarea"></textarea>
-        </div>
-        <div class="field">
-          <label class="label" for="receipt">Receipt / Screenshot (optional)</label>
-          <input id="receipt" class="file" type="file" accept="image/*"/>
-        </div>
-        <button type="submit" class="btn">Submit Recharge</button>
+      <h2><i class="fa-solid fa-coins"></i> Submit Bank Deposit</h2>
+      <form id="depositForm">
+        <label class="label" for="amount">Amount (KES)</label>
+        <input id="amount" class="input" type="number" min="3000" placeholder="e.g. 5000" required/>
+        <label class="label" for="phone">Depositor Phone</label>
+        <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
+        <label class="label" for="code">Transaction Code</label>
+        <input id="code" class="input" type="text" placeholder="e.g. EFT12345" required/>
+        <label class="label" for="receipt">Receipt / Screenshot (optional)</label>
+        <input id="receipt" class="file" type="file" accept="image/*"/>
+        <button type="submit" class="btn">Submit Deposit</button>
       </form>
     </div>
   </div>
@@ -105,20 +91,22 @@
   <div id="toast" class="toast"></div>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
       databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
       projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
+      storageBucket: "quantum-rio.appspot.com",
       messagingSenderId: "805433999377",
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
       measurementId: "G-4RSQXZJX44"
     };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+
     const auth = firebase.auth();
+    const db = firebase.database();
+    const storage = firebase.storage();
 
     const toast = document.getElementById('toast');
     function showToast(msg, type='ok') {
@@ -128,6 +116,7 @@
       setTimeout(()=>toast.style.display='none',3000);
     }
 
+    // Copy account number
     document.querySelectorAll('.copy').forEach(btn=>{
       btn.onclick=async()=>{
         await navigator.clipboard.writeText(btn.dataset.copy);
@@ -135,7 +124,8 @@
       }
     });
 
-    const form = document.getElementById('rechargeForm');
+    // Submit deposit
+    const form = document.getElementById('depositForm');
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const user = auth.currentUser;
@@ -144,22 +134,28 @@
       const amount = parseInt(document.getElementById('amount').value);
       const phone = document.getElementById('phone').value.trim();
       const code = document.getElementById('code').value.trim().toUpperCase();
-      const note = document.getElementById('note').value;
       const file = document.getElementById('receipt').files[0];
 
       if(amount<3000) return showToast('Minimum deposit is 3,000 KES','error');
 
-      const ref=db.collection('recharges').doc();
-      const data={uid:user.uid,amount,phone,code,note,status:'pending',paybill:'247247',account:'1220184577990',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+      const ref = db.ref('equityDeposits').push();
+      const data = {
+        uid: user.uid,
+        amount, phone, code,
+        status:'pending',
+        account:'1220184577990',
+        createdAt: Date.now()
+      };
+
       if(file){
-        const path=`receipts/${user.uid}/${ref.id}-${file.name}`;
-        const snap=await storage.ref(path).put(file);
-        data.receiptUrl=await snap.ref.getDownloadURL();
+        const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
+        const snap = await storage.ref(path).put(file);
+        data.receiptUrl = await snap.ref.getDownloadURL();
       }
       await ref.set(data);
-      showToast('Recharge submitted!');
+      showToast('Deposit submitted!');
       form.reset();
     });
   </script>
 </body>
-    </html>
+  </html>
