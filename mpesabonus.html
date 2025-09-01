@@ -38,6 +38,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
   }
   .bonus-box:hover {
     transform: translateY(-10px);
@@ -56,7 +57,7 @@
   .bonus-badge {
     position: absolute;
     top: -10px;
-    right: 20px; /* moved 2cm left */
+    right: 20px; /* shifted 2cm left */
     background-color: #34B233;
     color: white;
     font-weight: bold;
@@ -64,6 +65,14 @@
     border-radius: 50%;
     font-size: 14px;
     box-shadow: 0 4px 10px #00000080;
+  }
+  .bonus-badge-glow {
+    animation: glow 1.5s infinite alternate;
+  }
+  @keyframes glow {
+    0% { box-shadow: 0 0 10px #34B233; transform: scale(1); }
+    50% { box-shadow: 0 0 20px #34B233; transform: scale(1.1); }
+    100% { box-shadow: 0 0 10px #34B233; transform: scale(1); }
   }
 </style>
 </head>
@@ -82,7 +91,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // --- Your Firebase config injected ---
+  // --- Firebase config ---
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -95,39 +104,38 @@
   firebase.initializeApp(firebaseConfig);
 
   // --- Deposit bonuses config ---
-const depositBonuses = [
-  {deposit: 3000, bonus: 100},
-  {deposit: 5000, bonus: 500},
-  {deposit: 11000, bonus: 1000},
-  {deposit: 21000, bonus: 2100},
-  {deposit: 36000, bonus: 3400},
-  {deposit: 75000, bonus: 5000},
-  {deposit: 113000, bonus: 9200},
-  {deposit: 151000, bonus: 11700},
-  {deposit: 200000, bonus: 16220},
-  {deposit: 250000, bonus: 21200},
-];
+  const depositBonuses = [
+    {deposit: 3000, bonus: 100},
+    {deposit: 5000, bonus: 500},
+    {deposit: 11000, bonus: 1000},
+    {deposit: 21000, bonus: 2100},
+    {deposit: 36000, bonus: 3400},
+    {deposit: 75000, bonus: 5000},
+    {deposit: 113000, bonus: 9200},
+    {deposit: 151000, bonus: 11700},
+    {deposit: 200000, bonus: 16220},
+    {deposit: 250000, bonus: 21200},
+  ];
 
-const container = document.getElementById('bonusContainer');
+  const container = document.getElementById('bonusContainer');
 
-depositBonuses.forEach(item => {
-  const box = document.createElement('div');
-  box.className = 'bonus-box';
-  box.innerHTML = `
-    <div class="bonus-badge">+${item.bonus}</div>
-    <h2>${item.deposit.toLocaleString()} KSH</h2>
-    <p>Deposit Amount</p>
-    <p>Bonus: ${item.bonus.toLocaleString()} KSH</p>
-  `;
+  depositBonuses.forEach(item => {
+    const box = document.createElement('div');
+    box.className = 'bonus-box';
+    box.innerHTML = `
+      <div class="bonus-badge bonus-badge-glow">+${item.bonus}</div>
+      <h2>${item.deposit.toLocaleString()} KSH</h2>
+      <p>Deposit Amount</p>
+      <p>Bonus: ${item.bonus.toLocaleString()} KSH</p>
+    `;
 
-  // Make box clickable: redirect to mpesa.html with deposit amount in query
-  box.style.cursor = "pointer";
-  box.onclick = () => {
-    window.location.href = `mpesa.html?amount=${item.deposit}&bonus=${item.bonus}`;
-  };
+    // Redirect to mpesa.html with deposit amount and bonus
+    box.onclick = () => {
+      window.location.href = `mpesa.html?amount=${item.deposit}&bonus=${item.bonus}`;
+    };
 
-  container.appendChild(box);
-});
+    container.appendChild(box);
+  });
 </script>
 
 </body>
