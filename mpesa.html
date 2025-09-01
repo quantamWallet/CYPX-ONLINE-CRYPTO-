@@ -108,6 +108,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -131,6 +132,16 @@
     function isValidMpesaCode(code) {
       return /^[A-Z0-9]{10,12}$/i.test(code);
     }
+
+    // Check if user is logged in
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        showPopup("Please log in to submit deposits.", "#dc3545");
+        document.querySelector(".recharge-btn").disabled = true;
+      } else {
+        document.querySelector(".recharge-btn").disabled = false;
+      }
+    });
 
     async function submitRecharge() {
       const codeInput = document.getElementById('code');
@@ -157,9 +168,6 @@
         showPopup("Error: " + err.message, "#dc3545");
       }
     }
-
-    // Login the user anonymously for demo/testing (replace with real login)
-    firebase.auth().signInAnonymously().catch(err => console.error("Auth error:", err));
   </script>
 </body>
 </html>
