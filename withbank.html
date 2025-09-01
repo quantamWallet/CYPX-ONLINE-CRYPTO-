@@ -127,82 +127,109 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
-    // Your config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+  // Your config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const auth = firebase.auth();
 
-    let currentBalance = 0;
+  let currentBalance = 0;
 
-    function showNotification(message, type) {
-      const notif = document.getElementById("notification");
-      notif.textContent = message;
-      notif.className = "notification " + type;
-      notif.style.display = "block";
-      setTimeout(() => { notif.style.display = "none"; }, 3500);
+  function showNotification(message, type) {
+    const notif = document.getElementById("notification");
+    notif.textContent = message;
+    notif.className = "notification " + type;
+    notif.style.display = "block";
+    setTimeout(() => { notif.style.display = "none"; }, 3500);
+  }
+
+  // Load balance in real-time
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      showNotification("Please login first!", "error");
+      setTimeout(() => window.location.href = "login.html", 2000);
+      return;
     }
 
-    // Load balance in real-time
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        showNotification("Please login first!", "error");
-        setTimeout(() => window.location.href = "login.html", 2000);
+    const balanceRef = db.ref("users/" + user.uid + "/balance");
+    balanceRef.on("value", snapshot => {
+      currentBalance = snapshot.val() || 0;
+      document.getElementById("balance").textContent = "Balance: Ksh " + currentBalance;
+    });
+  });
+
+  async function withdraw() {
+    const bank = document.getElementById("bank").value;
+    const accountNumber = document.getElementById("accountNumber").value.trim();
+    const amount = parseInt(document.getElementById("amount").value);
+
+    if (!bank) { showNotification("Please select a bank.", "error"); return; }
+    if (accountNumber.length < 6) { showNotification("Enter a valid account number.", "error"); return; }
+    if (isNaN(amount) || amount < 1000) { showNotification("Minimum withdrawal is 1,000 Ksh.", "error"); return; }
+    if (amount > currentBalance) { 
+      showNotification("Insufficient Balance! Current: Ksh " + currentBalance, "error"); 
+      return; 
+    }
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      // Check referral requirement
+      const userSnap = await db.ref("users/" + user.uid).once("value");
+      const userData = userSnap.val() || {};
+      const referrals = userData.referrals || {}; // Object of referral UIDs
+
+      let qualified = 0;
+      const referralUIDs = Object.keys(referrals);
+
+      for (const rid of referralUIDs) {
+        const refSnap = await db.ref("users/" + rid).once("value");
+        const refData = refSnap.val() || {};
+        const deposits = refData.totalDeposits || 0;
+        if (deposits >= 3000) {
+          qualified++;
+        }
+      }
+
+      if (qualified < 2) {
+        showNotification("You Must At least have two referrals who has deposited 3,000 KSH", "error");
+        setTimeout(() => window.location.href = "team.html", 2500);
         return;
       }
 
-      const balanceRef = db.ref("users/" + user.uid + "/balance");
-      balanceRef.on("value", snapshot => {
-        currentBalance = snapshot.val() || 0;
-        document.getElementById("balance").textContent = "Balance: Ksh " + currentBalance;
+      // Deduct balance atomically
+      const userBalanceRef = db.ref("users/" + user.uid + "/balance");
+      await userBalanceRef.transaction(balance => (balance || 0) - amount);
+
+      // Save withdrawal request
+      await db.ref("bankWithdrawals").push({
+        bank,
+        accountNumber,
+        amount,
+        userId: user.uid,
+        timestamp: new Date().toISOString(),
+        status: "pending"
       });
-    });
 
-    async function withdraw() {
-      const bank = document.getElementById("bank").value;
-      const accountNumber = document.getElementById("accountNumber").value.trim();
-      const amount = parseInt(document.getElementById("amount").value);
-
-      if (!bank) { showNotification("Please select a bank.", "error"); return; }
-      if (accountNumber.length < 6) { showNotification("Enter a valid account number.", "error"); return; }
-      if (isNaN(amount) || amount < 1000) { showNotification("Minimum withdrawal is 1,000 Ksh.", "error"); return; }
-      if (amount > currentBalance) { showNotification("Insufficient Balance! Current: Ksh " + currentBalance, "error"); return; }
-
-      const user = auth.currentUser;
-      if (!user) return;
-
-      try {
-        // Deduct balance atomically
-        const userBalanceRef = db.ref("users/" + user.uid + "/balance");
-        await userBalanceRef.transaction(balance => (balance || 0) - amount);
-
-        // Save withdrawal request
-        await db.ref("bankWithdrawals").push({
-          bank,
-          accountNumber,
-          amount,
-          userId: user.uid,
-          timestamp: new Date().toISOString()
-        });
-
-        showNotification("Withdrawal request submitted successfully!", "success");
-        document.getElementById("accountNumber").value = "";
-        document.getElementById("amount").value = "";
-      } catch (error) {
-        console.error(error);
-        showNotification("Something went wrong. Try again!", "error");
-      }
+      showNotification("Withdrawal request submitted successfully!", "success");
+      document.getElementById("accountNumber").value = "";
+      document.getElementById("amount").value = "";
+    } catch (error) {
+      console.error(error);
+      showNotification("Something went wrong. Try again!", "error");
     }
-  </script>
+  }
+                            </script>
 </body>
   </html>
