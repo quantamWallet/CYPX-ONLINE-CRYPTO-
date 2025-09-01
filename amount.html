@@ -99,64 +99,80 @@
   <div id="popup" class="popup"></div>
 
   <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-    const popup = document.getElementById('popup');
-    function showPopup(msg, type='success') {
-      popup.textContent = msg;
-      popup.className = 'popup ' + type;
-      popup.style.display = 'block';
-      setTimeout(()=> popup.style.display='none', 3000);
+  const toast = document.getElementById('toast');
+  function showToast(msg, type='ok') {
+    toast.textContent = msg;
+    toast.className = 'toast ' + (type==='error'?'error':'');
+    toast.style.display = 'block';
+    setTimeout(()=>toast.style.display='none',3000);
+  }
+
+  const form = document.getElementById('withdrawForm');
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const user = auth.currentUser;
+    if(!user) return showToast('Login required','error');
+
+    const amount = parseInt(document.getElementById('amount').value);
+
+    // Fetch balance & referrals
+    const snap = await db.ref(`users/${user.uid}`).once('value');
+    const userData = snap.val() || {};
+    const balance = userData.balance || 0;
+    const referrals = userData.referrals || {}; // Expecting object of referral UIDs
+
+    if(balance < 1000 || amount < 1000){
+      return showToast('Insufficient balance','error');
     }
 
-    const form = document.getElementById('withdrawForm');
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const user = auth.currentUser;
-      if(!user) return showPopup('Login required','error');
-
-      const amount = parseInt(document.getElementById('amount').value);
-
-      const snap = await db.ref(`users/${user.uid}`).once('value');
-      const userData = snap.val() || {};
-      const balance = userData.balance || 0;
-      const referrals = userData.referrals || 0;
-
-      if(balance < 1000 || amount < 1000 || balance < amount){
-        return showPopup('Insufficient balance','error');
+    // Enforce referrals with ≥3000 deposit
+    let qualified = 0;
+    const referralUIDs = Object.keys(referrals);
+    for(const rid of referralUIDs){
+      const refSnap = await db.ref(`users/${rid}`).once('value');
+      const refData = refSnap.val() || {};
+      const deposits = refData.totalDeposits || 0; // should be maintained during deposit
+      if(deposits >= 3000){
+        qualified++;
       }
-      if(referrals < 2){
-  showToast('You must at least have two referrals who has deposited 3,000 KSH','error');
-  setTimeout(()=>window.location.href='team.html',1500);
-  return;
-}
+    }
 
-      const ref = db.ref('withdrawals').push();
-      await ref.set({
-        uid: user.uid,
-        amount,
-        status:'pending',
-        createdAt: Date.now()
-      });
+    if(qualified < 2){
+      showToast('You must at least have two referrals who has deposited 3,000 KSH','error');
+      setTimeout(()=>window.location.href='team.html',1500);
+      return;
+    }
 
-      await db.ref(`users/${user.uid}/balance`).set(balance - amount);
-
-      showPopup('Withdrawal request submitted!','success');
-      form.reset();
+    // Save withdrawal request
+    const ref = db.ref('withdrawals').push();
+    await ref.set({
+      uid: user.uid,
+      amount,
+      status:'pending',
+      createdAt: Date.now()
     });
-  </script>
+
+    // Deduct balance
+    await db.ref(`users/${user.uid}/balance`).set(balance - amount);
+
+    showToast('Withdrawal request submitted!');
+    form.reset();
+  });
+    </script>
 </body>
 </html>
