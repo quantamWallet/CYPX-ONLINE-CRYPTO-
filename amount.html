@@ -44,7 +44,7 @@
     nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
     nav i { display:block; font-size:16px; margin-bottom:2px; }
 
-    /* Center popup */
+    /* Popup */
     .popup {
       position: fixed;
       top: 50%; left: 50%;
@@ -114,19 +114,19 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
-  const toast = document.getElementById('toast');
-  function showToast(msg, type='ok') {
-    toast.textContent = msg;
-    toast.className = 'toast ' + (type==='error'?'error':'');
-    toast.style.display = 'block';
-    setTimeout(()=>toast.style.display='none',3000);
+  const popup = document.getElementById('popup');
+  function showPopup(msg, type='success') {
+    popup.textContent = msg;
+    popup.className = 'popup ' + type;
+    popup.style.display = 'block';
+    setTimeout(()=>popup.style.display='none',3000);
   }
 
   const form = document.getElementById('withdrawForm');
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const user = auth.currentUser;
-    if(!user) return showToast('Login required','error');
+    if(!user) return showPopup('Login required','error');
 
     const amount = parseInt(document.getElementById('amount').value);
 
@@ -134,10 +134,10 @@
     const snap = await db.ref(`users/${user.uid}`).once('value');
     const userData = snap.val() || {};
     const balance = userData.balance || 0;
-    const referrals = userData.referrals || {}; // Expecting object of referral UIDs
+    const referrals = userData.referrals || {}; 
 
-    if(balance < 1000 || amount < 1000){
-      return showToast('Insufficient balance','error');
+    if(balance < 1000 || amount < 1000 || balance < amount){
+      return showPopup('Insufficient balance','error');
     }
 
     // Enforce referrals with ≥3000 deposit
@@ -146,15 +146,15 @@
     for(const rid of referralUIDs){
       const refSnap = await db.ref(`users/${rid}`).once('value');
       const refData = refSnap.val() || {};
-      const deposits = refData.totalDeposits || 0; // should be maintained during deposit
+      const deposits = refData.totalDeposits || 0;
       if(deposits >= 3000){
         qualified++;
       }
     }
 
     if(qualified < 2){
-      showToast('You must at least have two referrals who has deposited 3,000 KSH','error');
-      setTimeout(()=>window.location.href='team.html',1500);
+      showPopup('You must at least have two referrals who has deposited 3,000 KSH','error');
+      setTimeout(()=>window.location.href='team.html',2000);
       return;
     }
 
@@ -170,9 +170,9 @@
     // Deduct balance
     await db.ref(`users/${user.uid}/balance`).set(balance - amount);
 
-    showToast('Withdrawal request submitted!');
+    showPopup('Withdrawal request submitted!','success');
     form.reset();
   });
-    </script>
+  </script>
 </body>
 </html>
