@@ -74,6 +74,16 @@
     50% { box-shadow: 0 0 20px #34B233; transform: scale(1.1); }
     100% { box-shadow: 0 0 10px #34B233; transform: scale(1); }
   }
+
+  /* --- Prevent text selection --- */
+  .bonus-box h2,
+  .bonus-box p,
+  .bonus-badge {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
 </style>
 </head>
 <body>
