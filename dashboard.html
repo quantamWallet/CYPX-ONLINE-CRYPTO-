@@ -532,9 +532,12 @@ claimedRef.once("value").then((snap) => {
     }
   };
 </script>
-    <!-- Telegram Floating Button -->
+    <<!-- Telegram Floating Button -->
 <a href="https://t.me/+8REOh_hZOrYwZGNk" 
    target="_blank" 
+   class="telegram-float">
+   <i class="fab fa-telegram-plane"></i>
+</a>
    style="
        position: fixed;
        bottom: 38px; /* moved 0.5 cm up */
@@ -554,30 +557,28 @@ claimedRef.once("value").then((snap) => {
 
 <style>
 /* Floating Telegram Button */
-.whatsapp-float {
+.telegram-float {
     position: fixed;
     width: 60px;
     height: 60px;
-    bottom: 20px;  /* Adjust if you want it higher/lower */
+    bottom: 38px;  /* move up if needed */
     right: 20px;
-    background-color: #25D366;
+    background-color: #0088cc; /* Telegram blue */
+    color: white;
     border-radius: 50%;
     text-align: center;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    z-index: 1000;
+    font-size: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 9999;
     text-decoration: none;
+    transition: background 0.3s ease;
 }
 
-.whatsapp-icon {
-    width: 35px;
-    height: 35px;
-}
-
-.whatsapp-float:hover {
-    background-color: #1ebe5d;
+.telegram-float:hover {
+    background-color: #006fa3;
 }
 </style>
 </body>
