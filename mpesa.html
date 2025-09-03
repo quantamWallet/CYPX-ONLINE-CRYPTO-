@@ -48,8 +48,54 @@
     nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
     nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
     nav i { display:block; font-size:16px; margin-bottom:2px; }
-    .toast { position:fixed; top:18px; right:18px; background:#072d12; color:#d8ffe6; padding:12px 14px; border-radius:12px; display:none; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:13px; }
-    .toast.error { background:#3a1111; color:#ffd7d7; }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 9998;
+      display: none;
+    }
+
+    /* Centered popup */
+    .popup {
+      position: fixed;
+      top:50%;
+      left:50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      opacity: 0;
+      padding: 24px 28px;
+      border-radius:16px;
+      display: none;
+      text-align: center;
+      max-width:85%;
+      z-index: 9999;
+      font-size: 15px;
+      font-weight: 600;
+      animation: popIn 0.5s ease forwards;
+    }
+    .popup.success { background:#0d4220; color:#d6ffd6; }
+    .popup.error { background:#3a1111; color:#ffd7d7; }
+
+    @keyframes popIn {
+      from { transform: translate(-50%, -50%) scale(0.7); opacity:0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity:1; }
+    }
+
+    @keyframes glow-success {
+      0% { box-shadow: 0 0 25px 5px rgba(46,204,113,0.7), 0 0 50px 10px rgba(46,204,113,0.4); }
+      50% { box-shadow: 0 0 35px 10px rgba(46,204,113,0.9), 0 0 60px 15px rgba(46,204,113,0.5); }
+      100% { box-shadow: 0 0 25px 5px rgba(46,204,113,0.7), 0 0 50px 10px rgba(46,204,113,0.4); }
+    }
+    @keyframes glow-error {
+      0% { box-shadow: 0 0 25px 5px rgba(220,53,69,0.7), 0 0 50px 10px rgba(220,53,69,0.4); }
+      50% { box-shadow: 0 0 35px 10px rgba(220,53,69,0.9), 0 0 60px 15px rgba(220,53,69,0.5); }
+      100% { box-shadow: 0 0 25px 5px rgba(220,53,69,0.7), 0 0 50px 10px rgba(220,53,69,0.4); }
+    }
   </style>
 </head>
 <body>
@@ -96,7 +142,9 @@
     <a href="profile.html"><i class="fas fa-user"></i>Me</a>
   </nav>
 
-  <div id="toast" class="toast"></div>
+  <!-- Overlay and popup -->
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup"></div>
 
   <script>
     // Firebase config
@@ -116,19 +164,30 @@
     const db = firebase.database();
     const storage = firebase.storage();
 
-    const toast = document.getElementById('toast');
-    function showToast(msg, type='ok') {
-      toast.textContent = msg;
-      toast.className = 'toast ' + (type==='error'?'error':'');
-      toast.style.display = 'block';
-      setTimeout(()=>toast.style.display='none',3000);
+    const overlay = document.getElementById('overlay');
+    const popup = document.getElementById('popup');
+
+    function showPopup(msg, type='success') {
+      popup.textContent = msg;
+      popup.className = 'popup ' + type;
+      popup.style.display = 'block';
+      overlay.style.display = 'block';
+      if(type === 'success') {
+        popup.style.animation = 'popIn 0.5s ease forwards, glow-success 1.5s ease-in-out infinite alternate';
+      } else {
+        popup.style.animation = 'popIn 0.5s ease forwards, glow-error 1.5s ease-in-out infinite alternate';
+      }
+      setTimeout(()=>{
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+      }, 2500);
     }
 
-    // Copy number
+    // Copy Mpesa number
     document.querySelectorAll('.copy').forEach(btn=>{
       btn.onclick=async()=>{
         await navigator.clipboard.writeText(btn.dataset.copy);
-        showToast('Copied: '+btn.dataset.copy);
+        showPopup('Copied: '+btn.dataset.copy,'success');
       }
     });
 
@@ -137,14 +196,14 @@
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const user = auth.currentUser;
-      if(!user) return showToast('Login required','error');
+      if(!user) return showPopup('Login required','error');
 
       const amount = parseInt(document.getElementById('amount').value);
       const phone = document.getElementById('phone').value.trim();
       const code = document.getElementById('code').value.trim().toUpperCase();
       const file = document.getElementById('receipt').files[0];
 
-      if(amount < 3000) return showToast('Minimum deposit is 3000 KES','error');
+      if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
 
       const ref = db.ref('mpesaDeposits').push();
       const data = {
@@ -162,7 +221,7 @@
         data.receiptUrl = await snap.ref.getDownloadURL();
       }
       await ref.set(data);
-      showToast('Deposit submitted!');
+      showPopup('Deposit submitted!','success');
       form.reset();
     });
   </script>
