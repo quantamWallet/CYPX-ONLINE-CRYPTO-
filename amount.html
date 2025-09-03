@@ -132,53 +132,61 @@
     },2500);
   }
 
-  const form = document.getElementById('withdrawForm');
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const user = auth.currentUser;
-    if(!user) return showPopup('Login required','error','login.html');
+const form = document.getElementById('withdrawForm');
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const user = auth.currentUser;
+  if(!user) return showPopup('Login required','error','login.html');
 
-    const amount = parseInt(document.getElementById('amount').value);
+  const amount = parseInt(document.getElementById('amount').value);
 
-    // Fetch user balance & referrals
-    const snap = await db.ref(`users/${user.uid}`).once('value');
-    const userData = snap.val() || {};
-    const balance = userData.balance || 0;
-    const referrals = userData.referrals || {};
+  // Fetch user balance & referrals
+  const snap = await db.ref(`users/${user.uid}`).once('value');
+  const userData = snap.val() || {};
+  const balance = userData.balance || 0;
+  const referrals = userData.referrals || {};
 
-    if(balance < 1000) {
-      return showPopup('Insufficient balance','error');
-    }
+  // Case 1: Minimum withdrawal
+  if(amount < 1000){
+    return showPopup('Minimum withdrawal is 1,000 KSH','error');
+  }
 
-    // Check referral condition
-    let qualified = 0;
-    const referralUIDs = Object.keys(referrals);
-    for(const rid of referralUIDs){
-      const refSnap = await db.ref(`users/${rid}`).once('value');
-      const refData = refSnap.val() || {};
-      const deposits = refData.totalDeposits || 0;
-      if(deposits >= 3000) qualified++;
-    }
+  // Case 2: Insufficient balance
+  if(amount > balance){
+    return showPopup('Insufficient balance','error');
+  }
 
-    if(qualified < 2) {
-      return showPopup('You need at least 2 referrals who deposited ≥3,000 KSH','error','select.html');
-    }
+  // Case 3: Check referral condition
+  let qualified = 0;
+  const referralUIDs = Object.keys(referrals);
+  for(const rid of referralUIDs){
+    const refSnap = await db.ref(`users/${rid}`).once('value');
+    const refData = refSnap.val() || {};
+    const deposits = refData.totalDeposits || 0;
+    if(deposits >= 3000) qualified++;
+  }
 
-    // Save withdrawal request
-    const ref = db.ref('withdrawals').push();
-    await ref.set({
-      uid: user.uid,
-      amount,
-      status:'pending',
-      createdAt: Date.now()
-    });
+  if(qualified < 2){
+    return showPopup(
+      'You must have at least 2 referrals who deposited ≥3,000 KSH','error','select.html'
+    );
+  }
 
-    // Deduct balance
-    await db.ref(`users/${user.uid}/balance`).set(balance - amount);
-
-    showPopup('Withdrawal request submitted!','success','dashboard.html');
-    form.reset();
+  // Case 4: Proceed to submit withdrawal
+  const ref = db.ref('withdrawals').push();
+  await ref.set({
+    uid: user.uid,
+    amount,
+    status:'pending',
+    createdAt: Date.now()
   });
-  </script>
+
+  // Deduct balance
+  await db.ref(`users/${user.uid}/balance`).set(balance - amount);
+
+  showPopup('Withdrawal request submitted!','success','dashboard.html');
+  form.reset();
+});
+</script>
 </body>
 </html>
