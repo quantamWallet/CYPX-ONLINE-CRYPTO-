@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Referral Options</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #001f3f, #003366);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 15px;
+      width: 85%;
+      max-width: 320px;
+      margin: 10px 0;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4); /* glowing shadow */
+      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 6px 20px rgba(0, 150, 255, 0.6); /* stronger glow */
+    }
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 13px;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+    .card button {
+      background: #ffcc00;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card button:hover {
+      background: #ff9900;
+      box-shadow: 0 0 12px rgba(0, 150, 255, 0.8); /* glowing button */
+    }
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Choose Your Referral Option</h1>
+
+  <div class="card">
+    <h2>Purchase Referrals</h2>
+    <p>Buy ready-made referrals and start growing faster. Choose from different packages.</p>
+    <button id="purchaseBtn" onclick="chooseOption('purchase', 'refpackages.html')">Purchase</button>
+  </div>
+
+  <div class="card">
+    <h2>Refer Friends</h2>
+    <p>Share your referral link with friends and earn bonuses when they join and invest.</p>
+    <button id="referBtn" onclick="chooseOption('refer', 'team.html')">Refer Friends</button>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let currentUID = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUID = user.uid;
+      } else {
+        // redirect if not logged in
+        window.location.href = "index.html";
+      }
+    });
+
+    window.chooseOption = function(type, redirectUrl) {
+      if (!currentUID) return;
+
+      const purchaseBtn = document.getElementById("purchaseBtn");
+      const referBtn = document.getElementById("referBtn");
+      purchaseBtn.classList.add("loading");
+      referBtn.classList.add("loading");
+
+      const actionRef = push(ref(db, "referralChoices/" + currentUID));
+      set(actionRef, {
+        type: type,
+        timestamp: new Date().toISOString()
+      }).then(() => {
+        window.location.href = redirectUrl;
+      }).catch(() => {
+        window.location.href = redirectUrl; // fail-safe redirect
+      });
+    }
+  </script>
+</body>
+</html>
