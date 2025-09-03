@@ -78,27 +78,52 @@
 
     #balance { font-size: 16px; margin-bottom: 20px; font-weight: bold; color: #00ffcc; }
 
+    /* Centered Glowing Popup */
     .notification {
-      position: absolute;
-      top: -60px;
+      position: fixed;
+      top: 50%; 
       left: 50%;
-      transform: translateX(-50%);
-      min-width: 250px;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
+      transform: translate(-50%, -50%);
+      min-width: 280px;
+      padding: 18px 22px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
       display: none;
       text-align: center;
-      animation: fadein 0.5s, fadeout 0.5s 3s;
+      z-index: 1000;
+      animation: glow 1.5s infinite alternate, fadein 0.5s;
     }
 
-    .success { background: #28a745; color: white; }
-    .error { background: #dc3545; color: white; }
-    .info { background: #17a2b8; color: white; }
+    .success { 
+      background: #0d4220; 
+      color: #d6ffd6; 
+      box-shadow: 0 0 25px rgba(0,255,100,0.7);
+    }
+    .error { 
+      background: #3a1111; 
+      color: #ffd7d7; 
+      box-shadow: 0 0 25px rgba(255,50,50,0.7);
+    }
+    .info { 
+      background: #0e3a6f; 
+      color: #d6eaff; 
+      box-shadow: 0 0 25px rgba(0,120,255,0.7);
+    }
 
-    @keyframes fadein { from { opacity: 0; top: -80px; } to { opacity: 1; top: -60px; } }
-    @keyframes fadeout { from { opacity: 1; top: -60px; } to { opacity: 0; top: -80px; } }
+    @keyframes glow {
+      from { box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+      to   { box-shadow: 0 0 35px rgba(255,255,255,0.8); }
+    }
+
+    @keyframes fadein { 
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    @keyframes fadeout { 
+      from { opacity: 1; transform: translate(-50%, -50%); }
+      to   { opacity: 0; transform: translate(-50%, -40%); }
+    }
   </style>
 </head>
 <body>
@@ -152,19 +177,27 @@
 
   let currentBalance = 0;
 
-  function showNotification(message, type) {
+  function showNotification(message, type, redirectUrl=null) {
     const notif = document.getElementById("notification");
     notif.textContent = message;
     notif.className = "notification " + type;
     notif.style.display = "block";
-    setTimeout(() => { notif.style.display = "none"; }, 3500);
+
+    // Hide after 3s with fadeout
+    setTimeout(() => {
+      notif.style.animation = "fadeout 0.7s forwards";
+      setTimeout(() => {
+        notif.style.display = "none";
+        notif.style.animation = "";
+        if (redirectUrl) window.location.href = redirectUrl;
+      }, 700);
+    }, 3000);
   }
 
   // Load balance in real-time
   auth.onAuthStateChanged(user => {
     if (!user) {
-      showNotification("Please login first!", "error");
-      setTimeout(() => window.location.href = "login.html", 2000);
+      showNotification("Please login first!", "error", "login.html");
       return;
     }
 
@@ -195,7 +228,7 @@
       // Check referral requirement
       const userSnap = await db.ref("users/" + user.uid).once("value");
       const userData = userSnap.val() || {};
-      const referrals = userData.referrals || {}; // Object of referral UIDs
+      const referrals = userData.referrals || {}; 
 
       let qualified = 0;
       const referralUIDs = Object.keys(referrals);
@@ -210,8 +243,7 @@
       }
 
       if (qualified < 2) {
-        showNotification("You Must At least have two referrals who has deposited 3,000 KSH", "error");
-        setTimeout(() => window.location.href = "select.html", 2500);
+        showNotification("You must have at least 2 referrals who deposited 3,000 KSH", "error", "select.html");
         return;
       }
 
@@ -239,4 +271,4 @@
   }
   </script>
 </body>
-</html>
+  </html>
