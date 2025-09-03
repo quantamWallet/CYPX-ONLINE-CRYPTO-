@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Referral Packages</title>
+  <style>
+    body {
+      background-color: #001f3f;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+    .explanation {
+      background-color: #002b5c;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .packages {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .package {
+      background-color: #003366;
+      border-radius: 15px;
+      padding: 25px 20px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .package:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 6px 16px rgba(0,0,0,0.5);
+    }
+    .package h2 {
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+    .package p {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #28a745;
+    }
+    .select-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .select-btn:hover {
+      background-color: #218838;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #28a745;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <h1>Choose Your Referral Package</h1>
+
+  <div class="explanation">
+    Boost your network and grow faster by purchasing referral packages.  
+    Each group gives you a set number of active referrals to strengthen your earnings.  
+    Select the group that fits your goals best!
+  </div>
+
+  <div class="packages">
+    <div class="package">
+      <h2>Group 1</h2>
+      <p>✅ Get <b>2 Referrals</b> instantly to kickstart your journey.</p>
+      <div class="price">Price: 2,000 KSH</div>
+      <button class="select-btn" onclick="selectPackage('Group 1', 2000)">Select Group 1</button>
+    </div>
+
+    <div class="package">
+      <h2>Group 2</h2>
+      <p>🔥 Boost with <b>4 Referrals</b> for faster growth and rewards.</p>
+      <div class="price">Price: 4,000 KSH</div>
+      <button class="select-btn" onclick="selectPackage('Group 2', 4000)">Select Group 2</button>
+    </div>
+
+    <div class="package">
+      <h2>Group 3</h2>
+      <p>🚀 Maximize impact with <b>8 Referrals</b> and unlock higher potential.</p>
+      <div class="price">Price: 8,000 KSH</div>
+      <button class="select-btn" onclick="selectPackage('Group 3', 8000)">Select Group 3</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      set
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let currentUID = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUID = user.uid;
+      } else {
+        window.location.href = "landing.html";
+      }
+    });
+
+    window.selectPackage = function (group, price) {
+      if (!currentUID) {
+        showPopup("You must be logged in.");
+        return;
+      }
+
+      const purchaseRef = push(ref(db, 'referralPurchases/' + currentUID));
+      set(purchaseRef, {
+        group: group,
+        price: price + " KSH",
+        status: "pending",
+        timestamp: new Date().toISOString()
+      }).then(() => {
+        showPopup(group + " selected. Redirecting...");
+        setTimeout(() => {
+          window.location.href = `buyref.html?group=${encodeURIComponent(group)}&price=${price}`;
+        }, 2000);
+      }).catch((error) => {
+        showPopup("Error: " + error.message);
+      });
+    }
+
+    function showPopup(message) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 2500);
+    }
+  </script>
+</body>
+</html>
