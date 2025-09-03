@@ -115,18 +115,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      push,
-      set
-    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -161,7 +152,8 @@
       const purchaseRef = push(ref(db, 'referralPurchases/' + currentUID));
       set(purchaseRef, {
         group: group,
-        price: price + " KSH",
+        price: price,
+        currency: "KSH",
         status: "pending",
         timestamp: new Date().toISOString()
       }).then(() => {
