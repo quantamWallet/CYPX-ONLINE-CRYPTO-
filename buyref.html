@@ -2,13 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Buy Referral Package</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Referral Purchase</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #001f3f, #003366);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px 25px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+    .subtitle {
+      font-size: 16px;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+    .info-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      font-size: 15px;
+    }
+    .copy-btn {
+      background: #ffcc00;
+      border: none;
+      padding: 6px 12px;
+      margin-top: 5px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .copy-btn:hover {
+      background: #ff9900;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-size: 15px;
+    }
+    button.confirm {
+      background: #28a745;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      transition: background 0.3s ease;
+      width: 100%;
+    }
+    button.confirm:hover {
+      background: #218838;
+    }
+    /* Notification Bar */
+    .notification {
+      position: fixed;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: top 0.5s ease;
+      z-index: 9999;
+    }
+    .notification.show {
+      top: 20px;
+    }
+    .success { background: #28a745; color: #fff; }
+    .error { background: #dc3545; color: #fff; }
+    .warning { background: #ffc107; color: #000; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="packageName">Selected Package</h1>
+    <div class="subtitle" id="packagePrice">Price: --</div>
+
+    <div class="info-box">
+      <p><strong>Pay with Airtel Money</strong></p>
+      <p>Number: <span id="airtelNumber">0750858351</span></p>
+      <button class="copy-btn" onclick="copyNumber()">Copy Number</button>
+      <p>Name: <strong>Hassan Abdi</strong></p>
+      <p>After payment, enter your phone number below for verification.</p>
+    </div>
+
+    <input type="tel" id="senderNumber" placeholder="Enter your Airtel number used to pay">
+    <button class="confirm" onclick="confirmPurchase()">Confirm Purchase</button>
+  </div>
+
+  <!-- Notification Bar -->
+  <div id="notification" class="notification"></div>
+
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    // Quantum Rio Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -24,207 +140,59 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const group = urlParams.get("group");
-    const price = urlParams.get("price");
-
-    const referralMap = {
-      "Group 1": "2 referrals",
-      "Group 2": "4 referrals",
-      "Group 3": "8 referrals"
-    };
-
-    window.addEventListener("DOMContentLoaded", () => {
-      if (!group || !price) {
-        alert("Please select a referral package first.");
-        window.location.href = "refpackages.html";
-        return;
-      }
-      document.getElementById("package-name").textContent = group;
-      document.getElementById("package-price").textContent = price + " KSH";
-
-      const referrals = referralMap[group] || "Unknown referrals";
-      document.getElementById("summary-text").textContent =
-        `You are about to purchase ${group} (${referrals}) for ${price} KSH.`;
+    let currentUID = null;
+    onAuthStateChanged(auth, (user) => {
+      if (user) currentUID = user.uid;
     });
 
-    window.copyNumber = function () {
-      const num = "0750858351";
-      navigator.clipboard.writeText(num).then(() => {
-        alert("✅ Number copied: " + num);
-      });
+    // Show notification
+    function showNotification(message, type) {
+      const bar = document.getElementById("notification");
+      bar.textContent = message;
+      bar.className = `notification ${type} show`;
+      setTimeout(() => { bar.classList.remove("show"); }, 3000);
+    }
+
+    // Load package from localStorage
+    window.onload = function() {
+      const packageName = localStorage.getItem("selectedPackage") || "Unknown Package";
+      const packagePrice = localStorage.getItem("selectedPrice") || "Unknown Price";
+
+      document.getElementById("packageName").innerText = packageName;
+      document.getElementById("packagePrice").innerText = "Price: " + packagePrice;
     };
 
-    window.confirmPurchase = function () {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Please log in first.");
+    // Copy Airtel Number
+    window.copyNumber = function() {
+      const num = document.getElementById("airtelNumber").innerText;
+      navigator.clipboard.writeText(num);
+      showNotification("Airtel number copied!", "success");
+    }
+
+    // Confirm Purchase
+    window.confirmPurchase = function() {
+      const senderNumber = document.getElementById("senderNumber").value.trim();
+      if (!senderNumber) {
+        showNotification("Enter your Airtel number used for payment.", "warning");
+        return;
+      }
+      if (!currentUID) {
+        showNotification("Login required to continue.", "error");
         return;
       }
 
-      const senderPhone = document.getElementById("sender-phone").value.trim();
-      if (!senderPhone) {
-        alert("⚠️ Please enter the phone number you used to send money.");
-        return;
-      }
-
-      const referrals = referralMap[group] || "Unknown referrals";
-      const purchaseRef = push(ref(db, "referralPurchases/" + user.uid));
+      const purchaseRef = push(ref(db, "referralPurchases/" + currentUID));
       set(purchaseRef, {
-        group: group,
-        referrals: referrals,
-        price: price + " KSH",
-        senderPhone: senderPhone,
-        status: "pending",
+        package: document.getElementById("packageName").innerText,
+        price: document.getElementById("packagePrice").innerText,
+        senderNumber: senderNumber,
         timestamp: new Date().toISOString()
       }).then(() => {
-        alert("✅ Purchase saved! Complete your payment using the details provided.");
-      }).catch((err) => {
-        alert("❌ Error: " + err.message);
+        showNotification("Purchase request submitted successfully!", "success");
+      }).catch((error) => {
+        showNotification("Error: " + error.message, "error");
       });
-    };
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        alert("You must be logged in to continue.");
-        window.location.href = "login.html";
-      }
-    });
+    }
   </script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #001f3f, #003366);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      color: #fff;
-    }
-    .card {
-      background: #0d2747; /* light-navy blue */
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-      animation: fadeIn 1s ease-in-out;
-      color: #fff;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(30px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-    .summary-box {
-      background: #e6f7ff;
-      border-left: 6px solid #007bff;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      color: #333;
-    }
-    .summary-box h2 { margin: 0 0 10px 0; color: #007bff; }
-    .summary-box p { margin: 0; font-weight: bold; color: #333; }
-    h3 { margin-top: 10px; color: #fff; }
-    .price { font-size: 22px; margin: 10px 0; font-weight: bold; color: #ffcc00; }
-    .payment-box {
-      background: #102c54;
-      border-left: 6px solid #28a745;
-      padding: 15px;
-      text-align: left;
-      margin-top: 20px;
-      border-radius: 10px;
-    }
-    .payment-box h3 { margin-top: 0; color: #28a745; }
-    .copy-btn {
-      background: #ffcc00;
-      border: none;
-      color: #000;
-      font-weight: bold;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-left: 8px;
-    }
-    .sender-box {
-      margin-top: 20px;
-      text-align: left;
-    }
-    .sender-box label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #ffcc00;
-    }
-    .sender-box input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin-bottom: 10px;
-      font-size: 15px;
-    }
-    button.confirm-btn {
-      padding: 14px 20px;
-      font-size: 17px;
-      border: none;
-      border-radius: 10px;
-      background: #28a745;
-      color: white;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.3s ease;
-      width: 100%;
-    }
-    button.confirm-btn:hover {
-      background: #218838;
-      transform: scale(1.03);
-    }
-    .instructions {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #ddd;
-      text-align: left;
-    }
-    .instructions p { margin: 8px 0; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="summary-box">
-      <h2>Referral Package Purchase</h2>
-      <p id="summary-text"></p>
-    </div>
-
-    <h3 id="package-name">Loading...</h3>
-    <p class="price" id="package-price"></p>
-
-    <div class="payment-box">
-      <h3>Payment Details</h3>
-      <p><strong>Method:</strong> Airtel Send Money</p>
-      <p>
-        <strong>Number:</strong> 0750858351 
-        <button class="copy-btn" onclick="copyNumber()">Copy</button>
-      </p>
-      <p><strong>Name:</strong> Hassan Abdi</p>
-    </div>
-
-    <div class="sender-box">
-      <label for="sender-phone">Your Phone Number (used to send money):</label>
-      <input type="text" id="sender-phone" placeholder="e.g. 0700123456">
-    </div>
-
-    <div class="instructions">
-      <p>✅ Please send the exact package amount to the Airtel number above.</p>
-      <p>✅ After sending, enter your phone number and click <b>Confirm Purchase</b>.</p>
-      <p>✅ Your purchase will be marked as <b>pending</b> until payment is verified.</p>
-      <p>⚠️ Do not send less or more than the package price to avoid delays.</p>
-    </div>
-
-    <button class="confirm-btn" onclick="confirmPurchase()">Confirm Purchase</button>
-  </div>
 </body>
-  </html>
+</html>
