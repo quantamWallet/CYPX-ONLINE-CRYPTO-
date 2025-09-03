@@ -1,125 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirm Referral Purchase</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>M-Pesa Deposit</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #001f3f, #003366);
-      color: #fff;
+      background-color: #001f3f;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 30px 25px;
-      width: 90%;
-      max-width: 450px;
-      text-align: center;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-      backdrop-filter: blur(8px);
-    }
-    h1 {
-      font-size: 22px;
-      margin-bottom: 15px;
-    }
-    .subtitle {
-      font-size: 16px;
-      margin-bottom: 20px;
-      opacity: 0.9;
-    }
-    .info-box {
-      background: rgba(0, 0, 0, 0.3);
       padding: 15px;
+      color: #ffffff;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffcc00;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+
+    .card {
+      background-color: #002b5c;
+      padding: 18px;
       border-radius: 12px;
-      margin: 15px 0;
-      font-size: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease;
     }
-    .copy-btn {
-      background: #ffcc00;
-      border: none;
-      padding: 6px 12px;
-      margin-top: 5px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
+
+    .card:hover {
+      transform: translateY(-2px);
     }
-    .copy-btn:hover {
-      background: #ff9900;
-    }
-    input {
-      width: 100%;
+
+    .highlight {
+      background: #003366;
       padding: 12px;
-      border: none;
-      border-radius: 8px;
-      margin: 15px 0;
-      font-size: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 0.95rem;
     }
-    button.confirm {
+
+    .mpesa-number {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #004080;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin: 8px 0;
+      animation: glow 1.5s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 5px #ffcc00; }
+      to { box-shadow: 0 0 15px #ffcc00; }
+    }
+
+    .copy-btn {
       background: #28a745;
       border: none;
-      padding: 12px 20px;
-      border-radius: 10px;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
+      font-size: 0.85rem;
       transition: background 0.3s ease;
-      width: 100%;
     }
-    button.confirm:hover {
+
+    .copy-btn:hover {
       background: #218838;
     }
-    /* Notification Bar */
-    .notification {
-      position: fixed;
-      top: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 15px 20px;
-      border-radius: 8px;
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    .submit-btn {
+      background: #ffcc00;
+      color: #001f3f;
       font-weight: bold;
-      transition: top 0.5s ease;
+      border: none;
+      padding: 11px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      background: #e6b800;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #28a745;
+      padding: 14px 22px;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
       z-index: 9999;
+      font-size: 0.95rem;
     }
-    .notification.show {
-      top: 20px;
-    }
-    .success { background: #28a745; color: #fff; }
-    .error { background: #dc3545; color: #fff; }
-    .warning { background: #ffc107; color: #000; }
   </style>
 </head>
 <body>
+
+  <h1>Recharge via M-Pesa</h1>
+
   <div class="card">
-    <h1 id="packageName">Selected Package</h1>
-    <div class="subtitle" id="packagePrice">Price: --</div>
-
-    <div class="info-box">
-      <p><strong>Pay with Airtel Money</strong></p>
-      <p>Number: <span id="airtelNumber">0750858351</span></p>
-      <button class="copy-btn" onclick="copyNumber()">Copy Number</button>
-      <p>Name: <strong>Hassan Abdi</strong></p>
-      <p>After payment, enter your phone number below for verification.</p>
+    <h2 id="packageTitle">Selected Package</h2>
+    <div class="highlight">
+      <p id="packageInfo">Loading package details...</p>
+      <p><b>Mpesa Paybill/Number:</b></p>
+      <div class="mpesa-number">
+        <span id="mpesaNumber">0707207201</span>
+        <button class="copy-btn" onclick="copyNumber()">Copy</button>
+      </div>
+      <p><b>Account Name:</b> LANGAT ROBERT</p>
+      <p>Send money directly, then submit details below.</p>
     </div>
-
-    <input type="tel" id="senderNumber" placeholder="Enter your Airtel number used to pay">
-    <button class="confirm" onclick="confirmPurchase()">Confirm Purchase</button>
   </div>
 
-  <!-- Notification Bar -->
-  <div id="notification" class="notification"></div>
+  <div class="card">
+    <h2>Submit Deposit</h2>
+    <form id="depositForm">
+      <div class="form-group">
+        <label>Amount (KES)</label>
+        <input type="number" id="amount" placeholder="Enter amount" required>
+      </div>
+      <div class="form-group">
+        <label>Your Phone Number</label>
+        <input type="text" id="phone" placeholder="07XXXXXXXX" required>
+      </div>
+      <div class="form-group">
+        <label>Transaction Code</label>
+        <input type="text" id="code" placeholder="e.g. QJK123ABC" required>
+      </div>
+      <button type="submit" class="submit-btn">Submit Deposit</button>
+    </form>
+  </div>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -141,57 +183,55 @@
     const db = getDatabase(app);
 
     let currentUID = null;
+    let selectedGroup = "";
+    let selectedPrice = "";
+
+    const params = new URLSearchParams(window.location.search);
+    selectedGroup = params.get("group") || "Unknown Package";
+    selectedPrice = params.get("price") || "Unknown Price";
+
+    document.getElementById("packageTitle").textContent = selectedGroup;
+    document.getElementById("packageInfo").textContent = `Price: ${selectedPrice} KSH`;
+
     onAuthStateChanged(auth, (user) => {
       if (user) currentUID = user.uid;
+      else window.location.href = "landing.html";
     });
 
-    // Show notification
-    function showNotification(message, type) {
-      const bar = document.getElementById("notification");
-      bar.textContent = message;
-      bar.className = `notification ${type} show`;
-      setTimeout(() => { bar.classList.remove("show"); }, 3000);
-    }
-
-    // Load package from localStorage
-    window.onload = function() {
-      const packageName = localStorage.getItem("selectedPackage") || "Unknown Package";
-      const packagePrice = localStorage.getItem("selectedPrice") || "Unknown Price";
-
-      document.getElementById("packageName").innerText = packageName;
-      document.getElementById("packagePrice").innerText = "Price: " + packagePrice;
-    };
-
-    // Copy Airtel Number
     window.copyNumber = function() {
-      const num = document.getElementById("airtelNumber").innerText;
-      navigator.clipboard.writeText(num);
-      showNotification("Airtel number copied!", "success");
+      const number = document.getElementById("mpesaNumber").textContent;
+      navigator.clipboard.writeText(number).then(() => showPopup("Mpesa number copied!"));
     }
 
-    // Confirm Purchase
-    window.confirmPurchase = function() {
-      const senderNumber = document.getElementById("senderNumber").value.trim();
-      if (!senderNumber) {
-        showNotification("Enter your Airtel number used for payment.", "warning");
-        return;
-      }
-      if (!currentUID) {
-        showNotification("Login required to continue.", "error");
-        return;
-      }
+    document.getElementById("depositForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!currentUID) return showPopup("You must be logged in.");
 
-      const purchaseRef = push(ref(db, "referralPurchases/" + currentUID));
-      set(purchaseRef, {
-        package: document.getElementById("packageName").innerText,
-        price: document.getElementById("packagePrice").innerText,
-        senderNumber: senderNumber,
+      const amount = document.getElementById("amount").value;
+      const phone = document.getElementById("phone").value;
+      const code = document.getElementById("code").value;
+
+      const depositRef = push(ref(db, "deposits/" + currentUID));
+      set(depositRef, {
+        group: selectedGroup,
+        price: selectedPrice + " KSH",
+        amount,
+        phone,
+        code,
+        status: "pending",
         timestamp: new Date().toISOString()
       }).then(() => {
-        showNotification("Purchase request submitted successfully!", "success");
-      }).catch((error) => {
-        showNotification("Error: " + error.message, "error");
-      });
+        showPopup("Deposit submitted successfully!");
+        document.getElementById("depositForm").reset();
+      }).catch(err => showPopup("Error: " + err.message));
+    });
+
+    function showPopup(msg) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.textContent = msg;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 2500);
     }
   </script>
 </body>
