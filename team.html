@@ -75,27 +75,17 @@
       padding: 15px;
       border-radius: 10px;
     }
-    .level-box h3 {
-      margin: 0 0 10px;
-      color: #ffcc00;
-    }
-    .level-info {
-      display: flex;
-      justify-content: space-between;
-      margin: 6px 0;
-    }
-    .level-info span {
-      font-size: 14px;
-    }
-    .details-btn {
-      margin-top: 10px;
-      background-color: #ffcc00;
-      color: black;
-      padding: 8px 16px;
+    .level-total {
       font-weight: bold;
-      border: none;
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+    .level-referrals div {
+      background-color: #004080;
+      margin: 5px 0;
+      padding: 8px;
       border-radius: 6px;
-      cursor: pointer;
+      font-size: 14px;
     }
     .team-levels {
       padding-bottom: 80px;
@@ -132,6 +122,14 @@
       z-index: 9999;
       box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
+    .explanation {
+      margin: 20px 15px;
+      background-color: #002b5c;
+      padding: 15px;
+      border-radius: 10px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -157,29 +155,34 @@
   </div>
 
   <div class="team-levels">
-    <div class="team-section-title">LEV 1</div>
-    <div class="level-box">
-      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
-      <div class="level-info"><span>Commission Percentage:</span><span>17%</span></div>
-      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
-      <button class="details-btn">Details</button>
+    <div class="team-section-title">LEV 1 - 17% Commission</div>
+    <div class="level-box" id="lev1">
+      <div class="level-total">Total: KSH 0.00</div>
+      <div class="level-referrals"></div>
     </div>
 
-    <div class="team-section-title">LEV 2</div>
-    <div class="level-box">
-      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
-      <div class="level-info"><span>Commission Percentage:</span><span>2%</span></div>
-      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
-      <button class="details-btn">Details</button>
+    <div class="team-section-title">LEV 2 - 2% Commission</div>
+    <div class="level-box" id="lev2">
+      <div class="level-total">Total: KSH 0.00</div>
+      <div class="level-referrals"></div>
     </div>
 
-    <div class="team-section-title">LEV 3</div>
-    <div class="level-box">
-      <div class="level-info"><span>Register/Valid:</span><span>0/0</span></div>
-      <div class="level-info"><span>Commission Percentage:</span><span>1%</span></div>
-      <div class="level-info"><span>Total Income:</span><span>KSH 0.00</span></div>
-      <button class="details-btn">Details</button>
+    <div class="team-section-title">LEV 3 - 1% Commission</div>
+    <div class="level-box" id="lev3">
+      <div class="level-total">Total: KSH 0.00</div>
+      <div class="level-referrals"></div>
     </div>
+  </div>
+
+  <div class="explanation">
+    <strong>Invite friends to get three levels of rewards:</strong><br><br>
+    Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br>
+    You can invite friends, members, relatives to join and earn three high commission rewards as follows:<br><br>
+    A: Team first-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
+    B: Team second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
+    C: Team third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
+    Conclusion: If you are A-level, you get (A+B+C) = 17+2+1 = 20% total commission.<br><br>
+    The fastest way to make money here is not saving money yourself, but forming a team to earn generous commissions and leading team members to make money together.
   </div>
 
   <nav>
@@ -190,7 +193,6 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Firebase & referral logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getDatabase, ref, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
@@ -246,7 +248,6 @@
           const userData = snapshot.val() || {};
           const username = userData.username || (user.email ? user.email.split('@')[0] : uid);
 
-          // FIX: preserve GitHub Pages subpath
           const base = location.href.substring(0, location.href.lastIndexOf('/'));
           const shortLink = `${base}/signup.html?ref=${encodeURIComponent(username)}`;
           
@@ -257,55 +258,66 @@
             copyListenerAdded = true;
           }
 
-          // Get referrals from DB
+          // Load approved referrals
           const q = query(ref(db, 'users'), orderByChild('referredBy'), equalTo(username));
           onValue(q, snap => {
             const matches = snap.val() || {};
-            const count = Object.keys(matches).length;
-            document.querySelectorAll('.stat-box')[0].children[1].textContent = count;
+
+            const lev1Div = document.getElementById('lev1').querySelector('.level-referrals');
+            const lev2Div = document.getElementById('lev2').querySelector('.level-referrals');
+            const lev3Div = document.getElementById('lev3').querySelector('.level-referrals');
+
+            const lev1Total = document.getElementById('lev1').querySelector('.level-total');
+            const lev2Total = document.getElementById('lev2').querySelector('.level-total');
+            const lev3Total = document.getElementById('lev3').querySelector('.level-total');
+
+            lev1Div.innerHTML = '';
+            lev2Div.innerHTML = '';
+            lev3Div.innerHTML = '';
+
+            let lev1Commission = 0, lev2Commission = 0, lev3Commission = 0;
+            let teamSize = 0, recharge = 0, withdrawal = 0, newTeam = 0, firstRecharge = 0, firstWithdrawal = 0;
+
+            Object.values(matches).forEach(u => {
+              if (u.referralStatus === 'approved') {
+                teamSize++;
+                const topUp = Number(u.topUp || 0);
+                let commission = 0;
+                const displayText = `${u.username || u.email || 'User'} - KSH `;
+
+                if (u.level === 1) { commission = topUp * 0.17; lev1Commission += commission; lev1Div.innerHTML += `<div>${displayText}${commission.toFixed(2)}</div>`; }
+                if (u.level === 2) { 
+                  commission = topUp * 0.02; 
+                  lev2Commission += commission; 
+                  lev2Div.innerHTML += `<div>${displayText}${commission.toFixed(2)}</div>`; 
+                }
+                if (u.level === 3) { 
+                  commission = topUp * 0.01; 
+                  lev3Commission += commission; 
+                  lev3Div.innerHTML += `<div>${displayText}${commission.toFixed(2)}</div>`; 
+                }
+
+                recharge += topUp;
+                withdrawal += Number(u.withdrawn || 0);
+                newTeam += 1;
+                if (!u.hasRecharged) firstRecharge += 1;
+                if (!u.hasWithdrawn) firstWithdrawal += 1;
+              }
+            });
+
+            // Update totals
+            lev1Total.textContent = `Total: KSH ${lev1Commission.toFixed(2)}`;
+            lev2Total.textContent = `Total: KSH ${lev2Commission.toFixed(2)}`;
+            lev3Total.textContent = `Total: KSH ${lev3Commission.toFixed(2)}`;
+
+            const statBoxes = document.querySelectorAll(".stat-box");
+            if (statBoxes[0]) statBoxes[0].children[1].textContent = teamSize;
+            if (statBoxes[1]) statBoxes[1].children[1].textContent = `KSH ${recharge.toFixed(2)}`;
+            if (statBoxes[2]) statBoxes[2].children[1].textContent = `KSH ${withdrawal.toFixed(2)}`;
+            if (statBoxes[3]) statBoxes[3].children[1].textContent = newTeam;
+            if (statBoxes[4]) statBoxes[4].children[1].textContent = firstRecharge;
+            if (statBoxes[5]) statBoxes[5].children[1].textContent = firstWithdrawal;
           });
-        });
-
-        const teamRef = ref(db, `users/${uid}/teamStats`);
-        onValue(teamRef, snap => {
-          const stats = snap.val() || {};
-          const values = {
-            teamSize: stats.teamSize || 0,
-            recharge: stats.recharge || 0,
-            withdrawal: stats.withdrawal || 0,
-            newTeam: stats.newTeam || 0,
-            firstRecharge: stats.firstRecharge || 0,
-            firstWithdrawal: stats.firstWithdrawal || 0
-          };
-
-          const statBoxes = document.querySelectorAll(".stat-box");
-          if (statBoxes[1]) statBoxes[1].children[1].textContent = `KSH ${Number(values.recharge).toFixed(2)}`;
-          if (statBoxes[2]) statBoxes[2].children[1].textContent = `KSH ${Number(values.withdrawal).toFixed(2)}`;
-          if (statBoxes[3]) statBoxes[3].children[1].textContent = values.newTeam;
-          if (statBoxes[4]) statBoxes[4].children[1].textContent = values.firstRecharge;
-          if (statBoxes[5]) statBoxes[5].children[1].textContent = values.firstWithdrawal;
-
-          const incomeLevels = [stats.lev1 || 0, stats.lev2 || 0, stats.lev3 || 0];
-          document.querySelectorAll(".level-box").forEach((box, idx) => {
-            const targetSpan = box.querySelector(".level-info:last-child span:last-child");
-            if (targetSpan) targetSpan.textContent = `KSH ${Number(incomeLevels[idx]).toFixed(2)}`;
-          });
-        });
-      });
-    });
-  </script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const buttons = document.querySelectorAll('.details-btn');
-      buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const teamSize = document.querySelectorAll('.stat-box')[0].children[1].textContent || "0";
-          const popup = document.createElement("div");
-          popup.className = "popup";
-          popup.textContent = `You have ${teamSize} referral${Number(teamSize) !== 1 ? "s" : ""}`;
-          document.body.appendChild(popup);
-          setTimeout(() => popup.remove(), 3000);
         });
       });
     });
