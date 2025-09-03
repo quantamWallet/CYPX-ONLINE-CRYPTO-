@@ -48,20 +48,35 @@
     .popup {
       position: fixed;
       top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
+      transform: translate(-50%,-50%) scale(0.7);
+      opacity: 0;
       background: #0e3a6f;
       color: white;
-      padding: 20px 24px;
-      border-radius: 14px;
-      box-shadow: var(--shadow);
+      padding: 24px 28px;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
       display: none;
       text-align: center;
-      max-width: 90%;
+      max-width: 85%;
       z-index: 999;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      animation: popIn 0.5s ease forwards;
     }
-    .popup.error { background:#3a1111; color:#ffd7d7; }
-    .popup.success { background:#0d4220; color:#d6ffd6; }
+    .popup.success {
+      background:#0d4220;
+      color:#d6ffd6;
+      box-shadow: 0 0 20px 5px rgba(46, 204, 113, 0.7);
+    }
+    .popup.error {
+      background:#3a1111;
+      color:#ffd7d7;
+      box-shadow: 0 0 20px 5px rgba(220, 53, 69, 0.7);
+    }
+    @keyframes popIn {
+      from { transform: translate(-50%,-50%) scale(0.7); opacity: 0; }
+      to { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -115,18 +130,24 @@
   const db = firebase.database();
 
   const popup = document.getElementById('popup');
-  function showPopup(msg, type='success') {
+  function showPopup(msg, type='success', redirect=null) {
     popup.textContent = msg;
     popup.className = 'popup ' + type;
     popup.style.display = 'block';
-    setTimeout(()=>popup.style.display='none',3000);
+    popup.style.animation = 'popIn 0.5s ease forwards';
+    setTimeout(()=>{
+      popup.style.display = 'none';
+      if(redirect){
+        window.location.href = redirect;
+      }
+    },2500);
   }
 
   const form = document.getElementById('withdrawForm');
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const user = auth.currentUser;
-    if(!user) return showPopup('Login required','error');
+    if(!user) return showPopup('Login required','error','login.html');
 
     const amount = parseInt(document.getElementById('amount').value);
 
@@ -153,9 +174,7 @@
     }
 
     if(qualified < 2){
-      showPopup('You must at least have two referrals who has deposited 3,000 KSH','error');
-      setTimeout(()=>window.location.href='select.html',2000);
-      return;
+      return showPopup('You need at least 2 referrals who deposited ≥3,000 KSH','error','select.html');
     }
 
     // Save withdrawal request
@@ -170,9 +189,9 @@
     // Deduct balance
     await db.ref(`users/${user.uid}/balance`).set(balance - amount);
 
-    showPopup('Withdrawal request submitted!','success');
+    showPopup('Withdrawal request submitted!','success','dashboard.html');
     form.reset();
   });
   </script>
 </body>
-</html>
+  </html>
