@@ -125,41 +125,29 @@
 
   const listContainer = document.getElementById("record-list");
   const tabs = document.querySelectorAll(".tab");
-  let currentFilter = "all";
-  let allRecords = [];
 
-  function renderRecords() {
+  function renderRecords(records, filter = "all") {
     listContainer.innerHTML = "";
-    let filtered = allRecords.filter(r => currentFilter === "all" || r.type === currentFilter);
-
-    if (filtered.length === 0) {
-      listContainer.innerHTML = '<p class="no-records">No approved ' + (currentFilter==="all" ? "transactions" : currentFilter) + ' yet.</p>';
+    if (records.length === 0) {
+      listContainer.innerHTML = '<p class="no-records">No transactions found.</p>';
       return;
     }
 
-    filtered.sort((a,b)=> b.createdAt - a.createdAt);
+    records.forEach(r => {
+      if (filter !== "all" && filter !== r.type.toLowerCase()) return;
 
-    filtered.forEach(record => {
       const item = document.createElement("div");
       item.className = "record-item";
       item.innerHTML = `
-        <p class="record-type">${record.type.charAt(0).toUpperCase() + record.type.slice(1)}</p>
-        <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
-        <p>Date: ${new Date(record.createdAt).toLocaleString()}</p>
-        <p>Source: ${record.source}</p>
+        <p class="record-type">${r.type}</p>
+        <p>Amount: Ksh ${parseFloat(r.amount).toFixed(2)}</p>
+        <p>Method: ${r.method || "-"}</p>
+        <p>Date: ${new Date(r.createdAt).toLocaleString()}</p>
+        <span class="badge ${r.status.toLowerCase()}">${r.status}</span>
       `;
       listContainer.appendChild(item);
     });
   }
-
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      tabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      currentFilter = tab.dataset.filter;
-      renderRecords();
-    });
-  });
 
   auth.onAuthStateChanged(user => {
     if (!user) {
@@ -167,28 +155,48 @@
       return;
     }
 
-    function load(path, type, source) {
-      db.ref(path).orderByChild("uid").equalTo(user.uid).on("value", snap => {
-        allRecords = allRecords.filter(r => r.path !== path); // clear old
-        snap.forEach(child => {
-          const rec = child.val();
-          if (rec.status === "approved") {
-            allRecords.push({
-              type,
-              amount: rec.amount,
-              createdAt: rec.createdAt,
-              source,
-              path
-            });
-          }
-        });
-        renderRecords();
-      });
-    }
+    let allRecords = [];
 
-    load("mpesaDeposits","deposit","M-Pesa");
-    load("equityDeposits","deposit","Equity Bank");
-    load("withdrawals","withdrawal","System");
+    // Listen to deposits
+    db.ref("deposits").orderByChild("uid").equalTo(user.uid).on("value", snap => {
+      allRecords = allRecords.filter(r => r.type !== "Deposit"); // clear old deposits
+      snap.forEach(child => {
+        const record = child.val();
+        allRecords.push({
+          type: "Deposit",
+          amount: record.amount,
+          method: record.method || "Mpesa",
+          status: record.status,
+          createdAt: record.createdAt
+        });
+      });
+      renderRecords(allRecords, document.querySelector(".tab.active").dataset.filter);
+    });
+
+    // Listen to withdrawals
+    db.ref("withdrawals").orderByChild("uid").equalTo(user.uid).on("value", snap => {
+      allRecords = allRecords.filter(r => r.type !== "Withdrawal"); // clear old withdrawals
+      snap.forEach(child => {
+        const record = child.val();
+        allRecords.push({
+          type: "Withdrawal",
+          amount: record.amount,
+          method: record.method || "-",
+          status: record.status,
+          createdAt: record.createdAt
+        });
+      });
+      renderRecords(allRecords, document.querySelector(".tab.active").dataset.filter);
+    });
+
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelector(".tab.active").classList.remove("active");
+        tab.classList.add("active");
+        renderRecords(allRecords, tab.dataset.filter);
+      });
+    });
   });
   </script>
 </body>
