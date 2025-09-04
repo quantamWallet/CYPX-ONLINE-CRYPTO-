@@ -51,16 +51,6 @@
     }
     .record-item p { margin: 5px 0; font-size: 15px; }
     .record-type { font-weight: bold; color: #ffcc00; }
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: bold;
-    }
-    .approved { background: #0a3; color: #fff; }
-    .pending { background: #cc0; color: #000; }
-    .rejected { background: #c00; color: #fff; }
     .no-records {
       text-align: center;
       font-size: 16px;
@@ -134,6 +124,42 @@
   const db = firebase.database();
 
   const listContainer = document.getElementById("record-list");
+  const tabs = document.querySelectorAll(".tab");
+  let currentFilter = "all";
+  let allRecords = [];
+
+  function renderRecords() {
+    listContainer.innerHTML = "";
+    let filtered = allRecords.filter(r => currentFilter === "all" || r.type === currentFilter);
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = '<p class="no-records">No approved ' + (currentFilter==="all" ? "transactions" : currentFilter) + ' yet.</p>';
+      return;
+    }
+
+    filtered.sort((a,b)=> b.createdAt - a.createdAt);
+
+    filtered.forEach(record => {
+      const item = document.createElement("div");
+      item.className = "record-item";
+      item.innerHTML = `
+        <p class="record-type">${record.type.charAt(0).toUpperCase() + record.type.slice(1)}</p>
+        <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
+        <p>Date: ${new Date(record.createdAt).toLocaleString()}</p>
+        <p>Source: ${record.source}</p>
+      `;
+      listContainer.appendChild(item);
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentFilter = tab.dataset.filter;
+      renderRecords();
+    });
+  });
 
   auth.onAuthStateChanged(user => {
     if (!user) {
@@ -141,47 +167,28 @@
       return;
     }
 
-    // Listen to deposits
-    db.ref("deposits").orderByChild("uid").equalTo(user.uid).on("value", snap => {
-      listContainer.innerHTML = "";
-      let hasRecords = false;
-
-      snap.forEach(child => {
-        const record = child.val();
-        if (record.status === "approved") {
-          hasRecords = true;
-          const item = document.createElement("div");
-          item.className = "record-item";
-          item.innerHTML = `
-            <p class="record-type">Deposit</p>
-            <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
-            <p>Date: ${new Date(record.createdAt).toLocaleString()}</p>
-          `;
-          listContainer.appendChild(item);
-        }
+    function load(path, type, source) {
+      db.ref(path).orderByChild("uid").equalTo(user.uid).on("value", snap => {
+        allRecords = allRecords.filter(r => r.path !== path); // clear old
+        snap.forEach(child => {
+          const rec = child.val();
+          if (rec.status === "approved") {
+            allRecords.push({
+              type,
+              amount: rec.amount,
+              createdAt: rec.createdAt,
+              source,
+              path
+            });
+          }
+        });
+        renderRecords();
       });
+    }
 
-      if (!hasRecords) {
-        listContainer.innerHTML = '<p class="no-records">No approved deposits yet.</p>';
-      }
-    });
-
-    // Listen to withdrawals
-    db.ref("withdrawals").orderByChild("uid").equalTo(user.uid).on("value", snap => {
-      snap.forEach(child => {
-        const record = child.val();
-        if (record.status === "approved") {
-          const item = document.createElement("div");
-          item.className = "record-item";
-          item.innerHTML = `
-            <p class="record-type">Withdrawal</p>
-            <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
-            <p>Date: ${new Date(record.createdAt).toLocaleString()}</p>
-          `;
-          listContainer.appendChild(item);
-        }
-      });
-    });
+    load("mpesaDeposits","deposit","M-Pesa");
+    load("equityDeposits","deposit","Equity Bank");
+    load("withdrawals","withdrawal","System");
   });
   </script>
 </body>
