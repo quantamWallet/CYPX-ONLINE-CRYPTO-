@@ -52,15 +52,12 @@
       font-size: 12px;
       display: inline-block;
       margin-top: 4px;
-      transition: all 0.3s ease;
+      transition: all 0.3s ease-in-out;
     }
-    .vip.glow {
-      animation: glow 1.5s ease-out;
-    }
-    @keyframes glow {
-      0%   { box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00; }
-      50%  { box-shadow: 0 0 15px #ffcc00, 0 0 25px #ffcc00; }
-      100% { box-shadow: none; }
+    /* Glow effect when VIP changes */
+    .profile-info .vip.glow {
+      box-shadow: 0 0 15px #ffcc00;
+      transform: scale(1.1);
     }
     .profile-icon {
       width: 60px;
@@ -187,8 +184,9 @@
       const userId = user.uid;
       const userRef = db.ref("users/" + userId);
 
-      let lastVip = "vip0";
+      let lastVip = "vip0"; // track last vip
 
+      // ✅ Real-time listener
       userRef.on("value", (snapshot) => {
         const data = snapshot.val() || {};
         document.getElementById("total-balance").textContent =
@@ -196,17 +194,14 @@
         document.getElementById("recharge-amount").textContent =
           parseFloat(data.recharge || 0).toFixed(2);
 
-        const vipElement = document.getElementById("user-vip");
+        // VIP level auto update
+        const vipEl = document.getElementById("user-vip");
         const newVip = data.vipLevel || "vip0";
-
-        // ✅ Add glow animation when VIP changes
         if (newVip !== lastVip) {
-          vipElement.textContent = newVip.toUpperCase();
-          vipElement.classList.add("glow");
-          setTimeout(() => vipElement.classList.remove("glow"), 1500);
+          vipEl.textContent = newVip;
+          vipEl.classList.add("glow");
+          setTimeout(() => vipEl.classList.remove("glow"), 1000);
           lastVip = newVip;
-        } else {
-          vipElement.textContent = newVip.toUpperCase();
         }
       });
     } else {
