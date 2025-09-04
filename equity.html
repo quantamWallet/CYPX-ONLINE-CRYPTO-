@@ -183,39 +183,39 @@
   const form = document.getElementById('depositForm');
 
   form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const user = auth.currentUser;
-    if(!user) return showPopup('Login required','error');
+  e.preventDefault();
+  const user = auth.currentUser;
+  if(!user) return showPopup('Login required','error');
 
-    const amount = parseInt(document.getElementById('amount').value);
-    const phone = document.getElementById('phone').value.trim();
-    const code = document.getElementById('code').value.trim().toUpperCase();
-    const file = document.getElementById('receipt').files[0];
+  const amount = parseInt(document.getElementById('amount').value);
+  const phone = document.getElementById('phone').value.trim();
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const file = document.getElementById('receipt').files[0];
 
-    if(amount < 3000) return showPopup('Minimum deposit is 3,000 KES','error');
+  if(amount < 3000) return showPopup('Minimum deposit is 3,000 KES','error');
 
-    // ✅ Push to equityDeposits
-    const ref = db.ref('equityDeposits').push();
-    const data = {
-      uid: user.uid,
-      amount,
-      phone,
-      transactionId: code,
-      method: "Equity Bank",
-      status: "Pending",
-      timestamp: Date.now()
-    };
+  // ✅ Save to the SAME deposits node
+  const ref = db.ref('deposits').push();
+  const data = {
+    uid: user.uid,
+    amount,
+    phone,
+    transactionId: code,
+    method: "Equity Bank",   // mark source
+    status: "Pending",
+    createdAt: Date.now()
+  };
 
-    if(file){
-      const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
-      const snap = await storage.ref(path).put(file);
-      data.receiptUrl = await snap.ref.getDownloadURL();
-    }
+  if(file){
+    const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
+    const snap = await storage.ref(path).put(file);
+    data.receiptUrl = await snap.ref.getDownloadURL();
+  }
 
-    await ref.set(data);
-    showPopup('Equity Bank deposit submitted!');
-    form.reset();
-  });
+  await ref.set(data);
+  showPopup('Equity Bank deposit submitted!');
+  form.reset();
+});
   </script>
 </body>
           </html>
