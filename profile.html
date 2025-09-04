@@ -158,42 +158,47 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        document.getElementById("user-email").textContent = user.email;
-        const userId = user.uid;
-        const userRef = db.ref("users/" + userId);
-        userRef.once("value").then(snapshot => {
-          const data = snapshot.val() || {};
-          document.getElementById("total-balance").textContent = parseFloat(data.balance || 0).toFixed(2);
-          document.getElementById("recharge-amount").textContent = parseFloat(data.recharge || 0).toFixed(2);
-          document.getElementById("user-vip").textContent = data.vipLevel || "vip0";
-        });
-      } else {
-        window.location.href = "signin.html";
-      }
-    });
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      document.getElementById("user-email").textContent = user.email;
+      const userId = user.uid;
+      const userRef = db.ref("users/" + userId);
 
-    function logout() {
-      auth.signOut().then(() => {
-        localStorage.clear();
-        window.location.href = "signin.html";
+      // ✅ Real-time listener for changes
+      userRef.on("value", (snapshot) => {
+        const data = snapshot.val() || {};
+        document.getElementById("total-balance").textContent =
+          parseFloat(data.balance || 0).toFixed(2);
+        document.getElementById("recharge-amount").textContent =
+          parseFloat(data.recharge || 0).toFixed(2);
+        document.getElementById("user-vip").textContent =
+          data.vipLevel || "vip0";
       });
+    } else {
+      window.location.href = "signin.html";
     }
+  });
+
+  function logout() {
+    auth.signOut().then(() => {
+      localStorage.clear();
+      window.location.href = "signin.html";
+    });
+  }
   </script>
 </body>
 </html>
