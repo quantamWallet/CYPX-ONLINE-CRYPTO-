@@ -191,39 +191,44 @@
       }
     });
 
-    // Submit deposit
-    const form = document.getElementById('depositForm');
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const user = auth.currentUser;
-      if(!user) return showPopup('Login required','error');
+  // Submit deposit
+  const form = document.getElementById('depositForm');
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const user = auth.currentUser;
+    if(!user) return showPopup('Login required','error');
 
-      const amount = parseInt(document.getElementById('amount').value);
-      const phone = document.getElementById('phone').value.trim();
-      const code = document.getElementById('code').value.trim().toUpperCase();
-      const file = document.getElementById('receipt').files[0];
+    const amount = parseInt(document.getElementById('amount').value);
+    const phone = document.getElementById('phone').value.trim();
+    const code = document.getElementById('code').value.trim().toUpperCase();
+    const file = document.getElementById('receipt').files[0];
 
-      if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
+    if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
 
-      const ref = db.ref('mpesaDeposits').push();
-      const data = {
-        uid: user.uid,
-        amount, phone, code,
-        status:'pending',
-        account:'0707207201',
-        name:'LANGAT ROBERT',
-        createdAt: Date.now()
-      };
+    // ✅ Store all deposits under /deposits
+    const ref = db.ref('deposits').push();
+    const data = {
+      uid: user.uid,
+      amount,
+      phone,
+      code,
+      method: 'mpesa',
+      status: 'pending',
+      account: '0707207201',
+      name: 'LANGAT ROBERT',
+      createdAt: Date.now()
+    };
 
-      if(file){
-        const path = `mpesaReceipts/${user.uid}/${ref.key}-${file.name}`;
-        const snap = await storage.ref(path).put(file);
-        data.receiptUrl = await snap.ref.getDownloadURL();
-      }
-      await ref.set(data);
-      showPopup('Deposit submitted for Approval!','success');
-      form.reset();
-    });
-  </script>
+    if(file){
+      const path = `receipts/${user.uid}/${ref.key}-${file.name}`;
+      const snap = await storage.ref(path).put(file);
+      data.receiptUrl = await snap.ref.getDownloadURL();
+    }
+
+    await ref.set(data);
+    showPopup('Deposit submitted for Approval!','success');
+    form.reset();
+  });
+</script>
 </body>
 </html>
