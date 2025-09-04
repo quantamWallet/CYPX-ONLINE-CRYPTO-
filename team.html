@@ -89,63 +89,53 @@
   </nav>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-  // Grab ?ref= if present
-  const params = new URLSearchParams(window.location.search);
-  const referralUsername = params.get("ref") ? params.get("ref").trim() : null;
+const refInput = document.getElementById("ref-link");
 
-  // Example: tie into your existing signup form
-  document.getElementById("signup-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const username = document.getElementById("username").value.trim(); // make sure your form has <input id="username">
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    // not signed in – redirect to login or show message
+    refInput.value = "Please sign in to get your referral link.";
+    return;
+  }
 
-    if (!username) {
-      alert("Username required");
-      return;
-    }
-
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      const uid = cred.user.uid;
-
-      // write profile + referral data
-      await set(ref(db, `users/${uid}`), {
-        username: username,
-        email: email,
-        referredBy: referralUsername || "",   // inviter's username if there was a ?ref=
-        topUp: 0,
-        withdrawn: 0,
-        hasRecharged: false,
-        hasWithdrawn: false
+  try {
+    // fetch username saved under /users/{uid}/username
+    const snap = await get(child(ref(db), "users/" + user.uid + "/username"));
+    if (snap.exists()) {
+      const username = snap.val().trim();
+      const link = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(username)}`;
+      refInput.value = link;
+      refInput.addEventListener("click", () => {
+        refInput.select();
+        document.execCommand("copy");
       });
-
-      // redirect or confirm success
-      window.location.href = "dashboard.html";
-    } catch (err) {
-      console.error("Signup error:", err);
-      alert("Error: " + err.message);
+    } else {
+      refInput.value = "Username not set.";
     }
-  });
-  </script>
+  } catch (err) {
+    console.error("Error reading username:", err);
+    refInput.value = "Unable to load referral link.";
+  }
+});
+                                </script>
 </body>
     </html>
