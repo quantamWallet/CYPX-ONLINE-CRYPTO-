@@ -116,118 +116,73 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
+  // Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+  if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+  }
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-    const listContainer = document.getElementById("record-list");
-    const tabs = document.querySelectorAll(".tab");
-    let allRecords = [];
-    let currentFilter = "all";
+  const listContainer = document.getElementById("record-list");
 
-    // Switch tabs
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-        currentFilter = tab.dataset.filter;
-        render(allRecords);
-      });
-    });
-
-    function render(records) {
-      listContainer.innerHTML = "";
-      let filtered = records;
-
-      if (currentFilter === "deposit") {
-        filtered = records.filter(r => r.type.startsWith("Deposit"));
-      } else if (currentFilter === "withdrawal") {
-        filtered = records.filter(r => r.type.startsWith("Withdrawal"));
-      }
-
-      if (filtered.length === 0) {
-        listContainer.innerHTML = '<p class="no-records">No approved transactions yet.</p>';
-        return;
-      }
-
-      filtered.sort((a, b) => b.timestamp - a.timestamp);
-
-      filtered.forEach(record => {
-        const badgeClass = record.status.toLowerCase() === "approved" ? "approved"
-          : record.status.toLowerCase() === "pending" ? "pending" : "rejected";
-
-        const item = document.createElement("div");
-        item.className = "record-item";
-        item.innerHTML = `
-          <p class="record-type">${record.type}</p>
-          <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
-          <p>Status: <span class="badge ${badgeClass}">${record.status}</span></p>
-          <p>Date: ${new Date(record.timestamp).toLocaleString()}</p>
-        `;
-        listContainer.appendChild(item);
-      });
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      listContainer.innerHTML = '<p class="no-records">Login required to see your transactions.</p>';
+      return;
     }
 
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        listContainer.innerHTML = '<p class="no-records">Please log in to view your transactions.</p>';
-        return;
+    // Listen to deposits
+    db.ref("deposits").orderByChild("uid").equalTo(user.uid).on("value", snap => {
+      listContainer.innerHTML = "";
+      let hasRecords = false;
+
+      snap.forEach(child => {
+        const record = child.val();
+        if (record.status === "approved") {
+          hasRecords = true;
+          const item = document.createElement("div");
+          item.className = "record-item";
+          item.innerHTML = `
+            <p class="record-type">Deposit</p>
+            <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
+            <p>Date: ${new Date(record.createdAt).toLocaleString()}</p>
+          `;
+          listContainer.appendChild(item);
+        }
+      });
+
+      if (!hasRecords) {
+        listContainer.innerHTML = '<p class="no-records">No approved deposits yet.</p>';
       }
-
-      const depositsRef = db.ref("deposits").orderByChild("uid").equalTo(user.uid);
-      const withdrawalsRef = db.ref("withdrawals/" + user.uid);
-
-      function fetchTransactions() {
-        allRecords = [];
-
-        // Deposits
-        depositsRef.on("value", snapshot => {
-          allRecords = allRecords.filter(r => !r.type.startsWith("Deposit")); // reset deposits
-          snapshot.forEach(child => {
-            const val = child.val();
-            if (val.status && val.status.toLowerCase() === "approved") {
-              allRecords.push({
-                type: "Deposit (" + val.method + ")",
-                amount: val.amount,
-                status: val.status,
-                timestamp: val.createdAt || val.timestamp || Date.now()
-              });
-            }
-          });
-          render(allRecords);
-        });
-
-        // Withdrawals
-        withdrawalsRef.on("value", snapshot => {
-          allRecords = allRecords.filter(r => !r.type.startsWith("Withdrawal")); // reset withdrawals
-          snapshot.forEach(child => {
-            const val = child.val();
-            if (val.status && val.status.toLowerCase() === "approved") {
-              allRecords.push({
-                type: "Withdrawal (" + val.method + ")",
-                amount: val.amount,
-                status: val.status,
-                timestamp: val.timestamp || Date.now()
-              });
-            }
-          });
-          render(allRecords);
-        });
-      }
-
-      fetchTransactions();
     });
+
+    // Listen to withdrawals
+    db.ref("withdrawals").orderByChild("uid").equalTo(user.uid).on("value", snap => {
+      snap.forEach(child => {
+        const record = child.val();
+        if (record.status === "approved") {
+          const item = document.createElement("div");
+          item.className = "record-item";
+          item.innerHTML = `
+            <p class="record-type">Withdrawal</p>
+            <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
+            <p>Date: ${new Date(record.createdAt).toLocaleString()}</p>
+          `;
+          listContainer.appendChild(item);
+        }
+      });
+    });
+  });
   </script>
 </body>
 </html>
