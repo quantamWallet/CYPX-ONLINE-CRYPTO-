@@ -52,6 +52,15 @@
       font-size: 12px;
       display: inline-block;
       margin-top: 4px;
+      transition: all 0.3s ease;
+    }
+    .vip.glow {
+      animation: glow 1.5s ease-out;
+    }
+    @keyframes glow {
+      0%   { box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00; }
+      50%  { box-shadow: 0 0 15px #ffcc00, 0 0 25px #ffcc00; }
+      100% { box-shadow: none; }
     }
     .profile-icon {
       width: 60px;
@@ -142,7 +151,7 @@
     <a href="withdraw.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i>Withdraw</a>
     <a href="financial.html" class="menu-item"><i class="fas fa-file-invoice-dollar"></i>Financial records</a>
     <a href="password.html" class="menu-item"><i class="fas fa-key"></i>Change Password</a>
-    <a href="company.html" class="menu-item"><i class="fas fa-building"></i>Company</a> <!-- ✅ Company button -->
+    <a href="company.html" class="menu-item"><i class="fas fa-building"></i>Company</a>
     <a href="#" class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
   </div>  
 
@@ -178,15 +187,27 @@
       const userId = user.uid;
       const userRef = db.ref("users/" + userId);
 
-      // ✅ Real-time listener for changes
+      let lastVip = "vip0";
+
       userRef.on("value", (snapshot) => {
         const data = snapshot.val() || {};
         document.getElementById("total-balance").textContent =
           parseFloat(data.balance || 0).toFixed(2);
         document.getElementById("recharge-amount").textContent =
           parseFloat(data.recharge || 0).toFixed(2);
-        document.getElementById("user-vip").textContent =
-          data.vipLevel || "vip0";
+
+        const vipElement = document.getElementById("user-vip");
+        const newVip = data.vipLevel || "vip0";
+
+        // ✅ Add glow animation when VIP changes
+        if (newVip !== lastVip) {
+          vipElement.textContent = newVip.toUpperCase();
+          vipElement.classList.add("glow");
+          setTimeout(() => vipElement.classList.remove("glow"), 1500);
+          lastVip = newVip;
+        } else {
+          vipElement.textContent = newVip.toUpperCase();
+        }
       });
     } else {
       window.location.href = "signin.html";
