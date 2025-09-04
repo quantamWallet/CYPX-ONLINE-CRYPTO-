@@ -24,9 +24,7 @@
       justify-content: center;
       gap: 10px;
     }
-    header img {
-      height: 28px;
-    }
+    header img { height: 28px; }
     .tabs {
       display: flex;
       justify-content: center;
@@ -44,23 +42,25 @@
       border-bottom: 3px solid #ffcc00;
       color: #ffcc00;
     }
-    .record-list {
-      padding: 20px;
-    }
+    .record-list { padding: 20px; }
     .record-item {
       background-color: #003366;
       margin-bottom: 15px;
       padding: 15px;
       border-radius: 10px;
     }
-    .record-item p {
-      margin: 5px 0;
-      font-size: 15px;
-    }
-    .record-type {
+    .record-item p { margin: 5px 0; font-size: 15px; }
+    .record-type { font-weight: bold; color: #ffcc00; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 13px;
       font-weight: bold;
-      color: #ffcc00;
     }
+    .approved { background: #0a3; color: #fff; }
+    .pending { background: #cc0; color: #000; }
+    .rejected { background: #c00; color: #fff; }
     .no-records {
       text-align: center;
       font-size: 16px;
@@ -82,9 +82,7 @@
       text-align: center;
       text-decoration: none;
     }
-    nav i {
-      font-size: 20px;
-    }
+    nav i { font-size: 20px; }
   </style>
 </head>
 <body>
@@ -159,19 +157,22 @@
       }
 
       if (filtered.length === 0) {
-        listContainer.innerHTML = '<p class="no-records">No transactions yet.</p>';
+        listContainer.innerHTML = '<p class="no-records">No approved transactions yet.</p>';
         return;
       }
 
       filtered.sort((a, b) => b.timestamp - a.timestamp);
 
       filtered.forEach(record => {
+        const badgeClass = record.status.toLowerCase() === "approved" ? "approved"
+          : record.status.toLowerCase() === "pending" ? "pending" : "rejected";
+
         const item = document.createElement("div");
         item.className = "record-item";
         item.innerHTML = `
           <p class="record-type">${record.type}</p>
           <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
-          <p>Status: ${record.status}</p>
+          <p>Status: <span class="badge ${badgeClass}">${record.status}</span></p>
           <p>Date: ${new Date(record.timestamp).toLocaleString()}</p>
         `;
         listContainer.appendChild(item);
@@ -188,30 +189,40 @@
       const withdrawalsRef = db.ref("withdrawals/" + user.uid);
 
       function fetchTransactions() {
+        allRecords = [];
+
+        // Deposits
         depositsRef.on("value", snapshot => {
-          allRecords = [];
+          allRecords = allRecords.filter(r => !r.type.startsWith("Deposit")); // reset deposits
           snapshot.forEach(child => {
             const val = child.val();
-            allRecords.push({
-              type: "Deposit (" + val.method + ")",
-              amount: val.amount,
-              status: val.status,
-              timestamp: val.createdAt || val.timestamp || Date.now()
-            });
+            if (val.status && val.status.toLowerCase() === "approved") {
+              allRecords.push({
+                type: "Deposit (" + val.method + ")",
+                amount: val.amount,
+                status: val.status,
+                timestamp: val.createdAt || val.timestamp || Date.now()
+              });
+            }
           });
+          render(allRecords);
+        });
 
-          withdrawalsRef.on("value", snapshot => {
-            snapshot.forEach(child => {
-              const val = child.val();
+        // Withdrawals
+        withdrawalsRef.on("value", snapshot => {
+          allRecords = allRecords.filter(r => !r.type.startsWith("Withdrawal")); // reset withdrawals
+          snapshot.forEach(child => {
+            const val = child.val();
+            if (val.status && val.status.toLowerCase() === "approved") {
               allRecords.push({
                 type: "Withdrawal (" + val.method + ")",
                 amount: val.amount,
                 status: val.status,
                 timestamp: val.timestamp || Date.now()
               });
-            });
-            render(allRecords);
+            }
           });
+          render(allRecords);
         });
       }
 
