@@ -125,37 +125,39 @@
     });
 
     // Submit deposit
-    const form = document.getElementById('depositForm');
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const user = auth.currentUser;
-      if(!user) return showToast('Login required','error');
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const user = auth.currentUser;
+  if(!user) return showToast('Login required','error');
 
-      const amount = parseInt(document.getElementById('amount').value);
-      const phone = document.getElementById('phone').value.trim();
-      const code = document.getElementById('code').value.trim().toUpperCase();
-      const file = document.getElementById('receipt').files[0];
+  const amount = parseInt(document.getElementById('amount').value);
+  const phone = document.getElementById('phone').value.trim();
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const file = document.getElementById('receipt').files[0];
 
-      if(amount<3000) return showToast('Minimum deposit is 3,000 KES','error');
+  if(amount < 3000) return showToast('Minimum deposit is 3,000 KES','error');
 
-      const ref = db.ref('equityDeposits').push();
-      const data = {
-        uid: user.uid,
-        amount, phone, code,
-        status:'pending',
-        account:'1220184577990',
-        createdAt: Date.now()
-      };
+  const ref = db.ref(`Deposits/${user.uid}`).push();
+  const data = {
+    uid: user.uid,
+    amount,
+    phone,
+    transactionId: code,
+    method: "Equity Bank",
+    status: "Pending",
+    timestamp: Date.now()
+  };
 
-      if(file){
-        const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
-        const snap = await storage.ref(path).put(file);
-        data.receiptUrl = await snap.ref.getDownloadURL();
-      }
-      await ref.set(data);
-      showToast('Deposit submitted!');
-      form.reset();
-    });
+  if(file){
+    const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
+    const snap = await storage.ref(path).put(file);
+    data.receiptUrl = await snap.ref.getDownloadURL();
+  }
+
+  await ref.set(data);
+  showToast('Equity Bank deposit submitted!');
+  form.reset();
+});
   </script>
 </body>
   </html>
