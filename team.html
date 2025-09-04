@@ -1,37 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CYPX ONLINE CRYPTO - Team</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* --- original CSS preserved --- */
-    body{margin:0;font-family:Arial,sans-serif;background-color:#001f3f;color:white;}
-    header{background-color:#002f6c;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
-    header img{height:20px;vertical-align:middle;margin-right:8px;}
-    .referral{background-color:#003366;padding:15px;text-align:center;}
-    .referral input{width:100%;padding:10px;border:none;border-radius:6px;margin-top:10px;background-color:#f4f4f4;color:#333;cursor:pointer;}
-    .stats{display:flex;flex-wrap:wrap;padding:15px;gap:10px;justify-content:space-between;}
-    .stat-box{flex:1;min-width:30%;background-color:#004080;border-radius:10px;padding:10px;text-align:center;color:#ffcc00;}
-    .selection-period{text-align:center;margin:10px 0;font-size:14px;}
-    .team-section-title{background-color:#002b5c;padding:10px;font-weight:bold;text-align:center;margin-top:10px;border-top:1px solid #003;border-bottom:1px solid #003;}
-    .level-box{background-color:#003366;margin:10px 15px;padding:15px;border-radius:10px;}
-    .level-total{font-weight:bold;color:#ffcc00;margin-bottom:10px;}
-    .level-referrals div{background-color:#004080;margin:5px 0;padding:8px;border-radius:6px;font-size:14px;}
-    .team-levels{padding-bottom:80px;}
-    nav{position:fixed;bottom:0;left:0;right:0;background-color:#002244;display:flex;justify-content:space-around;padding:10px 0;}
-    nav a{color:white;text-align:center;text-decoration:none;font-size:14px;}
-    nav i{font-size:20px;}
-    .popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:green;color:white;padding:20px;border-radius:10px;font-weight:bold;z-index:9999;box-shadow:0 0 10px rgba(0,0,0,0.4);}
-    .explanation{margin:20px 15px 50px 15px;background-color:#002b5c;padding:15px;border-radius:10px;line-height:1.5;font-size:14px;}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYPX ONLINE CRYPTO - Team</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* --- original CSS preserved --- */
+  body{margin:0;font-family:Arial,sans-serif;background-color:#001f3f;color:white;}
+  header{background-color:#002f6c;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
+  header img{height:20px;vertical-align:middle;margin-right:8px;}
+  .referral{background-color:#003366;padding:15px;text-align:center;}
+  .referral input{width:100%;padding:10px;border:none;border-radius:6px;margin-top:10px;background-color:#f4f4f4;color:#333;cursor:pointer;}
+  .stats{display:flex;flex-wrap:wrap;padding:15px;gap:10px;justify-content:space-between;}
+  .stat-box{flex:1;min-width:30%;background-color:#004080;border-radius:10px;padding:10px;text-align:center;color:#ffcc00;}
+  .selection-period{text-align:center;margin:10px 0;font-size:14px;}
+  .team-section-title{background-color:#002b5c;padding:10px;font-weight:bold;text-align:center;margin-top:10px;border-top:1px solid #003;border-bottom:1px solid #003;}
+  .level-box{background-color:#003366;margin:10px 15px;padding:15px;border-radius:10px;}
+  .level-total{font-weight:bold;color:#ffcc00;margin-bottom:10px;}
+  .level-referrals div{background-color:#004080;margin:5px 0;padding:8px;border-radius:6px;font-size:14px;}
+  .team-levels{padding-bottom:80px;}
+  nav{position:fixed;bottom:0;left:0;right:0;background-color:#002244;display:flex;justify-content:space-around;padding:10px 0;}
+  nav a{color:white;text-align:center;text-decoration:none;font-size:14px;}
+  nav i{font-size:20px;}
+  .popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:green;color:white;padding:20px;border-radius:10px;font-weight:bold;z-index:9999;box-shadow:0 0 10px rgba(0,0,0,0.4);}
+  .explanation{margin:20px 15px 50px 15px;background-color:#002b5c;padding:15px;border-radius:10px;line-height:1.5;font-size:14px;}
+
+  /* --- added color overrides (safe, no logic changes) --- */
+  #lev1 .level-referrals div {background:#165d2f; color:#fff;}
+  #lev2 .level-referrals div {background:#1c3c66; color:#fff;}
+  #lev3 .level-referrals div {background:#663c1c; color:#fff;}
+  /* optional brighter totals */
+  #lev1 .level-total {color:#33ff99;}
+  #lev2 .level-total {color:#66ccff;}
+  #lev3 .level-total {color:#ff9966;}
+</style>
 </head>
 <body>
-  <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
-    CYPX ONLINE CRYPTO - Team
-  </header>
+<header>
+  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
+  CYPX ONLINE CRYPTO - Team
+</header>
 
   <div class="referral">
     <div>Your Referral Link:</div>
