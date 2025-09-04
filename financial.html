@@ -11,7 +11,7 @@
       font-family: Arial, sans-serif;
       background-color: #001f3f;
       color: white;
-      padding-bottom: 80px;
+      padding-bottom: 100px;
     }
     header {
       background-color: #002f6c;
@@ -26,6 +26,23 @@
     }
     header img {
       height: 28px;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      background: #002244;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      border-bottom: 3px solid transparent;
+    }
+    .tab.active {
+      border-bottom: 3px solid #ffcc00;
+      color: #ffcc00;
     }
     .record-list {
       padding: 20px;
@@ -76,7 +93,16 @@
     CYPX ONLINE CRYPTO
   </header>
 
-  <div class="record-list" id="record-list"></div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-filter="all">All</div>
+    <div class="tab" data-filter="deposit">Deposits</div>
+    <div class="tab" data-filter="withdrawal">Withdrawals</div>
+  </div>
+
+  <div class="record-list" id="record-list">
+    <p class="no-records">Loading transactions...</p>
+  </div>
 
   <nav>
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
@@ -86,8 +112,10 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <!-- Firebase App SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -101,26 +129,93 @@
       measurementId: "G-4RSQXZJX44"
     };
 
-    window.addEventListener("DOMContentLoaded", () => {
-      firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-      const records = JSON.parse(localStorage.getItem("financialRecords")) || [];
-      const listContainer = document.getElementById("record-list");
+    const listContainer = document.getElementById("record-list");
+    const tabs = document.querySelectorAll(".tab");
+    let allRecords = [];
+    let currentFilter = "all";
 
-      if (records.length === 0) {
-        listContainer.innerHTML = '<p class="no-records">No financial records yet.</p>';
-      } else {
-        records.forEach(record => {
-          const item = document.createElement("div");
-          item.className = "record-item";
-          item.innerHTML = `
-            <p class="record-type">${record.type}</p>
-            <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
-            <p>Date: ${record.date}</p>
-          `;
-          listContainer.appendChild(item);
+    // Switch tabs
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentFilter = tab.dataset.filter;
+        render(allRecords);
+      });
+    });
+
+    function render(records) {
+      listContainer.innerHTML = "";
+      let filtered = records;
+
+      if (currentFilter === "deposit") {
+        filtered = records.filter(r => r.type.startsWith("Deposit"));
+      } else if (currentFilter === "withdrawal") {
+        filtered = records.filter(r => r.type.startsWith("Withdrawal"));
+      }
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = '<p class="no-records">No transactions yet.</p>';
+        return;
+      }
+
+      filtered.sort((a, b) => b.timestamp - a.timestamp);
+
+      filtered.forEach(record => {
+        const item = document.createElement("div");
+        item.className = "record-item";
+        item.innerHTML = `
+          <p class="record-type">${record.type}</p>
+          <p>Amount: Ksh ${parseFloat(record.amount).toFixed(2)}</p>
+          <p>Status: ${record.status}</p>
+          <p>Date: ${new Date(record.timestamp).toLocaleString()}</p>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        listContainer.innerHTML = '<p class="no-records">Please log in to view your transactions.</p>';
+        return;
+      }
+
+      const depositsRef = db.ref("deposits").orderByChild("uid").equalTo(user.uid);
+      const withdrawalsRef = db.ref("withdrawals/" + user.uid);
+
+      function fetchTransactions() {
+        depositsRef.on("value", snapshot => {
+          allRecords = [];
+          snapshot.forEach(child => {
+            const val = child.val();
+            allRecords.push({
+              type: "Deposit (" + val.method + ")",
+              amount: val.amount,
+              status: val.status,
+              timestamp: val.createdAt || val.timestamp || Date.now()
+            });
+          });
+
+          withdrawalsRef.on("value", snapshot => {
+            snapshot.forEach(child => {
+              const val = child.val();
+              allRecords.push({
+                type: "Withdrawal (" + val.method + ")",
+                amount: val.amount,
+                status: val.status,
+                timestamp: val.timestamp || Date.now()
+              });
+            });
+            render(allRecords);
+          });
         });
       }
+
+      fetchTransactions();
     });
   </script>
 </body>
