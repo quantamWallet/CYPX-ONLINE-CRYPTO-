@@ -91,73 +91,75 @@
   <div id="toast" class="toast"></div>
 
   <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    const auth = firebase.auth();
-    const db = firebase.database();
-    const storage = firebase.storage();
-
-    const toast = document.getElementById('toast');
-    function showToast(msg, type='ok') {
-      toast.textContent = msg;
-      toast.className = 'toast ' + (type==='error'?'error':'');
-      toast.style.display = 'block';
-      setTimeout(()=>toast.style.display='none',3000);
-    }
-
-    // Copy account number
-    document.querySelectorAll('.copy').forEach(btn=>{
-      btn.onclick=async()=>{
-        await navigator.clipboard.writeText(btn.dataset.copy);
-        showToast('Copied: '+btn.dataset.copy);
-      }
-    });
-
-    // Submit deposit
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const user = auth.currentUser;
-  if(!user) return showToast('Login required','error');
-
-  const amount = parseInt(document.getElementById('amount').value);
-  const phone = document.getElementById('phone').value.trim();
-  const code = document.getElementById('code').value.trim().toUpperCase();
-  const file = document.getElementById('receipt').files[0];
-
-  if(amount < 3000) return showToast('Minimum deposit is 3,000 KES','error');
-
-  const ref = db.ref(`Deposits/${user.uid}`).push();
-  const data = {
-    uid: user.uid,
-    amount,
-    phone,
-    transactionId: code,
-    method: "Equity Bank",
-    status: "Pending",
-    timestamp: Date.now()
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
   };
+  firebase.initializeApp(firebaseConfig);
 
-  if(file){
-    const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
-    const snap = await storage.ref(path).put(file);
-    data.receiptUrl = await snap.ref.getDownloadURL();
+  const auth = firebase.auth();
+  const db = firebase.database();
+  const storage = firebase.storage();
+
+  const toast = document.getElementById('toast');
+  function showToast(msg, type='ok') {
+    toast.textContent = msg;
+    toast.className = 'toast ' + (type==='error'?'error':'');
+    toast.style.display = 'block';
+    setTimeout(()=>toast.style.display='none',3000);
   }
 
-  await ref.set(data);
-  showToast('Equity Bank deposit submitted!');
-  form.reset();
-});
+  // Copy account number
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.onclick=async()=>{
+      await navigator.clipboard.writeText(btn.dataset.copy);
+      showToast('Copied: '+btn.dataset.copy);
+    }
+  });
+
+  // ✅ Grab form properly
+  const form = document.getElementById('depositForm');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const user = auth.currentUser;
+    if(!user) return showToast('Login required','error');
+
+    const amount = parseInt(document.getElementById('amount').value);
+    const phone = document.getElementById('phone').value.trim();
+    const code = document.getElementById('code').value.trim().toUpperCase();
+    const file = document.getElementById('receipt').files[0];
+
+    if(amount < 3000) return showToast('Minimum deposit is 3,000 KES','error');
+
+    // ✅ Push to equityDeposits, not Deposits/userid
+    const ref = db.ref('equityDeposits').push();
+    const data = {
+      uid: user.uid,
+      amount,
+      phone, // allowed as optional in rules
+      transactionId: code,
+      method: "Equity Bank",
+      status: "Pending",
+      timestamp: Date.now()
+    };
+
+    if(file){
+      const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
+      const snap = await storage.ref(path).put(file);
+      data.receiptUrl = await snap.ref.getDownloadURL();
+    }
+
+    await ref.set(data);
+    showToast('Equity Bank deposit submitted!');
+    form.reset();
+  });
   </script>
 </body>
   </html>
