@@ -91,7 +91,7 @@
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -108,34 +108,55 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-const refInput = document.getElementById("ref-link");
+const refInput     = document.getElementById("ref-link");
+const teamSizeBox  = document.querySelector(".stat-box:nth-child(1) div:last-child");
+const lev1Box      = document.querySelector("#lev1 .level-referrals");
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
   if (!user) {
-    // not signed in – redirect to login or show message
-    refInput.value = "Please sign in to get your referral link.";
+    refInput.value = "Please sign in to view referral info.";
     return;
   }
 
-  try {
-    // fetch username saved under /users/{uid}/username
-    const snap = await get(child(ref(db), "users/" + user.uid + "/username"));
-    if (snap.exists()) {
-      const username = snap.val().trim();
-      const link = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(username)}`;
-      refInput.value = link;
-      refInput.addEventListener("click", () => {
-        refInput.select();
-        document.execCommand("copy");
-      });
-    } else {
+  // listen to your profile first to get your username
+  const meRef = ref(db, "users/" + user.uid);
+  onValue(meRef, (snap) => {
+    const me = snap.val();
+    if (!me || !me.username) {
       refInput.value = "Username not set.";
+      return;
     }
-  } catch (err) {
-    console.error("Error reading username:", err);
-    refInput.value = "Unable to load referral link.";
-  }
+
+    const username = me.username.trim();
+    const link = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(username)}`;
+    refInput.value = link;
+    refInput.onclick = () => { refInput.select(); document.execCommand("copy"); };
+
+    // now watch the whole /users list for anyone whose referredBy == my username
+    const usersRef = ref(db, "users");
+    onValue(usersRef, (allSnap) => {
+      if (!allSnap.exists()) {
+        teamSizeBox.textContent = "0";
+        lev1Box.innerHTML = "";
+        return;
+      }
+
+      let teamCount = 0;
+      let html = "";
+
+      allSnap.forEach((child) => {
+        const u = child.val();
+        if (u.referredBy && u.referredBy.trim() === username) {
+          teamCount++;
+          html += `<div>${u.username || "Anonymous"}</div>`;
+        }
+      });
+
+      teamSizeBox.textContent = teamCount;
+      lev1Box.innerHTML = html || "<div>No referrals yet.</div>";
+    });
+  });
 });
-                                </script>
+  </script>
 </body>
     </html>
