@@ -141,48 +141,48 @@
   </div>
 
   <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
-  firebase.initializeApp(firebaseConfig);
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
 
-  const auth = firebase.auth();
-  const db = firebase.database();
-  const storage = firebase.storage();
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
 
-  // Popup system
-  const popupOverlay = document.getElementById('popupOverlay');
-  const popupBox = document.getElementById('popupBox');
-  const popupMessage = document.getElementById('popupMessage');
+// Popup system
+const popupOverlay = document.getElementById('popupOverlay');
+const popupBox = document.getElementById('popupBox');
+const popupMessage = document.getElementById('popupMessage');
 
-  function showPopup(msg, type='ok') {
-    popupMessage.textContent = msg;
-    popupBox.className = 'popup' + (type === 'error' ? ' error' : '');
-    popupOverlay.style.display = 'flex';
+function showPopup(msg, type='ok') {
+  popupMessage.textContent = msg;
+  popupBox.className = 'popup' + (type === 'error' ? ' error' : '');
+  popupOverlay.style.display = 'flex';
+}
+function closePopup() {
+  popupOverlay.style.display = 'none';
+}
+
+// Copy account number
+document.querySelectorAll('.copy').forEach(btn=>{
+  btn.onclick=async()=>{
+    await navigator.clipboard.writeText(btn.dataset.copy);
+    showPopup('Copied: '+btn.dataset.copy);
   }
-  function closePopup() {
-    popupOverlay.style.display = 'none';
-  }
+});
 
-  // Copy account number
-  document.querySelectorAll('.copy').forEach(btn=>{
-    btn.onclick=async()=>{
-      await navigator.clipboard.writeText(btn.dataset.copy);
-      showPopup('Copied: '+btn.dataset.copy);
-    }
-  });
+// ✅ Grab form
+const form = document.getElementById('depositForm');
 
-  // ✅ Grab form properly
-  const form = document.getElementById('depositForm');
-
-  form.addEventListener('submit', async (e)=>{
+form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const user = auth.currentUser;
   if(!user) return showPopup('Login required','error');
@@ -194,27 +194,32 @@
 
   if(amount < 3000) return showPopup('Minimum deposit is 3,000 KES','error');
 
-  // ✅ Save to the SAME deposits node
-  const ref = db.ref('deposits').push();
-  const data = {
-    uid: user.uid,
-    amount,
-    phone,
-    transactionId: code,
-    method: "Equity Bank",   // mark source
-    status: "Pending",
-    createdAt: Date.now()
-  };
+  try {
+    // ✅ Save to the SAME deposits node
+    const ref = db.ref('deposits').push();
+    const data = {
+      uid: user.uid,
+      amount,
+      phone,
+      transactionId: code,
+      method: "Equity Bank",
+      status: "Pending",
+      createdAt: Date.now()
+    };
 
-  if(file){
-    const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
-    const snap = await storage.ref(path).put(file);
-    data.receiptUrl = await snap.ref.getDownloadURL();
+    if(file){
+      const path = `equityReceipts/${user.uid}/${ref.key}-${file.name}`;
+      const snap = await storage.ref(path).put(file);
+      data.receiptUrl = await snap.ref.getDownloadURL();
+    }
+
+    await ref.set(data);
+    showPopup('Equity Bank deposit submitted!');
+    form.reset();
+  } catch (err) {
+    console.error(err);
+    showPopup('Error: ' + err.message, 'error');
   }
-
-  await ref.set(data);
-  showPopup('Equity Bank deposit submitted!');
-  form.reset();
 });
   </script>
 </body>
