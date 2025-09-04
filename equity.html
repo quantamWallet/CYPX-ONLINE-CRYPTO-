@@ -46,8 +46,52 @@
     nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
     nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
     nav i { display:block; font-size:16px; margin-bottom:2px; }
-    .toast { position:fixed; top:18px; right:18px; background:#072d12; color:#d8ffe6; padding:12px 14px; border-radius:12px; display:none; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-size:13px; }
-    .toast.error { background:#3a1111; color:#ffd7d7; }
+
+    /* Popup overlay */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    /* Popup box */
+    .popup {
+      background: #07284a;
+      color: #fff;
+      padding: 24px;
+      border-radius: 16px;
+      max-width: 300px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(255, 204, 0, 0.8);
+      animation: glow 1.5s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 15px rgba(255, 204, 0, 0.6); }
+      to   { box-shadow: 0 0 30px rgba(255, 204, 0, 1); }
+    }
+    .popup.error {
+      background: #3a1111;
+      box-shadow: 0 0 25px rgba(255, 100, 100, 0.8);
+      animation: glowError 1.5s infinite alternate;
+    }
+    @keyframes glowError {
+      from { box-shadow: 0 0 15px rgba(255, 100, 100, 0.6); }
+      to   { box-shadow: 0 0 30px rgba(255, 50, 50, 1); }
+    }
+    .popup button {
+      margin-top: 12px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #ff6600;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -88,7 +132,13 @@
     <a href="profile.html"><i class="fas fa-user"></i>Me</a>
   </nav>
 
-  <div id="toast" class="toast"></div>
+  <!-- Popup -->
+  <div id="popupOverlay" class="popup-overlay">
+    <div id="popupBox" class="popup">
+      <p id="popupMessage"></p>
+      <button onclick="closePopup()">OK</button>
+    </div>
+  </div>
 
   <script>
   const firebaseConfig = {
@@ -107,19 +157,25 @@
   const db = firebase.database();
   const storage = firebase.storage();
 
-  const toast = document.getElementById('toast');
-  function showToast(msg, type='ok') {
-    toast.textContent = msg;
-    toast.className = 'toast ' + (type==='error'?'error':'');
-    toast.style.display = 'block';
-    setTimeout(()=>toast.style.display='none',3000);
+  // Popup system
+  const popupOverlay = document.getElementById('popupOverlay');
+  const popupBox = document.getElementById('popupBox');
+  const popupMessage = document.getElementById('popupMessage');
+
+  function showPopup(msg, type='ok') {
+    popupMessage.textContent = msg;
+    popupBox.className = 'popup' + (type === 'error' ? ' error' : '');
+    popupOverlay.style.display = 'flex';
+  }
+  function closePopup() {
+    popupOverlay.style.display = 'none';
   }
 
   // Copy account number
   document.querySelectorAll('.copy').forEach(btn=>{
     btn.onclick=async()=>{
       await navigator.clipboard.writeText(btn.dataset.copy);
-      showToast('Copied: '+btn.dataset.copy);
+      showPopup('Copied: '+btn.dataset.copy);
     }
   });
 
@@ -129,21 +185,21 @@
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const user = auth.currentUser;
-    if(!user) return showToast('Login required','error');
+    if(!user) return showPopup('Login required','error');
 
     const amount = parseInt(document.getElementById('amount').value);
     const phone = document.getElementById('phone').value.trim();
     const code = document.getElementById('code').value.trim().toUpperCase();
     const file = document.getElementById('receipt').files[0];
 
-    if(amount < 3000) return showToast('Minimum deposit is 3,000 KES','error');
+    if(amount < 3000) return showPopup('Minimum deposit is 3,000 KES','error');
 
-    // ✅ Push to equityDeposits, not Deposits/userid
+    // ✅ Push to equityDeposits
     const ref = db.ref('equityDeposits').push();
     const data = {
       uid: user.uid,
       amount,
-      phone, // allowed as optional in rules
+      phone,
       transactionId: code,
       method: "Equity Bank",
       status: "Pending",
@@ -157,9 +213,9 @@
     }
 
     await ref.set(data);
-    showToast('Equity Bank deposit submitted!');
+    showPopup('Equity Bank deposit submitted!');
     form.reset();
   });
   </script>
 </body>
-  </html>
+          </html>
