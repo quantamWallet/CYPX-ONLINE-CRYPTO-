@@ -89,117 +89,63 @@
   </nav>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const refInput = document.getElementById('ref-link');
-      let copyListenerAdded = false;
+  // Grab ?ref= if present
+  const params = new URLSearchParams(window.location.search);
+  const referralUsername = params.get("ref") ? params.get("ref").trim() : null;
 
-      async function copyText(text) {
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-          } else {
-            refInput.select();
-            document.execCommand('copy');
-          }
-          const popup = document.createElement('div');
-          popup.className = 'popup';
-          popup.textContent = 'Referral link copied!';
-          document.body.appendChild(popup);
-          setTimeout(() => popup.remove(), 2000);
-        } catch (err) {
-          console.error('Copy failed', err);
-        }
-      }
+  // Example: tie into your existing signup form
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const username = document.getElementById("username").value.trim(); // make sure your form has <input id="username">
 
-      onAuthStateChanged(auth, user => {
-        if (!user) {
-          location.href = "signup.html";
-          return;
-        }
+    if (!username) {
+      alert("Username required");
+      return;
+    }
 
-        const uid = user.uid;
-        const userRef = ref(db, `users/${uid}`);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = cred.user.uid;
 
-        onValue(userRef, snapshot => {
-          const userData = snapshot.val() || {};
-          // referral link built from UID so signup page receives ?ref=uid
-          const base = location.href.substring(0, location.href.lastIndexOf('/'));
-          const shortLink = `${base}/signup.html?ref=${encodeURIComponent(uid)}`;
-          refInput.value = shortLink;
-
-          if (!copyListenerAdded) {
-            refInput.addEventListener('click', () => copyText(shortLink));
-            copyListenerAdded = true;
-          }
-
-          // Level 1: every user whose referredBy == this UID
-          const q = query(ref(db, 'users'), orderByChild('referredBy'), equalTo(uid));
-          onValue(q, snap => {
-            const matches = snap.val() || {};
-
-            const lev1Div = document.getElementById('lev1').querySelector('.level-referrals');
-            const lev2Div = document.getElementById('lev2').querySelector('.level-referrals');
-            const lev3Div = document.getElementById('lev3').querySelector('.level-referrals');
-
-            const lev1Total = document.getElementById('lev1').querySelector('.level-total');
-            const lev2Total = document.getElementById('lev2').querySelector('.level-total');
-            const lev3Total = document.getElementById('lev3').querySelector('.level-total');
-
-            lev1Div.innerHTML = '';
-            lev2Div.innerHTML = '';
-            lev3Div.innerHTML = '';
-
-            let lev1Commission = 0, lev2Commission = 0, lev3Commission = 0;
-            let teamSize = 0, recharge = 0, withdrawal = 0, newTeam = 0, firstRecharge = 0, firstWithdrawal = 0;
-
-            Object.values(matches).forEach(u => {
-              teamSize++;
-              const topUp = Number(u.topUp || 0);
-              const commission = topUp * 0.17;
-              lev1Commission += commission;
-              lev1Div.innerHTML += `<div>${u.username || u.email || 'User'} - KSH ${commission.toFixed(2)}</div>`;
-
-              recharge += topUp;
-              withdrawal += Number(u.withdrawn || 0);
-              newTeam += 1;
-              if (!u.hasRecharged) firstRecharge += 1;
-              if (!u.hasWithdrawn) firstWithdrawal += 1;
-            });
-
-            lev1Total.textContent = `Total: KSH ${lev1Commission.toFixed(2)}`;
-            lev2Total.textContent = `Total: KSH ${lev2Commission.toFixed(2)}`;
-            lev3Total.textContent = `Total: KSH ${lev3Commission.toFixed(2)}`;
-
-            const statBoxes = document.querySelectorAll(".stat-box");
-            if (statBoxes[0]) statBoxes[0].children[1].textContent = teamSize;
-            if (statBoxes[1]) statBoxes[1].children[1].textContent = `KSH ${recharge.toFixed(2)}`;
-            if (statBoxes[2]) statBoxes[2].children[1].textContent = `KSH ${withdrawal.toFixed(2)}`;
-            if (statBoxes[3]) statBoxes[3].children[1].textContent = newTeam;
-            if (statBoxes[4]) statBoxes[4].children[1].textContent = firstRecharge;
-            if (statBoxes[5]) statBoxes[5].children[1].textContent = firstWithdrawal;
-          });
-        });
+      // write profile + referral data
+      await set(ref(db, `users/${uid}`), {
+        username: username,
+        email: email,
+        referredBy: referralUsername || "",   // inviter's username if there was a ?ref=
+        topUp: 0,
+        withdrawn: 0,
+        hasRecharged: false,
+        hasWithdrawn: false
       });
-    });
+
+      // redirect or confirm success
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      console.error("Signup error:", err);
+      alert("Error: " + err.message);
+    }
+  });
   </script>
 </body>
     </html>
