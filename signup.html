@@ -31,12 +31,8 @@ body::before { content:""; position:absolute; inset:0; background-image:url("htt
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  fetchSignInMethodsForEmail 
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -52,7 +48,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// show small popup
 function showToast(message, success=false) {
   const toast = document.createElement("div");
   toast.className = "toast";
@@ -62,11 +57,11 @@ function showToast(message, success=false) {
   setTimeout(() => toast.remove(), 4000);
 }
 
-// capture ?ref=UID
+// ?ref=username (not UID)
 const urlParams = new URLSearchParams(window.location.search);
-const referrerUid = urlParams.get("ref") || null;
+const refUsername = urlParams.get("ref") || null;
 
-// live email uniqueness check
+// quick live email check
 const emailInput = document.getElementById("email");
 emailInput.addEventListener("blur", async () => {
   const email = emailInput.value.trim();
@@ -74,12 +69,9 @@ emailInput.addEventListener("blur", async () => {
   try {
     const methods = await fetchSignInMethodsForEmail(auth, email);
     if (methods.length > 0) showToast("Email is already registered.");
-  } catch (err) {
-    console.error("Email check error:", err);
-  }
+  } catch (err) { console.error(err); }
 });
 
-// form submit
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const email = emailInput.value.trim();
@@ -93,37 +85,40 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   }
 
   try {
+    // avoid duplicate email
     const methods = await fetchSignInMethodsForEmail(auth, email);
-    if (methods.length > 0) {
-      showToast("Email is already registered.");
-      return;
-    }
+    if (methods.length > 0) { showToast("Email is already registered."); return; }
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    // write profile with optional referrer
-    await set(ref(db, "users/" + userCredential.user.uid), {
-      username,
-      email,
-      phone,
-      referrer: referrerUid
+    // profile write
+    await set(ref(db, "users/" + cred.user.uid), {
+      username, email, phone,
+      referredBy: refUsername
     });
 
-    // if signed up via someone's link, record under /referrals/{referrer}/{newUid}
-    if (referrerUid) {
-      await set(ref(db, "referrals/" + referrerUid + "/" + userCredential.user.uid), {
-        username,
-        email,
-        timestamp: Date.now()
-      });
+    // keep a username index so we can share ?ref=username
+    await set(ref(db, "usernames/" + username), cred.user.uid);
+
+    // if they came with ?ref=username, create referral entry
+    if (refUsername) {
+      // look up refUsername -> refUid
+      const snap = await get(child(ref(db), "usernames/" + refUsername));
+      if (snap.exists()) {
+        const refUid = snap.val();
+        await set(ref(db, "referrals/" + refUid + "/" + cred.user.uid), {
+          username, email, timestamp: Date.now()
+        });
+      }
     }
 
     showToast("Account created successfully!", true);
     setTimeout(() => window.location.href = "dashboard.html", 1500);
-  } catch (error) {
-    if (error.code === "auth/weak-password") showToast("Password should be at least 6 characters.");
+
+  } catch (err) {
+    console.error(err);
+    if (err.code === "auth/weak-password") showToast("Password should be at least 6 characters.");
     else showToast("Signup failed, try again.");
-    console.error(error);
   }
 });
 </script>
