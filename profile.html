@@ -44,21 +44,31 @@
     .profile-info .email {
       font-size: 14px;
     }
+
+    /* VIP badge styles + level colors */
     .profile-info .vip {
-      background-color: #ffcc00;
-      color: black;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 12px;
+      background-color: #999;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 13px;
       display: inline-block;
       margin-top: 4px;
-      transition: all 0.3s ease-in-out;
+      text-transform: uppercase;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-    /* Glow effect when VIP changes */
+    .profile-info .vip.vip0 { background: #7a7a7a; color: #fff; }
+    .profile-info .vip.vip1 { background: linear-gradient(90deg,#d6d6d6,#bfbfbf); color: #000; } /* silver */
+    .profile-info .vip.vip2 { background: linear-gradient(90deg,#ffd700,#ffcc00); color: #000; } /* gold */
+    .profile-info .vip.vip3 { background: linear-gradient(90deg,#7c54ff,#3ad1d1); color: #fff; } /* premium */
+    .profile-info .vip.vip4 { background: linear-gradient(90deg,#ff7a7a,#ff3d3d); color:#fff; } /* extra if needed */
+
+    /* glow animation */
     .profile-info .vip.glow {
-      box-shadow: 0 0 15px #ffcc00;
-      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(255, 204, 0, 0.95);
+      transform: scale(1.12);
     }
+
     .profile-icon {
       width: 60px;
       height: 60px;
@@ -127,7 +137,7 @@
   <div class="profile-section">
     <div class="profile-info">
       <div class="email" id="user-email">user@example.com</div>
-      <div class="vip" id="user-vip">vip0</div>
+      <div class="vip" id="user-vip">VIP0</div>
     </div>
     <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Profile" class="profile-icon" />
   </div>  
@@ -160,10 +170,13 @@
     <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
+  <!-- Firebase compat libs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
   <script>
+  // --- Firebase config (same as yours) ---
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -174,39 +187,103 @@
     appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
     measurementId: "G-4RSQXZJX44"
   };
-  firebase.initializeApp(firebaseConfig);
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   const auth = firebase.auth();
   const db = firebase.database();
 
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      document.getElementById("user-email").textContent = user.email;
-      const userId = user.uid;
-      const userRef = db.ref("users/" + userId);
+  function formatVipString(v) {
+    if (!v && v !== 0) return null;
+    // handle numeric or string like "vip3", "3", "VIP3"
+    if (typeof v === 'number') return 'VIP' + v;
+    v = String(v).trim();
+    const m = v.match(/\d+/);
+    if (m) return 'VIP' + m[0];
+    // fallback to uppercase string
+    return v.toUpperCase();
+  }
 
-      let lastVip = "vip0"; // track last vip
-
-      // ✅ Real-time listener
-      userRef.on("value", (snapshot) => {
-        const data = snapshot.val() || {};
-        document.getElementById("total-balance").textContent =
-          parseFloat(data.balance || 0).toFixed(2);
-        document.getElementById("recharge-amount").textContent =
-          parseFloat(data.recharge || 0).toFixed(2);
-
-        // VIP level auto update
-        const vipEl = document.getElementById("user-vip");
-        const newVip = data.vipLevel || "vip0";
-        if (newVip !== lastVip) {
-          vipEl.textContent = newVip;
-          vipEl.classList.add("glow");
-          setTimeout(() => vipEl.classList.remove("glow"), 1000);
-          lastVip = newVip;
-        }
-      });
-    } else {
-      window.location.href = "signin.html";
+  function getVipFromSnapshotData(data) {
+    // 1) plain vipLevel or vip (string or number)
+    let vipCandidate = data.vipLevel ?? data.vip ?? data.viplevel ?? null;
+    if (vipCandidate) {
+      const s = formatVipString(vipCandidate);
+      if (s) return s;
     }
+
+    // 2) vipLevels object (e.g. vipLevels: { "1": 1 } or { "vip1": true })
+    const vipLevels = data.vipLevels || data.vip_levels || data.VIPLevels;
+    if (vipLevels && typeof vipLevels === 'object') {
+      let best = 0;
+      Object.keys(vipLevels).forEach(k => {
+        const val = vipLevels[k];
+        // interpret key
+        const m = String(k).match(/\d+/);
+        const num = m ? parseInt(m[0], 10) : NaN;
+        // interpret 'val' as enabled if true or number > 0
+        const enabled = (val === true) || (String(val).toLowerCase() === 'true') || (typeof val === 'number' && val > 0);
+        if (!isNaN(num) && enabled && num > best) best = num;
+      });
+      if (best > 0) return 'VIP' + best;
+    }
+
+    // 3) direct keys like vip1: true at root of user object
+    for (const k in data) {
+      if (Object.prototype.hasOwnProperty.call(data, k)) {
+        if (k.toLowerCase().startsWith('vip')) {
+          const m = k.match(/\d+/);
+          if (m) return 'VIP' + m[0];
+        }
+      }
+    }
+
+    // 4) fallback: vipLevel property may be missing => VIP0
+    return 'VIP0';
+  }
+
+  auth.onAuthStateChanged((user) => {
+    if (!user) {
+      window.location.href = "signin.html";
+      return;
+    }
+
+    document.getElementById("user-email").textContent = user.email || user.providerData?.[0]?.email || "user";
+
+    const userRef = db.ref("users/" + user.uid);
+    let lastVip = null;
+
+    // Real-time listener
+    userRef.on("value", snapshot => {
+      const data = snapshot.val() || {};
+
+      // Update balances
+      const balanceVal = parseFloat(data.balance ?? data.totalBalance ?? 0) || 0;
+      const rechargeVal = parseFloat(data.recharge ?? data.rechargeAmount ?? 0) || 0;
+      document.getElementById("total-balance").textContent = balanceVal.toFixed(2);
+      document.getElementById("recharge-amount").textContent = rechargeVal.toFixed(2);
+
+      // Determine VIP
+      const vip = getVipFromSnapshotData(data); // returns e.g. "VIP3" or "VIP0"
+      const vipEl = document.getElementById("user-vip");
+
+      // update class for colors
+      const vipClass = (vip || "VIP0").toLowerCase(); // "vip3"
+      vipEl.className = "vip " + vipClass;
+
+      // animate if changed
+      if (lastVip !== vip) {
+        vipEl.textContent = vip;
+        vipEl.classList.add("glow");
+        setTimeout(() => vipEl.classList.remove("glow"), 1200);
+        lastVip = vip;
+      } else {
+        vipEl.textContent = vip;
+      }
+    }, err => {
+      console.error("Failed to read user data:", err);
+    });
   });
 
   function logout() {
