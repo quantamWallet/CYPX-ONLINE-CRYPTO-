@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Create Account</title>
 <style>
-body { margin:0; font-family:Arial,sans-serif; height:100vh; display:flex; justify-content:center; align-items:center; background:linear-gradient(135deg,#141E30,#243B55); overflow:hidden; position:relative; }
-body::before { content:""; position:absolute; inset:0; background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg"); background-repeat:repeat; background-size:150px; opacity:0.07; z-index:0; }
-.card { position:relative; z-index:1; background:rgba(30,41,59,0.85); backdrop-filter:blur(10px); padding:30px; border-radius:20px; box-shadow:0 4px 30px rgba(0,0,0,0.4); width:350px; color:white; text-align:center; }
-.card input { width:100%; padding:12px; margin:8px 0; border-radius:8px; border:none; outline:none; font-size:14px; }
-.btn { width:100%; padding:12px; border:none; border-radius:8px; background:linear-gradient(90deg,#00C6FF,#0072FF); color:white; font-weight:bold; cursor:pointer; margin-top:10px; font-size:15px; }
-.btn:hover { opacity:0.9; }
-.link { margin-top:10px; display:block; color:#00C6FF; text-decoration:none; }
-.toast { position:fixed; top:20px; right:20px; background:#ff4d4f; color:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:1000; font-size:14px; animation:fadeIn 0.3s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
+body{margin:0;font-family:Arial,sans-serif;height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#141E30,#243B55);overflow:hidden;position:relative}
+body::before{content:"";position:absolute;inset:0;background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");background-repeat:repeat;background-size:150px;opacity:0.07;z-index:0}
+.card{position:relative;z-index:1;background:rgba(30,41,59,0.85);backdrop-filter:blur(10px);padding:30px;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.4);width:350px;color:white;text-align:center}
+.card input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;outline:none;font-size:14px}
+.btn{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(90deg,#00C6FF,#0072FF);color:white;font-weight:bold;cursor:pointer;margin-top:10px;font-size:15px}
+.btn:hover{opacity:.9}
+.link{margin-top:10px;display:block;color:#00C6FF;text-decoration:none}
+.toast{position:fixed;top:20px;right:20px;background:#ff4d4f;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:1000;font-size:14px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -48,76 +48,69 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-function showToast(message, success=false) {
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.style.background = success ? "#28a745" : "#ff4d4f";
-  toast.innerText = message;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+function showToast(msg, success=false){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.style.background=success?"#28a745":"#ff4d4f";
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
 }
 
-// ?ref=username (not UID)
-const urlParams = new URLSearchParams(window.location.search);
-const refUsername = urlParams.get("ref") || null;
+// ?ref=username
+const refUsername=new URLSearchParams(window.location.search).get("ref")||null;
 
-// quick live email check
-const emailInput = document.getElementById("email");
-emailInput.addEventListener("blur", async () => {
-  const email = emailInput.value.trim();
-  if (!email) return;
-  try {
-    const methods = await fetchSignInMethodsForEmail(auth, email);
-    if (methods.length > 0) showToast("Email is already registered.");
-  } catch (err) { console.error(err); }
+// quick duplicate-email check
+const emailInput=document.getElementById("email");
+emailInput.addEventListener("blur",async()=>{
+  const e=emailInput.value.trim();
+  if(!e) return;
+  try{
+    const methods=await fetchSignInMethodsForEmail(auth,e);
+    if(methods.length>0) showToast("Email is already registered.");
+  }catch(err){console.error(err);}
 });
 
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
+document.getElementById("signupForm").addEventListener("submit",async e=>{
   e.preventDefault();
-  const email = emailInput.value.trim();
-  const password = document.getElementById("password").value;
-  const username = document.getElementById("username").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+  const email=emailInput.value.trim();
+  const password=document.getElementById("password").value;
+  const username=document.getElementById("username").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  if(!email||!password||!username||!phone){showToast("Please fill all fields.");return;}
 
-  if (!email || !password || !username || !phone) {
-    showToast("Please fill all fields.");
-    return;
-  }
+  try{
+    const methods=await fetchSignInMethodsForEmail(auth,email);
+    if(methods.length>0){showToast("Email is already registered.");return;}
 
-  try {
-    // avoid duplicate email
-    const methods = await fetchSignInMethodsForEmail(auth, email);
-    if (methods.length > 0) { showToast("Email is already registered."); return; }
+    const cred=await createUserWithEmailAndPassword(auth,email,password);
 
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-
-    // profile write
-    await set(ref(db, "users/" + cred.user.uid), {
-      username, email, phone,
-      referredBy: refUsername
+    // user profile
+    await set(ref(db,"users/"+cred.user.uid),{
+      username,email,phone,
+      referredBy:refUsername||""
     });
 
-    // keep a username index so we can share ?ref=username
-    await set(ref(db, "usernames/" + username), cred.user.uid);
+    // username index for referral lookups
+    await set(ref(db,"usernames/"+username),cred.user.uid);
 
-    // if they came with ?ref=username, create referral entry
-    if (refUsername) {
-      // look up refUsername -> refUid
-      const snap = await get(child(ref(db), "usernames/" + refUsername));
-      if (snap.exists()) {
-        const refUid = snap.val();
-        await set(ref(db, "referrals/" + refUid + "/" + cred.user.uid), {
-          username, email, timestamp: Date.now()
+    // if referral was passed, also create under sponsor
+    if(refUsername){
+      const snap=await get(child(ref(db),"usernames/"+refUsername));
+      if(snap.exists()){
+        const sponsorUid=snap.val();
+        await set(ref(db,"referrals/"+sponsorUid+"/"+cred.user.uid),{
+          username,email,timestamp:Date.now()
         });
       }
     }
 
-    showToast("Account created successfully!", true);
-    setTimeout(() => window.location.href = "dashboard.html", 1500);
+    showToast("Account created successfully!",true);
+    setTimeout(()=>window.location.href="dashboard.html",1500);
 
-  } catch (err) {
+  }catch(err){
     console.error(err);
-    if (err.code === "auth/weak-password") showToast("Password should be at least 6 characters.");
+    if(err.code==="auth/weak-password") showToast("Password should be at least 6 characters.");
     else showToast("Signup failed, try again.");
   }
 });
