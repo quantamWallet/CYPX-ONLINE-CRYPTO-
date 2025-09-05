@@ -98,87 +98,72 @@
   </nav>
 
   <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
-const refInput = document.getElementById("ref-link");
-const lev1Box = document.querySelector("#lev1 .level-referrals");
-const lev2Box = document.querySelector("#lev2 .level-referrals");
-const lev3Box = document.querySelector("#lev3 .level-referrals");
+  // link to the input in your HTML
+  const refInput = document.getElementById("ref-link");
 
-// Stats elements
-const teamSizeEl = document.querySelector(".stats .stat-box:nth-child(1) div:nth-child(2)");
-const teamRechargeEl = document.querySelector(".stats .stat-box:nth-child(2) div:nth-child(2)");
-const teamWithdrawEl = document.querySelector(".stats .stat-box:nth-child(3) div:nth-child(2)");
-const newTeamEl = document.querySelector(".stats .stat-box:nth-child(4) div:nth-child(2)");
+  // optional: your team DOM references (if you will populate them later)
+  const lev1Box = document.querySelector("#lev1 .level-referrals");
+  const lev2Box = document.querySelector("#lev2 .level-referrals");
+  const lev3Box = document.querySelector("#lev3 .level-referrals");
 
-function renderUser(box, username, topUp, withdrawn) {
-  const div = document.createElement("div");
-  div.textContent = `${username}  |  Recharge: ${topUp.toFixed(2)} KSH  |  Withdrawn: ${withdrawn.toFixed(2)} KSH`;
-  box.appendChild(div);
-}
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      refInput.value = "Please sign in to get your referral link.";
+      return;
+    }
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    refInput.value = "Please sign in to get your referral link.";
-    return;
-  }
+    try {
+      const meSnap = await get(ref(db, `users/${user.uid}/username`));
+      let myUsername = "";
 
-  import { get, set, ref } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-// wherever you already have auth & db initialised and `user` is the signed-in user:
-(async () => {
-  try {
-    const meSnap = await get(ref(db, `users/${user.uid}/username`));
-    let myUsername = "";
-
-    if (meSnap.exists() && meSnap.val().trim() !== "") {
-      // found in database
-      myUsername = meSnap.val().trim();
-    } else {
-      // derive from Auth profile
-      if (user.displayName && user.displayName.trim() !== "") {
+      if (meSnap.exists() && meSnap.val().trim() !== "") {
+        // already set in database
+        myUsername = meSnap.val().trim();
+      } else if (user.displayName && user.displayName.trim() !== "") {
         myUsername = user.displayName.trim();
       } else if (user.email) {
         myUsername = user.email.split("@")[0]; // email prefix
       } else {
-        myUsername = "user" + user.uid.slice(0, 6); // last-ditch fallback
+        myUsername = "user" + user.uid.slice(0, 6);
       }
 
-      // save back into the database so next time it’s already there
-      await set(ref(db, `users/${user.uid}/username`), myUsername);
+      // if username wasn’t in DB, store fallback so next time it’s there
+      if (!meSnap.exists()) {
+        await set(ref(db, `users/${user.uid}/username`), myUsername);
+      }
+
+      // build referral link
+      refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
+
+      // click to copy
+      refInput.addEventListener("click", () => {
+        refInput.select();
+        document.execCommand("copy");
+      });
+    } catch (err) {
+      console.error("Referral link error:", err);
+      refInput.value = "Error loading referral link.";
     }
-
-    // finally show the link
-    const refInput = document.getElementById("referral-link"); // your <input>
-    refInput.value =
-      `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
-
-    // keep your click-to-copy behaviour
-    refInput.addEventListener("click", () => {
-      refInput.select();
-      document.execCommand("copy");
-    });
-  } catch (err) {
-    console.error("Referral link error:", err);
-  }
-})();
-      </script>
+  });
+  </script>
 </body>
     </html>
