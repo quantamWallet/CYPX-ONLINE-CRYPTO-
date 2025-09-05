@@ -117,13 +117,23 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  // link to the input in your HTML
+  // elements
   const refInput = document.getElementById("ref-link");
-
-  // optional: your team DOM references (if you will populate them later)
   const lev1Box = document.querySelector("#lev1 .level-referrals");
   const lev2Box = document.querySelector("#lev2 .level-referrals");
   const lev3Box = document.querySelector("#lev3 .level-referrals");
+
+  // optional stats (placeholder if you’ll fill later)
+  const teamSizeEl = document.querySelector(".stats .stat-box:nth-child(1) div:nth-child(2)");
+  const teamRechargeEl = document.querySelector(".stats .stat-box:nth-child(2) div:nth-child(2)");
+  const teamWithdrawEl = document.querySelector(".stats .stat-box:nth-child(3) div:nth-child(2)");
+  const newTeamEl = document.querySelector(".stats .stat-box:nth-child(4) div:nth-child(2)");
+
+  function renderUser(box, username, topUp, withdrawn) {
+    const div = document.createElement("div");
+    div.textContent = `${username} | Recharge: ${topUp.toFixed(2)} KSH | Withdrawn: ${withdrawn.toFixed(2)} KSH`;
+    box.appendChild(div);
+  }
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -136,34 +146,35 @@
       let myUsername = "";
 
       if (meSnap.exists() && meSnap.val().trim() !== "") {
-        // already set in database
         myUsername = meSnap.val().trim();
       } else if (user.displayName && user.displayName.trim() !== "") {
         myUsername = user.displayName.trim();
       } else if (user.email) {
-        myUsername = user.email.split("@")[0]; // email prefix
+        myUsername = user.email.split("@")[0];
       } else {
         myUsername = "user" + user.uid.slice(0, 6);
       }
 
-      // if username wasn’t in DB, store fallback so next time it’s there
+      // Save back into DB if missing
       if (!meSnap.exists()) {
         await set(ref(db, `users/${user.uid}/username`), myUsername);
       }
 
-      // build referral link
+      // Set referral link
       refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
 
-      // click to copy
+      // click-to-copy
       refInput.addEventListener("click", () => {
         refInput.select();
         document.execCommand("copy");
       });
+
+      console.log("Referral username used:", myUsername);
     } catch (err) {
       console.error("Referral link error:", err);
       refInput.value = "Error loading referral link.";
     }
   });
-  </script>
+          </script>
 </body>
     </html>
