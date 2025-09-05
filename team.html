@@ -140,74 +140,45 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // 1. Load my username
-  const meSnap = await get(ref(db, `users/${user.uid}/username`));
-  if (!meSnap.exists()) {
-    refInput.value = "Username not set.";
-    return;
+  import { get, set, ref } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+// wherever you already have auth & db initialised and `user` is the signed-in user:
+(async () => {
+  try {
+    const meSnap = await get(ref(db, `users/${user.uid}/username`));
+    let myUsername = "";
+
+    if (meSnap.exists() && meSnap.val().trim() !== "") {
+      // found in database
+      myUsername = meSnap.val().trim();
+    } else {
+      // derive from Auth profile
+      if (user.displayName && user.displayName.trim() !== "") {
+        myUsername = user.displayName.trim();
+      } else if (user.email) {
+        myUsername = user.email.split("@")[0]; // email prefix
+      } else {
+        myUsername = "user" + user.uid.slice(0, 6); // last-ditch fallback
+      }
+
+      // save back into the database so next time it’s already there
+      await set(ref(db, `users/${user.uid}/username`), myUsername);
+    }
+
+    // finally show the link
+    const refInput = document.getElementById("referral-link"); // your <input>
+    refInput.value =
+      `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
+
+    // keep your click-to-copy behaviour
+    refInput.addEventListener("click", () => {
+      refInput.select();
+      document.execCommand("copy");
+    });
+  } catch (err) {
+    console.error("Referral link error:", err);
   }
-  const myUsername = meSnap.val().trim();
-  refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
-  refInput.addEventListener("click", () => {
-    refInput.select();
-    document.execCommand("copy");
-  });
-
-  // 2. Get all users
-  const allSnap = await get(ref(db, "users"));
-  if (!allSnap.exists()) return;
-  const allUsers = allSnap.val(); // {uid: {username, referredBy, topUp, withdrawn}}
-
-  // 3. Split into levels
-  const level1 = [], level2 = [], level3 = [];
-  for (const uid in allUsers) {
-    const u = allUsers[uid];
-    if (u.referredBy === myUsername) level1.push({ ...u });
-  }
-  for (const uid in allUsers) {
-    const u = allUsers[uid];
-    if (level1.some(l1 => l1.username === u.referredBy)) level2.push({ ...u });
-  }
-  for (const uid in allUsers) {
-    const u = allUsers[uid];
-    if (level2.some(l2 => l2.username === u.referredBy)) level3.push({ ...u });
-  }
-
-  // 4. Render & compute totals
-  lev1Box.innerHTML = "";
-  lev2Box.innerHTML = "";
-  lev3Box.innerHTML = "";
-
-  let totalTop = 0;
-  let totalWith = 0;
-
-  level1.forEach(u => {
-    const top = parseFloat(u.topUp || 0);
-    const wd = parseFloat(u.withdrawn || 0);
-    totalTop += top; totalWith += wd;
-    renderUser(lev1Box, u.username, top, wd);
-  });
-
-  level2.forEach(u => {
-    const top = parseFloat(u.topUp || 0);
-    const wd = parseFloat(u.withdrawn || 0);
-    totalTop += top; totalWith += wd;
-    renderUser(lev2Box, u.username, top, wd);
-  });
-
-  level3.forEach(u => {
-    const top = parseFloat(u.topUp || 0);
-    const wd = parseFloat(u.withdrawn || 0);
-    totalTop += top; totalWith += wd;
-    renderUser(lev3Box, u.username, top, wd);
-  });
-
-  // 5. Fill stats
-  teamSizeEl.textContent = level1.length + level2.length + level3.length;
-  teamRechargeEl.textContent = `KSH ${totalTop.toFixed(2)}`;
-  teamWithdrawEl.textContent = `KSH ${totalWith.toFixed(2)}`;
-  newTeamEl.textContent = level1.length; // first-line only
-});
+})();
       </script>
 </body>
     </html>
