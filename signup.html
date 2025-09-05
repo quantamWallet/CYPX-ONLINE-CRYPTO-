@@ -20,7 +20,7 @@ body::before{content:"";position:absolute;inset:0;background-image:url("https://
 <div class="card">
   <h2>Create Account</h2>
   <form id="signupForm">
-    <input type="text" id="username" placeholder="Username" required />
+    <input type="text" id="username" placeholder="Username" />
     <input type="email" id="email" placeholder="Email" required />
     <input type="tel" id="phone" placeholder="Phone Number" required />
     <input type="password" id="password" placeholder="Password" required />
@@ -60,7 +60,7 @@ function showToast(msg, success=false){
 // ?ref=username
 const refUsername=new URLSearchParams(window.location.search).get("ref")||null;
 
-// quick duplicate-email check
+// duplicate-email check
 const emailInput=document.getElementById("email");
 emailInput.addEventListener("blur",async()=>{
   const e=emailInput.value.trim();
@@ -74,33 +74,46 @@ emailInput.addEventListener("blur",async()=>{
 document.getElementById("signupForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const email=emailInput.value.trim();
-  const password=document.getElementById("password").value;
-  const username=document.getElementById("username").value.trim();
+  const password=document.getElementById("password").value.trim();
+  const typedUsername=document.getElementById("username").value.trim();
   const phone=document.getElementById("phone").value.trim();
-  if(!email||!password||!username||!phone){showToast("Please fill all fields.");return;}
+
+  if(!email||!password||!phone){showToast("Please fill all required fields.");return;}
 
   try{
     const methods=await fetchSignInMethodsForEmail(auth,email);
     if(methods.length>0){showToast("Email is already registered.");return;}
 
     const cred=await createUserWithEmailAndPassword(auth,email,password);
+    const user=cred.user;
 
-    // user profile
-    await set(ref(db,"users/"+cred.user.uid),{
-      username,email,phone,
-      referredBy:refUsername||""
+    // username fallback
+    let finalUsername = "";
+    if (typedUsername) finalUsername = typedUsername;
+    else if (user.displayName && user.displayName.trim()!=="") finalUsername = user.displayName.trim();
+    else if (user.email) finalUsername = user.email.split("@")[0];
+    else finalUsername = "user" + user.uid.slice(0,6);
+
+    // save profile
+    await set(ref(db,"users/"+user.uid),{
+      username: finalUsername,
+      email,
+      phone,
+      referredBy: refUsername || ""
     });
 
-    // username index for referral lookups
-    await set(ref(db,"usernames/"+username),cred.user.uid);
+    // index for referrals
+    await set(ref(db,"usernames/"+finalUsername),user.uid);
 
-    // if referral was passed, also create under sponsor
+    // sponsor link
     if(refUsername){
       const snap=await get(child(ref(db),"usernames/"+refUsername));
       if(snap.exists()){
         const sponsorUid=snap.val();
-        await set(ref(db,"referrals/"+sponsorUid+"/"+cred.user.uid),{
-          username,email,timestamp:Date.now()
+        await set(ref(db,"referrals/"+sponsorUid+"/"+user.uid),{
+          username: finalUsername,
+          email,
+          timestamp: Date.now()
         });
       }
     }
