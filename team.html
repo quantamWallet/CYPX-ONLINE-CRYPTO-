@@ -98,7 +98,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { getDatabase, ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -115,7 +115,27 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-const refInput = document.getElementById("ref-link");
+// elements
+const refInput   = document.getElementById("ref-link");
+const teamSizeEl = document.querySelector(".stat-box:nth-child(1) div:last-child");
+const teamRechargeEl = document.querySelector(".stat-box:nth-child(2) div:last-child");
+const teamWithdrawEl = document.querySelector(".stat-box:nth-child(3) div:last-child");
+const newTeamEl  = document.querySelector(".stat-box:nth-child(4) div:last-child");
+
+const lev1Box = document.querySelector("#lev1 .level-referrals");
+const lev2Box = document.querySelector("#lev2 .level-referrals");
+const lev3Box = document.querySelector("#lev3 .level-referrals");
+const lev1Total = document.querySelector("#lev1 .level-total");
+const lev2Total = document.querySelector("#lev2 .level-total");
+const lev3Total = document.querySelector("#lev3 .level-total");
+
+function popup(msg){
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.textContent = msg;
+  document.body.appendChild(p);
+  setTimeout(()=>{p.remove();},1500);
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -123,40 +143,78 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  try {
-    const meSnap = await get(ref(db, `users/${user.uid}/username`));
-    let myUsername = "";
+  // ---- build / store username ----
+  const meSnap = await get(ref(db, `users/${user.uid}/username`));
+  let myUsername = "";
+  if (meSnap.exists() && meSnap.val().trim() !== "") {
+    myUsername = meSnap.val().trim();
+  } else if (user.displayName && user.displayName.trim() !== "") {
+    myUsername = user.displayName.trim();
+  } else if (user.email) {
+    myUsername = user.email.split("@")[0];
+  } else {
+    myUsername = "user" + user.uid.slice(0, 6);
+  }
+  if (!meSnap.exists() || meSnap.val().trim() === "") {
+    await set(ref(db, `users/${user.uid}/username`), myUsername);
+  }
 
-    if (meSnap.exists() && meSnap.val().trim() !== "") {
-      myUsername = meSnap.val().trim();
-    } else if (user.displayName && user.displayName.trim() !== "") {
-      myUsername = user.displayName.trim();
-    } else if (user.email) {
-      myUsername = user.email.split("@")[0];
-    } else {
-      myUsername = "user" + user.uid.slice(0, 6);
-    }
-
-    // write back if DB missing
-    if (!meSnap.exists() || meSnap.val().trim() === "") {
-      await set(ref(db, `users/${user.uid}/username`), myUsername);
-    }
-
-    refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
-    refInput.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(refInput.value);
-    alert("Referral link copied!");
-  } catch (e) {
-    refInput.select(); // fallback
+  // referral link + click-to-copy
+  refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
+  refInput.addEventListener("click", () => {
+    refInput.select();
     document.execCommand("copy");
-  }
-});
+    popup("Referral link copied!");
+  });
 
-  } catch (err) {
-    console.error("Referral link error:", err);
-    refInput.value = "Error loading referral link.";
-  }
+  // ---- load all users once and compute team ----
+  onValue(ref(db, "users"), (snap) => {
+    if (!snap.exists()) return;
+
+    const allUsers = snap.val();
+    const level1 = [], level2 = [], level3 = [];
+
+    // first-level: anyone whose referrer == myUsername
+    for (const uid in allUsers) {
+      if (allUsers[uid].referrer === myUsername) {
+        level1.push({ uid, ...allUsers[uid] });
+      }
+    }
+
+    // second-level: referrer is one of level1
+    for (const uid in allUsers) {
+      const u = allUsers[uid];
+      if (level1.find(x => x.username === u.referrer)) {
+        level2.push({ uid, ...u });
+      }
+    }
+
+    // third-level: referrer is one of level2
+    for (const uid in allUsers) {
+      const u = allUsers[uid];
+      if (level2.find(x => x.username === u.referrer)) {
+        level3.push({ uid, ...u });
+      }
+    }
+
+    // fill totals
+    const sum = (arr, field) => arr.reduce((t,u)=> t + (parseFloat(u[field]||0)), 0);
+
+    lev1Box.innerHTML = level1.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
+    lev2Box.innerHTML = level2.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
+    lev3Box.innerHTML = level3.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
+
+    lev1Total.textContent = `Total: KSH ${sum(level1,"totalTopUp").toFixed(2)}`;
+    lev2Total.textContent = `Total: KSH ${sum(level2,"totalTopUp").toFixed(2)}`;
+    lev3Total.textContent = `Total: KSH ${sum(level3,"totalTopUp").toFixed(2)}`;
+
+    // top summary
+    const teamSize = level1.length + level2.length + level3.length;
+    teamSizeEl.textContent = teamSize;
+    teamRechargeEl.textContent = "KSH " + (sum(level1,"totalTopUp")+sum(level2,"totalTopUp")+sum(level3,"totalTopUp")).toFixed(2);
+    teamWithdrawEl.textContent = "KSH " + (sum(level1,"totalWithdraw")+sum(level2,"totalWithdraw")+sum(level3,"totalWithdraw")).toFixed(2);
+    newTeamEl.textContent = level1.length; // just showing new first-line as "new team"
+  });
 });
 </script>
 </body>
