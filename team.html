@@ -143,10 +143,15 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
-    refInput.addEventListener("click", () => {
-      refInput.select();
-      document.execCommand("copy");
-    });
+    refInput.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(refInput.value);
+    alert("Referral link copied!");
+  } catch (e) {
+    refInput.select(); // fallback
+    document.execCommand("copy");
+  }
+});
 
   } catch (err) {
     console.error("Referral link error:", err);
