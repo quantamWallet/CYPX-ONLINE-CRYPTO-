@@ -247,8 +247,8 @@
         const days = claim.daysClaimed || 0;
         const last = claim.lastClaim || 0;
         const timeSince = Date.now() - last;
-        const canClaim = isUnlocked && days < 12 && (last===0 || timeSince >= MS_DAY);
-        const remainingDays = Math.max(0, 12 - days);
+        const canClaim = isUnlocked && days < 2 && (last===0 || timeSince >= MS_DAY);
+        const remainingDays = Math.max(0, 2 - days);
 
         const card = document.createElement('div');
         card.className = 'vip-card';
