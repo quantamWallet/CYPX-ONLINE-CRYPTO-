@@ -106,6 +106,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
     // 🔹 Your Firebase Config
     const firebaseConfig = {
@@ -120,6 +121,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getDatabase(app);
 
     // 🔹 Toast function
     function showToast(message, success=false) {
@@ -131,7 +133,7 @@
       setTimeout(() => toast.remove(), 4000);
     }
 
-    // 🔹 Login logic using Firebase Auth
+    // 🔹 Login logic with fallback for old users
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
@@ -143,14 +145,34 @@
       }
 
       try {
+        // Try Firebase Auth first
         await signInWithEmailAndPassword(auth, email, password);
         showToast("Login successful!", true);
         setTimeout(() => {
           window.location.href = "dashboard.html";
         }, 1500);
+
       } catch (error) {
         if (error.code === "auth/user-not-found") {
-          showToast("No account found with this email.");
+          // 🔹 Check Realtime Database fallback for old accounts
+          const snapshot = await get(child(ref(db), "users"));
+          if (snapshot.exists()) {
+            let found = false;
+            snapshot.forEach((userSnap) => {
+              const user = userSnap.val();
+              if (user.email === email && user.password === password) {  // ⚠ works only if plain password stored
+                found = true;
+                localStorage.setItem("uid", userSnap.key);
+                showToast("Login successful (old account)!", true);
+                setTimeout(() => {
+                  window.location.href = "dashboard.html";
+                }, 1500);
+              }
+            });
+            if (!found) showToast("Account not found.");
+          } else {
+            showToast("Account not found.");
+          }
         } else if (error.code === "auth/wrong-password") {
           showToast("Incorrect password.");
         } else {
