@@ -264,13 +264,13 @@
               <div><strong>Total Profit:</strong> ${Number(v.total).toFixed(2)} KSH</div>
 
               <div style="margin-top:8px;">
-                <span class="badge">Days claimed: <span id="days-${lvl}">${days}</span>/12</span>
+                <span class="badge">Days claimed: <span id="days-${lvl}">${days}</span>/36</span>
                 <span class="badge">Remaining: <span id="rem-${lvl}">${remainingDays}</span></span>
               </div>
 
               <div style="margin-top:10px;">
                 ${isUnlocked
-                  ? `<button id="receive-${lvl}" class="receive-btn" ${canClaim ? '' : 'disabled'}>${canClaim ? 'Receive' : (days>=12 ? 'Completed' : 'Available in 24h')}</button>`
+                  ? `<button id="receive-${lvl}" class="receive-btn" ${canClaim ? '' : 'disabled'}>${canClaim ? 'Receive' : (days>=36 ? 'Completed' : 'Available in 24h')}</button>`
                   : `<button id="unlock-${lvl}" class="unlock-btn">${Number(v.cost).toFixed(2)} KSH Unlock Now</button>`
                 }
               </div>
