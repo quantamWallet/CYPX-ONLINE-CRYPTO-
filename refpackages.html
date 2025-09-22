@@ -64,7 +64,11 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .select-btn:hover {
+    .select-btn:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+    .select-btn:hover:enabled {
       background-color: #218838;
     }
     .popup {
@@ -95,21 +99,21 @@
       <h2>Group 1</h2>
       <p>✅ Get <b>2 Referrals</b> instantly to kickstart your journey.</p>
       <div class="price">Price: 1,500 KSH</div>
-      <button class="select-btn" onclick="selectPackage('Group 1', 2000)">Select Group 1</button>
+      <button class="select-btn" disabled onclick="selectPackage('Group 1', 1500)">Select Group 1</button>
     </div>
 
     <div class="package">
       <h2>Group 2</h2>
       <p>🔥 Boost with <b>4 Referrals</b> for faster growth and rewards.</p>
       <div class="price">Price: 3,000 KSH</div>
-      <button class="select-btn" onclick="selectPackage('Group 2', 4000)">Select Group 2</button>
+      <button class="select-btn" disabled onclick="selectPackage('Group 2', 3000)">Select Group 2</button>
     </div>
 
     <div class="package">
       <h2>Group 3</h2>
       <p>🚀 Maximize impact with <b>8 Referrals</b> and unlock higher potential.</p>
       <div class="price">Price: 6,000 KSH</div>
-      <button class="select-btn" onclick="selectPackage('Group 3', 8000)">Select Group 3</button>
+      <button class="select-btn" disabled onclick="selectPackage('Group 3', 6000)">Select Group 3</button>
     </div>
   </div>
 
@@ -133,17 +137,21 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
- 3   let currentUID = null;
+    let currentUID = null;
 
+    const buttons = document.querySelectorAll('.select-btn');
+
+    // Wait until user is authenticated
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUID = user.uid;
+        buttons.forEach(btn => btn.disabled = false); // Enable buttons
       } else {
-        window.location.href = "landing.html";
+        window.location.href = "landing.html"; // Redirect if not logged in
       }
     });
 
-    window.selectPackage = function (group, price) {
+    window.selectPackage = function(group, price) {
       if (!currentUID) {
         showPopup("You must be logged in.");
         return;
@@ -156,12 +164,14 @@
         currency: "KSH",
         status: "pending",
         timestamp: new Date().toISOString()
-      }).then(() => {
+      })
+      .then(() => {
         showPopup(group + " selected. Redirecting...");
         setTimeout(() => {
           window.location.href = `buyref.html?group=${encodeURIComponent(group)}&price=${price}`;
         }, 2000);
-      }).catch((error) => {
+      })
+      .catch((error) => {
         showPopup("Error: " + error.message);
       });
     }
