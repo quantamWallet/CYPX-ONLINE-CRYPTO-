@@ -410,7 +410,7 @@ claimedRef.once("value").then((snap) => {
           vipRef.once("value").then((snap) => {
             const unlocked = snap.val() || [];
 
-            const vipData = [1000,3000,8000,21000,36000,75000,113000,151000,200000,250000];
+            const vipData = [10000,16000,22000,36000,42000,66000,113000,151000,200000,250000];
 
             vipData.forEach((amt, idx) => {
               const lvl = idx + 1;
