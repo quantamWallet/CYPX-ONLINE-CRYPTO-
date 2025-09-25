@@ -73,7 +73,7 @@
       <p class="info">Amount: <span class="highlight">896 KSH</span></p>
       <p class="info">Pay via M-Pesa to:</p>
       <p class="highlight">0707207201<br/>Langat Robert</p>
-      <p class="note"><i class="fa-solid fa-circle-exclamation"></i> After payment, click confirm below. Our system/admin will verify and activate your account for large withdrawals.</p>
+      <p class="note"><i class="fa-solid fa-circle-exclamation"></i> After payment, click confirm below. Your withdrawal will be processed.</p>
       <button class="btn" id="confirmBtn"><i class="fa-solid fa-check-circle"></i> I Have Paid</button>
     </div>
   </div>
@@ -119,10 +119,43 @@
     const user = auth.currentUser;
     if(!user) return showPopup('Login required','error','login.html');
 
-    // Mark feePaid true (you should verify manually on admin side before approving withdrawals)
-    await db.ref(`users/${user.uid}/feePaid`).set(true);
+    try {
+      // Get withdrawal amount (saved when user initiated withdraw)
+      const withdrawSnap = await db.ref(`users/${user.uid}/pendingWithdraw`).once('value');
+      const withdrawAmount = withdrawSnap.val();
 
-    showPopup('Payment confirmed! Withdrawals above 10,000 are now unlocked.','success','withdraw.html');
+      if(!withdrawAmount) {
+        return showPopup('No pending withdrawal found','error','withdraw.html');
+      }
+
+      // Get current balance
+      const balanceSnap = await db.ref(`users/${user.uid}/balance`).once('value');
+      let balance = balanceSnap.val() || 0;
+
+      if(balance >= withdrawAmount){
+        // Deduct withdrawal amount
+        balance -= withdrawAmount;
+        await db.ref(`users/${user.uid}/balance`).set(balance);
+
+        // Save withdrawal request
+        const newReqRef = db.ref(`withdrawals/${user.uid}`).push();
+        await newReqRef.set({
+          amount: withdrawAmount,
+          status: "submitted",
+          timestamp: Date.now()
+        });
+
+        // Clear pendingWithdraw
+        await db.ref(`users/${user.uid}/pendingWithdraw`).remove();
+
+        showPopup('Withdrawal request submitted','success','dashboard.html');
+      } else {
+        showPopup('Insufficient balance for withdrawal','error');
+      }
+    } catch(err) {
+      console.error(err);
+      showPopup('Error processing request','error');
+    }
   });
   </script>
 </body>
