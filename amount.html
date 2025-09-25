@@ -76,206 +76,129 @@
   <div id="popup" class="popup"></div>
 
   <script>
-  // ---------- Firebase config ----------
-  const firebaseConfig = {
-    apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain:"quantum-rio.firebaseapp.com",
-    databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId:"quantum-rio",
-    storageBucket:"quantum-rio.appspot.com",
-    messagingSenderId:"805433999377",
-    appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId:"G-4RSQXZJX44"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+    // ---------- Firebase config ----------
+    const firebaseConfig = {
+      apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain:"quantum-rio.firebaseapp.com",
+      databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId:"quantum-rio",
+      storageBucket:"quantum-rio.appspot.com",
+      messagingSenderId:"805433999377",
+      appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId:"G-4RSQXZJX44"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-  // ---------- UI refs ----------
-  const balanceEl = document.getElementById('balance');
-  const userEmailEl = document.getElementById('userEmail');
-  const form = document.getElementById('withdrawForm');
-  const amountInput = document.getElementById('amount');
-  const submitBtn = document.getElementById('submitBtn');
-  const popup = document.getElementById('popup');
+    // ---------- UI refs ----------
+    const balanceEl = document.getElementById('balance');
+    const userEmailEl = document.getElementById('userEmail');
+    const form = document.getElementById('withdrawForm');
+    const amountInput = document.getElementById('amount');
+    const submitBtn = document.getElementById('submitBtn');
+    const popup = document.getElementById('popup');
 
-  function showPopup(msg, type = 'success', timeout = 2600){
-    popup.textContent = msg;
-    popup.className = 'popup ' + (type === 'error' ? 'error' : 'success');
-    popup.style.display = 'block';
-    setTimeout(()=> popup.style.display = 'none', timeout);
-  }
-
-  let currentUser = null;
-
-  // Load balance & user info
-  async function loadBalance(){
-    if(!currentUser) {
-      balanceEl.textContent = '—';
-      userEmailEl.textContent = 'Not logged in';
-      return;
-    }
-    userEmailEl.textContent = currentUser.email || currentUser.phoneNumber || currentUser.uid;
-    try {
-      const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-      const bal = parseFloat(snap.val()) || 0;
-      balanceEl.textContent = bal.toLocaleString('en-US');
-    } catch(err) {
-      console.error('Load balance error', err);
-      showPopup('Unable to load balance', 'error');
-    }
-  }
-
-  auth.onAuthStateChanged(user => {
-    currentUser = user;
-    if(!user){
-      showPopup('Please log in to withdraw', 'error', 2500);
-      userEmailEl.textContent = 'Not logged in';
-      balanceEl.textContent = '—';
-      submitBtn.disabled = true;
-    } else {
-      submitBtn.disabled = false;
-      loadBalance();
-    }
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if(!currentUser){ showPopup('Login required', 'error'); return; }
-
-    const amount = Math.floor(parseFloat(amountInput.value || 0));
-    if(!amount || amount < 1000){
-      showPopup('Minimum withdrawal is 1,000 KES', 'error');
-      return;
+    function showPopup(msg, type = 'success', timeout = 2600){
+      popup.textContent = msg;
+      popup.className = 'popup ' + (type === 'error' ? 'error' : 'success');
+      popup.style.display = 'block';
+      setTimeout(()=> popup.style.display = 'none', timeout);
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Processing...';
-<script>
-  // ---------- Firebase config ----------
-  const firebaseConfig = {
-    apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain:"quantum-rio.firebaseapp.com",
-    databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId:"quantum-rio",
-    storageBucket:"quantum-rio.appspot.com",
-    messagingSenderId:"805433999377",
-    appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId:"G-4RSQXZJX44"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+    let currentUser = null;
 
-  // ---------- UI refs ----------
-  const balanceEl = document.getElementById('balance');
-  const userEmailEl = document.getElementById('userEmail');
-  const form = document.getElementById('withdrawForm');
-  const amountInput = document.getElementById('amount');
-  const submitBtn = document.getElementById('submitBtn');
-  const popup = document.getElementById('popup');
-
-  function showPopup(msg, type = 'success', timeout = 2600){
-    popup.textContent = msg;
-    popup.className = 'popup ' + (type === 'error' ? 'error' : 'success');
-    popup.style.display = 'block';
-    setTimeout(()=> popup.style.display = 'none', timeout);
-  }
-
-  let currentUser = null;
-
-  // Load balance & user info
-  async function loadBalance(){
-    if(!currentUser) {
-      balanceEl.textContent = '—';
-      userEmailEl.textContent = 'Not logged in';
-      return;
-    }
-    userEmailEl.textContent = currentUser.email || currentUser.phoneNumber || currentUser.uid;
-    try {
-      const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-      const bal = Number(snap.val()) || 0;
-      balanceEl.textContent = bal.toLocaleString('en-US');
-    } catch(err) {
-      console.error('Load balance error', err);
-      showPopup('Unable to load balance', 'error');
-    }
-  }
-
-  auth.onAuthStateChanged(user => {
-    currentUser = user;
-    if(!user){
-      showPopup('Please log in to withdraw', 'error', 2500);
-      userEmailEl.textContent = 'Not logged in';
-      balanceEl.textContent = '—';
-      submitBtn.disabled = true;
-    } else {
-      submitBtn.disabled = false;
-      loadBalance();
-    }
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if(!currentUser){ showPopup('Login required', 'error'); return; }
-
-    const amount = Math.floor(Number(amountInput.value || 0));
-    if(!amount || amount < 1000){
-      showPopup('Minimum withdrawal is 1,000 KES', 'error');
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Processing...';
-
-    const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
-
-    balanceRef.transaction(function(currentBalance){
-      let bal = Number(currentBalance);
-      if (isNaN(bal)) bal = 0;   // ensure numeric
-
-      if (bal >= amount) {
-        return bal - amount;    // deduct
-      } else {
-        return currentBalance;  // return old balance → no change
-      }
-    }, async function(error, committed, snapshot){
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit Withdrawal';
-
-      if(error){
-        console.error('Transaction failed:', error);
-        showPopup('Error processing request', 'error');
+    // Load balance & user info
+    async function loadBalance(){
+      if(!currentUser) {
+        balanceEl.textContent = '—';
+        userEmailEl.textContent = 'Not logged in';
         return;
       }
-
-      if(!committed){
-        showPopup('Insufficient balance', 'error');
-        await loadBalance();
-        return;
-      }
-
-      const newBalance = Number(snapshot.val()) || 0;
-
+      userEmailEl.textContent = currentUser.email || currentUser.phoneNumber || currentUser.uid;
       try {
-        const withdrawalRef = db.ref(`withdrawals/${currentUser.uid}`).push();
-        await withdrawalRef.set({
-          amount: amount,
-          status: "submitted",
-          timestamp: Date.now()
-        });
+        const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+        const bal = Number(snap.val()) || 0;
+        balanceEl.textContent = bal.toLocaleString('en-US');
+      } catch(err) {
+        console.error('Load balance error', err);
+        showPopup('Unable to load balance', 'error');
+      }
+    }
 
-        showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`, 'success');
-
-        balanceEl.textContent = newBalance.toLocaleString('en-US');
-        amountInput.value = '';
-      } catch (err) {
-        console.error('Failed to log withdrawal', err);
-        showPopup('Withdrawal deducted but not logged. Contact support.', 'error', 4000);
-        await loadBalance();
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if(!user){
+        showPopup('Please log in to withdraw', 'error', 2500);
+        userEmailEl.textContent = 'Not logged in';
+        balanceEl.textContent = '—';
+        submitBtn.disabled = true;
+      } else {
+        submitBtn.disabled = false;
+        loadBalance();
       }
     });
-  });
-</script>
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if(!currentUser){ showPopup('Login required', 'error'); return; }
+
+      const amount = Math.floor(Number(amountInput.value || 0));
+      if(!amount || amount < 1000){
+        showPopup('Minimum withdrawal is 1,000 KES', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
+
+      const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+
+      balanceRef.transaction(function(currentBalance){
+        let bal = Number(currentBalance);
+        if (isNaN(bal)) bal = 0;
+
+        if (bal >= amount) {
+          return bal - amount;    // deduct
+        } else {
+          return currentBalance;  // no change
+        }
+      }, async function(error, committed, snapshot){
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Withdrawal';
+
+        if(error){
+          console.error('Transaction failed:', error);
+          showPopup('Error processing request', 'error');
+          return;
+        }
+
+        if(!committed){
+          showPopup('Insufficient balance', 'error');
+          await loadBalance();
+          return;
+        }
+
+        const newBalance = Number(snapshot.val()) || 0;
+
+        try {
+          const withdrawalRef = db.ref(`withdrawals/${currentUser.uid}`).push();
+          await withdrawalRef.set({
+            amount: amount,
+            status: "submitted",
+            timestamp: Date.now()
+          });
+
+          showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`, 'success');
+          balanceEl.textContent = newBalance.toLocaleString('en-US');
+          amountInput.value = '';
+        } catch (err) {
+          console.error('Failed to log withdrawal', err);
+          showPopup('Withdrawal deducted but not logged. Contact support.', 'error', 4000);
+          await loadBalance();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
