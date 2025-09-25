@@ -176,7 +176,7 @@
 
     // Require fee payment first for withdrawals > 10,000
     if(amount > 10000 && !feePaid){
-      return showPopup(`You must first pay the transaction fee of ${FEE} KSH to unlock withdrawals.`,'error','pay_fee.html');
+      return showPopup(`You must first pay the transaction fee of ${FEE} KSH to unlock withdrawals.`,'error','payfee.html');
     }
 
     // Deduct withdrawal only (fee handled separately)
