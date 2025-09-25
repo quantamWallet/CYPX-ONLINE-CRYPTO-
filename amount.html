@@ -144,7 +144,7 @@
   // Show fee notice dynamically
   amountInput.addEventListener('input', ()=>{
     const value = parseInt(amountInput.value) || 0;
-    if(value > 10000){
+    if(value > 1000){
       feeNotice.style.display = 'block';
     } else {
       feeNotice.style.display = 'none';
@@ -174,9 +174,12 @@
       return showPopup('Insufficient balance','error');
     }
 
-    // Require fee payment first for withdrawals > 10,000
-    if(amount > 10000 && !feePaid){
-      return showPopup(`You must first pay the transaction fee of ${FEE} KSH to unlock withdrawals.`,'error','payfee.html');
+    // Require fee payment first for withdrawals > 1,000
+    if(amount > 1000 && !feePaid){
+      return showPopup(`You must first pay the transaction fee of ${FEE} KSH to unlock withdrawals above 1,000.`,
+        'error',
+        'payfee.html'
+      );
     }
 
     // Deduct withdrawal only (fee handled separately)
@@ -187,7 +190,7 @@
     await ref.set({
       uid: user.uid,
       amount: amount,
-      fee: amount > 10000 ? FEE : 0,
+      fee: amount > 1000 ? FEE : 0,
       status:'pending',
       createdAt: Date.now()
     });
