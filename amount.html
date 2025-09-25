@@ -87,7 +87,10 @@
       <form id="withdrawForm">
         <label class="label" for="amount">Withdrawal Amount (KES)</label>
         <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required/>
-        <button type="submit" class="btn">Submit Withdrawal</button>
+        <p id="feeNotice" style="color:#ffcc00; font-size:13px; margin-top:6px; display:none;">
+          Withdrawals above 10,000 KSH require a one-time 896 KSH transaction fee payment before submitting.
+        </p>
+        <button type="submit" class="btn" id="submitBtn">Submit Withdrawal</button>
       </form>
     </div>
   </div>
@@ -132,61 +135,68 @@
     },2500);
   }
 
-const form = document.getElementById('withdrawForm');
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const user = auth.currentUser;
-  if(!user) return showPopup('Login required','error','login.html');
+  const form = document.getElementById('withdrawForm');
+  const amountInput = document.getElementById('amount');
+  const feeNotice = document.getElementById('feeNotice');
+  const submitBtn = document.getElementById('submitBtn');
+  const FEE = 896;
 
-  const amount = parseInt(document.getElementById('amount').value);
-
-  // Fetch user balance & referrals
-  const snap = await db.ref(`users/${user.uid}`).once('value');
-  const userData = snap.val() || {};
-  const balance = userData.balance || 0;
-  const referrals = userData.referrals || {};
-
-  // Case 1: Minimum withdrawal
-  if(amount < 1000){
-    return showPopup('Minimum withdrawal is 1,000 KSH','error');
-  }
-
-  // Case 2: Insufficient balance
-  if(amount > balance){
-    return showPopup('Insufficient balance','error');
-  }
-
-  // Case 3: Check referral condition
-  let qualified = 0;
-  const referralUIDs = Object.keys(referrals);
-  for(const rid of referralUIDs){
-    const refSnap = await db.ref(`users/${rid}`).once('value');
-    const refData = refSnap.val() || {};
-    const deposits = refData.totalDeposits || 0;
-    if(deposits >= 3000) qualified++;
-  }
-
-  if(qualified < 2){
-    return showPopup(
-      'You must have at least 2 referrals who deposited ≥3,000 KSH','error','select.html'
-    );
-  }
-
-  // Case 4: Proceed to submit withdrawal
-  const ref = db.ref('withdrawals').push();
-  await ref.set({
-    uid: user.uid,
-    amount,
-    status:'pending',
-    createdAt: Date.now()
+  // Show fee notice dynamically
+  amountInput.addEventListener('input', ()=>{
+    const value = parseInt(amountInput.value) || 0;
+    if(value > 10000){
+      feeNotice.style.display = 'block';
+    } else {
+      feeNotice.style.display = 'none';
+    }
   });
 
-  // Deduct balance
-  await db.ref(`users/${user.uid}/balance`).set(balance - amount);
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const user = auth.currentUser;
+    if(!user) return showPopup('Login required','error','login.html');
 
-  showPopup('Withdrawal request submitted!','success','dashboard.html');
-  form.reset();
-});
-</script>
+    const amount = parseInt(amountInput.value);
+
+    // Fetch user balance & fee status
+    const snap = await db.ref(`users/${user.uid}`).once('value');
+    const userData = snap.val() || {};
+    const balance = userData.balance || 0;
+    const feePaid = userData.feePaid || false;
+
+    // Minimum withdrawal
+    if(amount < 1000){
+      return showPopup('Minimum withdrawal is 1,000 KSH','error');
+    }
+
+    // Insufficient balance
+    if(amount > balance){
+      return showPopup('Insufficient balance','error');
+    }
+
+    // Require fee payment first for withdrawals > 10,000
+    if(amount > 10000 && !feePaid){
+      return showPopup(`You must first pay the transaction fee of ${FEE} KSH to unlock withdrawals.`,'error','pay_fee.html');
+    }
+
+    // Deduct withdrawal only (fee handled separately)
+    await db.ref(`users/${user.uid}/balance`).set(balance - amount);
+
+    // Record withdrawal
+    const ref = db.ref('withdrawals').push();
+    await ref.set({
+      uid: user.uid,
+      amount: amount,
+      fee: amount > 10000 ? FEE : 0,
+      status:'pending',
+      createdAt: Date.now()
+    });
+
+    showPopup('Withdrawal request submitted!','success','dashboard.html');
+    form.reset();
+    submitBtn.textContent = 'Submit Withdrawal';
+    feeNotice.style.display = 'none';
+  });
+  </script>
 </body>
 </html>
