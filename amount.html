@@ -150,23 +150,18 @@
       balanceRef.transaction(bal=>{
         bal = Number(bal) || 0;
         if(bal >= amount){
-          return bal - amount;   // deduct
-        } else {
-          return bal;            // keep balance unchanged
+          return bal - amount; // deduct
         }
+        return; // returning undefined aborts transaction
       }, async (error, committed, snap)=>{
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Withdrawal';
 
         if(error){ showPopup('Error processing','error'); return; }
-
-        const newBal = Number(snap.val()) || 0;
-        if(newBal === Number(snap.val()) && newBal + amount > newBal){
-          showPopup('Insufficient balance','error');
-          return;
-        }
+        if(!committed){ showPopup('Insufficient balance','error'); return; }
 
         try {
+          const newBal = Number(snap.val()) || 0;
           const wRef = db.ref(`withdrawals/${currentUser.uid}`).push();
           await wRef.set({amount,status:"submitted",timestamp:Date.now()});
           balanceEl.textContent = newBal.toLocaleString('en-US');
