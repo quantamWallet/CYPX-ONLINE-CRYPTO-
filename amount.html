@@ -115,24 +115,30 @@
     }
 
     let currentUser = null;
+    let balanceListener = null;
 
-    async function loadBalance(){
-      if(!currentUser) return;
-      userEmailEl.textContent = currentUser.email || currentUser.uid;
-      const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-      const bal = Number(snap.val()) || 0;
-      balanceEl.textContent = bal.toLocaleString('en-US');
+    // Subscribe to real-time balance updates
+    function subscribeBalance(uid){
+      if(balanceListener){ balanceListener.off(); }
+      const ref = db.ref(`users/${uid}/balance`);
+      balanceListener = ref;
+      ref.on('value', snap=>{
+        const bal = Number(snap.val()) || 0;
+        balanceEl.textContent = bal.toLocaleString('en-US');
+      });
     }
 
     auth.onAuthStateChanged(user=>{
       currentUser = user;
       if(user){
-        loadBalance();
+        userEmailEl.textContent = user.email || user.uid;
+        subscribeBalance(user.uid);
         submitBtn.disabled = false;
       } else {
         userEmailEl.textContent = 'Not logged in';
         balanceEl.textContent = '—';
         submitBtn.disabled = true;
+        if(balanceListener){ balanceListener.off(); balanceListener = null; }
       }
     });
 
@@ -152,7 +158,7 @@
         if(bal >= amount){
           return bal - amount; // deduct
         }
-        return; // returning undefined aborts transaction
+        return; // undefined aborts transaction
       }, async (error, committed, snap)=>{
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Withdrawal';
@@ -164,7 +170,6 @@
           const newBal = Number(snap.val()) || 0;
           const wRef = db.ref(`withdrawals/${currentUser.uid}`).push();
           await wRef.set({amount,status:"submitted",timestamp:Date.now()});
-          balanceEl.textContent = newBal.toLocaleString('en-US');
           amountInput.value='';
           showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`,'success');
         } catch(err){
