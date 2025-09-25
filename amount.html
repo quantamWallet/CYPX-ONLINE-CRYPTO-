@@ -30,7 +30,7 @@
     nav {position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border);}
     nav a {color:white; font-size:12px; text-decoration:none; text-align:center;}
     nav i {display:block; font-size:16px; margin-bottom:2px;}
-    .popup {position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.7); opacity:0; padding:20px 24px; border-radius:14px; display:none; text-align:center; max-width:80%; z-index:999; font-size:15px; font-weight:600; background:#3a1111; color:#ffd7d7; animation:popIn 0.4s ease forwards;}
+    .popup {position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.7); opacity:0; padding:20px 24px; border-radius:14px; display:none; text-align:center; max-width:80%; z-index:999; font-size:15px; font-weight:600; background:#0d4220; color:#d6ffd6; animation:popIn 0.4s ease forwards;}
     @keyframes popIn {from{transform:translate(-50%,-50%) scale(0.7); opacity:0;} to{transform:translate(-50%,-50%) scale(1); opacity:1;}}
   </style>
 </head>
@@ -43,9 +43,6 @@
       <form id="withdrawForm">
         <label class="label" for="amount">Withdrawal Amount (KES)</label>
         <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
-        <p id="feeNotice" style="color:#ffcc00; font-size:13px; margin-top:6px; display:none;">
-          Withdrawals above 1,000 KSH require a one-time 896 KSH transaction fee.
-        </p>
         <button type="submit" class="btn" id="submitBtn">Submit Withdrawal</button>
       </form>
     </div>
@@ -78,48 +75,52 @@
 
   const form = document.getElementById('withdrawForm');
   const amountInput = document.getElementById('amount');
-  const feeNotice = document.getElementById('feeNotice');
   const popup = document.getElementById('popup');
 
-  const FEE_THRESHOLD = 1000;
-  const FEE = 896;
-
-  function showPopup(msg, redirect=null){
+  function showPopup(msg){
     popup.textContent = msg;
     popup.style.display = 'block';
     popup.style.animation = 'popIn 0.4s ease forwards';
-    setTimeout(()=>{
-      popup.style.display = 'none';
-      if(redirect) window.location.href = redirect;
-    },2000);
+    setTimeout(()=>{ popup.style.display = 'none'; },2500);
   }
-
-  amountInput.addEventListener('input', ()=>{
-    const value = parseInt(amountInput.value)||0;
-    feeNotice.style.display = value > FEE_THRESHOLD ? 'block' : 'none';
-  });
 
   form.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const user = auth.currentUser;
-    if(!user){ window.location.href="login.html"; return; }
+    if(!user){ return showPopup("Login required"); }
 
     const amount = parseInt(amountInput.value,10);
-    if(isNaN(amount) || amount < 1000) return;
-
-    // If amount > threshold and fee not yet paid, redirect to payfee.html
-    const snap = await db.ref(`users/${user.uid}/feePaid`).once('value');
-    const feePaid = snap.val() || false;
-
-    if(amount > FEE_THRESHOLD && !feePaid){
-      const returnUrl = encodeURIComponent('withdraw.html');
-      const amountParam = encodeURIComponent(amount);
-      showPopup(`You need to pay a transaction fee of ${FEE} KSH to proceed with withdrawal`,`payfee.html?return=${returnUrl}&amount=${amountParam}`);
-      return;
+    if(isNaN(amount) || amount < 1000){
+      return showPopup("Minimum withdrawal is 1000 KSH");
     }
 
-    // If fee is paid (or amount = 1000), just send them to dashboard
-    window.location.href="dashboard.html";
+    try {
+      // Get current balance
+      const snap = await db.ref(`users/${user.uid}/balance`).once('value');
+      let balance = snap.val() || 0;
+
+      if(balance < amount){
+        return showPopup("Insufficient balance");
+      }
+
+      // Deduct balance
+      balance -= amount;
+      await db.ref(`users/${user.uid}/balance`).set(balance);
+
+      // Save withdrawal request
+      const newReqRef = db.ref(`withdrawals/${user.uid}`).push();
+      await newReqRef.set({
+        amount: amount,
+        status: "submitted",
+        timestamp: Date.now()
+      });
+
+      showPopup("Withdrawal request submitted");
+      form.reset();
+    } catch(err){
+      console.error(err);
+      showPopup("Error processing request");
+    }
   });
   </script>
 </body>
