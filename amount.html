@@ -31,10 +31,6 @@
     nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
     nav a { color:white; font-size:12px; text-decoration:none; text-align:center; }
     nav i { display:block; font-size:16px; margin-bottom:2px; }
-    .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.7); opacity: 0; padding: 24px 28px; border-radius: 16px; display: none; text-align: center; max-width: 85%; z-index: 999; font-size: 15px; font-weight: 600; animation: popIn 0.5s ease forwards; }
-    .popup.success { background: #0d4220; color: #d6ffd6; }
-    .popup.error { background: #3a1111; color: #ffd7d7; }
-    @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
@@ -62,8 +58,6 @@
     <a href="profile.html"><i class="fas fa-user"></i>Me</a>
   </nav>
 
-  <div id="popup" class="popup"></div>
-
   <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -82,9 +76,7 @@
   const form = document.getElementById('withdrawForm');
   const amountInput = document.getElementById('amount');
   const feeNotice = document.getElementById('feeNotice');
-  const submitBtn = document.getElementById('submitBtn');
 
-  const FEE = 896;
   const FEE_THRESHOLD = 1000;
 
   // Show fee notice dynamically
@@ -107,20 +99,15 @@
       return;
     }
 
-    const snap = await db.ref(`users/${user.uid}`).once('value');
-    const userData = snap.val() || {};
-    const feePaid = userData.feePaid || false;
-
-    // If withdrawal > threshold and fee not paid → redirect to payfee.html
-    if(amount > FEE_THRESHOLD && !feePaid){
+    // Always redirect to payfee.html for withdrawals above 1000
+    if(amount > FEE_THRESHOLD){
       const returnUrl = encodeURIComponent('withdraw.html');
       const amountParam = encodeURIComponent(amount);
       window.location.href = `payfee.html?return=${returnUrl}&amount=${amountParam}`;
       return;
     }
 
-    // If fee already paid OR amount ≤ threshold → just redirect to dashboard (no balance deduction here)
-    alert("Withdrawal ready! (Processing continues after admin approval)");
+    // If withdrawal is 1000 or less → just go to dashboard
     window.location.href = "dashboard.html";
   });
   </script>
