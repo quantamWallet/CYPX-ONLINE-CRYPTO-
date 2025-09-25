@@ -19,23 +19,22 @@
       --radius:14px; --shadow: 0 8px 30px rgba(0,0,0,0.25);
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,var(--bg),#001f3f);color:var(--text);-webkit-font-smoothing:antialiased}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,var(--bg),#001f3f);color:var(--text)}
     header{padding:14px 18px;font-weight:700;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.03)}
     .container{width:min(100%,920px);margin:28px auto;padding:0 18px}
     .card{background:linear-gradient(160deg,var(--card),#0e3a6f);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow)}
     h2{margin:0 0 12px;font-size:18px;color:#bfffd0}
     .label{display:block;margin:8px 0 6px;color:#cfe3ff;font-size:13px}
     .input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#06243f;color:var(--text);font-size:15px}
-    .row{display:flex;gap:12px;align-items:center}
-    .btn{margin-top:14px;padding:12px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(180deg,#2ecc71,var(--accent));color:white;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+    .btn{margin-top:14px;padding:12px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(180deg,#2ecc71,var(--accent));color:white}
     .small{font-size:13px;color:#d8ecff;margin-top:8px}
-    nav{position:fixed;bottom:0;left:0;right:0;background:#002244;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid rgba(255,255,255,0.03)}
+    nav{position:fixed;bottom:0;left:0;right:0;background:#002244;display:flex;justify-content:space-around;padding:10px 0}
     nav a{color:white;text-decoration:none;font-size:12px;text-align:center}
     nav i{display:block;margin-bottom:4px}
     #balanceBox{display:inline-block;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;font-weight:700}
-    .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);min-width:220px;padding:14px 18px;border-radius:12px;z-index:999;display:none;text-align:center;font-weight:700}
-    .popup.success{background:#083b18;color:#d6ffd6;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
-    .popup.error{background:#3a1111;color:#ffd7d7;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
+    .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:220px;padding:14px 18px;border-radius:12px;z-index:999;display:none;text-align:center;font-weight:700}
+    .popup.success{background:#083b18;color:#d6ffd6}
+    .popup.error{background:#3a1111;color:#ffd7d7}
   </style>
 </head>
 <body>
@@ -59,7 +58,7 @@
       <form id="withdrawForm">
         <label class="label" for="amount">Withdrawal Amount (KES)</label>
         <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
-        <div class="small">Minimum withdrawal <strong>1,000 KES</strong>. Your balance must be sufficient — amount will be deducted immediately on submit.</div>
+        <div class="small">Minimum withdrawal <strong>1,000 KES</strong>. Amount is deducted immediately when submitted.</div>
         <button id="submitBtn" class="btn" type="submit"><i class="fa-regular fa-paper-plane"></i> Submit Withdrawal</button>
       </form>
     </div>
@@ -99,7 +98,7 @@
     const submitBtn = document.getElementById('submitBtn');
     const popup = document.getElementById('popup');
 
-    function showPopup(msg, type = 'success', timeout = 2600){
+    function showPopup(msg, type='success', timeout=2600){
       popup.textContent = msg;
       popup.className = 'popup ' + (type === 'error' ? 'error' : 'success');
       popup.style.display = 'block';
@@ -108,94 +107,57 @@
 
     let currentUser = null;
 
-    // Load balance & user info
     async function loadBalance(){
-      if(!currentUser) {
-        balanceEl.textContent = '—';
-        userEmailEl.textContent = 'Not logged in';
-        return;
-      }
-      userEmailEl.textContent = currentUser.email || currentUser.phoneNumber || currentUser.uid;
-      try {
-        const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-        const bal = Number(snap.val()) || 0;
-        balanceEl.textContent = bal.toLocaleString('en-US');
-      } catch(err) {
-        console.error('Load balance error', err);
-        showPopup('Unable to load balance', 'error');
-      }
+      if(!currentUser) return;
+      userEmailEl.textContent = currentUser.email || currentUser.uid;
+      const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+      const bal = Number(snap.val()) || 0;
+      balanceEl.textContent = bal.toLocaleString('en-US');
     }
 
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user=>{
       currentUser = user;
-      if(!user){
-        showPopup('Please log in to withdraw', 'error', 2500);
+      if(user){
+        loadBalance();
+        submitBtn.disabled = false;
+      } else {
         userEmailEl.textContent = 'Not logged in';
         balanceEl.textContent = '—';
         submitBtn.disabled = true;
-      } else {
-        submitBtn.disabled = false;
-        loadBalance();
       }
     });
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      if(!currentUser){ showPopup('Login required', 'error'); return; }
+      if(!currentUser){ showPopup('Login required','error'); return; }
 
-      const amount = Math.floor(Number(amountInput.value || 0));
-      if(!amount || amount < 1000){
-        showPopup('Minimum withdrawal is 1,000 KES', 'error');
-        return;
-      }
+      const amount = Math.floor(Number(amountInput.value));
+      if(!amount || amount < 1000){ showPopup('Minimum withdrawal is 1,000 KES','error'); return; }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Processing...';
 
       const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
-
-      balanceRef.transaction(function(currentBalance){
-        let bal = Number(currentBalance);
-        if (isNaN(bal)) bal = 0;
-
-        if (bal >= amount) {
-          return bal - amount;    // deduct
-        } else {
-          return currentBalance;  // no change
-        }
-      }, async function(error, committed, snapshot){
+      balanceRef.transaction(bal=>{
+        bal = Number(bal)||0;
+        if(bal >= amount) return bal-amount;
+        return; // abort if insufficient
+      }, async (error, committed, snap)=>{
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Withdrawal';
 
-        if(error){
-          console.error('Transaction failed:', error);
-          showPopup('Error processing request', 'error');
-          return;
-        }
-
-        if(!committed){
-          showPopup('Insufficient balance', 'error');
-          await loadBalance();
-          return;
-        }
-
-        const newBalance = Number(snapshot.val()) || 0;
+        if(error){ showPopup('Error processing','error'); return; }
+        if(!committed){ showPopup('Insufficient balance','error'); return; }
 
         try {
-          const withdrawalRef = db.ref(`withdrawals/${currentUser.uid}`).push();
-          await withdrawalRef.set({
-            amount: amount,
-            status: "submitted",
-            timestamp: Date.now()
-          });
-
-          showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`, 'success');
-          balanceEl.textContent = newBalance.toLocaleString('en-US');
-          amountInput.value = '';
-        } catch (err) {
-          console.error('Failed to log withdrawal', err);
-          showPopup('Withdrawal deducted but not logged. Contact support.', 'error', 4000);
-          await loadBalance();
+          const newBal = Number(snap.val())||0;
+          const wRef = db.ref(`withdrawals/${currentUser.uid}`).push();
+          await wRef.set({amount,status:"submitted",timestamp:Date.now()});
+          balanceEl.textContent = newBal.toLocaleString('en-US');
+          amountInput.value='';
+          showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`,'success');
+        } catch(err){
+          showPopup('Withdrawal deducted but not logged','error');
         }
       });
     });
