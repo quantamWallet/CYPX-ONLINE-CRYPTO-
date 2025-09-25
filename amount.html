@@ -1,37 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Withdraw via M-Pesa - CYPX ONLINE CRYPTO</title>
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
-  <!-- Firebase -->
+  <!-- Firebase v8 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <style>
-    :root {
-      --bg:#001a33; --bg2:#07284a; --brand:#25d366; --text:#ffffff;
-      --muted:#a7bdd8; --card:#0b2f5a; --card-2:#0e3a6f; --border:#1e477a;
-      --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:16px;
+    :root{
+      --bg:#001a33; --card:#0b2f5a; --accent:#25d366; --muted:#a7bdd8; --text:#fff;
+      --radius:14px; --shadow: 0 8px 30px rgba(0,0,0,0.25);
     }
-    body {margin:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif;}
-    header {padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; font-weight:600;}
-    .container {width:min(100%,960px); margin:24px auto 120px; padding:0 16px;}
-    .card {background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow);}
-    .card h2 {margin:0 0 14px; font-size:18px; font-weight:700; color:#99ffcc;}
-    .label {font-size:13px; margin-bottom:6px; display:block; color:#cfe3ff;}
-    .input {width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; font-size:14px;}
-    .btn {margin-top:14px; padding:12px; border-radius:12px; font-weight:700; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#2ecc71,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); cursor:pointer;}
-    nav {position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border);}
-    nav a {color:white; font-size:12px; text-decoration:none; text-align:center;}
-    nav i {display:block; font-size:16px; margin-bottom:2px;}
-    .popup {position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.7); opacity:0; padding:20px 24px; border-radius:14px; display:none; text-align:center; max-width:80%; z-index:999; font-size:15px; font-weight:600; background:#0d4220; color:#d6ffd6; animation:popIn 0.4s ease forwards;}
-    @keyframes popIn {from{transform:translate(-50%,-50%) scale(0.7); opacity:0;} to{transform:translate(-50%,-50%) scale(1); opacity:1;}}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,var(--bg),#001f3f);color:var(--text);-webkit-font-smoothing:antialiased}
+    header{padding:14px 18px;font-weight:700;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.03)}
+    .container{width:min(100%,920px);margin:28px auto;padding:0 18px}
+    .card{background:linear-gradient(160deg,var(--card),#0e3a6f);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    h2{margin:0 0 12px;font-size:18px;color:#bfffd0}
+    .label{display:block;margin:8px 0 6px;color:#cfe3ff;font-size:13px}
+    .input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#06243f;color:var(--text);font-size:15px}
+    .row{display:flex;gap:12px;align-items:center}
+    .btn{margin-top:14px;padding:12px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(180deg,#2ecc71,var(--accent));color:white;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+    .small{font-size:13px;color:#d8ecff;margin-top:8px}
+    nav{position:fixed;bottom:0;left:0;right:0;background:#002244;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid rgba(255,255,255,0.03)}
+    nav a{color:white;text-decoration:none;font-size:12px;text-align:center}
+    nav i{display:block;margin-bottom:4px}
+    #balanceBox{display:inline-block;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;font-weight:700}
+    .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);min-width:220px;padding:14px 18px;border-radius:12px;z-index:999;display:none;text-align:center;font-weight:700}
+    .popup.success{background:#083b18;color:#d6ffd6;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
+    .popup.error{background:#3a1111;color:#ffd7d7;box-shadow:0 10px 30px rgba(0,0,0,0.4)}
   </style>
 </head>
 <body>
@@ -40,10 +44,23 @@
   <div class="container">
     <div class="card">
       <h2><i class="fa-solid fa-money-bill-transfer"></i> Request Withdrawal</h2>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="font-size:12px;color:#cfe3ff">Available balance</div>
+          <div id="balanceBox">KES <span id="balance">—</span></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;color:#cfe3ff">Logged in as</div>
+          <div id="userEmail" style="font-size:13px;color:#d8ecff">—</div>
+        </div>
+      </div>
+
       <form id="withdrawForm">
         <label class="label" for="amount">Withdrawal Amount (KES)</label>
         <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
-        <button type="submit" class="btn" id="submitBtn">Submit Withdrawal</button>
+        <div class="small">Minimum withdrawal <strong>1,000 KES</strong>. Your balance must be sufficient — amount will be deducted immediately on submit.</div>
+        <button id="submitBtn" class="btn" type="submit"><i class="fa-regular fa-paper-plane"></i> Submit Withdrawal</button>
       </form>
     </div>
   </div>
@@ -59,6 +76,7 @@
   <div id="popup" class="popup"></div>
 
   <script>
+  // ---------- Firebase config ----------
   const firebaseConfig = {
     apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain:"quantum-rio.firebaseapp.com",
@@ -73,54 +91,129 @@
   const auth = firebase.auth();
   const db = firebase.database();
 
+  // ---------- UI refs ----------
+  const balanceEl = document.getElementById('balance');
+  const userEmailEl = document.getElementById('userEmail');
   const form = document.getElementById('withdrawForm');
   const amountInput = document.getElementById('amount');
+  const submitBtn = document.getElementById('submitBtn');
   const popup = document.getElementById('popup');
 
-  function showPopup(msg){
+  function showPopup(msg, type = 'success', timeout = 2600){
     popup.textContent = msg;
+    popup.className = 'popup ' + (type === 'error' ? 'error' : 'success');
     popup.style.display = 'block';
-    popup.style.animation = 'popIn 0.4s ease forwards';
-    setTimeout(()=>{ popup.style.display = 'none'; },2500);
+    setTimeout(()=> popup.style.display = 'none', timeout);
   }
 
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const user = auth.currentUser;
-    if(!user){ return showPopup("Login required"); }
+  // Keep track of the signed in user
+  let currentUser = null;
 
-    const amount = parseInt(amountInput.value,10);
-    if(isNaN(amount) || amount < 1000){
-      return showPopup("Minimum withdrawal is 1000 KSH");
+  // Load balance & user info if logged in
+  async function loadBalance(){
+    if(!currentUser) {
+      balanceEl.textContent = '—';
+      userEmailEl.textContent = 'Not logged in';
+      return;
+    }
+    userEmailEl.textContent = currentUser.email || currentUser.phoneNumber || currentUser.uid;
+    try {
+      const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+      const bal = Number(snap.val() || 0);
+      balanceEl.textContent = bal.toLocaleString('en-US');
+    } catch(err) {
+      console.error('Load balance error', err);
+      showPopup('Unable to load balance', 'error');
+    }
+  }
+
+  // Wait for Firebase Auth state
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    if(!user){
+      showPopup('Please log in to withdraw', 'error', 2500);
+      userEmailEl.textContent = 'Not logged in';
+      balanceEl.textContent = '—';
+      submitBtn.disabled = true;
+    } else {
+      submitBtn.disabled = false;
+      loadBalance();
+    }
+  });
+
+  // Form submit: run a DB transaction to deduct balance atomically
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!currentUser){ showPopup('Login required', 'error'); return; }
+
+    const amount = Math.floor(Number(amountInput.value || 0));
+    if(!amount || amount < 1000){
+      showPopup('Minimum withdrawal is 1,000 KES', 'error');
+      return;
     }
 
-    try {
-      // Get current balance
-      const snap = await db.ref(`users/${user.uid}/balance`).once('value');
-      let balance = snap.val() || 0;
+    // disable UI while processing
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
 
-      if(balance < amount){
-        return showPopup("Insufficient balance");
+    const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+
+    // transaction ensures atomic update
+    balanceRef.transaction(function(currentBalance){
+      // normalize possible string values
+      const bal = Number(currentBalance || 0);
+      if(bal < amount){
+        // returning undefined aborts the transaction (no write)
+        return; // abort -> committed = false in callback
+      }
+      return bal - amount;
+    }, async function(error, committed, snapshot){
+      // re-enable UI
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Withdrawal';
+
+      if(error){
+        console.error('Transaction failed:', error);
+        showPopup('Error processing request', 'error');
+        return;
       }
 
-      // Deduct balance
-      balance -= amount;
-      await db.ref(`users/${user.uid}/balance`).set(balance);
+      if(!committed){
+        // Not committed either due to insufficient funds or race conflict that resulted in insufficient funds
+        showPopup('Insufficient balance', 'error');
+        // refresh displayed balance
+        await loadBalance();
+        return;
+      }
 
-      // Save withdrawal request
-      const newReqRef = db.ref(`withdrawals/${user.uid}`).push();
-      await newReqRef.set({
-        amount: amount,
-        status: "submitted",
-        timestamp: Date.now()
-      });
+      // Transaction success: snapshot.val() is the NEW balance
+      const newBalance = Number(snapshot.val() || 0);
 
-      showPopup("Withdrawal request submitted");
-      form.reset();
-    } catch(err){
-      console.error(err);
-      showPopup("Error processing request");
-    }
+      // Create withdrawal request record
+      try {
+        const withdrawalRef = db.ref(`withdrawals/${currentUser.uid}`).push();
+        await withdrawalRef.set({
+          amount: amount,
+          status: "submitted",
+          timestamp: Date.now(),
+          processed: false
+        });
+
+        showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`, 'success');
+
+        // update UI balance
+        balanceEl.textContent = newBalance.toLocaleString('en-US');
+
+        // clear input
+        amountInput.value = '';
+      } catch (err) {
+        console.error('Failed to write withdrawal record', err);
+        // IMPORTANT: If writing the withdrawal record failed after the transaction, the user's balance is already deducted.
+        // You might want to log this on server/admin and/or retry; here we notify the user to contact support.
+        showPopup('Withdraw saved but failed to log request — contact support', 'error', 4000);
+        await loadBalance();
+      }
+    });
   });
   </script>
 </body>
