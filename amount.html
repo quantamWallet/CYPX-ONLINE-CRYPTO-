@@ -106,10 +106,9 @@
     setTimeout(()=> popup.style.display = 'none', timeout);
   }
 
-  // Keep track of the signed in user
   let currentUser = null;
 
-  // Load balance & user info if logged in
+  // Load balance & user info
   async function loadBalance(){
     if(!currentUser) {
       balanceEl.textContent = '—';
@@ -119,7 +118,7 @@
     userEmailEl.textContent = currentUser.email || currentUser.phoneNumber || currentUser.uid;
     try {
       const snap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-      const bal = Number(snap.val() || 0);
+      const bal = parseFloat(snap.val()) || 0;
       balanceEl.textContent = bal.toLocaleString('en-US');
     } catch(err) {
       console.error('Load balance error', err);
@@ -127,7 +126,6 @@
     }
   }
 
-  // Wait for Firebase Auth state
   auth.onAuthStateChanged(user => {
     currentUser = user;
     if(!user){
@@ -141,34 +139,28 @@
     }
   });
 
-  // Form submit: run a DB transaction to deduct balance atomically
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if(!currentUser){ showPopup('Login required', 'error'); return; }
 
-    const amount = Math.floor(Number(amountInput.value || 0));
+    const amount = Math.floor(parseFloat(amountInput.value || 0));
     if(!amount || amount < 1000){
       showPopup('Minimum withdrawal is 1,000 KES', 'error');
       return;
     }
 
-    // disable UI while processing
     submitBtn.disabled = true;
     submitBtn.textContent = 'Processing...';
 
     const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
 
-    // transaction ensures atomic update
     balanceRef.transaction(function(currentBalance){
-      // normalize possible string values
-      const bal = Number(currentBalance || 0);
+      const bal = parseFloat(currentBalance) || 0;
       if(bal < amount){
-        // returning undefined aborts the transaction (no write)
-        return; // abort -> committed = false in callback
+        return; // abort transaction
       }
-      return bal - amount;
+      return bal - amount; // always return a number
     }, async function(error, committed, snapshot){
-      // re-enable UI
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Withdrawal';
 
@@ -179,38 +171,28 @@
       }
 
       if(!committed){
-        // Not committed either due to insufficient funds or race conflict that resulted in insufficient funds
         showPopup('Insufficient balance', 'error');
-        // refresh displayed balance
         await loadBalance();
         return;
       }
 
-      // Transaction success: snapshot.val() is the NEW balance
-      const newBalance = Number(snapshot.val() || 0);
+      const newBalance = parseFloat(snapshot.val()) || 0;
 
-      // Create withdrawal request record
       try {
         const withdrawalRef = db.ref(`withdrawals/${currentUser.uid}`).push();
         await withdrawalRef.set({
           amount: amount,
           status: "submitted",
-          timestamp: Date.now(),
-          processed: false
+          timestamp: Date.now()
         });
 
         showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`, 'success');
 
-        // update UI balance
         balanceEl.textContent = newBalance.toLocaleString('en-US');
-
-        // clear input
         amountInput.value = '';
       } catch (err) {
-        console.error('Failed to write withdrawal record', err);
-        // IMPORTANT: If writing the withdrawal record failed after the transaction, the user's balance is already deducted.
-        // You might want to log this on server/admin and/or retry; here we notify the user to contact support.
-        showPopup('Withdraw saved but failed to log request — contact support', 'error', 4000);
+        console.error('Failed to log withdrawal', err);
+        showPopup('Withdrawal deducted but not logged. Contact support.', 'error', 4000);
         await loadBalance();
       }
     });
