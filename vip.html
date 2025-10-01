@@ -81,23 +81,25 @@
 
     /* bottom navigation */
     nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #002244;
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 0;
-      }
-      nav a {
-        color: white;
-        text-align: center;
-        text-decoration: none;
-      }
-      nav i {
-        font-size: 20px;
-      }
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+    }
+    nav i {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 4px;
+    }
     nav a:hover { color: #ffcc00; }
 
     /* popup */
@@ -220,7 +222,6 @@
     }
     window.closePopup = function(){ popup.style.display = "none"; }
 
-    // Define 15 VIP levels
     const vipLevels = [
       { level:1, cost:3000, profit:400 },
       { level:2, cost:5000, profit:620 },
@@ -245,7 +246,7 @@
       currentUser=user;
       userRef=ref(db,"users/"+user.uid);
       onValue(userRef,snap=>{
-        localData=snap.val()||{ balance:0, vipLevels:[] };
+        localData=snap.val()||{ balance:0, vipLevels:{} };
         renderAll();
       });
     });
@@ -253,6 +254,13 @@
     function renderAll(){
       container.innerHTML="";
       vipLevels.forEach(v=>{
+        const userVIP = localData.vipLevels?.[v.level] || null;
+        const claims = userVIP?.claims || 0;
+        const unlocked = userVIP?.unlocked || false;
+        const btnLabel = unlocked ? "Receive" : "Unlock";
+        const btnClass = unlocked ? "receive-btn" : "unlock-btn";
+        const disabled = unlocked && claims >= 12 ? "disabled" : "";
+
         const card=document.createElement("div");
         card.className="vip-card";
         card.innerHTML=`
@@ -264,26 +272,64 @@
               <div class="profit"><strong>Daily Profit:</strong> ${v.profit} KSH</div>
               <div><strong>Total (12 days):</strong> ${v.profit*12} KSH</div>
               <div class="countdown" id="countdown-${v.level}">Next claim: --:--:--</div>
-              <button class="unlock-btn" id="unlock-${v.level}">Unlock</button>
+              <button class="${btnClass}" id="action-${v.level}" ${disabled}>${btnLabel}</button>
             </div>
           </div>
         `;
         container.appendChild(card);
-        card.querySelector(`#unlock-${v.level}`).addEventListener("click", ()=>handleUnlock(v.level,v.cost));
+
+        const btn = card.querySelector(`#action-${v.level}`);
+        if(unlocked){
+          btn.addEventListener("click",()=>handleClaim(v.level,v.profit));
+        } else {
+          btn.addEventListener("click",()=>handleUnlock(v.level,v.cost));
+        }
+
         startCountdown(v.level);
       });
     }
 
     async function handleUnlock(level,cost){
       const snap=await get(userRef);
-      const data=snap.val()||{ balance:0 };
+      const data=snap.val()||{ balance:0, vipLevels:{} };
       if(data.balance<cost){
         const needed=(cost-data.balance).toFixed(2);
         showPopup(`Insufficient balance, you need ${needed} KSH to unlock this VIP level`);
         return;
       }
+      if(!data.vipLevels) data.vipLevels={};
+      data.vipLevels[level] = { unlocked:true, claims:0, lastClaim:0 };
+
+      await update(userRef,{
+        [`vipLevels/${level}`]: data.vipLevels[level]
+      });
+
       showToast(`VIP${level} unlocked successfully!`);
-      // update logic can be added here
+    }
+
+    async function handleClaim(level,profit){
+      const snap=await get(userRef);
+      const data=snap.val()||{ balance:0, vipLevels:{} };
+      const vip=data.vipLevels?.[level];
+      if(!vip || !vip.unlocked){
+        showToast("VIP not unlocked yet.");
+        return;
+      }
+      let claims=vip.claims || 0;
+      if(claims>=12){
+        showToast("This VIP has expired after 12 days.");
+        return;
+      }
+      claims+=1;
+      const newBalance=(data.balance||0)+profit;
+
+      await update(userRef,{
+        balance:newBalance,
+        [`vipLevels/${level}/claims`]:claims,
+        [`vipLevels/${level}/lastClaim`]:Date.now()
+      });
+
+      showToast(`Daily profit of ${profit} KSH claimed for VIP${level}`);
     }
 
     function startCountdown(level){
