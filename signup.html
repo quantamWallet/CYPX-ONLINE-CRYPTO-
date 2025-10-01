@@ -12,16 +12,17 @@
     --yellow: #ffd400;
   }
 
-  html,body{height:100%;margin:0}
+  html,body{margin:0; padding:0; height:100%;}
   body{
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
-    height:100vh;
+    min-height:100vh;
     display:flex;
     justify-content:center;
-    align-items:center;
+    align-items:flex-start;   /* align to top instead of middle */
     background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
-    overflow:hidden;
     position:relative;
+    padding:20px 0 0.5cm 0;   /* breathing space at bottom */
+    overflow:auto;            /* allow scroll if content grows */
   }
   body::before{
     content:"";
