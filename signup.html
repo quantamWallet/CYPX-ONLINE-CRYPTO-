@@ -5,29 +5,121 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Create Account</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#141E30,#243B55);overflow:hidden;position:relative}
-body::before{content:"";position:absolute;inset:0;background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");background-repeat:repeat;background-size:150px;opacity:0.07;z-index:0}
-.card{position:relative;z-index:1;background:rgba(30,41,59,0.85);backdrop-filter:blur(10px);padding:30px;border-radius:20px;box-shadow:0 4px 30px rgba(0,0,0,0.4);width:350px;color:white;text-align:center}
-.card input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;outline:none;font-size:14px}
-.btn{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(90deg,#00C6FF,#0072FF);color:white;font-weight:bold;cursor:pointer;margin-top:10px;font-size:15px}
-.btn:hover{opacity:.9}
-.link{margin-top:10px;display:block;color:#00C6FF;text-decoration:none}
-.toast{position:fixed;top:20px;right:20px;background:#ff4d4f;color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.3);z-index:1000;font-size:14px;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  :root{
+    --card-bg: rgba(7,20,38,0.92);
+    --input-bg: rgba(255,255,255,0.03);
+    --muted: rgba(255,255,255,0.55);
+    --yellow: #ffd400;
+  }
+
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
+    overflow:hidden;
+    position:relative;
+  }
+  body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
+    background-repeat:repeat;
+    background-size:150px;
+    opacity:0.04;
+    z-index:0;
+    filter:blur(0.5px);
+  }
+
+  .card{
+    position:relative;
+    z-index:1;
+    width:420px;
+    max-width:calc(100vw - 40px);
+    background:linear-gradient(180deg,rgba(6,20,40,0.95),rgba(7,18,34,0.92));
+    border-radius:28px;
+    padding:34px 28px;
+    box-shadow:0 14px 40px rgba(2,6,23,0.7);
+    color:#fff;
+  }
+  .card .title{ text-align:center; margin-bottom:4px; font-weight:800; font-size:28px; letter-spacing:1px; text-transform:uppercase; }
+  .card .subtitle{ text-align:center; color:rgba(255,255,255,0.78); font-weight:500; margin-bottom:18px; font-size:14px; }
+
+  .field{ margin-bottom:14px; }
+  label{ display:block; color:var(--muted); font-size:15px; margin-bottom:8px; font-weight:600; }
+  .input,.phone-prefix{
+    width:100%; box-sizing:border-box; background:var(--input-bg);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:14px 16px; border-radius:12px; color:#e9f5ff; font-size:15px; outline:none;
+  }
+  .input::placeholder{color:rgba(255,255,255,0.45);}
+  .phone-row{ display:flex; gap:12px; }
+  .phone-prefix{ min-width:96px; max-width:110px; text-align:center; font-weight:700; color:#fff; }
+
+  .btn{
+    width:100%; padding:16px; margin-top:14px; border-radius:12px; border:none; cursor:pointer;
+    font-weight:800; font-size:18px; background:linear-gradient(90deg,#ffd400,#ffcf00); color:#111;
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+  }
+  .signin-line{ text-align:center; margin-top:18px; color:rgba(255,255,255,0.85); font-size:15px; }
+  .signin-line a{ color:#7fc4ff; font-weight:700; text-decoration:none; }
+
+  /* toast notification */
+  .toast{
+    position:fixed; top:20px; right:20px;
+    padding:12px 18px; border-radius:8px;
+    color:#fff; font-size:15px; font-weight:500;
+    z-index:9999; box-shadow:0 3px 12px rgba(0,0,0,0.35);
+    animation:fadeIn .3s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
-<div class="card">
-  <h2>Create Account</h2>
-  <form id="signupForm">
-    <input type="text" id="username" placeholder="Username" />
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="tel" id="phone" placeholder="Phone Number" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button class="btn" type="submit">Create Account</button>
-  </form>
-  <a href="signin.html" class="link">Already have an account? Sign In</a>
-</div>
+  <div class="card">
+    <div style="text-align:center;margin-bottom:6px;">
+      <div class="title">CYPX ONLINE CRYPTO</div>
+      <div class="subtitle">Secure • Reliable • Growth</div>
+    </div>
+
+    <form id="signupForm" autocomplete="off" novalidate>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" class="input" type="text" placeholder="Choose a username" />
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone Number</label>
+        <div class="phone-row">
+          <div class="phone-prefix">🇰🇪 +254</div>
+          <input id="phone" class="input" type="tel" inputmode="tel" placeholder="7XXXXXXXX" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" placeholder="Enter your email" required />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" class="input" type="password" placeholder="Minimum 6 characters" required />
+      </div>
+
+      <div class="field">
+        <label for="confirm_password">Confirm Password</label>
+        <input id="confirm_password" class="input" type="password" placeholder="Repeat password" />
+      </div>
+
+      <button class="btn" type="submit">Create Account</button>
+    </form>
+
+    <div class="signin-line">Already have an account? <a href="signin.html">Sign In</a></div>
+  </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
@@ -48,6 +140,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+// Toast helper
 function showToast(msg, success=false){
   const t=document.createElement("div");
   t.className="toast";
@@ -57,10 +150,10 @@ function showToast(msg, success=false){
   setTimeout(()=>t.remove(),4000);
 }
 
-// ?ref=username
+// referral param (?ref=username)
 const refUsername=new URLSearchParams(window.location.search).get("ref")||null;
 
-// duplicate-email check
+// email duplication check
 const emailInput=document.getElementById("email");
 emailInput.addEventListener("blur",async()=>{
   const e=emailInput.value.trim();
@@ -71,14 +164,21 @@ emailInput.addEventListener("blur",async()=>{
   }catch(err){console.error(err);}
 });
 
+// signup process
 document.getElementById("signupForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const email=emailInput.value.trim();
   const password=document.getElementById("password").value.trim();
+  const confirmPassword=document.getElementById("confirm_password").value.trim();
   const typedUsername=document.getElementById("username").value.trim();
   const phone=document.getElementById("phone").value.trim();
 
-  if(!email||!password||!phone){showToast("Please fill all required fields.");return;}
+  if(!email||!password||!confirmPassword||!phone){
+    showToast("Please fill all required fields.");return;
+  }
+  if(password!==confirmPassword){
+    showToast("Passwords do not match.");return;
+  }
 
   try{
     const methods=await fetchSignInMethodsForEmail(auth,email);
@@ -87,33 +187,29 @@ document.getElementById("signupForm").addEventListener("submit",async e=>{
     const cred=await createUserWithEmailAndPassword(auth,email,password);
     const user=cred.user;
 
-    // username fallback
-    let finalUsername = "";
-    if (typedUsername) finalUsername = typedUsername;
-    else if (user.displayName && user.displayName.trim()!=="") finalUsername = user.displayName.trim();
-    else if (user.email) finalUsername = user.email.split("@")[0];
-    else finalUsername = "user" + user.uid.slice(0,6);
+    // username
+    let finalUsername=typedUsername || (user.email?user.email.split("@")[0]:"user"+user.uid.slice(0,6));
 
-    // save profile
+    // save user profile
     await set(ref(db,"users/"+user.uid),{
-      username: finalUsername,
+      username:finalUsername,
       email,
       phone,
-      referredBy: refUsername || ""
+      referredBy:refUsername || ""
     });
 
-    // index for referrals
+    // username index
     await set(ref(db,"usernames/"+finalUsername),user.uid);
 
-    // sponsor link
+    // save referral
     if(refUsername){
       const snap=await get(child(ref(db),"usernames/"+refUsername));
       if(snap.exists()){
         const sponsorUid=snap.val();
         await set(ref(db,"referrals/"+sponsorUid+"/"+user.uid),{
-          username: finalUsername,
+          username:finalUsername,
           email,
-          timestamp: Date.now()
+          timestamp:Date.now()
         });
       }
     }
