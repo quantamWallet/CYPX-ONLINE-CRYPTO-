@@ -30,11 +30,11 @@
   .bonus-box {
     background: rgba(255,255,255,0.05);
     border: 2px solid #00ffcc;
-    border-radius: 20px;
-    width: 180px;
+    border-radius: 15px;
+    width: 150px; /* smaller width */
     text-align: center;
-    padding: 20px;
-    box-shadow: 0 10px 25px #00000050;
+    padding: 15px; /* reduced padding */
+    box-shadow: 0 8px 20px #00000040;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -45,34 +45,34 @@
     box-shadow: 0 15px 30px #00ffcc70;
   }
   .bonus-box h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
+    font-size: 18px; /* smaller heading */
+    margin-bottom: 8px;
     color: #ffcc00;
   }
   .bonus-box p {
-    font-size: 16px;
-    margin: 5px 0;
+    font-size: 14px; /* smaller text */
+    margin: 4px 0;
     color: #ffffffcc;
   }
   .bonus-badge {
     position: absolute;
     top: -10px;
-    right: 20px; /* shifted 2cm left */
+    right: 15px;
     background-color: #34B233;
     color: white;
     font-weight: bold;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 50%;
-    font-size: 14px;
-    box-shadow: 0 4px 10px #00000080;
+    font-size: 12px; /* smaller badge */
+    box-shadow: 0 3px 8px #00000070;
   }
   .bonus-badge-glow {
     animation: glow 1.5s infinite alternate;
   }
   @keyframes glow {
-    0% { box-shadow: 0 0 10px #34B233; transform: scale(1); }
-    50% { box-shadow: 0 0 20px #34B233; transform: scale(1.1); }
-    100% { box-shadow: 0 0 10px #34B233; transform: scale(1); }
+    0% { box-shadow: 0 0 8px #34B233; transform: scale(1); }
+    50% { box-shadow: 0 0 16px #34B233; transform: scale(1.1); }
+    100% { box-shadow: 0 0 8px #34B233; transform: scale(1); }
   }
 
   /* --- Prevent text selection --- */
