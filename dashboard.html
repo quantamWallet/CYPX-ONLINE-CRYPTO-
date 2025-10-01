@@ -327,14 +327,19 @@
 ①Unlock your VIP level and realize the wealth channel:
         <br>VIP1 deposit 3,000 KSH =     daily income  400  KSH.
         <br>VIP2 deposit 5,000 KES =  daily income  620 KSH.
-        <br>VIP3 deposit 9,000 KES = daily income   1,000 KSH.
-        <br>VIP4 deposit 15,000 KES = daily income   1,620 KSH.
-        <br>VIP5 deposit 25,000 KES = daily income   2,750 KSH.
-        <br>VIP6 deposit 40,000 KES = daily income   4,100 KSH.
-        <br>VIP7 deposit 66,000 KES = daily income  6,800 KSH.
-        <br>VIP8 deposit 90,000 KSH = daily income  10,000 KSH.
-        <br>VIP9 deposit 120,000 KSH = daily income  12,200 KSH.
-        <br>VIP10 top-up 204,000 KSH = daily income  21,000 KSH.
+        <br>VIP3 deposit 8,000 KES = daily income   1,000 KSH.
+        <br>VIP4 deposit 12,000 KES = daily income   1,600 KSH.
+        <br>VIP5 deposit 20,000 KES = daily income   2,600 KSH.
+        <br>VIP6 deposit 35,000 KES = daily income   4,700 KSH.
+        <br>VIP7 deposit 50,000 KES = daily income  7,000 KSH.
+        <br>VIP8 deposit 80,000 KSH = daily income  11,500 KSH.
+        <br>VIP9 deposit 120,000 KSH = daily income  18,000 KSH.
+        <br>VIP10 top-up 180,000 KSH = daily income  28,000 KSH.
+        <br>VIP11 top-up 250,000 KSH = daily income 40,000 KSH.
+        <br>VIP12 top-up 350,000 KSH = daily income 58,000 KSH.
+        <br>VIP13 top-up 500,000 KSH = daily income 82,000 KSH.
+        <br>VIP14 top-up 700,000 KSH = daily income 115,000 KSH.
+        <br>VIP15 top-up 1000,000 KSH = daily income 170,000 KSH.
         <br><br>
         ② Invite friends to get three levels of rewards
         <br>Company benefits-invite subordinates to contribute to get 20% commission (17%,2%, 1%)
@@ -363,9 +368,9 @@
 
         // VIP simple interest (same values used on VIP page)
         const vipSimpleInterest = {
-          1: 400, 2: 620, 3: 1000, 4: 1620, 5: 2750,
-          6: 4100, 7: 6800, 8: 10000, 9: 12200, 10: 21000
-        };
+          1: 400, 2: 620, 3: 1000, 4: 1600, 5: 2600,
+          6: 4700, 7: 7000, 8: 11500, 9: 18000, 10: 28000, 11: 40000, 12: 58000, 13: 82000, 14: 115000, 15: 170000
+        }; 
 
         // Sync balance in real time
         balanceRef.on("value", (snapshot) => {
@@ -410,7 +415,7 @@ claimedRef.once("value").then((snap) => {
           vipRef.once("value").then((snap) => {
             const unlocked = snap.val() || [];
 
-            const vipData = [3000,5000,9000,15000,25000,40000,66000,90000,120000,204000];
+            const vipData = [3000,5000,8000,12000,20000,35000,50000,80000,120000,204000,180000,250000,350000,50000,70000,1000000];
 
             vipData.forEach((amt, idx) => {
               const lvl = idx + 1;
