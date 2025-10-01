@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Recharge via AIRTEL - CYPX ONLINE CRYPTO</title>
 
-  <!-- Icons -->
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
-  <!-- Firebase (version 8 for compatibility) -->
+  <!-- Firebase (v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -27,81 +27,63 @@
       --border: #1e477a;
       --shadow: 0 10px 30px rgba(0,0,0,0.25);
       --radius: 16px;
+      --icon-size: 20px; /* Standardized icon size */
     }
+
     * { box-sizing: border-box; }
+
     body { margin:0; padding:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif; }
+    
     header { padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; font-weight:600; font-size:16px; }
+
     .container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
+    
     .hero { background:linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
     .hero p { font-size:14px; color:var(--muted); margin-top:10px; }
-    .note { font-size:13px; color:#ffcc00; font-weight:600; margin:6px 0; }
-    .bank-badge { background:linear-gradient(90deg,#128c7e,var(--brand)); padding:6px 12px; border-radius:10px; font-size:13px; font-weight:600; color:white; display:flex; align-items:center; gap:6px; box-shadow:inset 0 0 10px rgba(0,0,0,0.25); }
+    .note { font-size:13px; color:var(--accent); font-weight:600; margin:6px 0; }
+
+    /* Bank badge (top-left indicator) */
+    .bank-badge { 
+      background:linear-gradient(90deg,#128c7e,var(--brand)); 
+      padding:6px 12px; 
+      border-radius:10px; 
+      font-size:13px; 
+      font-weight:600; 
+      color:white; 
+      display:flex; 
+      align-items:center; 
+      gap:6px; 
+      box-shadow:inset 0 0 10px rgba(0,0,0,0.25); 
+    }
+    .bank-badge i { font-size: var(--icon-size); }
+
     .account-info { margin-top:8px; font-size:14px; color:#99ffcc; font-weight:600; }
     .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); }
     .card h2 { margin-top:0; margin-bottom:14px; font-size:18px; font-weight:700; color:#99ffcc; }
+    .card h2 i { font-size: var(--icon-size); } /* Match recharge.html icon size */
+
     .label { font-size:13px; color:#cfe3ff; margin-bottom:6px; display:block; }
     .input, .file { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; font-size:14px; }
     .btn { margin-top:14px; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#2ecc71,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.25s ease; }
     .btn:hover { transform:translateY(-2px); }
+
     .copy { background:#08335e; border:1px dashed var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; font-size:13px; color:#99ffcc; transition:background 0.25s; }
     .copy:hover { background:#0b3d72; }
+
     nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
     nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
-    nav i { display:block; font-size:16px; margin-bottom:2px; }
+    nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
 
-    /* Overlay */
-    .overlay {
-      position: fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 9998;
-      display: none;
-    }
-
-    /* Centered popup */
-    .popup {
-      position: fixed;
-      top:50%;
-      left:50%;
-      transform: translate(-50%, -50%) scale(0.7);
-      opacity: 0;
-      padding: 24px 28px;
-      border-radius:16px;
-      display: none;
-      text-align: center;
-      max-width:85%;
-      z-index: 9999;
-      font-size: 15px;
-      font-weight: 600;
-      animation: popIn 0.5s ease forwards;
-    }
+    /* Overlay and popup styles (same as recharge.html) */
+    .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 9998; display: none; }
+    .popup { position: fixed; top:50%; left:50%; transform: translate(-50%, -50%) scale(0.7); opacity: 0; padding: 24px 28px; border-radius:16px; display: none; text-align: center; max-width:85%; z-index: 9999; font-size: 15px; font-weight: 600; animation: popIn 0.5s ease forwards; }
     .popup.success { background:#0d4220; color:#d6ffd6; }
     .popup.error { background:#3a1111; color:#ffd7d7; }
-
-    @keyframes popIn {
-      from { transform: translate(-50%, -50%) scale(0.7); opacity:0; }
-      to { transform: translate(-50%, -50%) scale(1); opacity:1; }
-    }
-
-    @keyframes glow-success {
-      0% { box-shadow: 0 0 25px 5px rgba(46,204,113,0.7), 0 0 50px 10px rgba(46,204,113,0.4); }
-      50% { box-shadow: 0 0 35px 10px rgba(46,204,113,0.9), 0 0 60px 15px rgba(46,204,113,0.5); }
-      100% { box-shadow: 0 0 25px 5px rgba(46,204,113,0.7), 0 0 50px 10px rgba(46,204,113,0.4); }
-    }
-    @keyframes glow-error {
-      0% { box-shadow: 0 0 25px 5px rgba(220,53,69,0.7), 0 0 50px 10px rgba(220,53,69,0.4); }
-      50% { box-shadow: 0 0 35px 10px rgba(220,53,69,0.9), 0 0 60px 15px rgba(220,53,69,0.5); }
-      100% { box-shadow: 0 0 25px 5px rgba(220,53,69,0.7), 0 0 50px 10px rgba(220,53,69,0.4); }
-    }
+    @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.7); opacity:0; } to { transform: translate(-50%, -50%) scale(1); opacity:1; } }
   </style>
 </head>
 <body>
-  <header>
-    Recharge via Airtel 
-  </header>
+  <header>Recharge via Airtel</header>
 
   <div class="container">
     <div class="hero">
@@ -109,13 +91,13 @@
         <div class="bank-badge"><i class="fa-solid fa-mobile-screen"></i> M-Pesa (Kenya)</div>
         <div class="note">Minimum deposit: 3,000 KSH</div>
         <div>
-          <button class="copy" data-copy="0750858351">
-            Mpesa Number: <strong>0750858351</strong>
+          <button class="copy" data-copy="0707207201">
+            Mpesa Number: <strong>0707207201</strong>
           </button>
-          <div class="account-info">Name: <strong>HASAN ABDI</strong></div>
+          <div class="account-info">Name: <strong>LANGAT ROBERT</strong></div>
         </div>
       </div>
-      <p>Send money directly to <strong>0750858351</strong>. After sending, submit details below.</p>
+      <p>Send money directly to <strong>0707207201</strong>. After sending, submit details below.</p>
     </div>
 
     <div class="card">
@@ -142,12 +124,10 @@
     <a href="profile.html"><i class="fas fa-user"></i>Me</a>
   </nav>
 
-  <!-- Overlay and popup -->
   <div class="overlay" id="overlay"></div>
   <div class="popup" id="popup"></div>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
       authDomain: "quantum-rio.firebaseapp.com",
@@ -163,7 +143,6 @@
     const auth = firebase.auth();
     const db = firebase.database();
     const storage = firebase.storage();
-
     const overlay = document.getElementById('overlay');
     const popup = document.getElementById('popup');
 
@@ -172,11 +151,6 @@
       popup.className = 'popup ' + type;
       popup.style.display = 'block';
       overlay.style.display = 'block';
-      if(type === 'success') {
-        popup.style.animation = 'popIn 0.5s ease forwards, glow-success 1.5s ease-in-out infinite alternate';
-      } else {
-        popup.style.animation = 'popIn 0.5s ease forwards, glow-error 1.5s ease-in-out infinite alternate';
-      }
       setTimeout(()=>{
         popup.style.display = 'none';
         overlay.style.display = 'none';
@@ -191,44 +165,43 @@
       }
     });
 
-  // Submit deposit
-  const form = document.getElementById('depositForm');
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const user = auth.currentUser;
-    if(!user) return showPopup('Login required','error');
+    // Submit deposit
+    const form = document.getElementById('depositForm');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const user = auth.currentUser;
+      if(!user) return showPopup('Login required','error');
 
-    const amount = parseInt(document.getElementById('amount').value);
-    const phone = document.getElementById('phone').value.trim();
-    const code = document.getElementById('code').value.trim().toUpperCase();
-    const file = document.getElementById('receipt').files[0];
+      const amount = parseInt(document.getElementById('amount').value);
+      const phone = document.getElementById('phone').value.trim();
+      const code = document.getElementById('code').value.trim().toUpperCase();
+      const file = document.getElementById('receipt').files[0];
 
-    if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
+      if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
 
-    // ✅ Store all deposits under /deposits
-    const ref = db.ref('deposits').push();
-    const data = {
-      uid: user.uid,
-      amount,
-      phone,
-      code,
-      method: 'mpesa',
-      status: 'pending',
-      account: '0707207201',
-      name: 'LANGAT ROBERT',
-      createdAt: Date.now()
-    };
+      const ref = db.ref('deposits').push();
+      const data = {
+        uid: user.uid,
+        amount,
+        phone,
+        code,
+        method: 'mpesa',
+        status: 'pending',
+        account: '0707207201',
+        name: 'LANGAT ROBERT',
+        createdAt: Date.now()
+      };
 
-    if(file){
-      const path = `receipts/${user.uid}/${ref.key}-${file.name}`;
-      const snap = await storage.ref(path).put(file);
-      data.receiptUrl = await snap.ref.getDownloadURL();
-    }
+      if(file){
+        const path = `receipts/${user.uid}/${ref.key}-${file.name}`;
+        const snap = await storage.ref(path).put(file);
+        data.receiptUrl = await snap.ref.getDownloadURL();
+      }
 
-    await ref.set(data);
-    showPopup('Deposit submitted for Approval!','success');
-    form.reset();
-  });
-</script>
+      await ref.set(data);
+      showPopup('Deposit submitted for Approval!','success');
+      form.reset();
+    });
+  </script>
 </body>
 </html>
