@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Equity Deposit Bonus - CYPX ONLINE CRYPTO</title>
+<title>Airtel Deposit Bonus - CYPX ONLINE CRYPTO</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
   body {
@@ -13,95 +13,78 @@
     color: white;
   }
   header {
-    background-color: #FF6F00;
+    background-color: #D91F26; /* Airtel Red */
     padding: 20px;
     font-size: 22px;
     font-weight: bold;
     text-align: center;
     box-shadow: 0 4px 10px #00000060;
   }
-  .bonus-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 30px 10px;
-    gap: 20px;
-  }
-  .bonus-box {
+  table {
+    width: 90%;
+    max-width: 600px;
+    margin: 30px auto;
+    border-collapse: collapse;
     background: rgba(255,255,255,0.05);
-    border: 2px solid #FFA000;
-    border-radius: 15px;
-    width: 150px; /* smaller width */
-    text-align: center;
-    padding: 15px; /* reduced padding */
     box-shadow: 0 8px 20px #00000040;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
+    border-radius: 12px;
     overflow: hidden;
+  }
+  th, td {
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 16px;
+    border-bottom: 1px solid #FF6F0077;
+  }
+  th {
+    background-color: #D91F26;
+    color: white;
+    font-size: 18px;
+  }
+  tr:hover {
+    background: rgba(255, 255, 255, 0.1);
     cursor: pointer;
   }
-  .bonus-box:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px #FFA00070;
-  }
-  .bonus-box h2 {
-    font-size: 18px; /* smaller font */
-    margin-bottom: 8px;
+  td.bonus {
     color: #FFD600;
-  }
-  .bonus-box p {
-    font-size: 14px; /* smaller text */
-    margin: 4px 0;
-    color: #ffffffcc;
-  }
-  .bonus-badge {
-    position: absolute;
-    top: -10px;
-    right: 15px;
-    background-color: #FF6F00;
-    color: white;
     font-weight: bold;
-    padding: 6px 10px;
-    border-radius: 50%;
-    font-size: 12px; /* smaller badge */
-    box-shadow: 0 3px 8px #00000070;
   }
-  .bonus-badge-glow {
-    animation: glow 1.5s infinite alternate;
-  }
-  @keyframes glow {
-    0% { box-shadow: 0 0 8px #FF6F00; transform: scale(1); }
-    50% { box-shadow: 0 0 16px #FF6F00; transform: scale(1.1); }
-    100% { box-shadow: 0 0 8px #FF6F00; transform: scale(1); }
-  }
-
-  /* Prevent text selection */
-  .bonus-box h2,
-  .bonus-box p,
-  .bonus-badge {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+  .note {
+    text-align: center;
+    margin-top: 20px;
+    color: #ffcc00;
+    font-weight: bold;
   }
 </style>
 </head>
 <body>
 
 <header>
-  CYPX ONLINE CRYPTO - Equity Deposit Bonus
+  CYPX ONLINE CRYPTO - Airtel Deposit Bonus
 </header>
 
-<div class="bonus-container" id="bonusContainer">
-  <!-- Bonus boxes injected here by JS -->
+<div class="note">
+  Airtel Number: <strong>0750858351</strong> | Name: <strong>HASSAN ABDI</strong>
 </div>
+
+<table id="bonusTable">
+  <thead>
+    <tr>
+      <th>Amount to Deposit (KSH)</th>
+      <th>Deposit Bonus (KSH)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Rows inserted by JS -->
+  </tbody>
+</table>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // --- Firebase config ---
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -113,38 +96,30 @@
   };
   firebase.initializeApp(firebaseConfig);
 
-  // --- Equity deposit bonuses ---
-  const equityBonuses = [
-    {deposit: 3000, bonus: 200},
-    {deposit: 5000, bonus: 700},
-    {deposit: 11000, bonus: 1200},
-    {deposit: 21000, bonus: 2500},
-    {deposit: 36000, bonus: 3700},
-    {deposit: 75000, bonus: 5600},
-    {deposit: 113000, bonus: 10000},
-    {deposit: 151000, bonus: 12200},
-    {deposit: 200000, bonus: 17200},
-    {deposit: 250000, bonus: 23000},
+  // Airtel deposit bonuses
+  const airtelBonuses = [
+    {deposit: 3000, bonus: 150},
+    {deposit: 5000, bonus: 400},
+    {deposit: 10000, bonus: 900},
+    {deposit: 20000, bonus: 1800},
+    {deposit: 35000, bonus: 3500},
+    {deposit: 50000, bonus: 5000},
+    {deposit: 100000, bonus: 12000}
   ];
 
-  const container = document.getElementById('bonusContainer');
+  const tbody = document.querySelector("#bonusTable tbody");
 
-  equityBonuses.forEach(item => {
-    const box = document.createElement('div');
-    box.className = 'bonus-box';
-    box.innerHTML = `
-      <div class="bonus-badge bonus-badge-glow">+${item.bonus}</div>
-      <h2>${item.deposit.toLocaleString()} KSH</h2>
-      <p>Deposit Amount</p>
-      <p>Bonus: ${item.bonus.toLocaleString()} KSH</p>
+  airtelBonuses.forEach(item => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${item.deposit.toLocaleString()}</td>
+      <td class="bonus">${item.bonus.toLocaleString()}</td>
     `;
-
-    // Redirect to equity deposit page
-    box.onclick = () => {
-      window.location.href = \`equity.html?amount=\${item.deposit}&bonus=\${item.bonus}\`;
+    // Redirect on click to Airtel deposit page with query parameters
+    row.onclick = () => {
+      window.location.href = `airtel.html?amount=${item.deposit}&bonus=${item.bonus}`;
     };
-
-    container.appendChild(box);
+    tbody.appendChild(row);
   });
 </script>
 
