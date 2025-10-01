@@ -118,6 +118,8 @@
       cursor: not-allowed;    
     }    
     
+    .countdown-text { font-size:12px; color:#ffcc00; margin-top:6px; }    
+    
     .popup {    
       position: fixed;    
       top: 50%; left: 50%;    
@@ -236,7 +238,10 @@
     const MS_DAY = 24 * 60 * 60 * 1000;    
     let currentUser = null;    
     let userRef = null;    
-    let localData = null;    
+    let localData = null;
+
+    // store intervals so we can clear duplicates on re-render
+    const countdownIntervals = {};    
     
     onAuthStateChanged(auth, user=>{    
       if(!user){ location.href='landing.html'; return; }    
@@ -248,7 +253,17 @@
       });    
     });    
     
+    function clearAllCountdowns(){    
+      Object.keys(countdownIntervals).forEach(k => {    
+        try{ clearInterval(countdownIntervals[k]); }catch(e){}    
+        delete countdownIntervals[k];    
+      });    
+    }    
+    
     function renderAll(){    
+      // clear existing timers to avoid duplicates
+      clearAllCountdowns();    
+    
       container.innerHTML = '';    
       localData.vipClaims = localData.vipClaims || {};    
     
@@ -265,7 +280,7 @@
         group.levels.forEach(v=>{    
           const lvl = v.level;    
           const isUnlocked = (localData.vipLevels || []).includes(lvl);    
-          const claim = localData.vipClaims[lvl] || { lastClaim:0, daysClaimed:0 };    
+          const claim = localData.vipClaims && localData.vipClaims[lvl] ? localData.vipClaims[lvl] : { lastClaim:0, daysClaimed:0 };    
           const days = claim.daysClaimed || 0;    
           const last = claim.lastClaim || 0;    
           const canClaim = isUnlocked && days < group.days && (last===0 || (Date.now()-last)>=MS_DAY);    
@@ -288,7 +303,8 @@
                 </div>    
                 <div style="margin-top:10px;">    
                   ${isUnlocked    
-                    ? `<button id="receive-${lvl}" class="receive-btn" ${canClaim?'':'disabled'}>${canClaim?'Receive':(days>=group.days?'Completed':'Wait 24h')}</button>`    
+                    ? `<button id="receive-${lvl}" class="receive-btn" ${canClaim ? '' : 'disabled'}>${canClaim ? 'Receive' : (days>=group.days ? 'Completed' : 'Wait 24h')}</button>    
+                       <div id="countdown-${lvl}" class="countdown-text"></div>`    
                     : `<button id="unlock-${lvl}" class="unlock-btn">${Number(v.cost).toFixed(2)} KSH Unlock Now</button>`    
                   }    
                 </div>    
@@ -302,12 +318,52 @@
             if(receiveBtn){    
               receiveBtn.addEventListener('click', ()=>handleReceive(lvl, Number(v.interest), group.days));    
             }    
+            if(!canClaim && days < group.days && last !== 0){    
+              startCountdown(lvl, last);    
+            }    
           } else {    
             const unlockBtn = card.querySelector(`#unlock-${lvl}`);    
             if(unlockBtn) unlockBtn.addEventListener('click', ()=>handleUnlock(lvl, Number(v.cost)));    
           }    
         });    
       });    
+    }    
+    
+    function startCountdown(level, lastClaimTime) {    
+      const countdownEl = document.getElementById(`countdown-${level}`);    
+      if (!countdownEl) return;    
+    
+      // clear any existing timer for this level
+      if (countdownIntervals[level]) {    
+        try { clearInterval(countdownIntervals[level]); } catch(e){}    
+        delete countdownIntervals[level];    
+      }    
+    
+      function updateCountdown() {    
+        const now = Date.now();    
+        const diff = MS_DAY - (now - lastClaimTime);    
+    
+        if (diff <= 0) {    
+          countdownEl.textContent = "Ready to claim!";    
+          if (countdownIntervals[level]) {    
+            clearInterval(countdownIntervals[level]);    
+            delete countdownIntervals[level];    
+          }    
+          // refresh UI so the Receive button becomes enabled
+          renderAll();    
+          return;    
+        }    
+    
+        const hrs = Math.floor(diff / (1000 * 60 * 60));    
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));    
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);    
+    
+        countdownEl.textContent = `Next claim in: ${hrs}h ${mins}m ${secs}s`;    
+      }    
+    
+      // initial update + set interval
+      updateCountdown();    
+      countdownIntervals[level] = setInterval(updateCountdown, 1000);    
     }    
     
     async function handleUnlock(level, cost){    
@@ -373,7 +429,7 @@
       popup.dataset.redirect = redirect ? "true" : "false";    
     }    
     
-    // ✅ Ensure closePopup is always defined
+    // Ensure closePopup is always defined    
     window.closePopup = function(){    
       popup.style.display = 'none';    
       if(popup.dataset.redirect==="true"){    
@@ -382,4 +438,4 @@
     }    
   </script>    
 </body>    
-  </html>
+    </html>
