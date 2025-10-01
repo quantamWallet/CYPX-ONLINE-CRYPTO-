@@ -174,25 +174,25 @@ onAuthStateChanged(auth, async (user) => {
     const allUsers = snap.val();
     const level1 = [], level2 = [], level3 = [];
 
-    // first-level: anyone whose referrer == myUsername
+    // first-level: anyone whose referredBy == myUsername
     for (const uid in allUsers) {
-      if (allUsers[uid].referrer === myUsername) {
+      if (allUsers[uid].referredBy === myUsername) {
         level1.push({ uid, ...allUsers[uid] });
       }
     }
 
-    // second-level: referrer is one of level1
+    // second-level: referredBy is one of level1
     for (const uid in allUsers) {
       const u = allUsers[uid];
-      if (level1.find(x => x.username === u.referrer)) {
+      if (level1.find(x => x.username === u.referredBy)) {
         level2.push({ uid, ...u });
       }
     }
 
-    // third-level: referrer is one of level2
+    // third-level: referredBy is one of level2
     for (const uid in allUsers) {
       const u = allUsers[uid];
-      if (level2.find(x => x.username === u.referrer)) {
+      if (level2.find(x => x.username === u.referredBy)) {
         level3.push({ uid, ...u });
       }
     }
