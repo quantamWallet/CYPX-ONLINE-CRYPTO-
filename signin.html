@@ -1,186 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #141E30, #243B55);
-      position: relative;
-      overflow: hidden;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sign In</title>
+<style>
+  html,body{height:100%;margin:0;}
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    display:flex; justify-content:center; align-items:center;
+    height:100vh;
+    background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
+    position:relative; overflow:hidden;
+  }
+  body::before{
+    content:""; position:absolute; inset:0;
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
+    background-repeat:repeat; background-size:150px;
+    opacity:0.04; z-index:0; filter:blur(0.5px);
+  }
+  .card{
+    position:relative; z-index:1;
+    width:380px; max-width:calc(100vw - 40px);
+    background:linear-gradient(180deg,rgba(6,20,40,0.95),rgba(7,18,34,0.92));
+    border-radius:24px; padding:30px 24px;
+    box-shadow:0 14px 40px rgba(2,6,23,0.7);
+    color:#fff;
+  }
+  .title{text-align:center;margin-bottom:6px;font-weight:800;font-size:26px;text-transform:uppercase;}
+  .subtitle{text-align:center;color:rgba(255,255,255,0.75);font-size:14px;margin-bottom:18px;}
+  .field{margin-bottom:14px;}
+  label{display:block;color:rgba(255,255,255,0.6);font-size:15px;margin-bottom:6px;font-weight:600;}
+  .input{
+    width:100%; padding:14px 16px; border-radius:12px;
+    border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
+    color:#e9f5ff; font-size:15px; outline:none;
+  }
+  .input::placeholder{color:rgba(255,255,255,0.45);}
+  .btn{
+    width:100%; padding:16px; margin-top:10px; border-radius:12px;
+    border:none; cursor:pointer; font-weight:800; font-size:18px;
+    background:linear-gradient(90deg,#ffd400,#ffcf00); color:#111;
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+  }
+  .signup-line{text-align:center;margin-top:16px;color:rgba(255,255,255,0.85);font-size:15px;}
+  .signup-line a{color:#7fc4ff;font-weight:700;text-decoration:none;}
 
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
-      background-repeat: repeat;
-      background-size: 120px;
-      opacity: 0.07;
-      z-index: 0;
-    }
-
-    .card {
-      position: relative;
-      background: rgba(30, 41, 59, 0.9);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      width: 320px;
-      color: white;
-      text-align: center;
-      backdrop-filter: blur(12px);
-      z-index: 1;
-    }
-
-    .card h2 { margin-bottom: 20px; }
-
-    .card input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(90deg, #00C6FF, #0072FF);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .btn:hover { opacity: 0.9; }
-
-    .link {
-      margin-top: 10px;
-      display: block;
-      color: #00C6FF;
-      text-decoration: none;
-    }
-
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ff4d4f;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
-      font-size: 14px;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-  </style>
+  .toast{
+    position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:8px;
+    color:#fff;font-size:15px;font-weight:500;z-index:9999;
+    box-shadow:0 3px 12px rgba(0,0,0,0.35);
+    animation:fadeIn .3s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+</style>
 </head>
 <body>
   <div class="card">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
+    <div class="title">Sign In</div>
+    <div class="subtitle">Welcome back to CYPX Online Crypto</div>
+
+    <form id="signinForm" autocomplete="off" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" placeholder="Enter your email" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" class="input" type="password" placeholder="Enter your password" required />
+      </div>
       <button class="btn" type="submit">Login</button>
     </form>
-    <a href="signup.html" class="link">Don’t have an account? Sign Up</a>
+
+    <div class="signup-line">Don’t have an account? <a href="signup.html">Create Account</a></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-    // 🔹 Your Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.appspot.com",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-    // 🔹 Toast function
-    function showToast(message, success=false) {
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.style.background = success ? "#28a745" : "#ff4d4f";
-      toast.innerText = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
+function showToast(msg, success=false){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.style.background=success?"#28a745":"#ff4d4f";
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+
+document.getElementById("signinForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value.trim();
+
+  if(!email||!password){ showToast("Please enter email and password"); return; }
+
+  try{
+    const cred=await signInWithEmailAndPassword(auth,email,password);
+    const user=cred.user;
+
+    // check if user profile exists in database
+    const snap=await get(child(ref(db),"users/"+user.uid));
+    if(!snap.exists()){
+      showToast("User profile not found in database."); return;
     }
 
-    // 🔹 Login logic with fallback for old users
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+    showToast("Login successful!",true);
+    setTimeout(()=>window.location.href="dashboard.html",1200);
 
-      if (!email || !password) {
-        showToast("Please fill in all fields.");
-        return;
-      }
-
-      try {
-        // Try Firebase Auth first
-        await signInWithEmailAndPassword(auth, email, password);
-        showToast("Login successful!", true);
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 1500);
-
-      } catch (error) {
-        if (error.code === "auth/user-not-found") {
-          // 🔹 Check Realtime Database fallback for old accounts
-          const snapshot = await get(child(ref(db), "users"));
-          if (snapshot.exists()) {
-            let found = false;
-            snapshot.forEach((userSnap) => {
-              const user = userSnap.val();
-              if (user.email === email && user.password === password) {  // ⚠ works only if plain password stored
-                found = true;
-                localStorage.setItem("uid", userSnap.key);
-                showToast("Login successful (old account)!", true);
-                setTimeout(() => {
-                  window.location.href = "dashboard.html";
-                }, 1500);
-              }
-            });
-            if (!found) showToast("Account not found.");
-          } else {
-            showToast("Account not found.");
-          }
-        } else if (error.code === "auth/wrong-password") {
-          showToast("Incorrect password.");
-        } else {
-          showToast("Error logging in.");
-          console.error(error);
-        }
-      }
-    });
-  </script>
+  }catch(err){
+    console.error(err);
+    if(err.code==="auth/wrong-password") showToast("Incorrect password.");
+    else if(err.code==="auth/user-not-found") showToast("No account with this email.");
+    else showToast("Login failed, try again.");
+  }
+});
+</script>
 </body>
 </html>
