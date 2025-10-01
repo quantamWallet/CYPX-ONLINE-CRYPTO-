@@ -1,280 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Withdraw - CYPX ONLINE CRYPTO</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Withdrawal - CYPX ONLINE CRYPTO</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body {
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:#141E30;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    transition: background 0.5s ease;
+}
+.container {
+    width:90%;
+    max-width:450px;
+    background: rgba(0,0,0,0.5);
+    padding: 30px 25px;
+    border-radius: 18px;
+    text-align:center;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+.subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+    color:#ccc;
+}
+input, button {
+    width:100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    border-radius:12px;
+    border:none;
+    outline:none;
+    font-size:15px;
+    text-align:center;
+}
+input {
+    background: rgba(255,255,255,0.1);
+    color:white;
+    transition:0.3s;
+}
+input:focus {
+    background: rgba(255,255,255,0.15);
+    box-shadow:0 0 8px rgba(0,255,150,0.6);
+}
+button {
+    background:linear-gradient(to right,#ffd700,#ffcc00);
+    font-weight:bold;
+    cursor:pointer;
+    color:black;
+    transition:0.3s;
+}
+button:hover {
+    transform:scale(1.05);
+    box-shadow:0 10px 25px rgba(255,204,0,0.6);
+}
+#feedback {
+    min-height:20px;
+    margin-bottom:10px;
+}
+.network-select {
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin-bottom:20px;
+}
+.network-select button {
+    padding:8px 14px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+.network-select button.active {
+    box-shadow:0 0 15px rgba(255,255,255,0.4);
+}
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-
-  <!-- Firebase (compat to keep it simple in one file) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
-
-  <style>
-    :root{
-      --bg: #001a33;
-      --bg2:#012646;
-      --glass:#062a52cc;
-      --brand: #34B233; /* M-PESA green */
-      --bank: #6D0C0C;  /* Bank maroon */
-      --text:#ffffff;
-      --muted:#a7bdd8;
-      --card:#0b2f5a;
-      --card2:#0e3a6f;
-      --border:#1e477a;
-      --shadow:0 18px 40px rgba(0,0,0,.35);
-      --radius:18px;
-      --radius-sm:14px;
-      --blur:12px;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin:0; padding:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 500px at 50% -10%, #103b70 0%, transparent 60%),
-        linear-gradient(180deg, var(--bg) 0%, #001f3f 100%);
-      color: var(--text);
-    }
-    a { color: inherit; text-decoration: none; }
-
-    header{
-      position: sticky; top:0; z-index:10;
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      padding:14px 18px; font-weight:800; letter-spacing:.3px;
-      background: linear-gradient(180deg, #012646cc, #011d35cc);
-      border-bottom:1px solid var(--border);
-      backdrop-filter: blur(var(--blur));
-      box-shadow: var(--shadow);
-    }
-    header img{ width:28px; height:28px; border-radius:6px; object-fit:cover; }
-    header .subtitle{ font-size:12px; color: var(--muted); font-weight:600; }
-
-    .wrap{ width:min(100%, 980px); margin:22px auto 110px; padding:0 16px; }
-
-    .hero{
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      padding:18px;
-      background: linear-gradient(160deg, var(--card) 0%, var(--card2) 100%);
-      box-shadow: var(--shadow);
-    }
-    .hero h1{ margin:0 0 6px; font-size:20px; }
-    .hero p{ margin:0; color:var(--muted); font-size:14px; }
-
-    .grid{ display:grid; gap:16px; margin-top:16px; grid-template-columns: 1fr; }
-    @media (min-width: 760px){ .grid{ grid-template-columns: 1fr 1fr; } }
-
-    .option{
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, #062a52 0%, #08315e 100%);
-      overflow:hidden;
-      transition: transform .12s ease, filter .15s ease;
-      box-shadow: var(--shadow);
-    }
-    .option:hover{ transform: translateY(-2px); filter: brightness(1.04); }
-
-    .option-head{
-      display:flex; align-items:center; gap:12px;
-      padding:18px; border-bottom:1px solid var(--border);
-      background: linear-gradient(180deg, #072e59, #062a52);
-    }
-    .icon{
-      width:44px; height:44px; display:grid; place-items:center;
-      border-radius: 12px; font-size:22px; color:white;
-    }
-    .icon.mpesa{ background: linear-gradient(160deg, #2bbf59, var(--brand)); }
-    .icon.bank{ background: linear-gradient(160deg, #8d1717, var(--bank)); }
-
-    .option-title { font-weight:800; font-size:18px; }
-    .option-sub { font-size:12px; color: var(--muted); }
-    .option-body{ padding:16px 18px; }
-
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      width:100%; padding:12px 14px;
-      border-radius: var(--radius-sm);
-      border:1px solid #2b5e2e;
-      background: linear-gradient(180deg, #2bbf59, var(--brand));
-      color: #062b0c; font-weight:800; cursor:pointer;
-      transition: transform .04s ease, filter .15s ease;
-      position:relative; overflow:hidden;
-    }
-    .btn:hover{ filter: brightness(1.03); }
-    .btn:active{ transform: translateY(1px); }
-    .btn.bank{
-      border:1px solid #7a2a2a;
-      background: linear-gradient(180deg, #8d1717, var(--bank));
-      color:#fff2f2;
-    }
-
-    .ripple{
-      position:absolute; border-radius:50%; transform: scale(0);
-      animation: ripple .6s linear; background: #ffffff55;
-      pointer-events:none;
-    }
-    @keyframes ripple{ to{ transform: scale(4); opacity:0; } }
-
-    nav{
-      position:fixed; bottom:0; left:0; right:0; z-index:10;
-      display:flex; justify-content:space-around; padding:10px 0;
-      background: #001d39e6; border-top:1px solid var(--border);
-      backdrop-filter: blur(10px);
-    }
-    nav a{ color:white; text-align:center; font-size:12px; opacity:.95; }
-    nav i{ display:block; font-size:18px; margin-bottom:3px; }
-
-    .toast{
-      position:fixed; top:18px; right:18px; z-index:9999;
-      background:#072d12; color:#d8ffe6; padding:12px 14px; border-radius:12px;
-      border:1px solid #1f6b3a; display:none; box-shadow: var(--shadow); font-weight:700;
-    }
-    .toast.error{ background:#3a1111; color:#ffd7d7; border-color:#8a2a2a; }
-  </style>
+/* Pop-up notification */
+.popup {
+    position: fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    background: rgba(0,0,0,0.9);
+    padding:25px 20px;
+    border-radius:15px;
+    text-align:center;
+    max-width: 80%;
+    z-index:1000;
+    display:none;
+    color:white;
+}
+.popup h3 {
+    margin-bottom:12px;
+}
+.popup button {
+    margin-top:15px;
+    padding:10px 20px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    background:#FFD700;
+    color:black;
+}
+</style>
 </head>
 <body>
-  <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo"/>
-    <div>
-      <div style="font-size:18px; font-weight:800;">Withdraw</div>
-      <div class="subtitle">Choose how you want to receive your funds</div>
-    </div>
-  </header>
 
-  <div class="wrap">
-    <div class="hero">
-      <h1>Where should we send your money?</h1>
-      <p>Pick one of the secure withdrawal channels below. You can save your preference later inside your profile.</p>
-      <div class="mini">
-        <div class="pill"><i class="fa-solid fa-shield-halved"></i> Encrypted & secured</div>
-        <div class="pill"><i class="fa-solid fa-bolt"></i> Fast processing</div>
-        <div class="pill"><i class="fa-solid fa-clock"></i> Track status in real time</div>
-      </div>
+<div class="container">
+    <h2>Withdraw Funds</h2>
+    <p class="subtitle">Select your network and enter the withdrawal details</p>
+
+    <div class="network-select">
+        <button id="mpesaBtn" class="active">M-Pesa</button>
+        <button id="airtelBtn">Airtel</button>
     </div>
 
-    <div class="grid">
-      <!-- Withdraw to M-PESA -->
-      <section class="option" tabindex="0">
-        <div class="option-head">
-          <div class="icon mpesa"><i class="fa-solid fa-mobile-screen"></i></div>
-          <div>
-            <div class="option-title">Withdraw to M-PESA Wallet</div>
-            <div class="option-sub">Kenya • Instant to your phone number</div>
-          </div>
-        </div>
-        <div class="option-body">
-          <p class="option-sub">Send your funds directly to your M-PESA wallet. You’ll confirm the number on the next screen.</p>
-          <button class="btn" data-target="withmpesa.html">
-            <i class="fa-solid fa-arrow-right"></i> Continue
-          </button>
-        </div>
-      </section>
+    <input type="text" id="phone" placeholder="Enter phone number (07XXXXXXXX)" maxlength="10"/>
+    <input type="number" id="amount" placeholder="Enter amount to withdraw" min="1000"/>
+    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+    <div id="feedback"></div>
+</div>
 
-      <!-- Withdraw to Bank -->
-      <section class="option" tabindex="0">
-        <div class="option-head">
-          <div class="icon bank"><i class="fa-solid fa-university"></i></div>
-          <div>
-            <div class="option-title">Withdraw to Bank Account</div>
-            <div class="option-sub">All banks • Set account & branch</div>
-          </div>
-        </div>
-        <div class="option-body">
-          <p class="option-sub">Route your withdrawal to a bank account. You’ll enter account details on the next page.</p>
-          <button class="btn bank" data-target="withbank.html">
-            <i class="fa-solid fa-arrow-right"></i> Continue
-          </button>
-        </div>
-      </section>
-    </div>
-  </div>
+<!-- Pop-up -->
+<div class="popup" id="popup">
+    <h3 id="popupMessage"></h3>
+    <button id="popupBtn">OK</button>
+</div>
 
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i>Me</a>
-  </nav>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <div id="toast" class="toast"></div>
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  <script>
-    // Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
+let network = "mpesa";
+
+function setNetwork(net) {
+    network = net;
+    document.getElementById("mpesaBtn").classList.toggle("active", net==="mpesa");
+    document.getElementById("airtelBtn").classList.toggle("active", net==="airtel");
+    document.body.style.background = (net==="mpesa") ? "#007f00" : "#D91F26";
+}
+document.getElementById("mpesaBtn").onclick = ()=>setNetwork("mpesa");
+document.getElementById("airtelBtn").onclick = ()=>setNetwork("airtel");
+
+function isValidPhone(phone, network) {
+    const sanitized = phone.trim();
+    if(!/^\d{10}$/.test(sanitized)) return false;
+    if(network==="mpesa") return /^07(0|1|2|4|5|6)\d{7}$/.test(sanitized);
+    if(network==="airtel") return /^07(3|7|8)\d{7}$/.test(sanitized);
+    return false;
+}
+
+// Pop-up helper
+function showPopup(message, callback=null){
+    const popup = document.getElementById("popup");
+    const popupMessage = document.getElementById("popupMessage");
+    const popupBtn = document.getElementById("popupBtn");
+
+    popupMessage.innerHTML = message;
+    popup.style.display="block";
+    popupBtn.onclick = () => {
+        popup.style.display="none";
+        if(callback) callback();
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+}
 
-    // Toast
-    const toast = document.getElementById('toast');
-    function showToast(msg, type='ok', t=2500){
-      toast.textContent = msg;
-      toast.className = 'toast' + (type==='error'?' error':'');
-      toast.style.display = 'block';
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(()=>toast.style.display='none', t);
+async function submitWithdrawal() {
+    const phone = document.getElementById("phone").value.trim();
+    const amount = parseInt(document.getElementById("amount").value);
+    const feedback = document.getElementById("feedback");
+    feedback.innerHTML="";
+
+    if(!isValidPhone(phone, network)){
+        showPopup("❌ Enter a valid "+network.toUpperCase()+" number");
+        return;
+    }
+    if(isNaN(amount) || amount < 1000){
+        showPopup("❌ Minimum withdrawal is 1,000 KSH");
+        return;
     }
 
-    // Auth gate
-    auth.onAuthStateChanged(user=>{
-      if(!user){ window.location.href = "landing.html"; }
-    });
-
-    // Ripple effect
-    function attachRipple(btn){
-      btn.addEventListener('click', e=>{
-        const rect = btn.getBoundingClientRect();
-        const ripple = document.createElement('span');
-        const size = Math.max(rect.width, rect.height);
-        ripple.className = 'ripple';
-        ripple.style.width = ripple.style.height = size + 'px';
-        ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
-        ripple.style.top  = (e.clientY - rect.top  - size/2) + 'px';
-        btn.appendChild(ripple);
-        setTimeout(()=>ripple.remove(), 600);
-      });
+    const user = auth.currentUser;
+    if(!user){
+        showPopup("❌ Login required");
+        return;
     }
 
-    // Navigation
-    document.querySelectorAll('.btn').forEach(btn=>{
-      attachRipple(btn);
-      btn.addEventListener('click', ()=>{
-        const target = btn.getAttribute('data-target');
-        window.location.href = target; // redirect instantly
-        // log event in background
-        const user = auth.currentUser;
-        if(user){
-          db.collection('uiEvents').add({
-            uid: user.uid,
-            type: 'withdraw_option_click',
-            target,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).catch(()=>{});
-        }
-      });
+    const userRef = db.ref("users/"+user.uid);
+    const snapshot = await userRef.once("value");
+    const data = snapshot.val();
+    const balance = data?.balance || 0;
+    const referrals = data?.referrals || [];
+
+    if(balance < 1000){
+        showPopup("❌ Insufficient balance");
+        return;
+    }
+
+    if(amount>1000 && referrals.length < 2){
+        showPopup("⚠️ You must have at least 2 referrals who deposited 3,000 KSH each to withdraw. Do you want to proceed?", ()=>{
+            window.location.href="buyref.html";
+        });
+        return;
+    }
+
+    // Submit withdrawal
+    const newRef = db.ref("withdrawals").push();
+    await newRef.set({
+        uid: user.uid,
+        phone: phone,
+        network: network,
+        amount: amount,
+        status: "pending",
+        createdAt: Date.now()
     });
 
-    // Keyboard support
-    document.querySelectorAll('.option').forEach(card=>{
-      card.addEventListener('keydown', (e)=>{
-        if(e.key === 'Enter' || e.key === ' '){
-          e.preventDefault();
-          card.querySelector('.btn')?.click();
-        }
-      });
-    });
-  </script>
+    showPopup("✅ Withdrawal submitted successfully!");
+    document.getElementById("phone").value="";
+    document.getElementById("amount").value="";
+}
+</script>
+
 </body>
 </html>
