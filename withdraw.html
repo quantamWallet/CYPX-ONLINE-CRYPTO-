@@ -28,66 +28,17 @@ body {
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
-.container h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-.subtitle {
-    font-size: 14px;
-    margin-bottom: 20px;
-    color:#ccc;
-}
-input, button {
-    width:100%;
-    padding: 14px;
-    margin-bottom: 15px;
-    border-radius:12px;
-    border:none;
-    outline:none;
-    font-size:15px;
-    text-align:center;
-}
-input {
-    background: rgba(255,255,255,0.1);
-    color:white;
-    transition:0.3s;
-}
-input:focus {
-    background: rgba(255,255,255,0.15);
-    box-shadow:0 0 8px rgba(0,255,150,0.6);
-}
-button {
-    background:linear-gradient(to right,#ffd700,#ffcc00);
-    font-weight:bold;
-    cursor:pointer;
-    color:black;
-    transition:0.3s;
-}
-button:hover {
-    transform:scale(1.05);
-    box-shadow:0 10px 25px rgba(255,204,0,0.6);
-}
-#feedback {
-    min-height:20px;
-    margin-bottom:10px;
-}
-.network-select {
-    display:flex;
-    justify-content:center;
-    gap:15px;
-    margin-bottom:20px;
-}
-.network-select button {
-    padding:8px 14px;
-    border-radius:12px;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
-    transition:0.3s;
-}
-.network-select button.active {
-    box-shadow:0 0 15px rgba(255,255,255,0.4);
-}
+.container h2 { font-size: 24px; margin-bottom: 10px; }
+.subtitle { font-size: 14px; margin-bottom: 20px; color:#ccc; }
+input, button { width:100%; padding: 14px; margin-bottom: 15px; border-radius:12px; border:none; outline:none; font-size:15px; text-align:center; }
+input { background: rgba(255,255,255,0.1); color:white; transition:0.3s; }
+input:focus { background: rgba(255,255,255,0.15); box-shadow:0 0 8px rgba(0,255,150,0.6); }
+button { background:linear-gradient(to right,#ffd700,#ffcc00); font-weight:bold; cursor:pointer; color:black; transition:0.3s; }
+button:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(255,204,0,0.6); }
+#feedback { min-height:20px; margin-bottom:10px; }
+.network-select { display:flex; justify-content:center; gap:15px; margin-bottom:20px; }
+.network-select button { padding:8px 14px; border-radius:12px; border:none; cursor:pointer; font-weight:bold; transition:0.3s; }
+.network-select button.active { box-shadow:0 0 15px rgba(255,255,255,0.4); }
 
 /* Pop-up notification */
 .popup {
@@ -95,7 +46,7 @@ button:hover {
     top:50%;
     left:50%;
     transform:translate(-50%, -50%);
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.95);
     padding:25px 20px;
     border-radius:15px;
     text-align:center;
@@ -104,9 +55,7 @@ button:hover {
     display:none;
     color:white;
 }
-.popup h3 {
-    margin-bottom:12px;
-}
+.popup h3 { margin-bottom:12px; }
 .popup button {
     margin-top:15px;
     padding:10px 20px;
@@ -123,7 +72,7 @@ button:hover {
 
 <div class="container">
     <h2>Withdraw Funds</h2>
-    <p class="subtitle">Select your network and enter the withdrawal details</p>
+    <p class="subtitle">Select your network and enter withdrawal details</p>
 
     <div class="network-select">
         <button id="mpesaBtn" class="active">M-Pesa</button>
@@ -148,7 +97,7 @@ button:hover {
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    apiKey: "AIzaSyCCW4G9JlVu_xbGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
     databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
     projectId: "quantum-rio",
@@ -162,7 +111,7 @@ const db = firebase.database();
 
 let network = "mpesa";
 
-function setNetwork(net) {
+function setNetwork(net){
     network = net;
     document.getElementById("mpesaBtn").classList.toggle("active", net==="mpesa");
     document.getElementById("airtelBtn").classList.toggle("active", net==="airtel");
@@ -171,7 +120,7 @@ function setNetwork(net) {
 document.getElementById("mpesaBtn").onclick = ()=>setNetwork("mpesa");
 document.getElementById("airtelBtn").onclick = ()=>setNetwork("airtel");
 
-function isValidPhone(phone, network) {
+function isValidPhone(phone, network){
     const sanitized = phone.trim();
     if(!/^\d{10}$/.test(sanitized)) return false;
     if(network==="mpesa") return /^07(0|1|2|4|5|6)\d{7}$/.test(sanitized);
@@ -179,12 +128,11 @@ function isValidPhone(phone, network) {
     return false;
 }
 
-// Pop-up helper
+// Popup helper
 function showPopup(message, callback=null){
     const popup = document.getElementById("popup");
     const popupMessage = document.getElementById("popupMessage");
     const popupBtn = document.getElementById("popupBtn");
-
     popupMessage.innerHTML = message;
     popup.style.display="block";
     popupBtn.onclick = () => {
@@ -193,11 +141,9 @@ function showPopup(message, callback=null){
     };
 }
 
-async function submitWithdrawal() {
+async function submitWithdrawal(){
     const phone = document.getElementById("phone").value.trim();
     const amount = parseInt(document.getElementById("amount").value);
-    const feedback = document.getElementById("feedback");
-    feedback.innerHTML="";
 
     if(!isValidPhone(phone, network)){
         showPopup("❌ Enter a valid "+network.toUpperCase()+" number");
@@ -221,18 +167,20 @@ async function submitWithdrawal() {
     const referrals = data?.referrals || [];
 
     if(balance < 1000){
+        // ONLY show insufficient balance
         showPopup("❌ Insufficient balance");
         return;
     }
 
-    if(amount>1000 && referrals.length < 2){
-        showPopup("⚠️ You must have at least 2 referrals who deposited 3,000 KSH each to withdraw. Do you want to proceed?", ()=>{
-            window.location.href="buyref.html";
+    if(amount > 1000 && referrals.length < 2){
+        // SHOW popup with confirm to buy referrals
+        showPopup("⚠️ You must have at least 2 referrals who deposited 3,000 KSH each to withdraw. Proceed?", ()=>{
+            window.location.href="select.html";
         });
         return;
     }
 
-    // Submit withdrawal
+    // Enough balance and referrals OK => submit withdrawal
     const newRef = db.ref("withdrawals").push();
     await newRef.set({
         uid: user.uid,
