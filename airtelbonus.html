@@ -49,12 +49,6 @@
     color: #FFD600;
     font-weight: bold;
   }
-  .note {
-    text-align: center;
-    margin-top: 20px;
-    color: #ffcc00;
-    font-weight: bold;
-  }
 </style>
 </head>
 <body>
@@ -62,10 +56,6 @@
 <header>
   CYPX ONLINE CRYPTO - Airtel Deposit Bonus
 </header>
-
-<div class="note">
-  Airtel Number: <strong>0750858351</strong> | Name: <strong>HASSAN ABDI</strong>
-</div>
 
 <table id="bonusTable">
   <thead>
@@ -115,7 +105,7 @@
       <td>${item.deposit.toLocaleString()}</td>
       <td class="bonus">${item.bonus.toLocaleString()}</td>
     `;
-    // Redirect on click to Airtel deposit page with query parameters
+    // Redirect on click to Airtel deposit submission page
     row.onclick = () => {
       window.location.href = `airtel.html?amount=${item.deposit}&bonus=${item.bonus}`;
     };
