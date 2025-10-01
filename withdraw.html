@@ -3,199 +3,83 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Withdrawal - CYPX ONLINE CRYPTO</title>
+<title>Withdrawal Network - CYPX ONLINE CRYPTO</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
 body {
-    margin:0;
-    font-family:'Poppins',sans-serif;
-    background:#141E30;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    transition: background 0.5s ease;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #141E30, #243B55);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 .container {
-    width:90%;
-    max-width:450px;
-    background: rgba(0,0,0,0.5);
-    padding: 30px 25px;
-    border-radius: 18px;
-    text-align:center;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
 }
-.container h2 { font-size: 24px; margin-bottom: 10px; }
-.subtitle { font-size: 14px; margin-bottom: 20px; color:#ccc; }
-input, button { width:100%; padding: 14px; margin-bottom: 15px; border-radius:12px; border:none; outline:none; font-size:15px; text-align:center; }
-input { background: rgba(255,255,255,0.1); color:white; transition:0.3s; }
-input:focus { background: rgba(255,255,255,0.15); box-shadow:0 0 8px rgba(0,255,150,0.6); }
-button { background:linear-gradient(to right,#ffd700,#ffcc00); font-weight:bold; cursor:pointer; color:black; transition:0.3s; }
-button:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(255,204,0,0.6); }
-#feedback { min-height:20px; margin-bottom:10px; }
-.network-select { display:flex; justify-content:center; gap:15px; margin-bottom:20px; }
-.network-select button { padding:8px 14px; border-radius:12px; border:none; cursor:pointer; font-weight:bold; transition:0.3s; }
-.network-select button.active { box-shadow:0 0 15px rgba(255,255,255,0.4); }
+h2 {
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #FFD700;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+}
 
-/* Pop-up notification */
-.popup {
-    position: fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    background: rgba(0,0,0,0.95);
-    padding:25px 20px;
-    border-radius:15px;
-    text-align:center;
-    max-width: 80%;
-    z-index:1000;
-    display:none;
-    color:white;
+/* Network cards */
+.network-card {
+    padding: 12px 10px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
-.popup h3 { margin-bottom:12px; }
-.popup button {
-    margin-top:15px;
-    padding:10px 20px;
-    border-radius:10px;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
-    background:#FFD700;
-    color:black;
+.network-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+}
+.network-card .info {
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+/* M-Pesa */
+#mpesaCard {
+    background-color: #007f00; /* green */
+    color: #ccffcc;
+}
+
+/* Airtel */
+#airtelCard {
+    background-color: #D91F26; /* red */
+    color: #ffcccc;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Withdraw Funds</h2>
-    <p class="subtitle">Select your network and enter withdrawal details</p>
+    <h2>Select Withdrawal Network</h2>
 
-    <div class="network-select">
-        <button id="mpesaBtn" class="active">M-Pesa</button>
-        <button id="airtelBtn">Airtel</button>
+    <div id="mpesaCard" class="network-card" onclick="window.location.href='withmpesa.html'">
+        Withdraw via M-Pesa
+        <div class="info">Use your registered Safaricom number for withdrawals.</div>
     </div>
 
-    <input type="text" id="phone" placeholder="Enter phone number (07XXXXXXXX)" maxlength="10"/>
-    <input type="number" id="amount" placeholder="Enter amount to withdraw" min="1000"/>
-    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
-    <div id="feedback"></div>
+    <div id="airtelCard" class="network-card" onclick="window.location.href='withairtel.html'">
+        Withdraw via Airtel
+        <div class="info">For Airtel users only. Ensure you use your registered Airtel number.</div>
+    </div>
 </div>
-
-<!-- Pop-up -->
-<div class="popup" id="popup">
-    <h3 id="popupMessage"></h3>
-    <button id="popupBtn">OK</button>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xbGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-let network = "mpesa";
-
-function setNetwork(net){
-    network = net;
-    document.getElementById("mpesaBtn").classList.toggle("active", net==="mpesa");
-    document.getElementById("airtelBtn").classList.toggle("active", net==="airtel");
-    document.body.style.background = (net==="mpesa") ? "#007f00" : "#D91F26";
-}
-document.getElementById("mpesaBtn").onclick = ()=>setNetwork("mpesa");
-document.getElementById("airtelBtn").onclick = ()=>setNetwork("airtel");
-
-function isValidPhone(phone, network){
-    const sanitized = phone.trim();
-    if(!/^\d{10}$/.test(sanitized)) return false;
-    if(network==="mpesa") return /^07(0|1|2|4|5|6)\d{7}$/.test(sanitized);
-    if(network==="airtel") return /^07(3|7|8)\d{7}$/.test(sanitized);
-    return false;
-}
-
-// Popup helper
-function showPopup(message, callback=null){
-    const popup = document.getElementById("popup");
-    const popupMessage = document.getElementById("popupMessage");
-    const popupBtn = document.getElementById("popupBtn");
-    popupMessage.innerHTML = message;
-    popup.style.display="block";
-    popupBtn.onclick = () => {
-        popup.style.display="none";
-        if(callback) callback();
-    };
-}
-
-async function submitWithdrawal(){
-    const phone = document.getElementById("phone").value.trim();
-    const amount = parseInt(document.getElementById("amount").value);
-
-    if(!isValidPhone(phone, network)){
-        showPopup("❌ Enter a valid "+network.toUpperCase()+" number");
-        return;
-    }
-    if(isNaN(amount) || amount < 1000){
-        showPopup("❌ Minimum withdrawal is 1,000 KSH");
-        return;
-    }
-
-    const user = auth.currentUser;
-    if(!user){
-        showPopup("❌ Login required");
-        return;
-    }
-
-    const userRef = db.ref("users/"+user.uid);
-    const snapshot = await userRef.once("value");
-    const data = snapshot.val();
-    const balance = data?.balance || 0;
-    const referrals = data?.referrals || [];
-
-    if(balance < 1000){
-        // ONLY show insufficient balance
-        showPopup("❌ Insufficient balance");
-        return;
-    }
-
-    if(amount > 1000 && referrals.length < 2){
-        // SHOW popup with confirm to buy referrals
-        showPopup("⚠️ You must have at least 2 referrals who deposited 3,000 KSH each to withdraw. Proceed?", ()=>{
-            window.location.href="select.html";
-        });
-        return;
-    }
-
-    // Enough balance and referrals OK => submit withdrawal
-    const newRef = db.ref("withdrawals").push();
-    await newRef.set({
-        uid: user.uid,
-        phone: phone,
-        network: network,
-        amount: amount,
-        status: "pending",
-        createdAt: Date.now()
-    });
-
-    showPopup("✅ Withdrawal submitted successfully!");
-    document.getElementById("phone").value="";
-    document.getElementById("amount").value="";
-}
-</script>
 
 </body>
 </html>
