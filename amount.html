@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Withdraw via M-Pesa - CYPX ONLINE CRYPTO</title>
+<title>Deposit - CYPX ONLINE CRYPTO</title>
 
-<!-- Font Awesome for icons -->
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
 <!-- Firebase v8 -->
@@ -14,67 +14,42 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <style>
-:root{
-  --bg:#001a33; --card:#0b2f5a; --accent:#25d366; --text:#fff; --radius:14px; --shadow:0 8px 30px rgba(0,0,0,0.25);
-}
-html, body{
-  margin:0; padding:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:linear-gradient(180deg,var(--bg),#001f3f);
-  color:var(--text); height:100%; width:100%;
-}
-body{
-  display:flex; justify-content:center; align-items:flex-start; padding:16px 0 80px 0;
-}
-header{
-  position:fixed; top:0; width:100%; text-align:center;
-  padding:14px 0; font-weight:700;
-  background:rgba(0,0,0,0.35); border-bottom:1px solid rgba(255,255,255,0.03); z-index:10;
-}
-.container{width:100%; max-width:420px; margin-top:60px;}
-.card{
-  background:linear-gradient(160deg,var(--card),#0e3a6f);
-  padding:25px 20px; border-radius:var(--radius); box-shadow:var(--shadow);
-  width:100%; max-height:calc(100vh - 140px); overflow-y:auto; box-sizing:border-box;
-  margin:auto;
-}
-h2{margin:0 0 12px; font-size:18px; color:#bfffd0; text-align:center;}
-.label{display:block; margin:8px 0 6px; color:#cfe3ff; font-size:13px;}
-.input{width:100%; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:#06243f; color:var(--text); font-size:15px; margin-bottom:10px;}
-.btn{width:100%; margin-top:14px; padding:12px; border-radius:12px; border:0; font-weight:700; font-size:15px; cursor:pointer; background:linear-gradient(180deg,#2ecc71,var(--accent)); color:white;}
-.small{font-size:13px; color:#d8ecff; margin-top:8px; text-align:center;}
-#balanceBox{display:inline-block; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px; font-weight:700; margin-bottom:10px;}
-.popup{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); min-width:220px; padding:14px 18px; border-radius:12px; z-index:999; display:none; text-align:center; font-weight:700;}
+:root{--bg:#001a33; --card:#0b2f5a; --accent:#2ecc71; --text:#fff; --radius:14px; --shadow:0 8px 30px rgba(0,0,0,0.25);}
+html,body{margin:0;padding:0;font-family:system-ui,Roboto,Arial;background:linear-gradient(180deg,var(--bg),#001f3f);color:var(--text);height:100%;}
+body{display:flex;justify-content:center;align-items:flex-start;padding:16px 0 80px 0;}
+header{position:fixed;top:0;width:100%;text-align:center;padding:14px 0;font-weight:700;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.03);}
+.container{width:100%;max-width:420px;margin-top:60px;}
+.card{background:linear-gradient(160deg,var(--card),#0e3a6f);padding:25px 20px;border-radius:var(--radius);box-shadow:var(--shadow);}
+h2{margin:0 0 12px;font-size:18px;color:#bfffd0;text-align:center;}
+.label{display:block;margin:8px 0 6px;color:#cfe3ff;font-size:13px;}
+.input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#06243f;color:var(--text);font-size:15px;margin-bottom:10px;}
+.btn{width:100%;margin-top:14px;padding:12px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(180deg,#2ecc71,var(--accent));color:white;}
+.small{font-size:13px;color:#d8ecff;margin-top:8px;text-align:center;}
+#balanceBox{display:inline-block;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;font-weight:700;margin-bottom:10px;}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:220px;padding:14px 18px;border-radius:12px;z-index:999;display:none;text-align:center;font-weight:700;}
 .popup.success{background:#083b18;color:#d6ffd6;}
 .popup.error{background:#3a1111;color:#ffd7d7;}
-
-nav{
-  position:fixed; bottom:0; left:0; right:0; background:#002244;
-  display:flex; justify-content:space-around; height:60px; align-items:center;
-}
-nav a{flex:1; color:white; text-decoration:none; font-size:12px; text-align:center;}
-nav i{display:block; margin-bottom:4px; font-size:18px;}
+nav{position:fixed;bottom:0;left:0;right:0;background:#002244;display:flex;justify-content:space-around;height:60px;align-items:center;}
+nav a{flex:1;color:white;text-decoration:none;font-size:12px;text-align:center;}
+nav i{display:block;margin-bottom:4px;font-size:18px;}
 </style>
 </head>
 <body>
-<header>Withdraw via M-Pesa</header>
+<header>Deposit Funds</header>
 
 <div class="container">
   <div class="card">
-    <h2><i class="fa-solid fa-money-bill-transfer"></i> Request Withdrawal</h2>
+    <h2><i class="fa-solid fa-coins"></i> Make a Deposit</h2>
     <div style="text-align:center; margin-bottom:10px;">
-      <div style="font-size:12px;color:#cfe3ff">Available balance</div>
+      <div style="font-size:12px;color:#cfe3ff">Current balance</div>
       <div id="balanceBox">KES <span id="balance">—</span></div>
     </div>
 
-    <form id="withdrawForm">
-      <label class="label" for="phone">M-Pesa Number</label>
-      <input id="phone" class="input" type="text" placeholder="e.g. 07XXXXXXXX" maxlength="10" required />
-
-      <label class="label" for="amount">Withdrawal Amount (KES)</label>
-      <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
-      <div class="small">Minimum withdrawal <strong>1,000 KES</strong>.</div>
-      <button id="submitBtn" class="btn" type="submit">Submit Withdrawal</button>
+    <form id="depositForm">
+      <label class="label" for="amount">Deposit Amount (KES)</label>
+      <input id="amount" class="input" type="number" min="100" placeholder="e.g. 2000" required />
+      <div class="small">Minimum deposit <strong>100 KES</strong>.</div>
+      <button id="submitBtn" class="btn" type="submit">Submit Deposit</button>
     </form>
   </div>
 </div>
@@ -90,6 +65,7 @@ nav i{display:block; margin-bottom:4px; font-size:18px;}
 <div id="popup" class="popup"></div>
 
 <script>
+// === Firebase Config ===
 const firebaseConfig = {
   apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain:"quantum-rio.firebaseapp.com",
@@ -104,10 +80,9 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 const balanceEl = document.getElementById('balance');
-const phoneInput = document.getElementById('phone');
 const amountInput = document.getElementById('amount');
 const submitBtn = document.getElementById('submitBtn');
-const form = document.getElementById('withdrawForm');
+const form = document.getElementById('depositForm');
 const popup = document.getElementById('popup');
 
 function showPopup(msg,type='success',timeout=2600){
@@ -117,21 +92,13 @@ function showPopup(msg,type='success',timeout=2600){
   setTimeout(()=>popup.style.display='none',timeout);
 }
 
-function isValidMPesa(phone){ return /^07\d{8}$/.test(phone); }
-
 let currentUser=null;
 
-auth.onAuthStateChanged(async user=>{
+auth.onAuthStateChanged(user=>{
   currentUser=user;
   if(user){
     submitBtn.disabled=false;
-
-    // Auto-fill phone used to register
-    const snap=await db.ref(`users/${user.uid}/phone`).once('value');
-    const phoneVal=snap.val();
-    if(phoneVal && isValidMPesa(phoneVal)){ phoneInput.value=phoneVal; }
-
-    // Real-time balance
+    // Listen to balance in real-time
     db.ref(`users/${user.uid}/balance`).on('value',s=>{
       balanceEl.textContent=(Number(s.val())||0).toLocaleString('en-US');
     });
@@ -141,41 +108,36 @@ auth.onAuthStateChanged(async user=>{
   }
 });
 
+// === Handle Deposit ===
 form.addEventListener('submit',async e=>{
   e.preventDefault();
   if(!currentUser){ showPopup('Login required','error'); return; }
 
-  const phone = phoneInput.value.trim();
   const amount = Math.floor(Number(amountInput.value));
-  if(!isValidMPesa(phone)){ showPopup('Enter valid M-Pesa number','error'); return; }
-  if(!amount || amount < 1000){ showPopup('Minimum withdrawal is 1,000 KES','error'); return; }
+  if(!amount || amount < 100){ showPopup('Minimum deposit is 100 KES','error'); return; }
 
   submitBtn.disabled=true;
   submitBtn.textContent='Processing...';
 
-  // Transaction
   const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
   balanceRef.transaction(bal=>{
-    bal = Number(bal)||0;
-    if(bal>=amount){ return bal-amount; }
-    return; // abort if insufficient
+    return (Number(bal)||0) + amount; // add deposit
   }, async (err, committed, snap)=>{
     submitBtn.disabled=false;
-    submitBtn.textContent='Submit Withdrawal';
+    submitBtn.textContent='Submit Deposit';
     if(err){ showPopup('Error processing','error'); return; }
-    if(!committed){ showPopup('Insufficient balance','error'); return; }
+    if(!committed){ showPopup('Deposit failed','error'); return; }
 
     try {
-      await db.ref(`withdrawals/${currentUser.uid}`).push({
+      await db.ref(`users/${currentUser.uid}/deposits`).push({
         amount: amount,
-        status: 'submitted',
         timestamp: Date.now(),
-        phone: phone
+        status: 'completed'
       });
       amountInput.value='';
-      showPopup(`Withdrawal request submitted. KES ${amount.toLocaleString()} deducted.`,'success');
+      showPopup(`Deposit successful. KES ${amount.toLocaleString()} added.`,'success');
     } catch(err){
-      showPopup('Withdrawal deducted but not logged','error');
+      showPopup('Balance updated but deposit not logged','error');
     }
   });
 });
