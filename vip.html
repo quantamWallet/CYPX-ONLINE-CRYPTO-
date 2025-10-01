@@ -257,9 +257,11 @@
         const userVIP = localData.vipLevels?.[v.level] || null;
         const claims = userVIP?.claims || 0;
         const unlocked = userVIP?.unlocked || false;
+        const lastClaim = userVIP?.lastClaim || 0;
+
         const btnLabel = unlocked ? "Receive" : "Unlock";
         const btnClass = unlocked ? "receive-btn" : "unlock-btn";
-        const disabled = unlocked && claims >= 12 ? "disabled" : "";
+        const disabled = unlocked && (claims>=12 || (Date.now()-lastClaim<24*60*60*1000)) ? "disabled" : "";
 
         const card=document.createElement("div");
         card.className="vip-card";
@@ -281,11 +283,10 @@
         const btn = card.querySelector(`#action-${v.level}`);
         if(unlocked){
           btn.addEventListener("click",()=>handleClaim(v.level,v.profit));
+          startCountdown(v.level,lastClaim);
         } else {
           btn.addEventListener("click",()=>handleUnlock(v.level,v.cost));
         }
-
-        startCountdown(v.level);
       });
     }
 
@@ -320,31 +321,44 @@
         showToast("This VIP has expired after 12 days.");
         return;
       }
+
+      const now=Date.now();
+      if(vip.lastClaim && now-vip.lastClaim<24*60*60*1000){
+        showToast("You must wait 24 hours before next claim.");
+        return;
+      }
+
       claims+=1;
       const newBalance=(data.balance||0)+profit;
 
       await update(userRef,{
         balance:newBalance,
         [`vipLevels/${level}/claims`]:claims,
-        [`vipLevels/${level}/lastClaim`]:Date.now()
+        [`vipLevels/${level}/lastClaim`]:now
       });
 
       showToast(`Daily profit of ${profit} KSH claimed for VIP${level}`);
     }
 
-    function startCountdown(level){
-      const target = Date.now() + 24*60*60*1000;
+    function startCountdown(level,lastClaim){
       const el=document.getElementById(`countdown-${level}`);
+      const btn=document.getElementById(`action-${level}`);
       function tick(){
-        const diff = target - Date.now();
-        if(diff<=0){ el.textContent="Next claim available!"; return; }
+        const now=Date.now();
+        const diff = (lastClaim+24*60*60*1000)-now;
+        if(diff<=0){
+          el.textContent="Next claim available!";
+          if(btn) btn.disabled=false;
+          return;
+        }
         const h=Math.floor(diff/3600000);
         const m=Math.floor((diff%3600000)/60000);
         const s=Math.floor((diff%60000)/1000);
         el.textContent=`Next claim: ${h}h ${m}m ${s}s`;
+        if(btn) btn.disabled=true;
         requestAnimationFrame(tick);
       }
-      tick();
+      if(lastClaim>0){ tick(); }
     }
   </script>
 </body>
