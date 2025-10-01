@@ -1,85 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Withdrawal Network - CYPX ONLINE CRYPTO</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Withdraw - CYPX ONLINE CRYPTO</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <style>
-body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #141E30, #243B55);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-.container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 90%;
-    max-width: 350px;
-    text-align: center;
-}
-h2 {
-    margin-bottom: 10px;
-    font-size: 24px;
-    font-weight: 600;
-    color: #FFD700;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.6);
-}
-
-/* Network cards */
-.network-card {
-    padding: 12px 10px;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-.network-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.6);
-}
-.network-card .info {
-    font-size: 13px;
-    margin-top: 6px;
-}
-
-/* M-Pesa */
-#mpesaCard {
-    background-color: #007f00; /* green */
-    color: #ccffcc;
-}
-
-/* Airtel */
-#airtelCard {
-    background-color: #D91F26; /* red */
-    color: #ffcccc;
-}
+:root{--bg:#001a33; --card:#0b2f5a; --accent:#2ecc71; --text:#fff; --radius:14px; --shadow:0 8px 30px rgba(0,0,0,0.25);}
+html,body{margin:0;padding:0;font-family:system-ui,Roboto,Arial;background:linear-gradient(180deg,var(--bg),#001f3f);color:var(--text);height:100%;}
+body{display:flex;justify-content:center;align-items:flex-start;padding:16px 0 80px 0;}
+header{position:fixed;top:0;width:100%;text-align:center;padding:14px 0;font-weight:700;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(255,255,255,0.03);}
+.container{width:100%;max-width:420px;margin-top:60px;}
+.card{background:linear-gradient(160deg,var(--card),#0e3a6f);padding:25px 20px;border-radius:var(--radius);box-shadow:var(--shadow);}
+h2{margin:0 0 12px;font-size:18px;color:#ffd8d8;text-align:center;}
+.label{display:block;margin:8px 0 6px;color:#cfe3ff;font-size:13px;}
+.input,select{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#06243f;color:var(--text);font-size:15px;margin-bottom:10px;}
+.btn{width:100%;margin-top:14px;padding:12px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(180deg,#e74c3c,#c0392b);color:white;}
+.small{font-size:13px;color:#d8ecff;margin-top:8px;text-align:center;}
+#balanceBox{display:inline-block;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;font-weight:700;margin-bottom:10px;}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:240px;padding:16px 18px;border-radius:12px;z-index:999;display:none;text-align:center;font-weight:700;}
+.popup.success{background:#083b18;color:#d6ffd6;}
+.popup.error{background:#3a1111;color:#ffd7d7;}
+.popup.confirm{background:#223355;color:#d6e4ff;}
+nav{position:fixed;bottom:0;left:0;right:0;background:#002244;display:flex;justify-content:space-around;height:60px;align-items:center;}
+nav a{flex:1;color:white;text-decoration:none;font-size:12px;text-align:center;}
+nav i{display:block;margin-bottom:4px;font-size:18px;}
 </style>
 </head>
 <body>
+<header>Withdraw Funds</header>
 
 <div class="container">
-    <h2>Select Withdrawal Network</h2>
-
-    <div id="mpesaCard" class="network-card" onclick="window.location.href='withmpesa.html'">
-        Withdraw via M-Pesa
-        <div class="info">Use your registered Safaricom number for withdrawals.</div>
+  <div class="card">
+    <h2><i class="fa-solid fa-wallet"></i> Make a Withdrawal</h2>
+    <div style="text-align:center; margin-bottom:10px;">
+      <div style="font-size:12px;color:#cfe3ff">Current balance</div>
+      <div id="balanceBox">KES <span id="balance">—</span></div>
     </div>
 
-    <div id="airtelCard" class="network-card" onclick="window.location.href='withairtel.html'">
-        Withdraw via Airtel
-        <div class="info">For Airtel users only. Ensure you use your registered Airtel number.</div>
-    </div>
+    <form id="withdrawForm">
+      <label class="label" for="method">Select Method</label>
+      <select id="method" class="input">
+        <option value="mpesa">M-Pesa</option>
+        <option value="airtel">Airtel Money</option>
+      </select>
+
+      <label class="label" for="phone">Phone Number</label>
+      <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" required />
+
+      <label class="label" for="amount">Withdrawal Amount (KES)</label>
+      <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
+      <div class="small">Minimum withdrawal <strong>1,000 KES</strong>.</div>
+
+      <button id="submitBtn" class="btn" type="submit">Submit Withdrawal</button>
+    </form>
+  </div>
 </div>
 
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
+
+<div id="popup" class="popup"></div>
+
+<script>
+// === Firebase Config ===
+const firebaseConfig = {
+  apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain:"quantum-rio.firebaseapp.com",
+  databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId:"quantum-rio",
+  storageBucket:"quantum-rio.appspot.com",
+  messagingSenderId:"805433999377",
+  appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const balanceEl = document.getElementById('balance');
+const amountInput = document.getElementById('amount');
+const phoneInput = document.getElementById('phone');
+const methodInput = document.getElementById('method');
+const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById('withdrawForm');
+const popup = document.getElementById('popup');
+
+// show popup
+function showPopup(msg,type='success',timeout=2800,redirect=null){
+  popup.innerHTML = msg;
+  popup.className='popup '+(type||'success');
+  popup.style.display='block';
+  if(type==='confirm'){
+    popup.innerHTML += "<br><br><button id='confirmBtn'>Confirm</button>";
+    document.getElementById('confirmBtn').onclick=()=>{ window.location.href=redirect||'select.html'; };
+  } else {
+    setTimeout(()=>popup.style.display='none',timeout);
+  }
+}
+
+let currentUser=null;
+
+// === Auth state ===
+auth.onAuthStateChanged(user=>{
+  currentUser=user;
+  if(user){
+    submitBtn.disabled=false;
+    // Listen to balance in real-time
+    db.ref(`users/${user.uid}/balance`).on('value',s=>{
+      balanceEl.textContent=(Number(s.val())||0).toLocaleString('en-US');
+    });
+  } else {
+    balanceEl.textContent='—';
+    submitBtn.disabled=true;
+  }
+});
+
+// === Prefix validation ===
+const mpesaPrefixes = ["070","071","072","074","075","076","079"];
+const airtelPrefixes = ["073","078"];
+function isValidNumberForMethod(phone, method) {
+  if(!/^07\d{8}$/.test(phone)) return false; // must be 10 digits starting 07
+  const prefix = phone.substring(0,3);
+  return method==='mpesa' ? mpesaPrefixes.includes(prefix) : airtelPrefixes.includes(prefix);
+}
+
+// === Handle Withdrawal ===
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!currentUser){ return; }
+
+  const amount = Math.floor(Number(amountInput.value));
+  const phone = phoneInput.value.trim();
+  const method = methodInput.value;
+
+  if(!amount || amount < 1000){ 
+    showPopup('Minimum withdrawal is 1,000 KES','error'); 
+    return; 
+  }
+
+  if(!isValidNumberForMethod(phone, method)){
+    showPopup(`Invalid ${method==='mpesa'?'M-Pesa':'Airtel'} number for chosen method`,'error');
+    return;
+  }
+
+  const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+  const balance = Number(balSnap.val())||0;
+  if(balance < amount){ showPopup('Insufficient balance','error'); return; }
+
+  // referral check
+  const refSnap = await db.ref(`users/${currentUser.uid}/referrals`).once('value');
+  let validRefs=0;
+  refSnap.forEach(r=>{
+    if(Number(r.child('deposited').val()) >= 3000) validRefs++;
+  });
+  if(validRefs < 2){
+    showPopup("You must at least have two referrals who have deposited 3,000 KSH to withdraw.<br>Do you want to proceed?","confirm",null,"select.html");
+    return;
+  }
+
+  // Deduct balance + push withdrawal
+  submitBtn.disabled=true;
+  submitBtn.textContent='Processing...';
+  const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+  balanceRef.transaction(bal=>{
+    bal = Number(bal)||0;
+    if(bal < amount) return;
+    return bal - amount;
+  }, async (err, committed)=>{
+    submitBtn.disabled=false;
+    submitBtn.textContent='Submit Withdrawal';
+    if(err || !committed){ showPopup('Error or insufficient funds','error'); return; }
+
+    await db.ref(`users/${currentUser.uid}/withdrawals`).push({
+      amount, phone, method,
+      timestamp: Date.now(),
+      status: 'submitted'
+    });
+    amountInput.value='';
+    phoneInput.value='';
+    showPopup(`Withdrawal request of KES ${amount.toLocaleString()} submitted.`,'success');
+  });
+});
+</script>
 </body>
 </html>
