@@ -80,24 +80,24 @@
     }
 
     /* bottom navigation */
-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: #002244;
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 0;
-      }
-      nav a {
-        color: white;
-        text-align: center;
-        text-decoration: none;
-      }
-      nav i {
-        font-size: 20px;
-      }
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+    }
+    nav i {
+      font-size: 20px;
+    }
 
     /* popup */
     .popup {
@@ -219,24 +219,24 @@ nav {
     }
     window.closePopup = function(){ popup.style.display = "none"; }
 
+    // ✅ fixed: removed duplicate declaration
     const vipLevels = [
-    const vipLevels = [
-  { level:1, cost:3000, profit:400 },
-  { level:2, cost:5000, profit:620 },
-  { level:3, cost:8000, profit:1000 },
-  { level:4, cost:12000, profit:1600 },
-  { level:5, cost:20000, profit:2600 },
-  { level:6, cost:35000, profit:4700 },
-  { level:7, cost:50000, profit:7000 },
-  { level:8, cost:80000, profit:11500 },
-  { level:9, cost:120000, profit:18000 },
-  { level:10, cost:180000, profit:28000 },
-  { level:11, cost:250000, profit:40000 },
-  { level:12, cost:350000, profit:58000 },
-  { level:13, cost:500000, profit:82000 },
-  { level:14, cost:700000, profit:115000 },
-  { level:15, cost:1000000, profit:170000 }
-];
+      { level:1, cost:3000, profit:400 },
+      { level:2, cost:5000, profit:620 },
+      { level:3, cost:8000, profit:1000 },
+      { level:4, cost:12000, profit:1600 },
+      { level:5, cost:20000, profit:2600 },
+      { level:6, cost:35000, profit:4700 },
+      { level:7, cost:50000, profit:7000 },
+      { level:8, cost:80000, profit:11500 },
+      { level:9, cost:120000, profit:18000 },
+      { level:10, cost:180000, profit:28000 },
+      { level:11, cost:250000, profit:40000 },
+      { level:12, cost:350000, profit:58000 },
+      { level:13, cost:500000, profit:82000 },
+      { level:14, cost:700000, profit:115000 },
+      { level:15, cost:1000000, profit:170000 }
+    ];
 
     let currentUser=null; let userRef=null; let localData=null;
     onAuthStateChanged(auth,user=>{
@@ -300,7 +300,8 @@ nav {
       data.vipLevels[level] = { unlocked:true, claims:0, lastClaim:0 };
 
       await update(userRef,{
-        [`vipLevels/${level}`]: data.vipLevels[level]
+        [`vipLevels/${level}`]: data.vipLevels[level],
+        [`dashboard/unlockedVIPs/${level}`]: true   // ✅ also mark unlocked in dashboard
       });
 
       showToast(`VIP${level} unlocked successfully!`);
@@ -332,7 +333,9 @@ nav {
       await update(userRef,{
         balance:newBalance,
         [`vipLevels/${level}/claims`]:claims,
-        [`vipLevels/${level}/lastClaim`]:now
+        [`vipLevels/${level}/lastClaim`]:now,
+        [`dashboard/vipEarnings/${level}/daysClaimed`]: claims,   // ✅ record in dashboard
+        [`dashboard/vipEarnings/${level}/lastClaim`]: now
       });
 
       showToast(`Daily profit of ${profit} KSH claimed for VIP${level}`);
@@ -360,4 +363,4 @@ nav {
     }
   </script>
 </body>
-</html>
+  </html>
