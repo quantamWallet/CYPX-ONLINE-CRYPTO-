@@ -411,9 +411,8 @@ claimedRef.once("value").then((snap) => {
 function renderVIPList() {
   const list = document.getElementById("vip-list");
 
-  // listen to both unlocked VIPs and claims
   vipRef.on("value", (snap) => {
-    const unlocked = snap.val() || [];
+    const unlocked = snap.val() || {}; // stored as object
     list.innerHTML = "";
 
     const vipData = [
@@ -429,15 +428,15 @@ function renderVIPList() {
       div.innerHTML = `
         <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
         <div class="info">
-          <p>Unlock amount: <span class="amount">KSh ${amt.toFixed(2)}</span></p>
-          <p>${unlocked.includes(lvl) ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
+          <p>Unlock amount: <span class="amount">KSh ${amt.toLocaleString()}</span></p>
+          <p>${unlocked[lvl] ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
         </div>
         <div class="arrow">»</div>
       `;
 
-      // arrow click behavior:
+      // arrow click behavior
       div.querySelector(".arrow").onclick = () => {
-        if (unlocked.includes(lvl)) {
+        if (unlocked[lvl]) {
           showPopup("This VIP level has been unlocked");
         } else {
           showPopup("Please unlock your VIP levels first", true);
@@ -461,15 +460,14 @@ function renderEarnings() {
     earningsList.innerHTML = '';
     let grandTotal = 0;
 
-    // iterate through all 15 VIP levels
     for (let i = 1; i <= 15; i++) {
-      const days = (claims[i] && claims[i].daysClaimed) ? Number(claims[i].daysClaimed) : 0;
+      const days = claims[i]?.daysClaimed ? Number(claims[i].daysClaimed) : 0;
       const perDay = vipSimpleInterest[i] || 0;
       const earned = days * perDay;
       grandTotal += earned;
 
-      const row = document.createElement('div');
-      row.className = 'row';
+      const row = document.createElement("div");
+      row.className = "row";
       row.innerHTML = `<div>VIP ${i}</div><div>KSH ${earned.toLocaleString()}</div>`;
       earningsList.appendChild(row);
     }
