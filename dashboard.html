@@ -460,21 +460,26 @@ function renderEarnings() {
     earningsList.innerHTML = '';
     let grandTotal = 0;
 
+    // Loop through all 15 VIP levels
     for (let i = 1; i <= 15; i++) {
-      const days = claims[i]?.daysClaimed ? Number(claims[i].daysClaimed) : 0;
+      const levelClaims = claims[i] || {}; 
+      const days = levelClaims.daysClaimed ? Number(levelClaims.daysClaimed) : 0;
       const perDay = vipSimpleInterest[i] || 0;
       const earned = days * perDay;
       grandTotal += earned;
 
       const row = document.createElement("div");
       row.className = "row";
-      row.innerHTML = `<div>VIP ${i}</div><div>KSH ${earned.toLocaleString()}</div>`;
+      row.innerHTML = `
+        <div>VIP ${i}</div>
+        <div>${days} days × ${perDay.toLocaleString()} = KSh ${earned.toLocaleString()}</div>
+      `;
       earningsList.appendChild(row);
     }
 
-    grandTotalEl.textContent = `Total VIP Earnings: KSH ${grandTotal.toLocaleString()}`;
+    grandTotalEl.textContent = `Total VIP Earnings: KSh ${grandTotal.toLocaleString()}`;
   });
-}
+      }
 
 renderEarnings();
 
