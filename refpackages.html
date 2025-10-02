@@ -120,7 +120,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -135,19 +134,16 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getDatabase(app);
 
     let currentUID = null;
-
     const buttons = document.querySelectorAll('.select-btn');
 
-    // Wait until user is authenticated
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUID = user.uid;
-        buttons.forEach(btn => btn.disabled = false); // Enable buttons
+        buttons.forEach(btn => btn.disabled = false); 
       } else {
-        window.location.href = "landing.html"; // Redirect if not logged in
+        window.location.href = "landing.html"; 
       }
     });
 
@@ -156,24 +152,10 @@
         showPopup("You must be logged in.");
         return;
       }
-
-      const purchaseRef = push(ref(db, 'referralPurchases/' + currentUID));
-      set(purchaseRef, {
-        group: group,
-        price: price,
-        currency: "KSH",
-        status: "pending",
-        timestamp: new Date().toISOString()
-      })
-      .then(() => {
-        showPopup(group + " selected. Redirecting...");
-        setTimeout(() => {
-          window.location.href = `buyref.html?group=${encodeURIComponent(group)}&price=${price}`;
-        }, 2000);
-      })
-      .catch((error) => {
-        showPopup("Error: " + error.message);
-      });
+      showPopup(group + " selected. Redirecting...");
+      setTimeout(() => {
+        window.location.href = `buyref.html?group=${encodeURIComponent(group)}&price=${price}`;
+      }, 2000);
     }
 
     function showPopup(message) {
