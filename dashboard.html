@@ -319,7 +319,7 @@
         💲CYPX ONLINE CRYPTO 2025 is a formal and legal long-term platform💲
       🏆Recruiting investors and agents across Kenya, with a monthly salary of over 700,000KSH.
       And charge commissions based on the total deposit of the team!If you have the ability, please contact us!
-       CYPX minimum deposit: 3,000 KES Minimum withdrawal: 100 KES daily withdrawal.
+       CYPX minimum deposit: 3,000 KES Minimum withdrawal: 1,000 KES daily withdrawal.
        CYPX task update time: 24 hours, complete daily order work, and you can earn income.
       CYPX forms a team and gets a three-level cashback reward.Income ratio 17%/2%/1%.
       The higher the CYPX VIP level,the higher the income, and the accumulated deposit amount can increase your VIP level.We have two income options for you to choose from:
@@ -407,46 +407,47 @@ claimedRef.once("value").then((snap) => {
   };
 });
 
-        // Render VIP list and handle arrow clicks & messages
-        function renderVIPList() {
-          const list = document.getElementById("vip-list");
-          list.innerHTML = "";
+        // Render VIP list and keep it synced in realtime
+function renderVIPList() {
+  const list = document.getElementById("vip-list");
 
-          vipRef.once("value").then((snap) => {
-            const unlocked = snap.val() || [];
+  vipRef.on("value", (snap) => {
+    const unlocked = snap.val() || [];
+    list.innerHTML = "";
 
-            const vipData = [3000,5000,8000,12000,20000,35000,50000,80000,120000,204000,180000,250000,350000,50000,70000,1000000];
+    const vipData = [
+      3000, 5000, 8000, 12000, 20000, 35000, 50000,
+      80000, 120000, 180000, 250000, 350000, 500000, 700000, 1000000
+    ];
 
-            vipData.forEach((amt, idx) => {
-              const lvl = idx + 1;
-              const div = document.createElement("div");
-              div.className = "vip-box";
-              div.innerHTML = `
-                <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
-                <div class="info">
-                  <p>Unlock amount: <span class="amount">KSh ${amt.toFixed(2)}</span></p>
-                  <p>${unlocked.includes(lvl) ? "✅" : "🔐"} VIP${lvl}</p>
-                </div>
-                <div class="arrow">»</div>
-              `;
+    vipData.forEach((amt, idx) => {
+      const lvl = idx + 1;
+      const div = document.createElement("div");
+      div.className = "vip-box";
+      div.innerHTML = `
+        <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+        <div class="info">
+          <p>Unlock amount: <span class="amount">KSh ${amt.toFixed(2)}</span></p>
+          <p>${unlocked.includes(lvl) ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
+        </div>
+        <div class="arrow">»</div>
+      `;
 
-              // arrow click behavior:
-              // If unlocked => show "This VIP level has been unlocked"
-              // else => show the recharge popup message (original behavior)
-              div.querySelector(".arrow").onclick = () => {
-                if (unlocked.includes(lvl)) {
-                  showPopup("This VIP level has been unlocked");
-                } else {
-                  showPopup("Please unlock your VIP levels first", true);
-                }
-              };
-
-              list.appendChild(div);
-            });
-          });
+      // arrow click behavior:
+      div.querySelector(".arrow").onclick = () => {
+        if (unlocked.includes(lvl)) {
+          showPopup("This VIP level has been unlocked");
+        } else {
+          showPopup("Please unlock your VIP levels first", true);
         }
+      };
 
-        renderVIPList();
+      list.appendChild(div);
+    });
+  });
+}
+
+renderVIPList();
 
         // VIP earnings breakdown: listen to vipClaims and compute totals
         function renderEarnings() {
