@@ -411,13 +411,15 @@ claimedRef.once("value").then((snap) => {
 function renderVIPList() {
   const list = document.getElementById("vip-list");
 
+  // listen to both unlocked VIPs and claims
   vipRef.on("value", (snap) => {
     const unlocked = snap.val() || [];
     list.innerHTML = "";
 
     const vipData = [
       3000, 5000, 8000, 12000, 20000, 35000, 50000,
-      80000, 120000, 180000, 250000, 350000, 500000, 700000, 1000000
+      80000, 120000, 180000, 250000, 350000, 500000,
+      700000, 1000000
     ];
 
     vipData.forEach((amt, idx) => {
@@ -449,33 +451,34 @@ function renderVIPList() {
 
 renderVIPList();
 
-        // VIP earnings breakdown: listen to vipClaims and compute totals
-        function renderEarnings() {
-          const earningsList = document.getElementById("earnings-list");
-          const grandTotalEl = document.getElementById("vip-grand-total");
-          earningsList.innerHTML = '';
-          let grandTotal = 0;
+// VIP earnings breakdown: listen to vipClaims in realtime
+function renderEarnings() {
+  const earningsList = document.getElementById("earnings-list");
+  const grandTotalEl = document.getElementById("vip-grand-total");
 
-          // read vipClaims snapshot once and compute
-          vipClaimsRef.once("value").then(snap => {
-            const claims = snap.val() || {};
+  vipClaimsRef.on("value", (snap) => {
+    const claims = snap.val() || {};
+    earningsList.innerHTML = '';
+    let grandTotal = 0;
 
-            // iterate 1..10
-            for (let i = 1; i <= 10; i++) {
-              const days = (claims[i] && claims[i].daysClaimed) ? Number(claims[i].daysClaimed) : 0;
-              const perDay = vipSimpleInterest[i] || 0;
-              const earned = days * perDay;
-              grandTotal += earned;
+    // iterate through all 15 VIP levels
+    for (let i = 1; i <= 15; i++) {
+      const days = (claims[i] && claims[i].daysClaimed) ? Number(claims[i].daysClaimed) : 0;
+      const perDay = vipSimpleInterest[i] || 0;
+      const earned = days * perDay;
+      grandTotal += earned;
 
-              const row = document.createElement('div');
-              row.className = 'row';
-              row.innerHTML = `<div>VIP ${i}</div><div>KSH ${earned.toLocaleString()}</div>`;
-              earningsList.appendChild(row);
-            }
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<div>VIP ${i}</div><div>KSH ${earned.toLocaleString()}</div>`;
+      earningsList.appendChild(row);
+    }
 
-            grandTotalEl.textContent = `Total VIP Earnings: KSH ${grandTotal.toLocaleString()}`;
-          });
-        }
+    grandTotalEl.textContent = `Total VIP Earnings: KSH ${grandTotal.toLocaleString()}`;
+  });
+}
+
+renderEarnings();
 
         // real-time updates for vipClaims — update breakdown on every change
         vipClaimsRef.on("value", function() {
