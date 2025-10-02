@@ -188,7 +188,7 @@
 
     const params = new URLSearchParams(window.location.search);
     selectedGroup = params.get("group") || "Unknown Package";
-    selectedPrice = params.get("price") || "Unknown Price";
+    selectedPrice = params.get("price") || "0";
 
     document.getElementById("packageTitle").textContent = selectedGroup;
     document.getElementById("packageInfo").textContent = `Price: ${selectedPrice} KSH`;
@@ -207,18 +207,26 @@
       e.preventDefault();
       if (!currentUID) return showPopup("You must be logged in.");
 
-      const amount = document.getElementById("amount").value;
-      const phone = document.getElementById("phone").value;
-      const code = document.getElementById("code").value;
+      const amount = parseInt(document.getElementById("amount").value);
+      const phone = document.getElementById("phone").value.trim();
+      const code = document.getElementById("code").value.trim();
 
-      const depositRef = push(ref(db, "deposits/" + currentUID));
-      set(depositRef, {
+      if (!amount || amount < parseInt(selectedPrice)) {
+        return showPopup("Amount must be at least " + selectedPrice + " KSH.");
+      }
+
+      if (!/^(07\d{8}|01\d{8})$/.test(phone)) {
+        return showPopup("Enter a valid Safaricom/Airtel number.");
+      }
+
+      const purchaseRef = push(ref(db, "referralPurchases/" + currentUID));
+      set(purchaseRef, {
         group: selectedGroup,
-        price: selectedPrice + " KSH",
+        price: parseInt(selectedPrice),
         amount,
         phone,
         code,
-        status: "pending",
+        status: "pending", // stays pending until you verify manually/API
         timestamp: new Date().toISOString()
       }).then(() => {
         showPopup("Deposit submitted successfully!");
