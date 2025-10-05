@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -219,7 +219,6 @@
     }
     window.closePopup = function(){ popup.style.display = "none"; }
 
-    // ✅ fixed: removed duplicate declaration
     const vipLevels = [
       { level:1, cost:3000, profit:400 },
       { level:2, cost:5000, profit:620 },
@@ -288,23 +287,45 @@
       });
     }
 
-    async function handleUnlock(level,cost){
-      const snap=await get(userRef);
-      const data=snap.val()||{ balance:0, vipLevels:{} };
-      if(data.balance<cost){
-        const needed=(cost-data.balance).toFixed(2);
-        showPopup(`Insufficient balance, you need ${needed} KSH to unlock this VIP level`);
-        return;
+    // ✅ Fixed version: verifies balance + deducts cost
+    async function handleUnlock(level, cost) {
+      const btn = document.getElementById(`action-${level}`);
+      btn.disabled = true;
+
+      try {
+        const snap = await get(userRef);
+        const data = snap.val() || { balance: 0, vipLevels: {} };
+
+        const balance = Number(data.balance) || 0;
+        const userVIP = data.vipLevels?.[level];
+
+        if (userVIP?.unlocked) {
+          showToast(`VIP${level} already unlocked.`);
+          return;
+        }
+
+        if (balance < cost) {
+          const needed = (cost - balance).toFixed(2);
+          showPopup(`Insufficient balance. You need ${needed} KSH to unlock this VIP level.`);
+          return;
+        }
+
+        const newBalance = balance - cost;
+        const vipData = { unlocked: true, claims: 0, lastClaim: 0 };
+
+        await update(userRef, {
+          balance: newBalance,
+          [`vipLevels/${level}`]: vipData,
+          [`dashboard/unlockedVIPs/${level}`]: true
+        });
+
+        showToast(`VIP${level} unlocked successfully! ${cost} KSH deducted.`);
+      } catch (error) {
+        console.error("Unlock error:", error);
+        showToast("Something went wrong. Please try again.");
+      } finally {
+        btn.disabled = false;
       }
-      if(!data.vipLevels) data.vipLevels={};
-      data.vipLevels[level] = { unlocked:true, claims:0, lastClaim:0 };
-
-      await update(userRef,{
-        [`vipLevels/${level}`]: data.vipLevels[level],
-        [`dashboard/unlockedVIPs/${level}`]: true   // ✅ also mark unlocked in dashboard
-      });
-
-      showToast(`VIP${level} unlocked successfully!`);
     }
 
     async function handleClaim(level,profit){
@@ -334,7 +355,7 @@
         balance:newBalance,
         [`vipLevels/${level}/claims`]:claims,
         [`vipLevels/${level}/lastClaim`]:now,
-        [`dashboard/vipEarnings/${level}/daysClaimed`]: claims,   // ✅ record in dashboard
+        [`dashboard/vipEarnings/${level}/daysClaimed`]: claims,
         [`dashboard/vipEarnings/${level}/lastClaim`]: now
       });
 
@@ -363,4 +384,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
