@@ -165,6 +165,16 @@ form.addEventListener('submit', async (e)=>{
 
   if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
 
+  // ✅ Transaction code validation (must contain both letters & numbers)
+  // Format: 10 characters, alphanumeric mix like TJ41Z6LEUU
+  const validFormat = /^[A-Z0-9]{8,12}$/; // M-Pesa codes are usually 10 chars
+  const hasLetter = /[A-Z]/.test(code);
+  const hasNumber = /[0-9]/.test(code);
+
+  if(!validFormat.test(code) || !hasLetter || !hasNumber){
+    return showPopup('Invalid transaction code','error');
+  }
+
   try {
     const ref = db.ref('deposits').push();
     const data = {
@@ -195,4 +205,4 @@ form.addEventListener('submit', async (e)=>{
 });
 </script>
 </body>
-        </html>
+</html>
