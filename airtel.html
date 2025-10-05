@@ -176,6 +176,16 @@ form.addEventListener('submit', async (e)=>{
 
   if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
 
+  // ✅ Validate Airtel-to-Airtel transaction code
+  const validChars = /^[A-Z0-9]+$/; // Only letters & numbers
+  const hasLetter = /[A-Z]/.test(code);
+  const hasNumber = /[0-9]/.test(code);
+  const correctLength = code.length >= 8 && code.length <= 12;
+
+  if(!validChars.test(code) || !hasLetter || !hasNumber || !correctLength){
+    return showPopup('Invalid transaction code!','error');
+  }
+
   try {
     const ref = db.ref('deposits').push();
     const data = {
@@ -207,4 +217,4 @@ form.addEventListener('submit', async (e)=>{
 </script>
 
 </body>
-</html>
+  </html>
