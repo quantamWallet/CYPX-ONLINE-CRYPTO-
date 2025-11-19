@@ -441,36 +441,6 @@ function renderVIPList() {
 
 renderVIPList();
 
-// VIP earnings breakdown: listen to vipClaims in realtime
-function renderEarnings() {
-  const earningsList = document.getElementById("earnings-list");
-  const grandTotalEl = document.getElementById("vip-grand-total");
-
-  vipClaimsRef.on("value", (snap) => {
-    const claims = snap.val() || {};
-    earningsList.innerHTML = '';
-    let grandTotal = 0;
-
-    // Loop through all 15 VIP levels
-    for (let i = 1; i <= 15; i++) {
-      const levelClaims = claims[i] || {}; 
-      const days = levelClaims.daysClaimed ? Number(levelClaims.daysClaimed) : 0;
-      const perDay = vipSimpleInterest[i] || 0;
-      const earned = days * perDay;
-      grandTotal += earned;
-
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = `
-        <div>VIP ${i}</div>
-        <div>${days} days × ${perDay.toLocaleString()} = KSh ${earned.toLocaleString()}</div>
-      `;
-      earningsList.appendChild(row);
-    }
-
-    grandTotalEl.textContent = `Total VIP Earnings: KSh ${grandTotal.toLocaleString()}`;
-  });
-      }
 
 renderEarnings();
 
