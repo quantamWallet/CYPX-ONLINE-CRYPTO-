@@ -439,11 +439,6 @@ function renderVIPList() {
   });
 }
 
-renderVIPList();
-
-
-renderEarnings();
-
         // real-time updates for vipClaims — update breakdown on every change
         vipClaimsRef.on("value", function() {
           renderEarnings();
