@@ -8,8 +8,7 @@
 
     <!-- Firebase SDK (compat version) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
-    <script>
-      const firebaseConfig = {
+    <script>1px    const firebaseConfig = {
         apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
         authDomain: "quantum-rio.firebaseapp.com",
         databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
@@ -439,10 +438,6 @@ function renderVIPList() {
   });
 }
 
-        // real-time updates for vipClaims — update breakdown on every change
-        vipClaimsRef.on("value", function() {
-          renderEarnings();
-        });
 
         // Countdown timer (unchanged)
         function startCountdown() {
