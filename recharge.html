@@ -5,156 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Recharge - CYPX ONLINE CRYPTO</title>
 
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
-
   <style>
-    /* Basic body styling */
-    body { 
-      margin: 0; 
-      font-family: Arial, sans-serif; 
-      background-color: #001f3f; /* Dark blue background */
-      color: white; /* Default text color */
-      text-align: center; 
-      padding-bottom: 80px; /* Space for fixed bottom nav */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      text-align: center;
+      padding-bottom: 80px;
     }
 
-    /* Header section styling */
-    header { 
-      background-color: #002f6c; /* Slightly lighter blue */
-      padding: 15px; 
-      font-size: 20px; 
-      font-weight: bold; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
+    header {
+      background-color: #002f6c;
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    header img { 
-      height: 30px; 
-      margin-right: 10px; /* Space between logo and text */
+    header img { height: 30px; margin-right: 10px; }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 40px;
+      color: #00d4ff;
     }
 
-    /* Wallet option container styling */
-    .wallet-option { 
-      margin: 20px auto; 
-      background-color: #003366; /* Darker blue box */
-      padding: 10px 20px; 
-      border-radius: 10px; 
-      width: 90%; 
-      max-width: 400px; 
+    .wallet-option {
+      margin: 20px auto;
+      background-color: #003366;
+      padding: 10px 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
     }
 
-    /* Wallet buttons styling */
-    .wallet-button { 
-      border: none; 
-      padding: 15px; 
-      border-radius: 10px; 
-      cursor: pointer; 
-      font-size: 18px; 
-      width: 100%; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 15px; /* Space between icon and text */
-      font-weight: bold; 
-      transition: 0.3s ease; 
-    }
-    .wallet-button:hover { 
-      transform: scale(1.05); /* Slight zoom on hover */
-      opacity: 0.9; /* Slight transparency on hover */
+    .wallet-button {
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-weight: bold;
+      transition: 0.3s ease;
     }
 
-    /* Wallet-specific colors */
-    .mpesa { background-color: #34B233; color: white; }   /* M-PESA green */
-    .airtel { background-color: #D91F26; color: white; }  /* Airtel red */
+    .wallet-button:hover {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
 
-    /* Bottom navigation bar styling */
-    nav { 
-      position: fixed; 
-      bottom: 0; 
-      left: 0; 
-      right: 0; 
-      background-color: #002244; 
-      display: flex; 
-      justify-content: space-around; 
-      padding: 10px 0; 
+    .mpesa { background-color: #34B233; color: white; }
+    .airtel { background-color: #D91F26; color: white; }
+    .paypal { background-color: #003087; color: white; }
+    .bitcoin { background-color: #F7931A; color: white; }
+    .usdt { background-color: #26a17b; color: white; }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
     }
-    nav a { 
-      color: white; 
-      text-align: center; 
-      text-decoration: none; 
-      font-size: 14px; 
+    nav a {
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      font-size: 14px;
     }
-    nav i { font-size: 20px; } /* Icon size */
+    nav i { font-size: 20px; }
   </style>
 </head>
 <body>
-  <!-- Header with logo and title -->
-  <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
-    Recharge - CYPX ONLINE CRYPTO
-  </header>
 
-  <!-- M-PESA SEND MONEY button -->
-  <div class="wallet-option">
-    <button class="wallet-button mpesa" onclick="redirect('mpesabonus.html')">
-      <i class="fas fa-mobile-alt"></i>
-      M-PESA Send Money 
-    </button>
-  </div>
+<header>
+  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+  Recharge - CYPX ONLINE CRYPTO
+</header>
 
-  <!-- AIRTEL KENYA button -->
-  <div class="wallet-option">
-    <button class="wallet-button airtel" onclick="redirect('airtelbonus.html')">
-      <i class="fas fa-signal"></i>
-      Airtel Kenya 
-    </button>
-  </div>
+<!-- PAY THROUGH MOBILE MONEY -->
+<div class="section-title">Pay Through Mobile Money</div>
 
-  <!-- Bottom navigation bar -->
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
+<div class="wallet-option">
+  <button class="wallet-button mpesa" onclick="redirect('mpesabonus.html')">
+    <i class="fas fa-mobile-alt"></i> M-PESA Send Money
+  </button>
+</div>
 
-  <!-- Firebase configuration and authentication check -->
-  <script>
-    // Your Firebase project configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+<div class="wallet-option">
+  <button class="wallet-button airtel" onclick="redirect('airtelbonus.html')">
+    <i class="fas fa-signal"></i> Airtel Kenya
+  </button>
+</div>
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+<!-- OTHER PAYMENTS -->
+<div class="section-title">Other Payment Methods</div>
 
-    // Firebase Authentication
-    const auth = firebase.auth();
+<div class="wallet-option">
+  <button class="wallet-button paypal" onclick="redirect('paypal.html')">
+    <i class="fab fa-paypal"></i> PayPal
+  </button>
+</div>
 
-    // Check if user is logged in
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        // If not logged in, redirect to landing page
-        window.location.href = "landing.html";
-      }
-    });
+<div class="wallet-option">
+  <button class="wallet-button bitcoin" onclick="redirect('bitcoin.html')">
+    <i class="fab fa-bitcoin"></i> Bitcoin
+  </button>
+</div>
 
-    // Function to handle page redirection
-    function redirect(page) {
-      window.location.href = page;
-    }
-  </script>
+<div class="wallet-option">
+  <button class="wallet-button usdt" onclick="redirect('usdt.html')">
+    <i class="fas fa-coins"></i> USDT (ERC20)
+  </button>
+</div>
+
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
+
+<script>
+  function redirect(page) { window.location.href = page; }
+</script>
+
 </body>
 </html>
