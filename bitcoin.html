@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Payment</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 10px;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .container {
+      background-color: #012a57;
+      padding: 22px;
+      border-radius: 14px;
+      max-width: 420px;
+      margin: 20px auto;
+      box-shadow: 0 0 12px rgba(0,0,0,0.35);
+    }
+
+    .btc-address-box {
+      background-color: #003a78;
+      padding: 16px;
+      border-radius: 12px;
+      word-break: break-all;
+      font-size: 17px;
+      margin-top: 15px;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: 0.2s;
+    }
+
+    .btc-address-box:hover {
+      background-color: #004891;
+    }
+
+    .instructions {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .upload-box {
+      margin-top: 25px;
+      background-color: #003a78;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .submit-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 17px;
+      border: none;
+      border-radius: 10px;
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .submit-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #007bff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Bitcoin Payment</h2>
+
+  <div class="container">
+    <p>Send your Bitcoin payment to the address below:</p>
+
+    <!-- CLICK TO COPY BOX -->
+    <div class="btc-address-box" onclick="copyBTC()">
+      <span id="btcAddress">1341crN2nSM29KFEqtB7UozdQYyDD6CvzV</span>
+    </div>
+
+    <!-- Toast -->
+    <div id="copyToast" class="toast">Copied</div>
+
+    <div class="instructions">
+      <p><strong>Instructions:</strong></p>
+      <ul>
+        <li>Tap the address above to copy it.</li>
+        <li>Send the required amount to the wallet.</li>
+        <li>Upload a screenshot of the transaction confirmation.</li>
+        <li>Your deposit will be verified shortly.</li>
+      </ul>
+    </div>
+
+    <!-- FILE UPLOAD -->
+    <div class="upload-box">
+      <p><strong>Upload Payment Proof</strong></p>
+      <input type="file" id="proofFile" accept="image/*" />
+    </div>
+
+    <button class="submit-btn">Submit Proof</button>
+
+  </div>
+
+  <script>
+    function copyBTC() {
+      const address = document.getElementById("btcAddress").innerText;
+
+      navigator.clipboard.writeText(address).then(() => {
+        const toast = document.getElementById("copyToast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 1800);
+      });
+    }
+  </script>
+
+</body>
+  </html>
