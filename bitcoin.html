@@ -97,6 +97,12 @@
       display: none;
       z-index: 9999;
     }
+
+    /* Upload status toast */
+    .upload-toast {
+      background: #28a745;
+      bottom: 70px;
+    }
   </style>
 </head>
 
@@ -111,8 +117,9 @@
       <span id="btcAddress">1341crN2nSM29KFEqtB7UozdQYyDD6CvzV</span>
     </div>
 
-    <!-- Toast -->
+    <!-- Toasts -->
     <div id="copyToast" class="toast">Copied</div>
+    <div id="uploadToast" class="toast upload-toast">Proof Submitted</div>
 
     <div class="instructions">
       <p><strong>Instructions:</strong></p>
@@ -130,7 +137,7 @@
       <input type="file" id="proofFile" accept="image/*" />
     </div>
 
-    <button class="submit-btn">Submit Proof</button>
+    <button class="submit-btn" onclick="submitProof()">Submit Proof</button>
 
   </div>
 
@@ -144,7 +151,30 @@
         setTimeout(() => toast.style.display = "none", 1800);
       });
     }
+
+    function submitProof() {
+      const fileInput = document.getElementById("proofFile");
+
+      if (!fileInput.files.length) {
+        showUploadToast("Please select a file");
+        return;
+      }
+
+      // SIMULATED UPLOAD (ready for Firebase)
+      showUploadToast("Uploading...");
+
+      setTimeout(() => {
+        showUploadToast("Proof Submitted");
+      }, 1500);
+    }
+
+    function showUploadToast(message) {
+      const toast = document.getElementById("uploadToast");
+      toast.innerText = message;
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 1800);
+    }
   </script>
 
 </body>
-  </html>
+</html>
