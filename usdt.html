@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>USDT (ERC20) Payment</title>
+
+<!-- Font for nicer UI -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#001f3f;
+    --card:#012a57;
+    --muted:rgba(255,255,255,0.78);
+    --accent:#00c3ff;
+    --success:#28a745;
+    --btn-dark:#0b6b4f;
+  }
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, Arial, sans-serif;background:var(--bg);color:#eaf6ff}
+  .wrap{max-width:480px;margin:28px auto;padding:20px}
+  .card{background:linear-gradient(180deg,#012a57,#001f3f);border-radius:14px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,0.45)}
+  h1{font-size:20px;margin:0 0 6px;font-weight:700;color:var(--accent)}
+  p.lead{margin:0 0 14px;color:var(--muted);font-size:14px}
+  .address {
+    background:#003a78;
+    border-radius:10px;
+    padding:14px 12px;
+    margin-top:12px;
+    font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+    font-size:16px;
+    color:#c6fbff;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.06);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .address .addr-text{word-break:break-all; text-align:left}
+  .copy-hint{font-size:13px;color:rgba(255,255,255,0.7)}
+  .instructions{margin-top:16px;text-align:left;color:var(--muted);font-size:14px;line-height:1.6}
+  .upload-card{background:#003a78;border-radius:10px;padding:12px;margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .file-input{display:flex;gap:10px;align-items:center}
+  .file-label{
+    flex:1;padding:10px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.05);color:var(--muted);font-size:14px;
+  }
+  input[type="file"]{display:none}
+  .btn{
+    margin-top:12px;
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    border:none;
+    color:#04121a;
+    background:linear-gradient(90deg,var(--accent),#0078e9);
+    box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  }
+  .btn[disabled]{opacity:0.7;cursor:default;transform:none}
+  .preview-img{margin-top:8px;border-radius:8px;max-width:100%;display:none}
+  .note{margin-top:12px;color:rgba(255,255,255,0.6);font-size:13px}
+  /* toast */
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--success);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,0.45);display:none;z-index:9999
+  }
+  /* small spinner inside button */
+  .spinner {
+    width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.35);border-top-color:transparent;margin-left:8px;display:inline-block;vertical-align:middle;animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* responsive */
+  @media (max-width:480px){ .wrap{padding:12px} .card{padding:16px} h1{font-size:18px} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="title">
+      <h1 id="title">USDT (ERC20) Payment</h1>
+      <p class="lead">Send USDT (ERC20) to the address below, then upload transaction proof for verification.</p>
+
+      <!-- Address (click-to-copy) -->
+      <div class="address" id="addressBox" title="Tap to copy address">
+        <div class="addr-text" id="ercAddress">0xe5e959e57ae1937acf0dde128a8b7ee0aa970168</div>
+        <div class="copy-hint" id="copyHint">Tap to copy</div>
+      </div>
+
+      <div class="instructions" aria-hidden="false">
+        <strong>Instructions</strong>
+        <ul>
+          <li>Use ERC20 (Ethereum) network only — do not send TRC20 or BEP20 USDT.</li>
+          <li>Paste the address into your wallet and send the exact amount.</li>
+          <li>Upload a screenshot of the transaction receipt below.</li>
+          <li>Verification usually takes a few minutes.</li>
+        </ul>
+      </div>
+
+      <!-- Upload area -->
+      <div class="upload-card" aria-label="Upload transaction proof">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <label class="file-label" id="fileLabel">No file selected</label>
+          <label for="fileInput" style="background:linear-gradient(90deg,var(--accent),#0078e9);padding:10px;border-radius:8px;cursor:pointer;font-weight:700;color:#04121a">Choose</label>
+          <input id="fileInput" type="file" accept="image/*,.pdf" />
+        </div>
+
+        <img id="preview" class="preview-img" alt="preview">
+
+        <button id="submitBtn" class="btn" type="button">
+          Submit Proof
+        </button>
+
+        <div class="note">We save your proof securely and will notify you after verification.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied</div>
+
+  <!-- Firebase (compat for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+
+  <script>
+  // -- Firebase config (using the project config you've been using) --
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.appspot.com",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const firestore = firebase.firestore();
+  const storage = firebase.storage();
+
+  // Elements
+  const ercAddress = document.getElementById('ercAddress');
+  const addressBox = document.getElementById('addressBox');
+  const copyHint = document.getElementById('copyHint');
+  const toast = document.getElementById('toast');
+  const fileInput = document.getElementById('fileInput');
+  const fileLabel = document.getElementById('fileLabel');
+  const preview = document.getElementById('preview');
+  const submitBtn = document.getElementById('submitBtn');
+
+  // Ensure user is logged in
+  let currentUser = null;
+  auth.onAuthStateChanged(u => {
+    if (!u) {
+      // not logged in -> go to landing
+      window.location.href = 'landing.html';
+      return;
+    }
+    currentUser = u;
+  });
+
+  // Click-to-copy address (no alerts)
+  addressBox.addEventListener('click', async () => {
+    const text = ercAddress.innerText.trim();
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('Address copied');
+      // small visual feedback
+      copyHint.innerText = 'Copied';
+      setTimeout(()=> copyHint.innerText = 'Tap to copy', 1400);
+    } catch (e) {
+      // silently fail — no alerts
+    }
+  });
+
+  // File selection + preview
+  let selectedFile = null;
+  fileInput.addEventListener('change', (e) => {
+    selectedFile = e.target.files[0] || null;
+    if (!selectedFile) {
+      fileLabel.textContent = 'No file selected';
+      preview.style.display = 'none';
+      preview.src = '';
+      return;
+    }
+
+    fileLabel.textContent = selectedFile.name;
+
+    // If image, show preview
+    if (selectedFile.type.startsWith('image/')) {
+      const url = URL.createObjectURL(selectedFile);
+      preview.src = url;
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+      preview.src = '';
+    }
+  });
+
+  // Toast helper (no alerts)
+  function showToast(message, success=true) {
+    toast.innerText = message;
+    toast.style.background = success ? 'var(--success)' : '#ff3b30';
+    toast.style.display = 'block';
+    setTimeout(()=> toast.style.display = 'none', 2200);
+  }
+
+  // Upload + Firestore save
+  submitBtn.addEventListener('click', async () => {
+    if (!currentUser) { showToast('You must be signed in', false); return; }
+    if (!selectedFile) { showToast('Select a proof file', false); return; }
+
+    // Disable button + show spinner
+    submitBtn.disabled = true;
+    const oldText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Uploading <span class="spinner"></span>';
+
+    try {
+      // create a paymentId
+      const paymentRef = firestore.collection('payments_erc20').doc();
+      const paymentId = paymentRef.id;
+
+      // upload to storage
+      const ext = selectedFile.name.split('.').pop();
+      const storagePath = `erc20Proofs/${paymentId}.${ext}`;
+      const storageRef = storage.ref(storagePath);
+
+      const uploadTask = await storageRef.put(selectedFile);
+      const proofURL = await uploadTask.ref.getDownloadURL();
+
+      // create firestore document under payments_erc20/{paymentId}
+      await paymentRef.set({
+        userUid: currentUser.uid,
+        method: 'USDT (ERC20)',
+        proofURL: proofURL,
+        fileName: selectedFile.name,
+        fileType: selectedFile.type,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      showToast('Proof submitted');
+      // redirect after short delay
+      setTimeout(()=> window.location.href = 'dashboard.html', 1400);
+
+    } catch (err) {
+      console.error(err);
+      showToast('Upload failed', false);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = oldText;
+    }
+  });
+  </script>
+</body>
+  </html>
