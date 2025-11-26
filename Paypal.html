@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayPal Payment</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+<style>
+  body {
+    background: #001f3f;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px 15px;
+    margin: 0;
+  }
+
+  h2 {
+    color: #00d4ff;
+    margin-bottom: 20px;
+    font-size: 26px;
+  }
+
+  .box {
+    background: #003366;
+    padding: 25px;
+    border-radius: 14px;
+    max-width: 420px;
+    margin: auto;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  }
+
+  .email-box {
+    background: #002f6c;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    word-wrap: break-word;
+  }
+
+  .copy-btn, .upload-btn, .submit-btn {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    background: #0056b3;
+    transition: 0.2s;
+  }
+  .copy-btn:hover, .upload-btn:hover, .submit-btn:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .preview {
+    margin-top: 15px;
+    display: none;
+  }
+  .preview img {
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #00c853;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+</head>
+<body>
+
+<h2>PayPal Payment</h2>
+
+<div class="box">
+  <p>Send Payment To:</p>
+
+  <div class="email-box" id="paypalEmail">
+    bitcoininvestmenthubkenya@gmail.com
+  </div>
+
+  <button class="copy-btn" onclick="copyEmail()">
+    <i class="fas fa-copy"></i> Copy Email
+  </button>
+
+  <hr style="margin: 25px 0; border-color: rgba(255,255,255,0.2);">
+
+  <h3>Upload Transaction Proof</h3>
+
+  <label for="proofFile" class="upload-btn">
+    <i class="fas fa-upload"></i> Select Image
+  </label>
+  <input type="file" id="proofFile" accept="image/*">
+
+  <div class="preview" id="previewBox">
+    <strong>Preview:</strong>
+    <img id="previewImg" src="">
+  </div>
+
+  <button class="submit-btn" onclick="submitProof()">
+    Submit Proof
+  </button>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+
+<script>
+/* Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+/* Toast */
+function toast(msg, success = true) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.style.background = success ? "#00c853" : "#ff3d00";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* Copy Email */
+function copyEmail() {
+  navigator.clipboard.writeText("bitcoininvestmenthubkenya@gmail.com");
+  toast("Email copied");
+}
+
+/* Preview Image */
+document.getElementById("proofFile").addEventListener("change", function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById("previewImg").src = ev.target.result;
+    document.getElementById("previewBox").style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
+/* Submit Proof */
+async function submitProof() {
+  const file = document.getElementById("proofFile").files[0];
+
+  if (!file) {
+    toast("Please select a proof image", false);
+    return;
+  }
+
+  const user = auth.currentUser;
+  if (!user) {
+    toast("You must be logged in", false);
+    return;
+  }
+
+  const paymentId = Date.now().toString();
+  const storageRef = storage.ref("paymentProofs/" + paymentId + ".jpg");
+
+  try {
+    // Upload file
+    await storageRef.put(file);
+    const proofURL = await storageRef.getDownloadURL();
+
+    // Save record to DB
+    await db.ref("payments/" + paymentId).set({
+      userUid: user.uid,
+      method: "PayPal",
+      proofURL: proofURL,
+      timestamp: Date.now()
+    });
+
+    toast("Proof submitted successfully!");
+  } catch (err) {
+    toast("Upload failed", false);
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+  </html>
