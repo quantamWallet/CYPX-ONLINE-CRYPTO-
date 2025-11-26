@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PayPal Payment</title>
 
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
@@ -55,6 +54,7 @@
     background: #0056b3;
     transition: 0.2s;
   }
+
   .copy-btn:hover, .upload-btn:hover, .submit-btn:hover {
     opacity: 0.9;
     transform: scale(1.03);
@@ -74,7 +74,6 @@
     margin-top: 10px;
   }
 
-  /* Toast Notification */
   .toast {
     position: fixed;
     top: 20px;
@@ -86,8 +85,9 @@
     font-size: 15px;
     box-shadow: 0 0 10px rgba(0,0,0,0.4);
     z-index: 9999;
-    animation: fadeIn 0.3s ease;
+    animation: fadeIn .3s ease;
   }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -134,7 +134,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
 
 <script>
-/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -146,7 +145,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.database();
 const storage = firebase.storage();
 
@@ -166,7 +164,7 @@ function copyEmail() {
   toast("Email copied");
 }
 
-/* Preview Image */
+/* Image Preview */
 document.getElementById("proofFile").addEventListener("change", function(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -179,7 +177,7 @@ document.getElementById("proofFile").addEventListener("change", function(e) {
   reader.readAsDataURL(file);
 });
 
-/* Submit Proof */
+/* Submit Proof — WORKING NOW */
 async function submitProof() {
   const file = document.getElementById("proofFile").files[0];
 
@@ -188,35 +186,32 @@ async function submitProof() {
     return;
   }
 
-  const user = auth.currentUser;
-  if (!user) {
-    toast("You must be logged in", false);
-    return;
-  }
-
   const paymentId = Date.now().toString();
   const storageRef = storage.ref("paymentProofs/" + paymentId + ".jpg");
 
   try {
-    // Upload file
-    await storageRef.put(file);
-    const proofURL = await storageRef.getDownloadURL();
+    toast("Uploading...");
 
-    // Save record to DB
+    // Upload to storage
+    await storageRef.put(file);
+
+    // Get the file URL
+    const url = await storageRef.getDownloadURL();
+
+    // Save to DB
     await db.ref("payments/" + paymentId).set({
-      userUid: user.uid,
       method: "PayPal",
-      proofURL: proofURL,
+      proofURL: url,
       timestamp: Date.now()
     });
 
     toast("Proof submitted successfully!");
   } catch (err) {
-    toast("Upload failed", false);
     console.error(err);
+    toast("Upload failed", false);
   }
 }
 </script>
 
 </body>
-  </html>
+</html>
