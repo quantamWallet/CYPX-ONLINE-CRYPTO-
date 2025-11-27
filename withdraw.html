@@ -50,10 +50,29 @@ nav i{display:block;margin-bottom:4px;font-size:18px;}
       <select id="method" class="input">
         <option value="mpesa">M-Pesa</option>
         <option value="airtel">Airtel Money</option>
+        <option value="paypal">PayPal</option>
+        <option value="btc">Bitcoin (BTC)</option>
+        <option value="usdt_erc20">USDT (ERC20)</option>
       </select>
 
-      <label class="label" for="phone">Phone Number</label>
-      <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" required />
+      <!-- PHONE FIELD -->
+      <div id="phoneBox">
+        <label class="label" for="phone">Phone Number</label>
+        <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" />
+      </div>
+
+      <!-- PAYPAL EMAIL FIELD -->
+      <div id="paypalBox" style="display:none;">
+        <label class="label" for="paypalEmail">PayPal Email</label>
+        <input id="paypalEmail" class="input" type="email" placeholder="example@gmail.com" />
+      </div>
+
+      <!-- CRYPTO ADDRESS FIELD (used for BTC and USDT) -->
+      <div id="cryptoBox" style="display:none;">
+        <label class="label" id="cryptoLabel" for="cryptoAddress">Address</label>
+        <input id="cryptoAddress" class="input" type="text" placeholder="Enter address (BTC or ERC20)" />
+        <div class="small" id="cryptoHint">Enter a valid address for the selected crypto.</div>
+      </div>
 
       <label class="label" for="amount">Withdrawal Amount (KES)</label>
       <input id="amount" class="input" type="number" min="1000" placeholder="e.g. 2000" required />
@@ -93,6 +112,13 @@ const balanceEl = document.getElementById('balance');
 const amountInput = document.getElementById('amount');
 const phoneInput = document.getElementById('phone');
 const methodInput = document.getElementById('method');
+const paypalEmailInput = document.getElementById('paypalEmail');
+const phoneBox = document.getElementById('phoneBox');
+const paypalBox = document.getElementById('paypalBox');
+const cryptoBox = document.getElementById('cryptoBox');
+const cryptoLabel = document.getElementById('cryptoLabel');
+const cryptoAddressInput = document.getElementById('cryptoAddress');
+const cryptoHint = document.getElementById('cryptoHint');
 const submitBtn = document.getElementById('submitBtn');
 const form = document.getElementById('withdrawForm');
 const popup = document.getElementById('popup');
@@ -117,7 +143,6 @@ auth.onAuthStateChanged(user=>{
   currentUser=user;
   if(user){
     submitBtn.disabled=false;
-    // Listen to balance in real-time
     db.ref(`users/${user.uid}/balance`).on('value',s=>{
       balanceEl.textContent=(Number(s.val())||0).toLocaleString('en-US');
     });
@@ -127,34 +152,114 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
-// === Prefix validation ===
+// === Phone prefixes ===
 const mpesaPrefixes = ["070","071","072","074","075","076","079"];
 const airtelPrefixes = ["073","078"];
 function isValidNumberForMethod(phone, method) {
-  if(!/^07\d{8}$/.test(phone)) return false; // must be 10 digits starting 07
+  if(!/^07\d{8}$/.test(phone)) return false;
   const prefix = phone.substring(0,3);
   return method==='mpesa' ? mpesaPrefixes.includes(prefix) : airtelPrefixes.includes(prefix);
 }
 
+// === BTC & ERC20 validations ===
+// BTC: accept Legacy (1...), P2SH (3...), Bech32 (bc1...)
+function isValidBTC(address){
+  if(!address || typeof address !== 'string') return false;
+  // Regex covers common BTC formats: 1..., 3..., bc1...
+  const re = /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/;
+  return re.test(address);
+}
+
+// USDT (ERC20): enforce 0x + 40 hex chars
+function isValidERC20(address){
+  if(!address || typeof address !== 'string') return false;
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+// === Switch between inputs depending on method ===
+methodInput.addEventListener("change", ()=> {
+  const m = methodInput.value;
+  if(m === "paypal"){
+    phoneBox.style.display = "none";
+    paypalBox.style.display = "block";
+    cryptoBox.style.display = "none";
+    phoneInput.required = false;
+    paypalEmailInput.required = true;
+    cryptoAddressInput.required = false;
+  } else if(m === "btc" || m === "usdt_erc20"){
+    phoneBox.style.display = "none";
+    paypalBox.style.display = "none";
+    cryptoBox.style.display = "block";
+    phoneInput.required = false;
+    paypalEmailInput.required = false;
+    cryptoAddressInput.required = true;
+
+    if(m === "btc"){
+      cryptoLabel.textContent = "Bitcoin Address (BTC)";
+      cryptoAddressInput.placeholder = "e.g. 1BoatSLRHtKNngkdXEeobR76b53LETtpyT or bc1...";
+      cryptoHint.textContent = "Accepts Legacy (1...), P2SH (3...) and bech32 (bc1...) addresses.";
+    } else {
+      cryptoLabel.textContent = "USDT (ERC20) Address";
+      cryptoAddressInput.placeholder = "0x...";
+      cryptoHint.textContent = "ERC20 address — must start with 0x followed by 40 hex characters.";
+    }
+  } else {
+    // mpesa / airtel
+    phoneBox.style.display = "block";
+    paypalBox.style.display = "none";
+    cryptoBox.style.display = "none";
+    phoneInput.required = true;
+    paypalEmailInput.required = false;
+    cryptoAddressInput.required = false;
+  }
+});
+
+// set default visibility on load
+methodInput.dispatchEvent(new Event('change'));
+
 // === Handle Withdrawal ===
 form.addEventListener('submit',async e=>{
   e.preventDefault();
-  if(!currentUser){ return; }
+  if(!currentUser){ showPopup('Not authenticated','error'); return; }
 
   const amount = Math.floor(Number(amountInput.value));
-  const phone = phoneInput.value.trim();
   const method = methodInput.value;
+  const phone = phoneInput.value.trim();
+  const paypalEmail = paypalEmailInput.value.trim();
+  const cryptoAddress = cryptoAddressInput.value.trim();
 
   if(!amount || amount < 1000){ 
     showPopup('Minimum withdrawal is 1,000 KES','error'); 
     return; 
   }
 
-  if(!isValidNumberForMethod(phone, method)){
-    showPopup(`Invalid ${method==='mpesa'?'M-Pesa':'Airtel'} number for chosen method`,'error');
+  // Method-specific validation
+  if(method === "mpesa" || method === "airtel"){
+    if(!isValidNumberForMethod(phone, method)){
+      showPopup(`Invalid ${method==='mpesa'?'M-Pesa':'Airtel'} number for chosen method`,'error');
+      return;
+    }
+  } else if(method === "paypal"){
+    if(!/^\S+@\S+\.\S+$/.test(paypalEmail)){
+      showPopup("Enter a valid PayPal email","error");
+      return;
+    }
+  } else if(method === "btc"){
+    if(!isValidBTC(cryptoAddress)){
+      showPopup("Enter a valid Bitcoin address (starts with 1, 3 or bc1)","error");
+      return;
+    }
+  } else if(method === "usdt_erc20"){
+    if(!isValidERC20(cryptoAddress)){
+      showPopup("Enter a valid ERC20 address (0x + 40 hex characters)","error");
+      return;
+    }
+  } else {
+    showPopup("Unknown withdrawal method","error");
     return;
   }
 
+  // Check balance
   const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
   const balance = Number(balSnap.val())||0;
   if(balance < amount){ showPopup('Insufficient balance','error'); return; }
@@ -183,16 +288,34 @@ form.addEventListener('submit',async e=>{
     submitBtn.textContent='Submit Withdrawal';
     if(err || !committed){ showPopup('Error or insufficient funds','error'); return; }
 
-    await db.ref(`users/${currentUser.uid}/withdrawals`).push({
-      amount, phone, method,
+    // Build payload with method-specific fields
+    const payload = {
+      amount,
+      method,
       timestamp: Date.now(),
       status: 'submitted'
-    });
+    };
+    if(method === "mpesa" || method === "airtel"){
+      payload.phone = phone;
+    } else if(method === "paypal"){
+      payload.paypalEmail = paypalEmail;
+    } else if(method === "btc"){
+      payload.btcAddress = cryptoAddress;
+    } else if(method === "usdt_erc20"){
+      payload.usdtAddress = cryptoAddress;
+      payload.network = "ERC20";
+    }
+
+    await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);
+
     amountInput.value='';
     phoneInput.value='';
+    paypalEmailInput.value='';
+    cryptoAddressInput.value='';
+
     showPopup(`Withdrawal request of KES ${amount.toLocaleString()} submitted.`,'success');
   });
 });
 </script>
 </body>
-</html>
+  </html>
