@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-  <meta name="theme-color" content="#4CAF50">
+  <meta name="theme-color" content="#007a54">
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -21,84 +21,139 @@
       box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
     }
+
     body {
-      background: #005f3c;
+      background: linear-gradient(160deg, #003f29, #006644);
       color: #fff;
       line-height: 1.6;
     }
+
     header {
-      background: #003322;
-      padding: 20px;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 25px 15px;
       text-align: center;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
+      backdrop-filter: blur(6px);
     }
+
     header img {
-      height: 32px;
+      height: 40px;
     }
+
     header h1 {
-      font-size: 2rem;
+      font-size: 1.8rem;
+      font-weight: 800;
     }
+
     h2 {
       text-align: center;
-      margin-top: 30px;
-      font-size: 2rem;
+      margin-top: 35px;
+      font-size: 2.1rem;
+      font-weight: 700;
+      text-shadow: 0 3px 5px rgba(0,0,0,0.3);
     }
+
     p {
       text-align: center;
-      margin: 10px 20px 20px 20px;
-      font-size: 1.1rem;
+      margin: 15px 25px;
+      font-size: 1.15rem;
+      opacity: 0.95;
     }
+
     .btn {
-      background: #00b894;
+      background: linear-gradient(135deg, #00d4aa, #008b6e);
       color: #fff;
-      padding: 12px 24px;
+      padding: 14px 30px;
       text-decoration: none;
       font-weight: bold;
-      border-radius: 8px;
+      border-radius: 10px;
       display: inline-block;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: 0.2s;
     }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+    }
+
     .section {
-      padding: 40px 20px;
-      max-width: 900px;
-      margin: 20px auto;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
+      padding: 45px 20px;
+      max-width: 1000px;
+      margin: 30px auto;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
     }
+
     .section h3 {
-      margin-bottom: 15px;
-      font-size: 1.5rem;
+      margin-bottom: 5px;
+      font-size: 1.7rem;
       text-align: center;
+      font-weight: 700;
     }
+
+    .section-description {
+      text-align: center;
+      margin-bottom: 25px;
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
     .features {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      gap: 25px;
       margin-top: 20px;
     }
+
     .feature {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 20px;
-      width: 250px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 25px 20px;
+      width: 260px;
       text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+      transition: 0.25s;
     }
+
+    .feature:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 7px 20px rgba(0,0,0,0.3);
+    }
+
     .feature img {
-      width: 60px;
-      margin-bottom: 10px;
+      width: 65px;
+      margin-bottom: 15px;
     }
+
     footer {
-      background: #00291c;
+      background: rgba(0, 0, 0, 0.3);
       text-align: center;
       padding: 20px;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      margin-top: 40px;
+      backdrop-filter: blur(5px);
+    }
+
+    footer a {
+      color: #00ffcc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
 
   <header>
@@ -107,58 +162,79 @@
   </header>
 
   <h2>Grow Your Wealth With AI-Powered Trading</h2>
-  <p>We invest in Bitcoin, binary, and forex markets using advanced AI trading bots to give you up to <strong>200% ROI in 12 days</strong>.</p>
+  <p>We invest in Bitcoin, binary, and forex markets using AI trading bots to give you up to <strong>200% ROI in 12 days</strong>.</p>
+
   <div style="text-align: center; margin-bottom: 40px;">
     <a href="signup.html" class="btn">Get Started</a>
   </div>
 
   <section class="section">
     <h3>How It Works</h3>
+    <p class="section-description">Simple steps to start earning</p>
+
     <div class="features">
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/2331/2331948.png" alt="Deposit" />
+        <img src="https://cdn-icons-png.flaticon.com/512/2331/2331948.png">
         <p>Deposit funds to start investing</p>
       </div>
+
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/2631/2631973.png" alt="AI Bot" />
-        <p>AI bots trade on your behalf</p>
+        <img src="https://cdn-icons-png.flaticon.com/512/2631/2631973.png">
+        <p>AI trading bots work automatically for you</p>
       </div>
+
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/1554/1554591.png" alt="ROI" />
+        <img src="https://cdn-icons-png.flaticon.com/512/1554/1554591.png">
         <p>Earn ROI of up to 200%</p>
       </div>
+
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png" alt="Withdraw" />
-        <p>Withdraw directly to Mobile Money</p>
+        <img src="https://cdn-icons-png.flaticon.com/512/1256/1256650.png">
+        <p>Withdraw profits instantly</p>
       </div>
     </div>
   </section>
 
   <section class="section">
     <h3>Why Choose CYPX ONLINE CRYPTO?</h3>
+
     <div class="features">
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/726/726488.png" alt="Fast" />
+        <img src="https://cdn-icons-png.flaticon.com/512/726/726488.png">
         <p>Fast, secure transactions</p>
       </div>
+
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/702/702797.png" alt="Support" />
-        <p>Real-time support</p>
+        <img src="https://cdn-icons-png.flaticon.com/512/702/702797.png">
+        <p>24/7 real-time support</p>
       </div>
+
       <div class="feature">
-        <img src="https://cdn-icons-png.flaticon.com/512/1007/1007945.png" alt="Trust" />
-        <p>Trusted by investors across Kenya </p>
+        <img src="https://cdn-icons-png.flaticon.com/512/1007/1007945.png">
+        <p>Trusted by investors across East Africa</p>
       </div>
     </div>
   </section>
 
   <section class="section" style="text-align:center">
-    <h3>Ready to invest?</h3>
+    <h3>Ready to Invest?</h3>
+    <p class="section-description">Create your account and start earning today</p>
     <a href="signup.html" class="btn">Create Your Account</a>
   </section>
 
   <footer>
-    <p>Need help? Email: quantumrioinvestment@gmail.com | Telegram: @Cypxonlinecrypto</p>
+    <p>
+      Need help?  
+      Email:  
+      <a href="mailto:bitcoininvestmenthubkenya@gmail.com">
+        bitcoininvestmenthubkenya@gmail.com
+      </a>
+      <br>
+      Telegram Support:  
+      <a href="https://t.me/Cypxonlinecrypto" target="_blank">
+        @Cypxonlinecrypto
+      </a>
+    </p>
     <p>© 2025 CYPX ONLINE CRYPTO. All rights reserved.</p>
   </footer>
 
@@ -178,17 +254,17 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    window.auth = auth; // Make auth globally available
+    window.auth = auth;
   </script>
 
   <!-- Register Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log('✅ Service Worker Registered'))
-        .catch(err => console.error('❌ SW registration failed:', err));
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.error('SW registration failed:', err));
     }
   </script>
 
 </body>
-</html>
+</htmlKenyaenya
