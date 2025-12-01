@@ -1,120 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CYPX ONLINE CRYPTO - Team</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYPX ONLINE CRYPTO - Team</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      padding-bottom: 80px;
+    }
+    header {
+      background-color: #002f6c;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    header img { height: 30px; }
+    header h2 { margin: 0; font-size: 18px; }
 
-<style>
-  body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background-color:#001f3f;
-    color:white;
-    padding-bottom:80px; /* space for fixed bottom nav */
-  }
-  header{
-    background-color:#002f6c;
-    padding:15px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  header img{ height:30px; }
-  header h2{ margin:0; font-size:18px; }
+    .announcement {
+      background-color: #00274d;
+      color: #fff700;
+      padding: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      box-sizing: border-box;
+      border-top: 1px solid #003;
+      border-bottom: 1px solid #003;
+      cursor: pointer;
+    }
+    .announcement-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 15s linear infinite;
+    }
+    @keyframes scroll-left { 
+      0% { transform: translateX(0); } 
+      100% { transform: translateX(-100%); } 
+    }
 
-  .announcement{
-    background-color:#00274d;
-    color:#fff700;
-    padding:10px;
-    white-space:nowrap;
-    overflow:hidden;
-    box-sizing:border-box;
-    border-top:1px solid #003;
-    border-bottom:1px solid #003;
-    cursor:pointer;
-  }
-  .announcement-content{ display:inline-block; padding-left:100%; animation:scroll-left 15s linear infinite; }
-  @keyframes scroll-left{ 0%{transform:translateX(0);} 100%{transform:translateX(-100%);} }
+    .referral {
+      background-color: #003366;
+      padding: 15px;
+      text-align: center;
+    }
+    .referral input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      margin-top: 10px;
+      background-color: #f4f4f4;
+      color: #333;
+      cursor: pointer;
+    }
 
-  .referral{ background-color:#003366; padding:15px; text-align:center; }
-  .referral input{
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:6px;
-    margin-top:10px;
-    background-color:#f4f4f4;
-    color:#333;
-    cursor:pointer;
-  }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 15px;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    .stat-box {
+      flex: 1;
+      min-width: 30%;
+      background-color: #004080;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      color: #ffcc00;
+    }
 
-  .stats{ display:flex; flex-wrap:wrap; padding:15px; gap:10px; justify-content:space-between; }
-  .stat-box{ flex:1; min-width:30%; background-color:#004080; border-radius:10px; padding:10px; text-align:center; color:#ffcc00; }
-  .selection-period{ text-align:center; margin:10px 0; font-size:14px; color:#cfe6ff; }
+    .selection-period { text-align: center; margin: 10px 0; font-size: 14px; color: #cfe6ff; }
 
-  .team-section-title{ background-color:#002b5c; padding:10px; font-weight:bold; text-align:center; margin-top:10px; border-top:1px solid #003; border-bottom:1px solid #003; }
-  .level-box{ background-color:#003366; margin:10px 15px; padding:15px; border-radius:10px; }
-  .level-total{ font-weight:bold; color:#ffcc00; margin-bottom:10px; }
-  .level-referrals div{ background-color:#004080; margin:5px 0; padding:8px; border-radius:6px; font-size:14px; color:#fff; }
+    .team-section-title {
+      background-color: #002b5c;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+      border-top: 1px solid #003;
+      border-bottom: 1px solid #003;
+    }
 
-  .team-levels{ padding-bottom:80px; }
+    .level-box {
+      background-color: #003366;
+      margin: 10px 15px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .level-total {
+      font-weight: bold;
+      color: #ffcc00;
+      margin-bottom: 10px;
+    }
+    .level-referrals div {
+      background-color: #004080;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #fff;
+    }
 
-  .explanation{ margin:20px 15px 50px 15px; background-color:#002b5c; padding:15px; border-radius:10px; line-height:1.5; font-size:14px; color:#cfe6ff; }
+    .team-levels { padding-bottom: 80px; }
 
-  .popup{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:green; color:white; padding:20px; border-radius:10px; font-weight:bold; z-index:9999; box-shadow:0 0 10px rgba(0,0,0,0.4); }
-  .popup.red{ background-color:#cc0000; }
+    .explanation {
+      margin: 20px 15px 50px 15px;
+      background-color: #002b5c;
+      padding: 15px;
+      border-radius: 10px;
+      line-height: 1.5;
+      font-size: 14px;
+      color: #cfe6ff;
+    }
 
-  /* ============================ */
-  /* NAV: Exact dashboard styling */
-  /* ============================ */
-  .botom-nav {
-   .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #002244;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 999;
-}
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #002244;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 9999;
+    }
+    nav a {
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    nav i { font-size: 20px; margin-bottom: 3px; }
 
-.bottom-nav a {
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  font-size: 13px;
-  width: 20%;        /* Ensures all buttons are equal size */
-}
+    #lev1 .level-referrals div { background: #165d2f; }
+    #lev2 .level-referrals div { background: #1c3c66; }
+    #lev3 .level-referrals div { background: #663c1c; }
 
-.bottom-nav i {
-  font-size: 20px;
-  margin-bottom: 2px;
-}
-  /* ============================ */
+    #lev1 .level-total { color: #33ff99; }
+    #lev2 .level-total { color: #66ccff; }
+    #lev3 .level-total { color: #ff9966; }
 
-  /* optional color tweaks per level */
-  #lev1 .level-referrals div { background:#165d2f; color:#fff; }
-  #lev2 .level-referrals div { background:#1c3c66; color:#fff; }
-  #lev3 .level-referrals div { background:#663c1c; color:#fff; }
-  #lev1 .level-total { color:#33ff99; }
-  #lev2 .level-total { color:#66ccff; }
-  #lev3 .level-total { color:#ff9966; }
-
-  /* helper */
-  .small-muted { color:#9fb0cf; font-size:13px; }
-</style>
+    .small-muted { color: #9fb0cf; font-size: 13px; }
+  </style>
 </head>
+
 <body>
   <header>
     <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo" />
     <h2>CYPX ONLINE CRYPTO - Team</h2>
   </header>
 
-  <div class="announcement" id="ann-btn">
+  <div class="announcement">
     <div class="announcement-content">🛒Welcome to CYPX ONLINE CRYPTO 🛒 Recruiting investors and agents worldwide!</div>
   </div>
 
@@ -130,7 +174,7 @@
     <div class="stat-box"><div>Team Recharge</div><div id="team-recharge">KSH 0.00</div></div>
     <div class="stat-box"><div>Team Withdrawal</div><div id="team-withdraw">KSH 0.00</div></div>
     <div class="stat-box"><div>New Team</div><div id="new-team">0</div></div>
-    <div class="stat-box"><div>bottom-nav Recharge</div><div id="first-recharge">0</div></div>
+    <div class="stat-box"><div>First Recharge</div><div id="first-recharge">0</div></div>
     <div class="stat-box"><div>First Withdrawal</div><div id="first-withdraw">0</div></div>
   </div>
 
@@ -156,169 +200,76 @@
 
   <div class="explanation">
     <strong>Invite friends to get three levels of rewards:</strong><br><br>
-    Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br>
-    You can invite friends, members, relatives to join and earn three high commission rewards as follows:<br><br>
-    A: Team first-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
-    B: Team second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
-    C: Team third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
-    Conclusion: If you are A-level, you get (A+B+C) = 20% total commission.<br><br>
-    The fastest way to make money here is not saving money yourself, but forming a team to earn generous commissions and leading team members to make money together.
+    Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br><br>
+    A: First-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
+    B: Second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
+    C: Third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
+    Total commission = 20%
   </div>
 
-  <!-- Bottom nav (fixed & identical to dashboard styling) -->
-  <nav class="bottom-nav">
-  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  <nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
-  <div id="announcementModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:white; color:#002f6c; padding:20px; overflow-y:auto;">
-    <h3>🛒Welcome to CYPX ONLINE CRYPTO 🛒</h3>
-    <pre style="white-space:pre-wrap; font-size:14px;">
-💲CYPX ONLINE CRYPTO 2025 is a formal and legal long-term platform💲
-... (long announcement text omitted for brevity in modal, keep full text same as dashboard modal) ...
-    </pre>
-    <button onclick="closeAnnouncement()" style="margin-top:20px; padding:10px 20px; background:#ffcc00; border:none; font-weight:bold; border-radius:5px;">Close</button>
-  </div>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
 
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
-<script>
-  // keep your existing firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
-  firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
 
-  const database = firebase.database();
-  const auth = firebase.auth();
-
-  // small helper popup
-  function showPopup(msg, isError = false) {
-    const p = document.createElement('div');
-    p.className = 'popup' + (isError ? ' red' : '');
-    p.textContent = msg;
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 3000);
-  }
-
-  // announcement modal open/close
-  document.getElementById('ann-btn').onclick = () => {
-    document.getElementById('announcementModal').style.display = 'block';
-  };
-  function closeAnnouncement(){ document.getElementById('announcementModal').style.display = 'none'; }
-
-  // Main page logic
-  window.onload = function(){
-    auth.onAuthStateChanged(function(user){
-      if (!user) {
-        window.location.href = "landing.html";
-        return;
-      }
-      const uid = user.uid;
-
-      // build/ensure username (used for referral)
-      const meRef = database.ref(`users/${uid}/username`);
-      meRef.once('value').then(snap => {
-        let uname = '';
-        if (snap.exists() && String(snap.val()).trim() !== '') {
-          uname = snap.val().trim();
-        } else if (user.displayName && user.displayName.trim() !== '') {
-          uname = user.displayName.trim();
-        } else if (user.email) {
-          uname = user.email.split('@')[0];
-        } else {
-          uname = 'user' + uid.slice(0,6);
-        }
-        // ensure saved
-        meRef.set(uname);
-        document.getElementById('ref-link').value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(uname)}`;
-        document.getElementById('ref-link').addEventListener('click', function(){
-          this.select();
-          document.execCommand('copy');
-          showPopup('Referral link copied!');
-        });
-      });
-
-      // load team members and compute stats like original page
-      const usersRef = database.ref('users');
-      usersRef.on('value', snap => {
-        if (!snap.exists()) {
-          // clear lists and stats
-          document.getElementById('lev1-list').innerHTML = '<div>No referrals yet</div>';
-          document.getElementById('lev2-list').innerHTML = '<div>No referrals yet</div>';
-          document.getElementById('lev3-list').innerHTML = '<div>No referrals yet</div>';
-          document.getElementById('lev1-total').textContent = 'Total: KSH 0.00';
-          document.getElementById('lev2-total').textContent = 'Total: KSH 0.00';
-          document.getElementById('lev3-total').textContent = 'Total: KSH 0.00';
-          document.getElementById('team-size').textContent = '0';
-          document.getElementById('team-recharge').textContent = 'KSH 0.00';
-          document.getElementById('team-withdraw').textContent = 'KSH 0.00';
-          document.getElementById('new-team').textContent = '0';
+    window.onload = function () {
+      auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = "landing.html";
           return;
         }
 
-        const all = snap.val();
-        // find my username (must be present)
-        const myUserSnap = all[uid] || {};
-        const myUsername = myUserSnap.username || (user.email ? user.email.split('@')[0] : ('user' + uid.slice(0,6)));
+        const uid = user.uid;
+        const meRef = database.ref(`users/${uid}/username`);
 
-        const level1 = [], level2 = [], level3 = [];
+        meRef.once('value').then(snap => {
+          let uname = '';
 
-        // collect levels similarly to original logic
-        for (const otherUid in all) {
-          const u = all[otherUid];
-          if (!u) continue;
-          if (u.referredBy === myUsername) level1.push({ uid: otherUid, ...u });
-        }
-        for (const otherUid in all) {
-          const u = all[otherUid];
-          if (!u) continue;
-          if (level1.find(x => x.username === u.referredBy)) level2.push({ uid: otherUid, ...u });
-        }
-        for (const otherUid in all) {
-          const u = all[otherUid];
-          if (!u) continue;
-          if (level2.find(x => x.username === u.referredBy)) level3.push({ uid: otherUid, ...u });
-        }
-
-        const sum = (arr, field) => arr.reduce((t, u) => t + (parseFloat(u[field] || 0)), 0);
-
-        // render lists
-        const renderList = (elId, arr) => {
-          const el = document.getElementById(elId);
-          if (!arr.length) {
-            el.innerHTML = '<div>No referrals yet</div>';
-            return;
+          if (snap.exists() && String(snap.val()).trim() !== '') {
+            uname = snap.val().trim();
+          } else if (user.displayName && user.displayName.trim() !== '') {
+            uname = user.displayName.trim();
+          } else if (user.email) {
+            uname = user.email.split('@')[0];
+          } else {
+            uname = 'user' + uid.slice(0,6);
           }
-          el.innerHTML = arr.map(u => `<div>${u.username||u.email||u.uid} ${u.totalTopUp ? `<span class="small-muted"> - ${Number(u.totalTopUp).toFixed(2)}</span>` : ''}</div>`).join('');
-        };
 
-        renderList('lev1-list', level1);
-        renderList('lev2-list', level2);
-        renderList('lev3-list', level3);
+          meRef.set(uname);
 
-        document.getElementById('lev1-total').textContent = `Total: KSH ${sum(level1,'totalTopUp').toFixed(2)}`;
-        document.getElementById('lev2-total').textContent = `Total: KSH ${sum(level2,'totalTopUp').toFixed(2)}`;
-        document.getElementById('lev3-total').textContent = `Total: KSH ${sum(level3,'totalTopUp').toFixed(2)}`;
-
-        const teamSize = level1.length + level2.length + level3.length;
-        document.getElementById('team-size').textContent = teamSize;
-        document.getElementById('team-recharge').textContent = 'KSH ' + (sum(level1,'totalTopUp') + sum(level2,'totalTopUp') + sum(level3,'totalTopUp')).toFixed(2);
-        document.getElementById('team-withdraw').textContent = 'KSH ' + (sum(level1,'totalWithdraw') + sum(level2,'totalWithdraw') + sum(level3,'totalWithdraw')).toFixed(2);
-        document.getElementById('new-team').textContent = level1.length;
+          // Set referral link
+          document.getElementById('ref-link').value =
+            `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(uname)}`;
+          
+          // **COPY WITHOUT ALERT**
+          document.getElementById('ref-link').addEventListener('click', function () {
+            this.select();
+            document.execCommand('copy');
+          });
+        });
       });
+    };
+  </script>
 
-    });
-  }; // onload
-</script>
 </body>
-  </html>
+</html>
