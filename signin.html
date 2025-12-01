@@ -37,6 +37,24 @@
     color:#e9f5ff; font-size:15px; outline:none;
   }
   .input::placeholder{color:rgba(255,255,255,0.45);}
+
+  /* NEW PROFESSIONAL FORGOT PASSWORD STYLE */
+  .forgot{
+    text-align:center;
+    margin-top:4px;
+    margin-bottom:18px;
+  }
+  .forgot a{
+    color:rgba(255,255,255,0.55);
+    font-size:14px;
+    text-decoration:none;
+    transition:0.2s ease;
+  }
+  .forgot a:hover{
+    color:#7fc4ff;
+    text-decoration:underline;
+  }
+
   .btn{
     width:100%; padding:16px; margin-top:10px; border-radius:12px;
     border:none; cursor:pointer; font-weight:800; font-size:18px;
@@ -65,10 +83,17 @@
         <label for="email">Email</label>
         <input id="email" class="input" type="email" placeholder="Enter your email" required />
       </div>
+
       <div class="field">
         <label for="password">Password</label>
         <input id="password" class="input" type="password" placeholder="Enter your password" required />
       </div>
+
+      <!-- Professional Forgot Password -->
+      <div class="forgot">
+        <a href="#" id="forgotPasswordBtn">Forgot Password?</a>
+      </div>
+
       <button class="btn" type="submit">Login</button>
     </form>
 
@@ -77,7 +102,11 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
 const firebaseConfig = {
@@ -114,7 +143,6 @@ document.getElementById("signinForm").addEventListener("submit",async e=>{
     const cred=await signInWithEmailAndPassword(auth,email,password);
     const user=cred.user;
 
-    // check if user profile exists in database
     const snap=await get(child(ref(db),"users/"+user.uid));
     if(!snap.exists()){
       showToast("User profile not found in database."); return;
@@ -130,6 +158,27 @@ document.getElementById("signinForm").addEventListener("submit",async e=>{
     else showToast("Login failed, try again.");
   }
 });
+
+
+// ⭐ Forgot Password Feature
+document.getElementById("forgotPasswordBtn").addEventListener("click", async ()=>{
+  const email = document.getElementById("email").value.trim();
+
+  if(!email){
+    showToast("Enter your email to reset password.");
+    return;
+  }
+
+  try{
+    await sendPasswordResetEmail(auth, email);
+    showToast("Reset link sent to your email!", true);
+  }
+  catch(err){
+    console.error(err);
+    if(err.code==="auth/user-not-found") showToast("No account with this email.");
+    else showToast("Failed to send reset link.");
+  }
+});
 </script>
 </body>
-</html>
+  </html>
