@@ -5,22 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>CYPX ONLINE CRYPTO - Team</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  body{margin:0;font-family:Arial,sans-serif;background-color:#001f3f;color:white;}
-  header{background-color:#002f6c;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
-  header img{height:20px;vertical-align:middle;margin-right:8px;}
-  .referral{background-color:#003366;padding:15px;text-align:center;}
-  .referral input{width:100%;padding:10px;border:none;border-radius:6px;margin-top:10px;background-color:#f4f4f4;color:#333;cursor:pointer;}
-  .stats{display:flex;flex-wrap:wrap;padding:15px;gap:10px;justify-content:space-between;}
-  .stat-box{flex:1;min-width:30%;background-color:#004080;border-radius:10px;padding:10px;text-align:center;color:#ffcc00;}
-  .selection-period{text-align:center;margin:10px 0;font-size:14px;}
-  .team-section-title{background-color:#002b5c;padding:10px;font-weight:bold;text-align:center;margin-top:10px;border-top:1px solid #003;border-bottom:1px solid #003;}
-  .level-box{background-color:#003366;margin:10px 15px;padding:15px;border-radius:10px;}
-  .level-total{font-weight:bold;color:#ffcc00;margin-bottom:10px;}
-  .level-referrals div{background-color:#004080;margin:5px 0;padding:8px;border-radius:6px;font-size:14px;}
-  .team-levels{padding-bottom:80px;} /* space for nav */
 
-  /* FIXED UNIVERSAL BOTTOM NAV (same as dashboard) */
+<style>
+  body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background-color:#001f3f;
+    color:white;
+    padding-bottom:80px; /* space for fixed bottom nav */
+  }
+  header{
+    background-color:#002f6c;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  header img{ height:30px; }
+  header h2{ margin:0; font-size:18px; }
+
+  .announcement{
+    background-color:#00274d;
+    color:#fff700;
+    padding:10px;
+    white-space:nowrap;
+    overflow:hidden;
+    box-sizing:border-box;
+    border-top:1px solid #003;
+    border-bottom:1px solid #003;
+    cursor:pointer;
+  }
+  .announcement-content{ display:inline-block; padding-left:100%; animation:scroll-left 15s linear infinite; }
+  @keyframes scroll-left{ 0%{transform:translateX(0);} 100%{transform:translateX(-100%);} }
+
+  .referral{ background-color:#003366; padding:15px; text-align:center; }
+  .referral input{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    margin-top:10px;
+    background-color:#f4f4f4;
+    color:#333;
+    cursor:pointer;
+  }
+
+  .stats{ display:flex; flex-wrap:wrap; padding:15px; gap:10px; justify-content:space-between; }
+  .stat-box{ flex:1; min-width:30%; background-color:#004080; border-radius:10px; padding:10px; text-align:center; color:#ffcc00; }
+  .selection-period{ text-align:center; margin:10px 0; font-size:14px; color:#cfe6ff; }
+
+  .team-section-title{ background-color:#002b5c; padding:10px; font-weight:bold; text-align:center; margin-top:10px; border-top:1px solid #003; border-bottom:1px solid #003; }
+  .level-box{ background-color:#003366; margin:10px 15px; padding:15px; border-radius:10px; }
+  .level-total{ font-weight:bold; color:#ffcc00; margin-bottom:10px; }
+  .level-referrals div{ background-color:#004080; margin:5px 0; padding:8px; border-radius:6px; font-size:14px; color:#fff; }
+
+  .team-levels{ padding-bottom:80px; }
+
+  .explanation{ margin:20px 15px 50px 15px; background-color:#002b5c; padding:15px; border-radius:10px; line-height:1.5; font-size:14px; color:#cfe6ff; }
+
+  .popup{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:green; color:white; padding:20px; border-radius:10px; font-weight:bold; z-index:9999; box-shadow:0 0 10px rgba(0,0,0,0.4); }
+  .popup.red{ background-color:#cc0000; }
+
+  /* FIXED BOTTOM NAV - identical to dashboard */
   .bottom-nav{
     position:fixed;
     bottom:0;
@@ -31,208 +77,240 @@
     justify-content:space-around;
     padding:10px 0;
     z-index:999;
+    border-top:1px solid #003;
   }
   .bottom-nav a{
     color:white;
     text-align:center;
     text-decoration:none;
     font-size:13px;
-    width:20%;
+    width:20%; /* ensures 5 equal buttons */
   }
-  .bottom-nav i{
-    font-size:20px;
-    margin-bottom:2px;
-  }
-
-  .popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:green;color:white;padding:20px;border-radius:10px;font-weight:bold;z-index:9999;box-shadow:0 0 10px rgba(0,0,0,0.4);}
-  .explanation{margin:20px 15px 50px 15px;background-color:#002b5c;padding:15px;border-radius:10px;line-height:1.5;font-size:14px;}
+  .bottom-nav i{ font-size:20px; margin-bottom:3px; }
 
   /* optional color tweaks per level */
-  #lev1 .level-referrals div {background:#165d2f; color:#fff;}
-  #lev2 .level-referrals div {background:#1c3c66; color:#fff;}
-  #lev3 .level-referrals div {background:#663c1c; color:#fff;}
-  #lev1 .level-total {color:#33ff99;}
-  #lev2 .level-total {color:#66ccff;}
-  #lev3 .level-total {color:#ff9966;}
+  #lev1 .level-referrals div { background:#165d2f; color:#fff; }
+  #lev2 .level-referrals div { background:#1c3c66; color:#fff; }
+  #lev3 .level-referrals div { background:#663c1c; color:#fff; }
+  #lev1 .level-total { color:#33ff99; }
+  #lev2 .level-total { color:#66ccff; }
+  #lev3 .level-total { color:#ff9966; }
+
+  /* helper */
+  .small-muted { color:#9fb0cf; font-size:13px; }
 </style>
 </head>
 <body>
-<header>
-  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
-  CYPX ONLINE CRYPTO - Team
-</header>
+  <header>
+    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo" />
+    <h2>CYPX ONLINE CRYPTO - Team</h2>
+  </header>
 
-<div class="referral">
-  <div>Your Referral Link:</div>
-  <input type="text" id="ref-link" readonly />
-</div>
-
-<div class="selection-period">Selection period</div>
-
-<div class="stats">
-  <div class="stat-box"><div>Team Size</div><div>0</div></div>
-  <div class="stat-box"><div>Team Recharge</div><div>KSH 0.00</div></div>
-  <div class="stat-box"><div>Team Withdrawal</div><div>KSH 0.00</div></div>
-  <div class="stat-box"><div>New Team</div><div>0</div></div>
-  <div class="stat-box"><div>First Time Recharge</div><div>0</div></div>
-  <div class="stat-box"><div>First Withdrawal</div><div>0</div></div>
-</div>
-
-<div class="team-levels">
-  <div class="team-section-title">LEV 1 - 17% Commission</div>
-  <div class="level-box" id="lev1">
-    <div class="level-total">Total: KSH 0.00</div>
-    <div class="level-referrals"></div>
+  <div class="announcement" id="ann-btn">
+    <div class="announcement-content">🛒Welcome to CYPX ONLINE CRYPTO 🛒 Recruiting investors and agents worldwide!</div>
   </div>
 
-  <div class="team-section-title">LEV 2 - 2% Commission</div>
-  <div class="level-box" id="lev2">
-    <div class="level-total">Total: KSH 0.00</div>
-    <div class="level-referrals"></div>
+  <div class="referral">
+    <div>Your Referral Link:</div>
+    <input type="text" id="ref-link" readonly />
   </div>
 
-  <div class="team-section-title">LEV 3 - 1% Commission</div>
-  <div class="level-box" id="lev3">
-    <div class="level-total">Total: KSH 0.00</div>
-    <div class="level-referrals"></div>
+  <div class="selection-period">Selection period</div>
+
+  <div class="stats">
+    <div class="stat-box"><div>Team Size</div><div id="team-size">0</div></div>
+    <div class="stat-box"><div>Team Recharge</div><div id="team-recharge">KSH 0.00</div></div>
+    <div class="stat-box"><div>Team Withdrawal</div><div id="team-withdraw">KSH 0.00</div></div>
+    <div class="stat-box"><div>New Team</div><div id="new-team">0</div></div>
+    <div class="stat-box"><div>First Time Recharge</div><div id="first-recharge">0</div></div>
+    <div class="stat-box"><div>First Withdrawal</div><div id="first-withdraw">0</div></div>
   </div>
-</div>
 
-<div class="explanation">
-  <strong>Invite friends to get three levels of rewards:</strong><br><br>
-  Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br>
-  You can invite friends, members, relatives to join and earn three high commission rewards as follows:<br><br>
-  A: Team first-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
-  B: Team second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
-  C: Team third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
-  Conclusion: If you are A-level, you get (A+B+C) = 20% total commission.<br><br>
-  The fastest way to make money here is not saving money yourself, but forming a team to earn generous commissions and leading team members to make money together.
-</div>
+  <div class="team-levels">
+    <div class="team-section-title">LEV 1 - 17% Commission</div>
+    <div class="level-box" id="lev1">
+      <div class="level-total" id="lev1-total">Total: KSH 0.00</div>
+      <div class="level-referrals" id="lev1-list"></div>
+    </div>
 
-<!-- FIXED UNIVERSAL NAV -->
-<nav class="bottom-nav">
-  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-</nav>
+    <div class="team-section-title">LEV 2 - 2% Commission</div>
+    <div class="level-box" id="lev2">
+      <div class="level-total" id="lev2-total">Total: KSH 0.00</div>
+      <div class="level-referrals" id="lev2-list"></div>
+    </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, ref, onValue, get, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    <div class="team-section-title">LEV 3 - 1% Commission</div>
+    <div class="level-box" id="lev3">
+      <div class="level-total" id="lev3-total">Total: KSH 0.00</div>
+      <div class="level-referrals" id="lev3-list"></div>
+    </div>
+  </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
+  <div class="explanation">
+    <strong>Invite friends to get three levels of rewards:</strong><br><br>
+    Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br>
+    You can invite friends, members, relatives to join and earn three high commission rewards as follows:<br><br>
+    A: Team first-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
+    B: Team second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
+    C: Team third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
+    Conclusion: If you are A-level, you get (A+B+C) = 20% total commission.<br><br>
+    The fastest way to make money here is not saving money yourself, but forming a team to earn generous commissions and leading team members to make money together.
+  </div>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+  <!-- Bottom nav (fixed & equal buttons) -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  </nav>
 
-// elements
-const refInput   = document.getElementById("ref-link");
-const teamSizeEl = document.querySelector(".stat-box:nth-child(1) div:last-child");
-const teamRechargeEl = document.querySelector(".stat-box:nth-child(2) div:last-child");
-const teamWithdrawEl = document.querySelector(".stat-box:nth-child(3) div:last-child");
-const newTeamEl  = document.querySelector(".stat-box:nth-child(4) div:last-child");
+  <div id="announcementModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:white; color:#002f6c; padding:20px; overflow-y:auto;">
+    <h3>🛒Welcome to CYPX ONLINE CRYPTO 🛒</h3>
+    <pre style="white-space:pre-wrap; font-size:14px;">
+💲CYPX ONLINE CRYPTO 2025 is a formal and legal long-term platform💲
+... (long announcement text omitted for brevity in modal, keep full text same as dashboard modal) ...
+    </pre>
+    <button onclick="closeAnnouncement()" style="margin-top:20px; padding:10px 20px; background:#ffcc00; border:none; font-weight:bold; border-radius:5px;">Close</button>
+  </div>
 
-const lev1Box = document.querySelector("#lev1 .level-referrals");
-const lev2Box = document.querySelector("#lev2 .level-referrals");
-const lev3Box = document.querySelector("#lev3 .level-referrals");
-const lev1Total = document.querySelector("#lev1 .level-total");
-const lev2Total = document.querySelector("#lev2 .level-total");
-const lev3Total = document.querySelector("#lev3 .level-total");
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+<script>
+  // keep your existing firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+  firebase.initializeApp(firebaseConfig);
 
-function popup(msg){
-  const p = document.createElement("div");
-  p.className = "popup";
-  p.textContent = msg;
-  document.body.appendChild(p);
-  setTimeout(()=>{p.remove();},1500);
-}
+  const database = firebase.database();
+  const auth = firebase.auth();
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    refInput.value = "Sign in to see your referral link.";
-    return;
+  // small helper popup
+  function showPopup(msg, isError = false) {
+    const p = document.createElement('div');
+    p.className = 'popup' + (isError ? ' red' : '');
+    p.textContent = msg;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 3000);
   }
 
-  const meSnap = await get(ref(db, `users/${user.uid}/username`));
-  let myUsername = "";
+  // announcement modal open/close
+  document.getElementById('ann-btn').onclick = () => {
+    document.getElementById('announcementModal').style.display = 'block';
+  };
+  function closeAnnouncement(){ document.getElementById('announcementModal').style.display = 'none'; }
 
-  if (meSnap.exists() && meSnap.val().trim() !== "") {
-    myUsername = meSnap.val().trim();
-  } else if (user.displayName && user.displayName.trim() !== "") {
-    myUsername = user.displayName.trim();
-  } else if (user.email) {
-    myUsername = user.email.split("@")[0];
-  } else {
-    myUsername = "user" + user.uid.slice(0, 6);
-  }
-
-  if (!meSnap.exists() || meSnap.val().trim() === "") {
-    await set(ref(db, `users/${user.uid}/username`), myUsername);
-  }
-
-  refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
-  refInput.addEventListener("click", () => {
-    refInput.select();
-    document.execCommand("copy");
-    popup("Referral link copied!");
-  });
-
-  onValue(ref(db, "users"), (snap) => {
-    if (!snap.exists()) return;
-
-    const allUsers = snap.val();
-    const level1 = [], level2 = [], level3 = [];
-
-    for (const uid in allUsers) {
-      if (allUsers[uid].referredBy === myUsername) {
-        level1.push({ uid, ...allUsers[uid] });
+  // Main page logic
+  window.onload = function(){
+    auth.onAuthStateChanged(function(user){
+      if (!user) {
+        window.location.href = "landing.html";
+        return;
       }
-    }
+      const uid = user.uid;
 
-    for (const uid in allUsers) {
-      const u = allUsers[uid];
-      if (level1.find(x => x.username === u.referredBy)) {
-        level2.push({ uid, ...u });
-      }
-    }
+      // build/ensure username (used for referral)
+      const meRef = database.ref(`users/${uid}/username`);
+      meRef.once('value').then(snap => {
+        let uname = '';
+        if (snap.exists() && String(snap.val()).trim() !== '') {
+          uname = snap.val().trim();
+        } else if (user.displayName && user.displayName.trim() !== '') {
+          uname = user.displayName.trim();
+        } else if (user.email) {
+          uname = user.email.split('@')[0];
+        } else {
+          uname = 'user' + uid.slice(0,6);
+        }
+        // ensure saved
+        meRef.set(uname);
+        document.getElementById('ref-link').value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(uname)}`;
+        document.getElementById('ref-link').addEventListener('click', function(){
+          this.select();
+          document.execCommand('copy');
+          showPopup('Referral link copied!');
+        });
+      });
 
-    for (const uid in allUsers) {
-      const u = allUsers[uid];
-      if (level2.find(x => x.username === u.referredBy)) {
-        level3.push({ uid, ...u });
-      }
-    }
+      // load team members and compute stats like original page
+      const usersRef = database.ref('users');
+      usersRef.on('value', snap => {
+        if (!snap.exists()) {
+          // clear lists and stats
+          document.getElementById('lev1-list').innerHTML = '<div>No referrals yet</div>';
+          document.getElementById('lev2-list').innerHTML = '<div>No referrals yet</div>';
+          document.getElementById('lev3-list').innerHTML = '<div>No referrals yet</div>';
+          document.getElementById('lev1-total').textContent = 'Total: KSH 0.00';
+          document.getElementById('lev2-total').textContent = 'Total: KSH 0.00';
+          document.getElementById('lev3-total').textContent = 'Total: KSH 0.00';
+          document.getElementById('team-size').textContent = '0';
+          document.getElementById('team-recharge').textContent = 'KSH 0.00';
+          document.getElementById('team-withdraw').textContent = 'KSH 0.00';
+          document.getElementById('new-team').textContent = '0';
+          return;
+        }
 
-    const sum = (arr, field) => arr.reduce((t,u)=> t + (parseFloat(u[field]||0)), 0);
+        const all = snap.val();
+        // find my username (must be present)
+        const myUserSnap = all[uid] || {};
+        const myUsername = myUserSnap.username || (user.email ? user.email.split('@')[0] : ('user' + uid.slice(0,6)));
 
-    lev1Box.innerHTML = level1.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
-    lev2Box.innerHTML = level2.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
-    lev3Box.innerHTML = level3.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
+        const level1 = [], level2 = [], level3 = [];
 
-    lev1Total.textContent = `Total: KSH ${sum(level1,"totalTopUp").toFixed(2)}`;
-    lev2Total.textContent = `Total: KSH ${sum(level2,"totalTopUp").toFixed(2)}`;
-    lev3Total.textContent = `Total: KSH ${sum(level3,"totalTopUp").toFixed(2)}`;
+        // collect levels similarly to original logic
+        for (const otherUid in all) {
+          const u = all[otherUid];
+          if (!u) continue;
+          if (u.referredBy === myUsername) level1.push({ uid: otherUid, ...u });
+        }
+        for (const otherUid in all) {
+          const u = all[otherUid];
+          if (!u) continue;
+          if (level1.find(x => x.username === u.referredBy)) level2.push({ uid: otherUid, ...u });
+        }
+        for (const otherUid in all) {
+          const u = all[otherUid];
+          if (!u) continue;
+          if (level2.find(x => x.username === u.referredBy)) level3.push({ uid: otherUid, ...u });
+        }
 
-    const teamSize = level1.length + level2.length + level3.length;
-    teamSizeEl.textContent = teamSize;
-    teamRechargeEl.textContent = "KSH " + (sum(level1,"totalTopUp")+sum(level2,"totalTopUp")+sum(level3,"totalTopUp")).toFixed(2);
-    teamWithdrawEl.textContent = "KSH " + (sum(level1,"totalWithdraw")+sum(level2,"totalWithdraw")+sum(level3,"totalWithdraw")).toFixed(2);
-    newTeamEl.textContent = level1.length;
-  });
-});
+        const sum = (arr, field) => arr.reduce((t, u) => t + (parseFloat(u[field] || 0)), 0);
+
+        // render lists
+        const renderList = (elId, arr) => {
+          const el = document.getElementById(elId);
+          if (!arr.length) {
+            el.innerHTML = '<div>No referrals yet</div>';
+            return;
+          }
+          el.innerHTML = arr.map(u => `<div>${u.username||u.email||u.uid} ${u.totalTopUp ? `<span class="small-muted"> - ${Number(u.totalTopUp).toFixed(2)}</span>` : ''}</div>`).join('');
+        };
+
+        renderList('lev1-list', level1);
+        renderList('lev2-list', level2);
+        renderList('lev3-list', level3);
+
+        document.getElementById('lev1-total').textContent = `Total: KSH ${sum(level1,'totalTopUp').toFixed(2)}`;
+        document.getElementById('lev2-total').textContent = `Total: KSH ${sum(level2,'totalTopUp').toFixed(2)}`;
+        document.getElementById('lev3-total').textContent = `Total: KSH ${sum(level3,'totalTopUp').toFixed(2)}`;
+
+        const teamSize = level1.length + level2.length + level3.length;
+        document.getElementById('team-size').textContent = teamSize;
+        document.getElementById('team-recharge').textContent = 'KSH ' + (sum(level1,'totalTopUp') + sum(level2,'totalTopUp') + sum(level3,'totalTopUp')).toFixed(2);
+        document.getElementById('team-withdraw').textContent = 'KSH ' + (sum(level1,'totalWithdraw') + sum(level2,'totalWithdraw') + sum(level3,'totalWithdraw')).toFixed(2);
+        document.getElementById('new-team').textContent = level1.length;
+      });
+
+    });
+  }; // onload
 </script>
 </body>
-</html>
+  </html>
