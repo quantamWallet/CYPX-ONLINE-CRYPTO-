@@ -18,10 +18,32 @@
   .level-box{background-color:#003366;margin:10px 15px;padding:15px;border-radius:10px;}
   .level-total{font-weight:bold;color:#ffcc00;margin-bottom:10px;}
   .level-referrals div{background-color:#004080;margin:5px 0;padding:8px;border-radius:6px;font-size:14px;}
-  .team-levels{padding-bottom:80px;}
-  nav{position:fixed;bottom:0;left:0;right:0;background-color:#002244;display:flex;justify-content:space-around;padding:10px 0;}
-  nav a{color:white;text-align:center;text-decoration:none;font-size:14px;}
-  nav i{font-size:20px;}
+  .team-levels{padding-bottom:80px;} /* space for nav */
+
+  /* FIXED UNIVERSAL BOTTOM NAV (same as dashboard) */
+  .bottom-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    background-color:#002244;
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    z-index:999;
+  }
+  .bottom-nav a{
+    color:white;
+    text-align:center;
+    text-decoration:none;
+    font-size:13px;
+    width:20%;
+  }
+  .bottom-nav i{
+    font-size:20px;
+    margin-bottom:2px;
+  }
+
   .popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:green;color:white;padding:20px;border-radius:10px;font-weight:bold;z-index:9999;box-shadow:0 0 10px rgba(0,0,0,0.4);}
   .explanation{margin:20px 15px 50px 15px;background-color:#002b5c;padding:15px;border-radius:10px;line-height:1.5;font-size:14px;}
 
@@ -83,11 +105,12 @@
   A: Team first-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
   B: Team second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
   C: Team third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
-  Conclusion: If you are A-level, you get (A+B+C) = 17+2+1 = 20% total commission.<br><br>
+  Conclusion: If you are A-level, you get (A+B+C) = 20% total commission.<br><br>
   The fastest way to make money here is not saving money yourself, but forming a team to earn generous commissions and leading team members to make money together.
 </div>
 
-<nav>
+<!-- FIXED UNIVERSAL NAV -->
+<nav class="bottom-nav">
   <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
   <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
   <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
@@ -143,9 +166,9 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // ---- build / store username ----
   const meSnap = await get(ref(db, `users/${user.uid}/username`));
   let myUsername = "";
+
   if (meSnap.exists() && meSnap.val().trim() !== "") {
     myUsername = meSnap.val().trim();
   } else if (user.displayName && user.displayName.trim() !== "") {
@@ -155,11 +178,11 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     myUsername = "user" + user.uid.slice(0, 6);
   }
+
   if (!meSnap.exists() || meSnap.val().trim() === "") {
     await set(ref(db, `users/${user.uid}/username`), myUsername);
   }
 
-  // referral link + click-to-copy
   refInput.value = `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(myUsername)}`;
   refInput.addEventListener("click", () => {
     refInput.select();
@@ -167,21 +190,18 @@ onAuthStateChanged(auth, async (user) => {
     popup("Referral link copied!");
   });
 
-  // ---- load all users once and compute team ----
   onValue(ref(db, "users"), (snap) => {
     if (!snap.exists()) return;
 
     const allUsers = snap.val();
     const level1 = [], level2 = [], level3 = [];
 
-    // first-level: anyone whose referredBy == myUsername
     for (const uid in allUsers) {
       if (allUsers[uid].referredBy === myUsername) {
         level1.push({ uid, ...allUsers[uid] });
       }
     }
 
-    // second-level: referredBy is one of level1
     for (const uid in allUsers) {
       const u = allUsers[uid];
       if (level1.find(x => x.username === u.referredBy)) {
@@ -189,7 +209,6 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // third-level: referredBy is one of level2
     for (const uid in allUsers) {
       const u = allUsers[uid];
       if (level2.find(x => x.username === u.referredBy)) {
@@ -197,7 +216,6 @@ onAuthStateChanged(auth, async (user) => {
       }
     }
 
-    // fill totals
     const sum = (arr, field) => arr.reduce((t,u)=> t + (parseFloat(u[field]||0)), 0);
 
     lev1Box.innerHTML = level1.map(u=>`<div>${u.username||u.email||u.uid}</div>`).join("") || "<div>No referrals yet</div>";
@@ -208,12 +226,11 @@ onAuthStateChanged(auth, async (user) => {
     lev2Total.textContent = `Total: KSH ${sum(level2,"totalTopUp").toFixed(2)}`;
     lev3Total.textContent = `Total: KSH ${sum(level3,"totalTopUp").toFixed(2)}`;
 
-    // top summary
     const teamSize = level1.length + level2.length + level3.length;
     teamSizeEl.textContent = teamSize;
     teamRechargeEl.textContent = "KSH " + (sum(level1,"totalTopUp")+sum(level2,"totalTopUp")+sum(level3,"totalTopUp")).toFixed(2);
     teamWithdrawEl.textContent = "KSH " + (sum(level1,"totalWithdraw")+sum(level2,"totalWithdraw")+sum(level3,"totalWithdraw")).toFixed(2);
-    newTeamEl.textContent = level1.length; // just showing new first-line as "new team"
+    newTeamEl.textContent = level1.length;
   });
 });
 </script>
