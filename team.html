@@ -69,26 +69,31 @@
   /* ============================ */
   /* NAV: Exact dashboard styling */
   /* ============================ */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #002244;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-  }
+  .botom-nav {
+   .bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #002244;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 999;
+}
 
-  .bottom-nav a {
-    color: white;
-    text-align: center;
-    text-decoration: none;
-  }
+.bottom-nav a {
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 13px;
+  width: 20%;        /* Ensures all buttons are equal size */
+}
 
-  .bottom-nav i {
-    font-size: 20px;
-  }
+.bottom-nav i {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
   /* ============================ */
 
   /* optional color tweaks per level */
@@ -125,7 +130,7 @@
     <div class="stat-box"><div>Team Recharge</div><div id="team-recharge">KSH 0.00</div></div>
     <div class="stat-box"><div>Team Withdrawal</div><div id="team-withdraw">KSH 0.00</div></div>
     <div class="stat-box"><div>New Team</div><div id="new-team">0</div></div>
-    <div class="stat-box"><div>First Time Recharge</div><div id="first-recharge">0</div></div>
+    <div class="stat-box"><div>bottom-nav Recharge</div><div id="first-recharge">0</div></div>
     <div class="stat-box"><div>First Withdrawal</div><div id="first-withdraw">0</div></div>
   </div>
 
@@ -162,11 +167,11 @@
 
   <!-- Bottom nav (fixed & identical to dashboard styling) -->
   <nav class="bottom-nav">
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
   </nav>
 
   <div id="announcementModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:white; color:#002f6c; padding:20px; overflow-y:auto;">
