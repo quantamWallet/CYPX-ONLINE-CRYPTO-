@@ -66,27 +66,30 @@
   .popup{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:green; color:white; padding:20px; border-radius:10px; font-weight:bold; z-index:9999; box-shadow:0 0 10px rgba(0,0,0,0.4); }
   .popup.red{ background-color:#cc0000; }
 
-  /* FIXED BOTTOM NAV - identical to dashboard */
-  .bottom-nav{
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    background-color:#002244;
-    display:flex;
-    justify-content:space-around;
-    padding:10px 0;
-    z-index:999;
-    border-top:1px solid #003;
+  /* ============================ */
+  /* NAV: Exact dashboard styling */
+  /* ============================ */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #002244;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
   }
-  .bottom-nav a{
-    color:white;
-    text-align:center;
-    text-decoration:none;
-    font-size:13px;
-    width:20%; /* ensures 5 equal buttons */
+
+  .bottom-nav a {
+    color: white;
+    text-align: center;
+    text-decoration: none;
   }
-  .bottom-nav i{ font-size:20px; margin-bottom:3px; }
+
+  .bottom-nav i {
+    font-size: 20px;
+  }
+  /* ============================ */
 
   /* optional color tweaks per level */
   #lev1 .level-referrals div { background:#165d2f; color:#fff; }
@@ -157,7 +160,7 @@
     The fastest way to make money here is not saving money yourself, but forming a team to earn generous commissions and leading team members to make money together.
   </div>
 
-  <!-- Bottom nav (fixed & equal buttons) -->
+  <!-- Bottom nav (fixed & identical to dashboard styling) -->
   <nav class="bottom-nav">
     <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
     <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
