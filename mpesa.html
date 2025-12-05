@@ -68,6 +68,7 @@ nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
 @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.7); opacity:0; } to { transform: translate(-50%, -50%) scale(1); opacity:1; } }
 </style>
 </head>
+
 <body>
 <header>Recharge via M-PESA</header>
 
@@ -77,13 +78,17 @@ nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
       <div class="bank-badge"><i class="fa-solid fa-mobile-screen"></i> M-Pesa (Kenya)</div>
       <div class="note">Minimum deposit: 5,000 KSH</div>
       <div>
-        <button class="copy" data-copy="0707207201">
-          Mpesa Number: <strong>0741766606</strong>
+        <button class="copy" data-copy="0741766606">
+          M-Pesa Number: <strong>0741766606</strong>
         </button>
-        <div class="account-info">Name: <strong>PRUDENCE CHEPKOECH</strong></div>
+        <div class="account-info">Account Name: <strong>PRUDENCE CHEPKOECH</strong></div>
       </div>
     </div>
-    <p>Send money directly to <strong>0741766606'/strong>. After sending, submit details below.</p>
+
+    <p>
+      Send money to <strong>0741766606</strong>.  
+      After payment, submit the deposit details below.
+    </p>
   </div>
 
   <div class="card">
@@ -91,12 +96,16 @@ nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
     <form id="depositForm">
       <label class="label" for="amount">Amount (KES)</label>
       <input id="amount" class="input" type="number" min="5000" placeholder="e.g. 5000" required/>
-      <label class="label" for="phone">Your Phone number</label>
+
+      <label class="label" for="phone">Your Phone Number</label>
       <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
+
       <label class="label" for="code">Transaction Code</label>
       <input id="code" class="input" type="text" placeholder="e.g. QJK123ABC" required/>
+
       <label class="label" for="receipt">Receipt / Screenshot (optional)</label>
       <input id="receipt" class="file" type="file" accept="image/*"/>
+
       <button type="submit" class="btn">Submit Deposit</button>
     </form>
   </div>
@@ -143,11 +152,11 @@ function showPopup(msg, type='success') {
   }, 2500);
 }
 
-// Copy Mpesa number
+// Copy number
 document.querySelectorAll('.copy').forEach(btn=>{
-  btn.onclick=async()=>{
+  btn.onclick = async () => {
     await navigator.clipboard.writeText(btn.dataset.copy);
-    showPopup('Copied: '+btn.dataset.copy,'success');
+    showPopup('Copied: ' + btn.dataset.copy, 'success');
   }
 });
 
@@ -163,11 +172,12 @@ form.addEventListener('submit', async (e)=>{
   const code = document.getElementById('code').value.trim().toUpperCase();
   const file = document.getElementById('receipt').files[0];
 
-  if(amount < 'Minimumturn showPopup('Minimum deposit is 5000 KES','error');
+  if(amount < 5000){
+    return showPopup('Minimum deposit is 5,000 KES','error');
+  }
 
-  // ✅ Transaction code validation (must contain both letters & numbers)
-  // Format: 10 characters, alphanumeric mix like TJ41Z6LEUU
-  const validFormat = /^[A-Z0-9]{8,12}$/; // M-Pesa codes are usually 10 chars
+  // Validate transaction code
+  const validFormat = /^[A-Z0-9]{8,12}$/;
   const hasLetter = /[A-Z]/.test(code);
   const hasNumber = /[0-9]/.test(code);
 
@@ -196,7 +206,7 @@ form.addEventListener('submit', async (e)=>{
     }
 
     await ref.set(data);
-    showPopup('Deposit submitted for Approval!','success');
+    showPopup('Deposit submitted for approval!','success');
     form.reset();
   } catch(err){
     console.error(err);
@@ -204,5 +214,6 @@ form.addEventListener('submit', async (e)=>{
   }
 });
 </script>
+
 </body>
 </html>
