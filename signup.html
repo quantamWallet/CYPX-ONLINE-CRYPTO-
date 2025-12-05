@@ -152,65 +152,25 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Toast function
+// Faster Toast
 function showToast(msg, success=false){
   const t = document.createElement("div");
   t.className = "toast";
   t.style.background = success ? "#28a745" : "#ff4d4f";
   t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(()=> t.remove(), 3500);
+  setTimeout(()=> t.remove(), 2000); // faster timeout
 }
 
 const refUsername = new URLSearchParams(window.location.search).get("ref") || null;
 
-// FIELD REFS
 const emailInput = document.getElementById("email");
 const usernameInput = document.getElementById("username");
 const phoneInput = document.getElementById("phone");
 const passInput = document.getElementById("password");
 const confirmInput = document.getElementById("confirm_password");
 
-
-// EMAIL CHECK
-emailInput.addEventListener("blur", async () => {
-  const e = emailInput.value.trim();
-  if(!e) return;
-
-  const methods = await fetchSignInMethodsForEmail(auth, e);
-  if(methods.length > 0){
-    showToast("This email is already registered.");
-  }
-});
-
-// USERNAME CHECK (fixed)
-usernameInput.addEventListener("blur", async () => {
-  const u = usernameInput.value.trim();
-  if(!u) return;
-
-  const snap = await get(child(ref(db), "usernames/" + u));
-  if(snap.exists()){
-    showToast("Username is already taken.");
-  }
-});
-
-// PHONE CHECK
-phoneInput.addEventListener("blur", () => {
-  const p = phoneInput.value.trim();
-  if(!/^[7][0-9]{8}$/.test(p)){
-    showToast("Enter a valid phone number (7XXXXXXXX).");
-  }
-});
-
-// PASSWORD MATCH CHECK
-confirmInput.addEventListener("input", () => {
-  if(passInput.value !== confirmInput.value){
-    showToast("Passwords do not match.");
-  }
-});
-
-
-// SUBMIT HANDLER
+// SUBMIT — all checks run once (fast)
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -223,26 +183,23 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   if(!username || !email || !phone || !password || !confirm){
     return showToast("All fields are required.");
   }
-
   if(password.length < 6){
     return showToast("Password must be at least 6 characters.");
   }
-
   if(password !== confirm){
     return showToast("Passwords do not match.");
   }
-
   if(!/^[7][0-9]{8}$/.test(phone)){
     return showToast("Enter a valid Kenyan number.");
   }
 
-  // CHECK EMAIL
+  // Faster email check
   const emailMethods = await fetchSignInMethodsForEmail(auth, email);
   if(emailMethods.length > 0){
     return showToast("This email is already registered.");
   }
 
-  // CHECK USERNAME (fixed)
+  // Faster username check
   const userSnap = await get(child(ref(db), "usernames/" + username));
   if(userSnap.exists()){
     return showToast("Username already taken.");
@@ -252,7 +209,6 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const user = cred.user;
 
-    // SAVE PROFILE
     await set(ref(db, "users/" + user.uid), {
       username,
       email,
@@ -261,10 +217,8 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
       createdAt: Date.now()
     });
 
-    // SAVE USERNAME INDEX
     await set(ref(db, "usernames/" + username), user.uid);
 
-    // REFERRAL (fixed)
     if(refUsername){
       const sponsorSnap = await get(child(ref(db), "usernames/" + refUsername));
       if(sponsorSnap.exists()){
@@ -278,11 +232,12 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     }
 
     showToast("Account created successfully!", true);
-    setTimeout(() => window.location.href = "dashboard.html", 1500);
+
+    // FAST REDIRECT
+    setTimeout(() => window.location.href = "dashboard.html", 500);
 
   } catch(err){
     console.error(err);
-
     if(err.code === "auth/email-already-in-use"){
       showToast("This email is already registered.");
     }
