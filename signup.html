@@ -124,8 +124,18 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+import { 
+  getAuth,
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail 
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+import { 
+  getDatabase,
+  ref,
+  set,
+  get,
+  child
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -141,87 +151,156 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Toast helper
+// Toast function
 function showToast(msg, success=false){
-  const t=document.createElement("div");
-  t.className="toast";
-  t.style.background=success?"#28a745":"#ff4d4f";
-  t.textContent=msg;
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.style.background = success ? "#28a745" : "#ff4d4f";
+  t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),4000);
+  setTimeout(()=> t.remove(), 3500);
 }
 
-// referral param (?ref=username)
-const refUsername=new URLSearchParams(window.location.search).get("ref")||null;
+// Referral
+const refUsername = new URLSearchParams(window.location.search).get("ref") || null;
 
-// email duplication check
-const emailInput=document.getElementById("email");
-emailInput.addEventListener("blur",async()=>{
-  const e=emailInput.value.trim();
+// FIELD REFS
+const emailInput = document.getElementById("email");
+const usernameInput = document.getElementById("username");
+const phoneInput = document.getElementById("phone");
+const passInput = document.getElementById("password");
+const confirmInput = document.getElementById("confirm_password");
+
+
+// ========== LIVE VALIDATION ==========
+
+// EMAIL CHECK
+emailInput.addEventListener("blur", async () => {
+  const e = emailInput.value.trim();
   if(!e) return;
-  try{
-    const methods=await fetchSignInMethodsForEmail(auth,e);
-    if(methods.length>0) showToast("Email is already registered.");
-  }catch(err){console.error(err);}
+
+  try {
+    const methods = await fetchSignInMethodsForEmail(auth, e);
+    if(methods.length > 0){
+      showToast("This email is already registered.");
+    }
+  } catch(err){
+    console.error(err);
+  }
 });
 
-// signup process
-document.getElementById("signupForm").addEventListener("submit",async e=>{
+// USERNAME CHECK
+usernameInput.addEventListener("blur", async () => {
+  const u = usernameInput.value.trim();
+  if(!u) return;
+
+  const snap = await get(ref(db, "usernames/" + u));
+  if(snap.exists()){
+    showToast("Username is already taken.");
+  }
+});
+
+// PHONE CHECK
+phoneInput.addEventListener("blur", () => {
+  const p = phoneInput.value.trim();
+  if(!/^[7][0-9]{8}$/.test(p)){
+    showToast("Enter a valid phone number (7XXXXXXXX).");
+  }
+});
+
+// PASSWORD MATCH CHECK
+confirmInput.addEventListener("input", () => {
+  if(passInput.value !== confirmInput.value){
+    showToast("Passwords do not match.");
+  }
+});
+
+
+// ========== SUBMIT HANDLER ==========
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email=emailInput.value.trim();
-  const password=document.getElementById("password").value.trim();
-  const confirmPassword=document.getElementById("confirm_password").value.trim();
-  const typedUsername=document.getElementById("username").value.trim();
-  const phone=document.getElementById("phone").value.trim();
 
-  if(!email||!password||!confirmPassword||!phone){
-    showToast("Please fill all required fields.");return;
+  const username = usernameInput.value.trim();
+  const email = emailInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const password = passInput.value.trim();
+  const confirm = confirmInput.value.trim();
+
+  // BASIC VALIDATIONS
+  if(!username || !email || !phone || !password || !confirm){
+    return showToast("All fields are required.");
   }
-  if(password!==confirmPassword){
-    showToast("Passwords do not match.");return;
+
+  if(password.length < 6){
+    return showToast("Password must be at least 6 characters.");
   }
 
-  try{
-    const methods=await fetchSignInMethodsForEmail(auth,email);
-    if(methods.length>0){showToast("Email is already registered.");return;}
+  if(password !== confirm){
+    return showToast("Passwords do not match.");
+  }
 
-    const cred=await createUserWithEmailAndPassword(auth,email,password);
-    const user=cred.user;
+  if(!/^[7][0-9]{8}$/.test(phone)){
+    return showToast("Enter a valid Kenyan number.");
+  }
 
-    // username
-    let finalUsername=typedUsername || (user.email?user.email.split("@")[0]:"user"+user.uid.slice(0,6));
+  // CHECK DUPLICATES FIRST (FASTER)
+  const emailMethods = await fetchSignInMethodsForEmail(auth, email);
+  if(emailMethods.length > 0){
+    return showToast("This email is already registered.");
+  }
 
-    // save user profile
-    await set(ref(db,"users/"+user.uid),{
-      username:finalUsername,
+  const userSnap = await get(ref(db, "usernames/" + username));
+  if(userSnap.exists()){
+    return showToast("Username already taken.");
+  }
+
+  try {
+    // CREATE ACCOUNT
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const user = cred.user;
+
+    // SAVE PROFILE
+    await set(ref(db, "users/" + user.uid), {
+      username,
       email,
       phone,
-      referredBy:refUsername || ""
+      referredBy: refUsername || "",
+      createdAt: Date.now()
     });
 
-    // username index
-    await set(ref(db,"usernames/"+finalUsername),user.uid);
+    // USERNAME INDEX
+    await set(ref(db, "usernames/" + username), user.uid);
 
-    // save referral
+    // REFERRAL
     if(refUsername){
-      const snap=await get(child(ref(db),"usernames/"+refUsername));
-      if(snap.exists()){
-        const sponsorUid=snap.val();
-        await set(ref(db,"referrals/"+sponsorUid+"/"+user.uid),{
-          username:finalUsername,
+      const sponsorSnap = await get(ref(db, "usernames/" + refUsername));
+      if(sponsorSnap.exists()){
+        const sponsorUid = sponsorSnap.val();
+        await set(ref(db, "referrals/" + sponsorUid + "/" + user.uid), {
+          username,
           email,
-          timestamp:Date.now()
+          timestamp: Date.now()
         });
       }
     }
 
-    showToast("Account created successfully!",true);
-    setTimeout(()=>window.location.href="dashboard.html",1500);
+    // SUCCESS
+    showToast("Account created successfully!", true);
+    setTimeout(() => window.location.href = "dashboard.html", 1500);
 
-  }catch(err){
+  } catch(err){
     console.error(err);
-    if(err.code==="auth/weak-password") showToast("Password should be at least 6 characters.");
-    else showToast("Signup failed, try again.");
+    
+    // DIRECT & SPECIFIC
+    if(err.code === "auth/email-already-in-use"){
+      showToast("This email is already registered.");
+    }
+    else if(err.code === "auth/weak-password"){
+      showToast("Password must be at least 6 characters.");
+    }
+    else {
+      showToast("Something went wrong. Try again.");
+    }
   }
 });
 </script>
