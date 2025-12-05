@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Sign In</title>
+
 <style>
   html,body{height:100%;margin:0;}
   body{
     font-family:"Segoe UI",Roboto,Arial,sans-serif;
     display:flex; justify-content:center; align-items:center;
-    height:100vh;
     background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
     position:relative; overflow:hidden;
   }
@@ -19,52 +19,70 @@
     background-repeat:repeat; background-size:150px;
     opacity:0.04; z-index:0; filter:blur(0.5px);
   }
+
+  /* ⭐ SMALLER CARD (Perfect size now) */
   .card{
     position:relative; z-index:1;
-    width:380px; max-width:calc(100vw - 40px);
-    background:linear-gradient(180deg,rgba(6,20,40,0.95),rgba(7,18,34,0.92));
-    border-radius:24px; padding:30px 24px;
-    box-shadow:0 14px 40px rgba(2,6,23,0.7);
+    width:300px;                          /* smaller width */
+    max-width:90%;
+    background:linear-gradient(180deg,rgba(6,20,40,0.96),rgba(7,18,34,0.95));
+    border-radius:18px; 
+    padding:20px;                         /* smaller padding */
+    box-shadow:0 10px 30px rgba(2,6,23,0.7);
     color:#fff;
   }
-  .title{text-align:center;margin-bottom:6px;font-weight:800;font-size:26px;text-transform:uppercase;}
-  .subtitle{text-align:center;color:rgba(255,255,255,0.75);font-size:14px;margin-bottom:18px;}
-  .field{margin-bottom:14px;}
-  label{display:block;color:rgba(255,255,255,0.6);font-size:15px;margin-bottom:6px;font-weight:600;}
-  .input{
-    width:100%; padding:14px 16px; border-radius:12px;
-    border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
-    color:#e9f5ff; font-size:15px; outline:none;
+
+  .title{text-align:center;margin-bottom:4px;font-weight:800;font-size:22px;}
+  .subtitle{text-align:center;color:rgba(255,255,255,0.75);font-size:12px;margin-bottom:12px;}
+
+  .field{margin-bottom:10px;}
+  label{
+    display:block;color:rgba(255,255,255,0.55);font-size:13px;
+    margin-bottom:4px;font-weight:600;
   }
+
+  .input{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.04);
+    color:#e9f5ff;
+    font-size:13px;
+  }
+
   .input::placeholder{color:rgba(255,255,255,0.45);}
 
   .forgot{
     text-align:center;
     margin-top:4px;
-    margin-bottom:18px;
+    margin-bottom:12px;
   }
   .forgot a{
     color:rgba(255,255,255,0.55);
-    font-size:14px;
+    font-size:12px;
     text-decoration:none;
-    transition:0.2s ease;
-  }
-  .forgot a:hover{
-    color:#7fc4ff;
-    text-decoration:underline;
   }
 
   .btn{
-    width:100%; padding:16px; margin-top:10px; border-radius:12px;
-    border:none; cursor:pointer; font-weight:800; font-size:18px;
-    background:linear-gradient(90deg,#ffd400,#ffcf00); color:#111;
-    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+    width:100%; padding:12px; 
+    border-radius:10px;
+    border:none; cursor:pointer; 
+    font-weight:800; font-size:16px;
+    background:linear-gradient(90deg,#ffd400,#ffcf00); 
+    color:#111;
   }
-  .signup-line{text-align:center;margin-top:16px;color:rgba(255,255,255,0.85);font-size:15px;}
-  .signup-line a{color:#7fc4ff;font-weight:700;text-decoration:none;}
 
+  .signup-line{
+    text-align:center;margin-top:12px;
+    color:rgba(255,255,255,0.85);font-size:13px;
+  }
+  .signup-line a{color:#7fc4ff;font-weight:700;}
+
+  /* Toast */
   .toast{
-    position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:8px;
+    position:fixed;top:20px;right:20px;
+    padding:12px 18px;border-radius:8px;
     color:#fff;font-size:15px;font-weight:500;z-index:9999;
     box-shadow:0 3px 12px rgba(0,0,0,0.35);
     animation:fadeIn .3s ease;
@@ -73,30 +91,31 @@
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="title">Sign In</div>
-    <div class="subtitle">Welcome back to CYPX Online Crypto</div>
 
-    <form id="signinForm" autocomplete="off" novalidate>
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" class="input" type="email" placeholder="Enter your email" required />
-      </div>
+<div class="card">
+  <div class="title">Sign In</div>
+  <div class="subtitle">Welcome back to CYPX Online Crypto</div>
 
-      <div class="field">
-        <label for="password">Password</label>
-        <input id="password" class="input" type="password" placeholder="Enter your password" required />
-      </div>
+  <form id="signinForm" autocomplete="off" novalidate>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" class="input" type="email" placeholder="Enter your email" required />
+    </div>
 
-      <div class="forgot">
-        <a href="#" id="forgotPasswordBtn">Forgot Password?</a>
-      </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" class="input" type="password" placeholder="Enter your password" required />
+    </div>
 
-      <button class="btn" type="submit">Login</button>
-    </form>
+    <div class="forgot">
+      <a href="#" id="forgotPasswordBtn">Forgot Password?</a>
+    </div>
 
-    <div class="signup-line">Don’t have an account? <a href="signup.html">Create Account</a></div>
-  </div>
+    <button class="btn" type="submit">Login</button>
+  </form>
+
+  <div class="signup-line">Don’t have an account? <a href="signup.html">Create Account</a></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
@@ -145,8 +164,9 @@ document.getElementById("signinForm").addEventListener("submit", async e=>{
     const user = cred.user;
 
     const snap = await get(child(ref(db),"users/"+user.uid));
+
     if(!snap.exists()){
-      showToast("User profile not found in database.");
+      showToast("User profile missing in database");
       return;
     }
 
@@ -154,23 +174,20 @@ document.getElementById("signinForm").addEventListener("submit", async e=>{
     setTimeout(()=> window.location.href="dashboard.html", 1200);
 
   }catch(err){
-    console.error(err);
+    console.error(err.code);
 
-    // ⭐ Updated error messages as you requested
-    if(err.code === "auth/wrong-password"){
-      showToast("Wrong password");
-    }
-    else if(err.code === "auth/user-not-found"){
+    if(err.code === "auth/user-not-found"){
       showToast("Email is not registered");
     }
+    else if(err.code === "auth/invalid-credential"){
+      showToast("Wrong password");
+    }
     else{
-      showToast("Something went wrong, try again.");
+      showToast("Something went wrong. Try again.");
     }
   }
 });
 
-
-// ⭐ Forgot Password
 document.getElementById("forgotPasswordBtn").addEventListener("click", async ()=>{
   const email = document.getElementById("email").value.trim();
 
@@ -184,11 +201,12 @@ document.getElementById("forgotPasswordBtn").addEventListener("click", async ()=
     showToast("Reset link sent to your email!", true);
   }
   catch(err){
-    console.error(err);
+    console.error(err.code);
     if(err.code==="auth/user-not-found") showToast("Email is not registered");
     else showToast("Failed to send reset link.");
   }
 });
 </script>
+
 </body>
 </html>
