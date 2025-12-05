@@ -38,7 +38,6 @@
   }
   .input::placeholder{color:rgba(255,255,255,0.45);}
 
-  /* NEW PROFESSIONAL FORGOT PASSWORD STYLE */
   .forgot{
     text-align:center;
     margin-top:4px;
@@ -89,7 +88,6 @@
         <input id="password" class="input" type="password" placeholder="Enter your password" required />
       </div>
 
-      <!-- Professional Forgot Password -->
       <div class="forgot">
         <a href="#" id="forgotPasswordBtn">Forgot Password?</a>
       </div>
@@ -132,35 +130,47 @@ function showToast(msg, success=false){
   setTimeout(()=>t.remove(),4000);
 }
 
-document.getElementById("signinForm").addEventListener("submit",async e=>{
+document.getElementById("signinForm").addEventListener("submit", async e=>{
   e.preventDefault();
   const email=document.getElementById("email").value.trim();
   const password=document.getElementById("password").value.trim();
 
-  if(!email||!password){ showToast("Please enter email and password"); return; }
+  if(!email || !password){
+    showToast("Please enter email and password");
+    return;
+  }
 
   try{
-    const cred=await signInWithEmailAndPassword(auth,email,password);
-    const user=cred.user;
+    const cred = await signInWithEmailAndPassword(auth,email,password);
+    const user = cred.user;
 
-    const snap=await get(child(ref(db),"users/"+user.uid));
+    const snap = await get(child(ref(db),"users/"+user.uid));
     if(!snap.exists()){
-      showToast("User profile not found in database."); return;
+      showToast("User profile not found in database.");
+      return;
     }
 
-    showToast("Login successful!",true);
-    setTimeout(()=>window.location.href="dashboard.html",1200);
+    showToast("Login successful!", true);
+    setTimeout(()=> window.location.href="dashboard.html", 1200);
 
   }catch(err){
     console.error(err);
-    if(err.code==="auth/wrong-password") showToast("Incorrect password.");
-    else if(err.code==="auth/user-not-found") showToast("No account with this email.");
-    else showToast("Login failed, try again.");
+
+    // ⭐ Updated error messages as you requested
+    if(err.code === "auth/wrong-password"){
+      showToast("Wrong password");
+    }
+    else if(err.code === "auth/user-not-found"){
+      showToast("Email is not registered");
+    }
+    else{
+      showToast("Something went wrong, try again.");
+    }
   }
 });
 
 
-// ⭐ Forgot Password Feature
+// ⭐ Forgot Password
 document.getElementById("forgotPasswordBtn").addEventListener("click", async ()=>{
   const email = document.getElementById("email").value.trim();
 
@@ -175,10 +185,10 @@ document.getElementById("forgotPasswordBtn").addEventListener("click", async ()=
   }
   catch(err){
     console.error(err);
-    if(err.code==="auth/user-not-found") showToast("No account with this email.");
+    if(err.code==="auth/user-not-found") showToast("Email is not registered");
     else showToast("Failed to send reset link.");
   }
 });
 </script>
 </body>
-  </html>
+</html>
