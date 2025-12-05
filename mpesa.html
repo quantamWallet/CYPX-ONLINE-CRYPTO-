@@ -83,14 +83,14 @@ nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
         <div class="account-info">Name: <strong>PRUDENCE CHEPKOECH</strong></div>
       </div>
     </div>
-    <p>Send money directly to <strong>0741LANGAT'/strong>. After sending, submit details below.</p>
+    <p>Send money directly to <strong>0741766606'/strong>. After sending, submit details below.</p>
   </div>
 
   <div class="card">
     <h2><i class="fa-solid fa-coins"></i> Submit M-Pesa Deposit</h2>
     <form id="depositForm">
       <label class="label" for="amount">Amount (KES)</label>
-      <input id="amount" class="input" type="number" min="3000" placeholder="e.g. 3000" required/>
+      <input id="amount" class="input" type="number" min="5000" placeholder="e.g. 5000" required/>
       <label class="label" for="phone">Your Phone number</label>
       <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
       <label class="label" for="code">Transaction Code</label>
@@ -163,7 +163,7 @@ form.addEventListener('submit', async (e)=>{
   const code = document.getElementById('code').value.trim().toUpperCase();
   const file = document.getElementById('receipt').files[0];
 
-  if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
+  if(amount < 'Minimumturn showPopup('Minimum deposit is 5000 KES','error');
 
   // ✅ Transaction code validation (must contain both letters & numbers)
   // Format: 10 characters, alphanumeric mix like TJ41Z6LEUU
