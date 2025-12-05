@@ -18,11 +18,11 @@
     min-height:100vh;
     display:flex;
     justify-content:center;
-    align-items:flex-start;   /* align to top instead of middle */
+    align-items:flex-start;
     background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
     position:relative;
-    padding:20px 0 0.5cm 0;   /* breathing space at bottom */
-    overflow:auto;            /* allow scroll if content grows */
+    padding:20px 0 0.5cm 0;
+    overflow:auto;
   }
   body::before{
     content:"";
@@ -69,7 +69,6 @@
   .signin-line{ text-align:center; margin-top:18px; color:rgba(255,255,255,0.85); font-size:15px; }
   .signin-line a{ color:#7fc4ff; font-weight:700; text-decoration:none; }
 
-  /* toast notification */
   .toast{
     position:fixed; top:20px; right:20px;
     padding:12px 18px; border-radius:8px;
@@ -81,6 +80,7 @@
 </style>
 </head>
 <body>
+
   <div class="card">
     <div style="text-align:center;margin-bottom:6px;">
       <div class="title">CYPX ONLINE CRYPTO</div>
@@ -122,6 +122,7 @@
     <div class="signin-line">Already have an account? <a href="signin.html">Sign In</a></div>
   </div>
 
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { 
@@ -161,7 +162,6 @@ function showToast(msg, success=false){
   setTimeout(()=> t.remove(), 3500);
 }
 
-// Referral
 const refUsername = new URLSearchParams(window.location.search).get("ref") || null;
 
 // FIELD REFS
@@ -172,29 +172,23 @@ const passInput = document.getElementById("password");
 const confirmInput = document.getElementById("confirm_password");
 
 
-// ========== LIVE VALIDATION ==========
-
 // EMAIL CHECK
 emailInput.addEventListener("blur", async () => {
   const e = emailInput.value.trim();
   if(!e) return;
 
-  try {
-    const methods = await fetchSignInMethodsForEmail(auth, e);
-    if(methods.length > 0){
-      showToast("This email is already registered.");
-    }
-  } catch(err){
-    console.error(err);
+  const methods = await fetchSignInMethodsForEmail(auth, e);
+  if(methods.length > 0){
+    showToast("This email is already registered.");
   }
 });
 
-// USERNAME CHECK
+// USERNAME CHECK (fixed)
 usernameInput.addEventListener("blur", async () => {
   const u = usernameInput.value.trim();
   if(!u) return;
 
-  const snap = await get(ref(db, "usernames/" + u));
+  const snap = await get(child(ref(db), "usernames/" + u));
   if(snap.exists()){
     showToast("Username is already taken.");
   }
@@ -216,7 +210,7 @@ confirmInput.addEventListener("input", () => {
 });
 
 
-// ========== SUBMIT HANDLER ==========
+// SUBMIT HANDLER
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -226,7 +220,6 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   const password = passInput.value.trim();
   const confirm = confirmInput.value.trim();
 
-  // BASIC VALIDATIONS
   if(!username || !email || !phone || !password || !confirm){
     return showToast("All fields are required.");
   }
@@ -243,19 +236,19 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     return showToast("Enter a valid Kenyan number.");
   }
 
-  // CHECK DUPLICATES FIRST (FASTER)
+  // CHECK EMAIL
   const emailMethods = await fetchSignInMethodsForEmail(auth, email);
   if(emailMethods.length > 0){
     return showToast("This email is already registered.");
   }
 
-  const userSnap = await get(ref(db, "usernames/" + username));
+  // CHECK USERNAME (fixed)
+  const userSnap = await get(child(ref(db), "usernames/" + username));
   if(userSnap.exists()){
     return showToast("Username already taken.");
   }
 
   try {
-    // CREATE ACCOUNT
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const user = cred.user;
 
@@ -268,12 +261,12 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
       createdAt: Date.now()
     });
 
-    // USERNAME INDEX
+    // SAVE USERNAME INDEX
     await set(ref(db, "usernames/" + username), user.uid);
 
-    // REFERRAL
+    // REFERRAL (fixed)
     if(refUsername){
-      const sponsorSnap = await get(ref(db, "usernames/" + refUsername));
+      const sponsorSnap = await get(child(ref(db), "usernames/" + refUsername));
       if(sponsorSnap.exists()){
         const sponsorUid = sponsorSnap.val();
         await set(ref(db, "referrals/" + sponsorUid + "/" + user.uid), {
@@ -284,14 +277,12 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
       }
     }
 
-    // SUCCESS
     showToast("Account created successfully!", true);
     setTimeout(() => window.location.href = "dashboard.html", 1500);
 
   } catch(err){
     console.error(err);
-    
-    // DIRECT & SPECIFIC
+
     if(err.code === "auth/email-already-in-use"){
       showToast("This email is already registered.");
     }
@@ -304,5 +295,6 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   }
 });
 </script>
+
 </body>
 </html>
