@@ -1,255 +1,312 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Create Account</title>
-<style>
-  :root{
-    --card-bg: rgba(7,20,38,0.92);
-    --input-bg: rgba(255,255,255,0.03);
-    --muted: rgba(255,255,255,0.55);
-    --yellow: #ffd400;
-  }
-
-  html,body{margin:0; padding:0; height:100%;}
-  body{
-    font-family:"Segoe UI",Roboto,Arial,sans-serif;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
-    position:relative;
-    padding:20px 0 0.5cm 0;
-    overflow:auto;
-  }
-  body::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
-    background-repeat:repeat;
-    background-size:150px;
-    opacity:0.04;
-    z-index:0;
-    filter:blur(0.5px);
-  }
-
-  .card{
-    position:relative;
-    z-index:1;
-    width:420px;
-    max-width:calc(100vw - 40px);
-    background:linear-gradient(180deg,rgba(6,20,40,0.95),rgba(7,18,34,0.92));
-    border-radius:28px;
-    padding:34px 28px;
-    box-shadow:0 14px 40px rgba(2,6,23,0.7);
-    color:#fff;
-  }
-  .card .title{ text-align:center; margin-bottom:4px; font-weight:800; font-size:28px; letter-spacing:1px; text-transform:uppercase; }
-  .card .subtitle{ text-align:center; color:rgba(255,255,255,0.78); font-weight:500; margin-bottom:18px; font-size:14px; }
-
-  .field{ margin-bottom:14px; }
-  label{ display:block; color:var(--muted); font-size:15px; margin-bottom:8px; font-weight:600; }
-  .input,.phone-prefix{
-    width:100%; box-sizing:border-box; background:var(--input-bg);
-    border:1px solid rgba(255,255,255,0.08);
-    padding:14px 16px; border-radius:12px; color:#e9f5ff; font-size:15px; outline:none;
-  }
-  .input::placeholder{color:rgba(255,255,255,0.45);}
-  .phone-row{ display:flex; gap:12px; }
-  .phone-prefix{ min-width:96px; max-width:110px; text-align:center; font-weight:700; color:#fff; }
-
-  .btn{
-    width:100%; padding:16px; margin-top:14px; border-radius:12px; border:none; cursor:pointer;
-    font-weight:800; font-size:18px; background:linear-gradient(90deg,#ffd400,#ffcf00); color:#111;
-    box-shadow:0 6px 18px rgba(0,0,0,0.4);
-  }
-  .signin-line{ text-align:center; margin-top:18px; color:rgba(255,255,255,0.85); font-size:15px; }
-  .signin-line a{ color:#7fc4ff; font-weight:700; text-decoration:none; }
-
-  .toast{
-    position:fixed; top:20px; right:20px;
-    padding:12px 18px; border-radius:8px;
-    color:#fff; font-size:15px; font-weight:500;
-    z-index:9999; box-shadow:0 3px 12px rgba(0,0,0,0.35);
-    animation:fadeIn .3s ease;
-  }
-  @keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
-</style>
-</head>
-<body>
-
-  <div class="card">
-    <div style="text-align:center;margin-bottom:6px;">
-      <div class="title">CYPX ONLINE CRYPTO</div>
-      <div class="subtitle">Secure • Reliable • Growth</div>
-    </div>
-
-    <form id="signupForm" autocomplete="off" novalidate>
-      <div class="field">
-        <label for="username">Username</label>
-        <input id="username" class="input" type="text" placeholder="Choose a username" />
-      </div>
-
-      <div class="field">
-        <label for="phone">Phone Number</label>
-        <div class="phone-row">
-          <div class="phone-prefix">🇰🇪 +254</div>
-          <input id="phone" class="input" type="tel" inputmode="tel" placeholder="7XXXXXXXX" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" class="input" type="email" placeholder="Enter your email" required />
-      </div>
-
-      <div class="field">
-        <label for="password">Password</label>
-        <input id="password" class="input" type="password" placeholder="Minimum 6 characters" required />
-      </div>
-
-      <div class="field">
-        <label for="confirm_password">Confirm Password</label>
-        <input id="confirm_password" class="input" type="password" placeholder="Repeat password" />
-      </div>
-
-      <button class="btn" type="submit">Create Account</button>
-    </form>
-
-    <div class="signin-line">Already have an account? <a href="signin.html">Sign In</a></div>
-  </div>
-
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { 
-  getAuth,
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail 
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { 
-  getDatabase,
-  ref,
-  set,
-  get,
-  child
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-// Faster Toast
-function showToast(msg, success=false){
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.style.background = success ? "#28a745" : "#ff4d4f";
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(()=> t.remove(), 2000); // faster timeout
-}
-
-const refUsername = new URLSearchParams(window.location.search).get("ref") || null;
-
-const emailInput = document.getElementById("email");
-const usernameInput = document.getElementById("username");
-const phoneInput = document.getElementById("phone");
-const passInput = document.getElementById("password");
-const confirmInput = document.getElementById("confirm_password");
-
-// SUBMIT — all checks run once (fast)
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const username = usernameInput.value.trim();
-  const email = emailInput.value.trim();
-  const phone = phoneInput.value.trim();
-  const password = passInput.value.trim();
-  const confirm = confirmInput.value.trim();
-
-  if(!username || !email || !phone || !password || !confirm){
-    return showToast("All fields are required.");
-  }
-  if(password.length < 6){
-    return showToast("Password must be at least 6 characters.");
-  }
-  if(password !== confirm){
-    return showToast("Passwords do not match.");
-  }
-  if(!/^[7][0-9]{8}$/.test(phone)){
-    return showToast("Enter a valid Kenyan number.");
-  }
-
-  // Faster email check
-  const emailMethods = await fetchSignInMethodsForEmail(auth, email);
-  if(emailMethods.length > 0){
-    return showToast("This email is already registered.");
-  }
-
-  // Faster username check
-  const userSnap = await get(child(ref(db), "usernames/" + username));
-  if(userSnap.exists()){
-    return showToast("Username already taken.");
-  }
-
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    const user = cred.user;
-
-    await set(ref(db, "users/" + user.uid), {
-      username,
-      email,
-      phone,
-      referredBy: refUsername || "",
-      createdAt: Date.now()
-    });
-
-    await set(ref(db, "usernames/" + username), user.uid);
-
-    if(refUsername){
-      const sponsorSnap = await get(child(ref(db), "usernames/" + refUsername));
-      if(sponsorSnap.exists()){
-        const sponsorUid = sponsorSnap.val();
-        await set(ref(db, "referrals/" + sponsorUid + "/" + user.uid), {
-          username,
-          email,
-          timestamp: Date.now()
-        });
-      }
-    }
-
-    showToast("Account created successfully!", true);
-
-    // FAST REDIRECT
-    setTimeout(() => window.location.href = "dashboard.html", 500);
-
-  } catch(err){
-    console.error(err);
-    if(err.code === "auth/email-already-in-use"){
-      showToast("This email is already registered.");
-    }
-    else if(err.code === "auth/weak-password"){
-      showToast("Password must be at least 6 characters.");
-    }
-    else {
-      showToast("Something went wrong. Try again.");
-    }
-  }
-});
-</script>
-
-</body>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+<meta charset="UTF-8" />  
+<meta name="viewport" content="width=device-width,initial-scale=1" />  
+<title>Create Account</title>  
+<style>  
+  :root{  
+    --card-bg: rgba(7,20,38,0.92);  
+    --input-bg: rgba(255,255,255,0.03);  
+    --muted: rgba(255,255,255,0.55);  
+    --yellow: #ffd400;  
+  }  
+  
+  html,body{margin:0; padding:0; height:100%;}  
+  body{  
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;  
+    min-height:100vh;  
+    display:flex;  
+    justify-content:center;  
+    align-items:flex-start;  
+    background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);  
+    position:relative;  
+    padding:18px 0 0.5cm 0;  
+    overflow:auto;  
+  }  
+  body::before{  
+    content:"";  
+    position:absolute;  
+    inset:0;  
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");  
+    background-repeat:repeat;  
+    background-size:150px;  
+    opacity:0.04;  
+    z-index:0;  
+    filter:blur(0.5px);  
+  }  
+  
+  .card{  
+    position:relative;  
+    z-index:1;  
+    width:340px;  
+    max-width:calc(100vw - 40px);  
+    background:linear-gradient(180deg,rgba(6,20,40,0.95),rgba(7,18,34,0.92));  
+    border-radius:24px;  
+    padding:24px 22px;  
+    box-shadow:0 14px 40px rgba(2,6,23,0.7);  
+    color:#fff;  
+  }  
+  
+  .card .title{  
+    text-align:center;  
+    margin-bottom:4px;  
+    font-weight:800;  
+    font-size:24px;  
+    letter-spacing:1px;  
+    text-transform:uppercase;  
+  }  
+  .card .subtitle{  
+    text-align:center;  
+    color:rgba(255,255,255,0.78);  
+    font-weight:500;  
+    margin-bottom:16px;  
+    font-size:13px;  
+  }  
+  
+  .field{ margin-bottom:12px; }  
+  label{  
+    display:block;  
+    color:var(--muted);  
+    font-size:14px;  
+    margin-bottom:6px;  
+    font-weight:600;  
+  }  
+  .input,.phone-prefix{  
+    width:100%;  
+    box-sizing:border-box;  
+    background:var(--input-bg);  
+    border:1px solid rgba(255,255,255,0.08);  
+    padding:12px 14px;  
+    border-radius:10px;  
+    color:#e9f5ff;  
+    font-size:14px;  
+    outline:none;  
+  }  
+  .input::placeholder{color:rgba(255,255,255,0.45);}  
+  .phone-row{ display:flex; gap:10px; }  
+  .phone-prefix{  
+    min-width:80px;  
+    max-width:90px;  
+    text-align:center;  
+    font-weight:700;  
+    color:#fff;  
+    font-size:14px;  
+  }  
+  
+  .btn{  
+    width:100%;  
+    padding:14px;  
+    margin-top:12px;  
+    border-radius:10px;  
+    border:none;  
+    cursor:pointer;  
+    font-weight:800;  
+    font-size:16px;  
+    background:linear-gradient(90deg,#ffd400,#ffcf00);  
+    color:#111;  
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);  
+  }  
+  
+  .signin-line{  
+    text-align:center;  
+    margin-top:16px;  
+    color:rgba(255,255,255,0.85);  
+    font-size:14px;  
+  }  
+  .signin-line a{  
+    color:#7fc4ff;  
+    font-weight:700;  
+    text-decoration:none;  
+  }  
+  
+  .toast{  
+    position:fixed;  
+    top:20px;  
+    right:20px;  
+    padding:12px 18px;  
+    border-radius:8px;  
+    color:#fff;  
+    font-size:15px;  
+    font-weight:500;  
+    z-index:9999;  
+    box-shadow:0 3px 12px rgba(0,0,0,0.35);  
+    animation:fadeIn .3s ease;  
+  }  
+  
+  @keyframes fadeIn{  
+    from{opacity:0;transform:translateY(-6px);}  
+    to{opacity:1;transform:translateY(0);}  
+  }  
+</style>  
+</head>  
+<body>  
+  
+  <div class="card">  
+    <div style="text-align:center;margin-bottom:6px;">  
+      <div class="title">CYPX ONLINE CRYPTO</div>  
+      <div class="subtitle">Secure • Reliable • Growth</div>  
+    </div>  
+  
+    <form id="signupForm" autocomplete="off" novalidate>  
+      <div class="field">  
+        <label for="username">Username</label>  
+        <input id="username" class="input" type="text" placeholder="Choose a username" />  
+      </div>  
+  
+      <div class="field">  
+        <label for="phone">Phone Number</label>  
+        <div class="phone-row">  
+          <div class="phone-prefix">🇰🇪 +254</div>  
+          <input id="phone" class="input" type="tel" inputmode="tel" placeholder="7XXXXXXXX" />  
+        </div>  
+      </div>  
+  
+      <div class="field">  
+        <label for="email">Email</label>  
+        <input id="email" class="input" type="email" placeholder="Enter your email" required />  
+      </div>  
+  
+      <div class="field">  
+        <label for="password">Password</label>  
+        <input id="password" class="input" type="password" placeholder="Minimum 6 characters" required />  
+      </div>  
+  
+      <div class="field">  
+        <label for="confirm_password">Confirm Password</label>  
+        <input id="confirm_password" class="input" type="password" placeholder="Repeat password" />  
+      </div>  
+  
+      <button class="btn" type="submit">Create Account</button>  
+    </form>  
+  
+    <div class="signin-line">Already have an account?  
+      <a href="signin.html">Sign In</a>  
+    </div>  
+  </div>  
+  
+  
+<script type="module">  
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";  
+import {   
+  getAuth,  
+  createUserWithEmailAndPassword,  
+  fetchSignInMethodsForEmail   
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";  
+import {   
+  getDatabase,  
+  ref,  
+  set,  
+  get,  
+  child  
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";  
+  
+const firebaseConfig = {  
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
+  authDomain: "quantum-rio.firebaseapp.com",  
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
+  projectId: "quantum-rio",  
+  storageBucket: "quantum-rio.appspot.com",  
+  messagingSenderId: "805433999377",  
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"  
+};  
+  
+const app = initializeApp(firebaseConfig);  
+const auth = getAuth(app);  
+const db = getDatabase(app);  
+  
+function showToast(msg, success=false){  
+  const t = document.createElement("div");  
+  t.className = "toast";  
+  t.style.background = success ? "#28a745" : "#ff4d4f";  
+  t.textContent = msg;  
+  document.body.appendChild(t);  
+  setTimeout(()=> t.remove(), 2000);  
+}  
+  
+const refUsername = new URLSearchParams(window.location.search).get("ref") || null;  
+  
+const emailInput = document.getElementById("email");  
+const usernameInput = document.getElementById("username");  
+const phoneInput = document.getElementById("phone");  
+const passInput = document.getElementById("password");  
+const confirmInput = document.getElementById("confirm_password");  
+  
+document.getElementById("signupForm").addEventListener("submit", async (e) => {  
+  e.preventDefault();  
+  
+  const username = usernameInput.value.trim();  
+  const email = emailInput.value.trim();  
+  const phone = phoneInput.value.trim();  
+  const password = passInput.value.trim();  
+  const confirm = confirmInput.value.trim();  
+  
+  if(!username || !email || !phone || !password || !confirm){  
+    return showToast("All fields are required.");  
+  }  
+  if(password.length < 6){  
+    return showToast("Password must be at least 6 characters.");  
+  }  
+  if(password !== confirm){  
+    return showToast("Passwords do not match.");  
+  }  
+  if(!/^[7][0-9]{8}$/.test(phone)){  
+    return showToast("Enter a valid Kenyan number.");  
+  }  
+  
+  const emailMethods = await fetchSignInMethodsForEmail(auth, email);  
+  if(emailMethods.length > 0){  
+    return showToast("This email is already registered.");  
+  }  
+  
+  const userSnap = await get(child(ref(db), "usernames/" + username));  
+  if(userSnap.exists()){  
+    return showToast("Username already taken.");  
+  }  
+  
+  try {  
+    const cred = await createUserWithEmailAndPassword(auth, email, password);  
+    const user = cred.user;  
+  
+    await set(ref(db, "users/" + user.uid), {  
+      username,  
+      email,  
+      phone,  
+      referredBy: refUsername || "",  
+      createdAt: Date.now()  
+    });  
+  
+    await set(ref(db, "usernames/" + username), user.uid);  
+  
+    if(refUsername){  
+      const sponsorSnap = await get(child(ref(db), "usernames/" + refUsername));  
+      if(sponsorSnap.exists()){  
+        const sponsorUid = sponsorSnap.val();  
+        await set(ref(db, "referrals/" + sponsorUid + "/" + user.uid), {  
+          username,  
+          email,  
+          timestamp: Date.now()  
+        });  
+      }  
+    }  
+  
+    showToast("Account created successfully!", true);  
+    setTimeout(() => window.location.href = "dashboard.html", 500);  
+  
+  } catch(err){  
+    console.error(err);  
+    if(err.code === "auth/email-already-in-use"){  
+      showToast("This email is already registered.");  
+    }  
+    else if(err.code === "auth/weak-password"){  
+      showToast("Password must be at least 6 characters.");  
+    }  
+    else {  
+      showToast("Something went wrong. Try again.");  
+    }  
+  }  
+});  
+</script>  
+  
+</body>  
 </html>
