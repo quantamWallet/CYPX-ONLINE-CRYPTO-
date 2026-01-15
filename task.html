@@ -79,7 +79,7 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
   const vipRef = db.ref('users/' + uid + '/vipLevels');
-  const totalVipLevels = 10; // VIP levels 1 to 10
+  const totalVipLevels = 15; // VIP levels 1 to 15
 
   function updateTaskCounters() {
     vipRef.on('value', snapshot => {
