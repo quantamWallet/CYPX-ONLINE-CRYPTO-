@@ -4,91 +4,143 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Recharge - CYPX ONLINE CRYPTO</title>
-
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
+  
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #001f3f;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(180deg,#000814,#001d3d);
       color: white;
       text-align: center;
-      padding-bottom: 80px;
+      padding-bottom: 100px;
     }
 
     header {
-      background-color: #002f6c;
+      background: linear-gradient(90deg,#001d3d,#003566);
       padding: 15px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap:10px;
+      box-shadow: 0 0 15px rgba(0,150,255,0.2);
     }
-    header img { height: 30px; margin-right: 10px; }
+
+    header img { height: 28px; }
 
     .section-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
-      margin-top: 40px;
-      color: #00d4ff;
+      margin-top: 30px;
+      color: #00e5ff;
+      letter-spacing: 0.5px;
     }
 
     .wallet-option {
-      margin: 20px auto;
-      background-color: #003366;
-      padding: 10px 20px;
-      border-radius: 10px;
+      margin: 15px auto;
       width: 90%;
-      max-width: 400px;
+      max-width: 420px;
     }
 
     .wallet-button {
       border: none;
-      padding: 15px;
-      border-radius: 10px;
+      padding: 16px;
+      border-radius: 14px;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 16px;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 15px;
+      gap: 12px;
       font-weight: bold;
       transition: 0.3s ease;
+      box-shadow: 0 0 20px rgba(0,150,255,0.15);
     }
 
     .wallet-button:hover {
-      transform: scale(1.05);
-      opacity: 0.9;
+      transform: scale(1.04);
+      box-shadow: 0 0 25px rgba(0,200,255,0.4);
     }
 
-    .mpesa { background-color: #34B233; color: white; }
-    .airtel { background-color: #D91F26; color: white; }
-    .paypal { background-color: #003087; color: white; }
-    .bitcoin { background-color: #F7931A; color: white; }
-    .usdt { background-color: #26a17b; color: white; }
-
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
+    /* BUTTON STYLES */
+    .mpesa { 
+      background: linear-gradient(135deg,#34B233,#1f8f2a); 
+      color: white; 
+      box-shadow: 0 0 15px rgba(52,178,51,0.5);
     }
-    nav a {
-      color: white;
-      text-decoration: none;
-      text-align: center;
+
+    .airtel { 
+      background: linear-gradient(135deg,#ff3b3b,#b30000); 
+      color: white; 
+      box-shadow: 0 0 15px rgba(255,0,0,0.5);
+    }
+
+    .bitcoin { 
+      background: linear-gradient(135deg,#f7931a,#c96f00); 
+      color: white; 
+      box-shadow: 0 0 15px rgba(247,147,26,0.5);
+    }
+
+    .usdt { 
+      background: linear-gradient(135deg,#26a17b,#1b7f60); 
+      color: white; 
+      box-shadow: 0 0 15px rgba(38,161,123,0.5);
+    }
+
+    /* 🔥 INFO BOX */
+    .info-box {
+      margin: 25px auto;
+      width: 90%;
+      max-width: 420px;
+      background: linear-gradient(145deg,#002b5c,#001f3f);
+      padding: 15px;
+      border-radius: 14px;
       font-size: 14px;
+      line-height: 1.6;
+      color: #cfe6ff;
+      box-shadow: 0 0 20px rgba(0,150,255,0.15);
+      text-align: left;
     }
-    nav i { font-size: 20px; }
+
+    .info-box strong {
+      color: #00e5ff;
+    }
+
+    /* 🔥 FOOTER */
+    .footer {
+      margin-top: 20px;
+      padding: 20px 10px;
+      background: #000c1f;
+      font-size: 13px;
+      color: #9fb0cf;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+   nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
+}
+
+nav i { font-size:20px; }
   </style>
 </head>
+
 <body>
 
 <header>
@@ -96,29 +148,23 @@
   Recharge - CYPX ONLINE CRYPTO
 </header>
 
-<!-- PAY THROUGH MOBILE MONEY AGENT-->
-<div class="section-title">Pay Through Mobile Money Agent</div>
+<!-- MOBILE MONEY -->
+<div class="section-title">Pay Through Mobile Money</div>
 
 <div class="wallet-option">
-  <button class="wallet-button mpesa" onclick="redirect('mpesabonus.html')">
+  <button class="wallet-button mpesa" onclick="redirect('mpesa.html')">
     <i class="fas fa-mobile-alt"></i> M-PESA Send Money
   </button>
 </div>
 
 <div class="wallet-option">
-  <button class="wallet-button airtel" onclick="redirect('airtelbonus.html')">
+  <button class="wallet-button airtel" onclick="redirect('airtel.html')">
     <i class="fas fa-signal"></i> Airtel Kenya
   </button>
 </div>
 
 <!-- OTHER PAYMENTS -->
 <div class="section-title">Other Payment Methods</div>
-
-<div class="wallet-option">
-  <button class="wallet-button paypal" onclick="redirect('paypal.html')">
-    <i class="fab fa-paypal"></i> PayPal
-  </button>
-</div>
 
 <div class="wallet-option">
   <button class="wallet-button bitcoin" onclick="redirect('bitcoin.html')">
@@ -130,6 +176,26 @@
   <button class="wallet-button usdt" onclick="redirect('usdt.html')">
     <i class="fas fa-coins"></i> USDT (ERC20)
   </button>
+</div>
+
+<!-- 🔥 INFO SECTION -->
+<div class="info-box">
+  <strong>Payment Instructions:</strong><br><br>
+  • Select your preferred payment method above.<br>
+  • Complete the payment using the provided details.<br>
+  • Ensure the payment name matches your account name.<br>
+  • Funds will be credited after confirmation.<br><br>
+
+  <strong>Important:</strong><br>
+  • Minimum deposit may apply depending on method.<br>
+  • Incorrect details may delay your transaction.<br>
+  • Contact support if funds are not reflected within expected time.<br>
+</div>
+
+<!-- 🔥 FOOTER -->
+<div class="footer">
+  © 2026 CYPX ONLINE CRYPTO<br>
+  Secure Payments • Fast Processing • 24/7 Support
 </div>
 
 <nav>
