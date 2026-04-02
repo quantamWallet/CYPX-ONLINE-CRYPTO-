@@ -58,41 +58,7 @@
         0% { transform: translateX(0); }  
         100% { transform: translateX(-100%); }  
       }  
-      .balance-section {  
-        padding: 20px;  
-        background-color: #002b5c;  
-        text-align: center;  
-      }  
-      .balance-section .email {  
-        font-size: 14px;  
-        color: #ffa500;  
-      }  
-      .balance-section .balance {  
-        font-size: 24px;  
-        margin: 10px 0;  
-        color: yellow;  
-      }  
-      .balance-buttons {  
-        display: flex;  
-        justify-content: space-around;  
-      }  
-      .balance-buttons button {  
-        background-color: #ffcc00;  
-        color: black;  
-        padding: 10px;  
-        border: none;  
-        border-radius: 8px;  
-        font-weight: bold;  
-        width: 100px;  
-        display: flex;  
-        flex-direction: column;  
-        align-items: center;  
-        cursor: pointer;  
-      }  
-      .balance-buttons button i {  
-        font-size: 20px;  
-        margin-bottom: 5px;  
-      }  
+      
       .extra-info {  
         padding: 15px;  
         text-align: center;  
@@ -163,7 +129,95 @@
         padding:6px 0;  
         border-bottom:1px dashed rgba(255,255,255,0.03);  
         color: #cfe6ff;  
-      }  
+   .balance-section {
+  padding: 20px;
+  background: linear-gradient(180deg, #002b5c, #001f3f);
+}
+
+/* Email */
+.balance-section .email {
+  font-size: 13px;
+  color: #9fb0cf;
+  margin-bottom: 10px;
+}
+
+/* Card */
+.balance-card {
+  background: linear-gradient(145deg, #003f88, #002f6c);
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* Labels */
+.balance-card .label {
+  font-size: 13px;
+  color: #9fb0cf;
+  margin-bottom: 6px;
+}
+
+/* Main balance */
+.balance-card h1 {
+  font-size: 28px;
+  color: #ffd700;
+  margin: 0 0 15px 0;
+  letter-spacing: 1px;
+}
+
+/* Stats row */
+.balance-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.balance-stats div {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.balance-stats h3 {
+  margin: 5px 0 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+/* Buttons */
+.balance-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.balance-buttons button {
+  flex: 1;
+  background: linear-gradient(145deg, #ffcc00, #ffaa00);
+  color: #000;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.balance-buttons button:hover {
+  transform: translateY(-2px);
+}
+
+.balance-buttons button i {
+  font-size: 18px;
+} 
       .earnings-total {  
         text-align:right;  
         font-weight:700;  
@@ -269,14 +323,41 @@
       <div class="announcement-content">🛒Welcome to CYPX ONLINE CRYPTO 🛒 Recruiting investors and agents worldwide!</div>  
     </div>  
   
-    <div class="balance-section">  
-      <div class="email" id="user-email"></div>  
-      <div class="balance" id="user-balance">Balance: KSh 0.00</div>  
-      <div class="balance-buttons">  
-        <button onclick="location.href='recharge.html'"><i class="fas fa-wallet"></i>Deposit</button>  
-        <button onclick="location.href='withdraw.html'"><i class="fas fa-hand-holding-usd"></i>Withdraw</button>  
-        <button onclick="location.href='company.html'"><i class="fas fa-building"></i>Company</button>  
-      </div>  
+    <div class="balance-section">
+
+  <div class="email" id="user-email"></div>
+
+  <div class="balance-card">
+    <p class="label">Total Balance</p>
+    <h1 id="user-balance">KSh 0.00</h1>
+
+    <div class="balance-stats">
+      <div>
+        <p class="small-muted">Total Deposit</p>
+        <h3 id="total-deposit">KSh 0.00</h3>
+      </div>
+      <div>
+        <p class="small-muted">Total Earnings</p>
+        <h3 id="total-earnings">KSh 0.00</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="balance-buttons">
+    <button onclick="location.href='recharge.html'">
+      <i class="fas fa-wallet"></i>
+      Deposit
+    </button>
+    <button onclick="location.href='withdraw.html'">
+      <i class="fas fa-hand-holding-usd"></i>
+      Withdraw
+    </button>
+    <button onclick="location.href='company.html'">
+      <i class="fas fa-building"></i>
+      Company
+    </button>
+  </div>
+
     </div>  
   
     <div class="extra-info">  
@@ -379,7 +460,14 @@
         // Sync balance in real time  
         balanceRef.on("value", (snapshot) => {  
           let balance = parseFloat(snapshot.val() || 0);  
-          document.getElementById("user-balance").textContent = `Balance: KSh ${balance.toFixed(2)}`;  
+          function formatMoney(amount) {
+  return new Intl.NumberFormat('en-KE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+}
+
+document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance)}`;  
         });  
   
         // Handle claim bonus  
