@@ -1,220 +1,308 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Recharge via Airtel - CYPX ONLINE CRYPTO</title>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+<meta charset="UTF-8"/>  
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+<title>Airtel Deposit - CYPX</title>  
 
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>  
 
-<!-- Firebase v8 -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>  
 
-<style>
-:root {
-  --bg: #001a33;
-  --bg2: #07284a;
-  --brand: #d91f26; /* Airtel red */
-  --accent: #ffcc00;
-  --text: #ffffff;
-  --muted: #a7bdd8;
-  --card: #0b2f5a;
-  --card-2: #0e3a6f;
-  --border: #1e477a;
-  --shadow: 0 10px 30px rgba(0,0,0,0.25);
-  --radius: 16px;
-  --icon-size: 20px; /* standardized icons */
+<style>  
+body {  
+  margin:0;  
+  font-family:'Segoe UI',sans-serif;  
+  background: linear-gradient(180deg,#000814,#001d3d);  
+  color:white;  
+  padding-bottom:100px;  
+}  
+
+header {  
+  padding:12px;  
+  text-align:center;  
+  font-weight:bold;  
+  background: linear-gradient(90deg,#001d3d,#003566);  
+  box-shadow:0 0 10px rgba(255,0,0,0.2);  
+}  
+
+.container {  
+  max-width:380px; /* 🔥 smaller width */
+  margin:12px auto;  
+  padding:0 10px;  
+}  
+
+/* 🔥 HERO SMALLER */
+.hero {  
+  background: linear-gradient(145deg,#001f3f,#003566);  
+  padding:12px;  
+  border-radius:10px;  
+  box-shadow:0 0 10px rgba(255,0,0,0.2);  
+}  
+
+.badge {  
+  background:linear-gradient(135deg,#ff3b3b,#b30000);  
+  padding:4px 8px;  
+  border-radius:6px;  
+  font-size:11px;  
+  display:inline-block;  
+  margin-bottom:6px;  
+}  
+
+.copy-box {  
+  margin-top:6px;  
+  padding:7px;  
+  border-radius:7px;  
+  background:#002b5c;  
+  border:1px dashed #ff4d4d;  
+  cursor:pointer;  
+  font-size:13px;
+}  
+
+.steps {  
+  margin-top:6px;  
+  font-size:11.5px;  
+  color:#cfe3ff;  
+  padding-left:16px;
+}  
+
+.steps li { margin-bottom:4px; }  
+
+/* 🔥 CARD SMALLER */
+.card {  
+  margin-top:10px;  
+  padding:12px;  
+  border-radius:10px;  
+  background: linear-gradient(145deg,#002b5c,#001f3f);  
+  box-shadow:0 0 10px rgba(255,0,0,0.2);  
+}  
+
+.card h2 {  
+  font-size:14px;  
+  margin-bottom:6px;  
+  color:#ff8080;  
+}  
+
+/* 🔥 INPUTS FIXED */
+.input {  
+  width:100%;  
+  padding:9px;  
+  margin-bottom:6px;  
+  border-radius:8px;  
+  border:1px solid rgba(255,255,255,0.15);  
+  background:#001a33;  
+  color:white;  
+  font-size:13px;
+  box-sizing:border-box; /* 🔥 ensures no overflow */
+}  
+
+.btn {  
+  width:100%;  
+  padding:10px;  
+  border:none;  
+  border-radius:8px;  
+  background:linear-gradient(135deg,#ff3b3b,#b30000);  
+  color:white;  
+  font-weight:bold;  
+  cursor:pointer;  
+  font-size:14px;
+  box-shadow:0 0 10px rgba(255,0,0,0.4);  
+}  
+
+nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
 }
 
-* { box-sizing: border-box; }
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
+}
 
-body { margin:0; padding:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif; }
+nav i { font-size:20px; }
 
-header { padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; font-weight:600; font-size:16px; text-align:center; }
+footer {  
+  text-align:center;  
+  margin-top:10px;  
+  font-size:11px;  
+  color:#aaa;  
+}  
 
-.container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
+.overlay {  
+  position:fixed;  
+  top:0;left:0;  
+  width:100%;height:100%;  
+  background:rgba(0,0,0,0.6);  
+  display:none;  
+}  
 
-.hero { background:linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
-.hero p { font-size:14px; color:var(--muted); margin-top:10px; }
-.note { font-size:13px; color:var(--accent); font-weight:600; margin:6px 0; }
+.popup {  
+  position:fixed;  
+  top:50%;left:50%;  
+  transform:translate(-50%,-50%);  
+  padding:14px;  
+  border-radius:8px;  
+  display:none;  
+  font-weight:bold;  
+  font-size:13px;
+}  
 
-.bank-badge { background:linear-gradient(90deg,#d91f26,var(--brand)); padding:6px 12px; border-radius:10px; font-size:13px; font-weight:600; color:white; display:flex; align-items:center; gap:6px; box-shadow:inset 0 0 10px rgba(0,0,0,0.25); }
-.bank-badge i { font-size: var(--icon-size); }
+.success { background:#0d4220; }  
+.error { background:#3a1111; }  
 
-.account-info { margin-top:8px; font-size:14px; color:#99ffcc; font-weight:600; }
-.card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); }
-.card h2 { margin-top:0; margin-bottom:14px; font-size:18px; font-weight:700; color:#99ffcc; }
-.card h2 i { font-size: var(--icon-size); }
+</style>  
+</head>  
 
-.label { font-size:13px; color:#cfe3ff; margin-bottom:6px; display:block; }
-.input, .file { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; font-size:14px; }
-.btn { margin-top:14px; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#ff4d4d,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.25s ease; }
-.btn:hover { transform:translateY(-2px); }
+<body>  
 
-.copy { background:#08335e; border:1px dashed var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; font-size:13px; color:#99ffcc; transition:background 0.25s; }
-.copy:hover { background:#0b3d72; }
+<header>Deposit via Airtel</header>  
 
-nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
-nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
-nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
+<div class="container">  
 
-.overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 9998; display: none; }
-.popup { position: fixed; top:50%; left:50%; transform: translate(-50%, -50%) scale(0.7); opacity: 0; padding: 24px 28px; border-radius:16px; display: none; text-align: center; max-width:85%; z-index: 9999; font-size: 15px; font-weight: 600; animation: popIn 0.5s ease forwards; }
-.popup.success { background:#0d4220; color:#d6ffd6; }
-.popup.error { background:#3a1111; color:#ffd7d7; }
-@keyframes popIn { from { transform: translate(-50%, -50%) scale(0.7); opacity:0; } to { transform: translate(-50%, -50%) scale(1); opacity:1; } }
-</style>
-</head>
-<body>
+  <div class="hero">  
+    <div class="badge">CYPX AGENT</div>  
 
-<header>Recharge via Airtel</header>
+    <p><strong>Send money to official Airtel agent:</strong></p>  
 
-<div class="container">
-  <div class="hero">
-    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-      <div class="bank-badge"><i class="fa-solid fa-signal"></i> Airtel Kenya</div>
-      <div class="note">Minimum deposit: 5,000 KSH</div>
-      <div>
-        <button class="copy" data-copy="0750858351">
-          Airtel Number: <strong>0750858351</strong>
-        </button>
-        <div class="account-info">Name: <strong>HASSAN ABDI</strong></div>
-      </div>
-    </div>
-    <p>Send money directly to <strong>0750858351</strong>. After sending, submit details below.</p>
-  </div>
+    <div class="copy-box" onclick="copyNumber()">  
+      📱 <strong>0750858351</strong> (Tap to copy)  
+    </div>  
 
-  <div class="card">
-    <h2><i class="fa-solid fa-coins"></i> Submit Airtel Deposit</h2>
-    <form id="depositForm">
-      <label class="label" for="amount">Amount (KES)</label>
-      <input id="amount" class="input" type="number" min="3000" placeholder="e.g. 3000" required/>
-      <label class="label" for="phone">Your Phone number</label>
-      <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
-      <label class="label" for="code">Transaction Code</label>
-      <input id="code" class="input" type="text" placeholder="e.g. ABC123XYZ" required/>
-      <label class="label" for="receipt">Receipt / Screenshot (optional)</label>
-      <input id="receipt" class="file" type="file" accept="image/*"/>
-      <button type="submit" class="btn">Submit Deposit</button>
-    </form>
-  </div>
-</div>
+    <p><strong>Name:</strong> HASSAN ABDI</p>  
 
-<nav>
-  <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
-  <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
-  <a href="team.html"><i class="fas fa-users"></i>Team</a>
-  <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
-  <a href="profile.html"><i class="fas fa-user"></i>Me</a>
-</nav>
+    <p style="color:#ffd700;font-weight:bold;">Minimum Deposit: KSh 3,000</p>  
 
-<div class="overlay" id="overlay"></div>
-<div class="popup" id="popup"></div>
+    <ul class="steps">  
+      <li>1. Open Airtel Money</li>  
+      <li>2. Select Send Money</li>  
+      <li>3. Enter number: 0750858351</li>  
+      <li>4. Enter amount</li>  
+      <li>5. Confirm transaction</li>  
+      <li>6. Paste transaction code below</li>  
+    </ul>  
+  </div>  
 
-<script>
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
-firebase.initializeApp(firebaseConfig);
+  <div class="card">  
+    <h2>Submit Payment</h2>  
 
-const auth = firebase.auth();
-const db = firebase.database();
-const storage = firebase.storage();
-const overlay = document.getElementById('overlay');
-const popup = document.getElementById('popup');
+    <form id="depositForm">  
 
-// Ensure user is logged in
+      <input id="phone" class="input" type="tel" placeholder="Phone number used" required/>  
+
+      <input id="code" class="input" type="text" placeholder="Paste your Airtel transaction code here" required/>  
+
+      <input id="receipt" class="input" type="file" accept="image/*"/>  
+
+      <button class="btn">Submit Deposit</button>  
+
+    </form>  
+  </div>  
+
+  <footer>  
+    © 2026 CYPX ONLINE CRYPTO • Secure Transactions • Manual Verification  
+  </footer>  
+
+</div>  
+
+<nav>  
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>  
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>  
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>  
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>  
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>  
+</nav>  
+
+<div class="overlay" id="overlay"></div>  
+<div class="popup" id="popup"></div>  
+
+<script>  
+const firebaseConfig = {  
+  apiKey: "AIzaSy...",  
+  authDomain: "quantum-rio.firebaseapp.com",  
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
+  projectId: "quantum-rio"  
+};  
+
+firebase.initializeApp(firebaseConfig);  
+
+const auth = firebase.auth();  
+const db = firebase.database();  
+const storage = firebase.storage();  
+
+let currentUser = null;
+
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "landing.html"; // redirect to login page
-  }
+  currentUser = user;
 });
 
-// Popup function
-function showPopup(msg, type='success') {
-  popup.textContent = msg;
-  popup.className = 'popup ' + type;
-  popup.style.display = 'block';
-  overlay.style.display = 'block';
-  setTimeout(()=>{
-    popup.style.display = 'none';
-    overlay.style.display = 'none';
-  }, 2500);
-}
+function copyNumber(){  
+  navigator.clipboard.writeText("0750858351");  
+  showPopup("Number copied","success");  
+}  
 
-// Copy Airtel number
-document.querySelectorAll('.copy').forEach(btn=>{
-  btn.onclick=async()=>{
-    await navigator.clipboard.writeText(btn.dataset.copy);
-    showPopup('Copied: '+btn.dataset.copy,'success');
-  }
-});
+function showPopup(msg,type){  
+  const p=document.getElementById("popup");  
+  const o=document.getElementById("overlay");  
 
-// Submit deposit
-const form = document.getElementById('depositForm');
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const user = auth.currentUser;
-  if(!user) return showPopup('Login required','error');
+  p.textContent=msg;  
+  p.className="popup "+type;  
+  p.style.display="block";  
+  o.style.display="block";  
 
-  const amount = parseInt(document.getElementById('amount').value);
-  const phone = document.getElementById('phone').value.trim();
-  const code = document.getElementById('code').value.trim().toUpperCase();
-  const file = document.getElementById('receipt').files[0];
+  setTimeout(()=>{  
+    p.style.display="none";  
+    o.style.display="none";  
+  },2000);  
+}  
 
-  if(amount < 3000) return showPopup('Minimum deposit is 3000 KES','error');
+document.getElementById("depositForm").addEventListener("submit", async e=>{  
+  e.preventDefault();  
 
-  // ✅ Validate Airtel-to-Airtel transaction code
-  const validChars = /^[A-Z0-9]+$/; // Only letters & numbers
-  const hasLetter = /[A-Z]/.test(code);
-  const hasNumber = /[0-9]/.test(code);
-  const correctLength = code.length >= 8 && code.length <= 12;
-
-  if(!validChars.test(code) || !hasLetter || !hasNumber || !correctLength){
-    return showPopup('Invalid transaction code!','error');
+  if(!currentUser){
+    return showPopup("Please wait... loading account","error");
   }
 
-  try {
-    const ref = db.ref('deposits').push();
-    const data = {
-      uid: user.uid,
-      amount,
-      phone,
-      code,
-      method: 'airtel',
-      status: 'pending',
-      account: '0750858351',
-      name: 'HASSAN ABDI',
-      createdAt: Date.now()
-    };
+  const phone=document.getElementById("phone").value;  
+  const code=document.getElementById("code").value.toUpperCase();  
+  const file=document.getElementById("receipt").files[0];  
 
-    if(file){
-      const path = `receipts/${user.uid}/${ref.key}-${file.name}`;
-      const snap = await storage.ref(path).put(file);
-      data.receiptUrl = await snap.ref.getDownloadURL();
-    }
+  try{  
+    const ref=db.ref("deposits").push();  
 
-    await ref.set(data);
-    showPopup('Deposit submitted for Approval!','success');
-    form.reset();
-  } catch(err){
-    console.error('Firebase error:', err);
-    showPopup('Error submitting deposit: ' + err.message,'error');
-  }
-});
-</script>
+    let data={  
+      uid:currentUser.uid,  
+      phone,  
+      code,  
+      method:"airtel",  
+      status:"pending",  
+      createdAt:Date.now()  
+    };  
 
-</body>
-  </html>
+    if(file){  
+      const snap=await storage.ref(`receipts/${currentUser.uid}/${ref.key}`).put(file);  
+      data.receiptUrl=await snap.ref.getDownloadURL();  
+    }  
+
+    await ref.set(data);  
+
+    showPopup("Deposit submitted","success");  
+    e.target.reset();  
+
+  }catch(err){  
+    showPopup("Error submitting deposit","error");  
+  }  
+});  
+</script>  
+
+</body>  
+</html>
