@@ -1,297 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CYPX ONLINE CRYPTO - Profile</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #0b1f3a;
-      color: white;
-      padding-bottom: 80px;
-    }
-    .top-bar {
-      background-color: #001b33;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
-    }
-    .top-bar .title {
-      font-weight: bold;
-      font-size: 18px;
-      color: white;
-      display: flex;
-      align-items: center;
-    }
-    .top-bar .title img {
-      height: 25px;
-      margin-right: 10px;
-    }
-    .profile-section {
-      background-color: #072544;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .profile-info {
-      color: white;
-    }
-    .profile-info .email {
-      font-size: 14px;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYPX - Profile</title>
 
-    /* VIP badge styles + level colors */
-    .profile-info .vip {
-      background-color: #999;
-      color: white;
-      padding: 3px 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      display: inline-block;
-      margin-top: 4px;
-      text-transform: uppercase;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .profile-info .vip.vip0 { background: #7a7a7a; color: #fff; }
-    .profile-info .vip.vip1 { background: linear-gradient(90deg,#d6d6d6,#bfbfbf); color: #000; } /* silver */
-    .profile-info .vip.vip2 { background: linear-gradient(90deg,#ffd700,#ffcc00); color: #000; } /* gold */
-    .profile-info .vip.vip3 { background: linear-gradient(90deg,#7c54ff,#3ad1d1); color: #fff; } /* premium */
-    .profile-info .vip.vip4 { background: linear-gradient(90deg,#ff7a7a,#ff3d3d); color:#fff; } /* extra if needed */
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-    /* glow animation */
-    .profile-info .vip.glow {
-      box-shadow: 0 0 20px rgba(255, 204, 0, 0.95);
-      transform: scale(1.12);
-    }
+<style>
+body {
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(180deg,#000814,#001d3d);
+  color:white;
+  padding-bottom:80px;
+}
 
-    .profile-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 10px;
-    }
-    .balance-box {
-      background-color: #ffe4a1;
-      color: black;
-      margin: 15px;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-around;
-      padding: 15px;
-      font-weight: bold;
-    }
-    .balance-box div {
-      text-align: center;
-    }
-    .menu {
-      background-color: #072544;
-      padding: 10px 0;
-    }
-    .menu-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      border-bottom: 1px solid #003355;
-      color: white;
-      text-decoration: none;
-    }
-    .menu-item i {
-      margin-right: 12px;
-      font-size: 18px;
-      width: 24px;
-      text-align: center;
-    }
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-    }
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    nav i {
-      font-size: 20px;
-    }
-  </style>
+/* HEADER */
+.top-bar {
+  padding:15px;
+  background: linear-gradient(90deg,#001d3d,#003566);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:bold;
+}
+
+/* PROFILE CARD */
+.profile-card {
+  margin:15px;
+  padding:15px;
+  border-radius:16px;
+  background: linear-gradient(145deg,#001f3f,#003566);
+  box-shadow: 0 0 20px rgba(0,150,255,0.25);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.vip {
+  padding:4px 12px;
+  border-radius:10px;
+  font-size:13px;
+  margin-top:5px;
+  display:inline-block;
+}
+
+.vip.vip0 { background:#777; }
+.vip.vip1 { background:linear-gradient(90deg,#d6d6d6,#bfbfbf); color:#000;}
+.vip.vip2 { background:linear-gradient(90deg,#ffd700,#ffcc00); color:#000;}
+.vip.vip3 { background:linear-gradient(90deg,#7c54ff,#3ad1d1);}
+.vip.vip4 { background:linear-gradient(90deg,#ff7a7a,#ff3d3d);}
+
+.vip.glow {
+  box-shadow:0 0 20px #ffd700;
+  transform:scale(1.1);
+}
+
+/* BALANCE CARD */
+.balance-card {
+  margin:15px;
+  padding:20px;
+  border-radius:16px;
+  background: linear-gradient(145deg,#002b5c,#001f3f);
+  box-shadow: 0 0 25px rgba(0,200,255,0.25);
+}
+
+.balance-main {
+  font-size:28px;
+  color:#ffd700;
+  margin-bottom:15px;
+}
+
+.balance-grid {
+  display:flex;
+  gap:10px;
+}
+
+.balance-grid div {
+  flex:1;
+  background: rgba(255,255,255,0.05);
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+}
+
+/* MENU */
+.menu {
+  margin:15px;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.menu-item {
+  display:flex;
+  align-items:center;
+  padding:15px;
+  background:#001a33;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  text-decoration:none;
+  color:white;
+}
+
+.menu-item:hover {
+  background:#002b5c;
+}
+
+.menu-item i {
+  width:25px;
+  margin-right:10px;
+}
+
+nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
+}
+
+nav i { font-size:20px; }
+</style>
 </head>
-<body>  
-  <div class="top-bar">
-    <div class="title">
-      <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo" />
-      CYPX ONLINE CRYPTO
-    </div>
-  </div>  
 
-  <div class="profile-section">
-    <div class="profile-info">
-      <div class="email" id="user-email">user@example.com</div>
-      <div class="vip" id="user-vip">VIP0</div>
-    </div>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Profile" class="profile-icon" />
-  </div>  
+<body>
 
-  <div class="balance-box">
+<div class="top-bar">
+  <i class="fas fa-user"></i> Profile
+</div>
+
+<div class="profile-card">
+  <div>
+    <div id="user-email">user@email.com</div>
+    <div id="user-vip" class="vip">VIP0</div>
+  </div>
+  <i class="fas fa-user-circle" style="font-size:50px;"></i>
+</div>
+
+<div class="balance-card">
+  <div class="balance-main">KSh <span id="balance">0.00</span></div>
+
+  <div class="balance-grid">
     <div>
-      <div>Total balance (KSH)</div>
-      <div id="total-balance">0.00</div>
+      <small>Total Deposit</small>
+      <div id="deposit">0.00</div>
     </div>
     <div>
-      <div>Recharge amount (KSH)</div>
-      <div id="recharge-amount">0.00</div>
+      <small>Total Earnings</small>
+      <div id="earnings">0.00</div>
     </div>
-  </div>  
+  </div>
+</div>
 
-  <div class="menu">
-    <a href="recharge.html" class="menu-item"><i class="fas fa-bank"></i>Deposit</a>
-    <a href="withdraw.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i>Withdraw</a>
-    <a href="financial.html" class="menu-item"><i class="fas fa-file-invoice-dollar"></i>Financial records</a>
-    <a href="password.html" class="menu-item"><i class="fas fa-key"></i>Change Password</a>
-    <a href="company.html" class="menu-item"><i class="fas fa-building"></i>Company</a>
-    <a href="#" class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
-  </div>  
+<div class="menu">
+  <a href="recharge.html" class="menu-item"><i class="fas fa-wallet"></i>Deposit</a>
+  <a href="withdraw.html" class="menu-item"><i class="fas fa-money-bill"></i>Withdraw</a>
+  <a href="financial.html" class="menu-item"><i class="fas fa-file"></i>Records</a>
+  <a href="#" class="menu-item" onclick="logout()"><i class="fas fa-sign-out"></i>Logout</a>
+</div>
 
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
 
-  <!-- Firebase compat libs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  <script>
-  // --- Firebase config (same as yours) ---
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio"
+};
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const auth = firebase.auth();
-  const db = firebase.database();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  function formatVipString(v) {
-    if (!v && v !== 0) return null;
-    // handle numeric or string like "vip3", "3", "VIP3"
-    if (typeof v === 'number') return 'VIP' + v;
-    v = String(v).trim();
-    const m = v.match(/\d+/);
-    if (m) return 'VIP' + m[0];
-    // fallback to uppercase string
-    return v.toUpperCase();
-  }
-
-  function getVipFromSnapshotData(data) {
-    // 1) plain vipLevel or vip (string or number)
-    let vipCandidate = data.vipLevel ?? data.vip ?? data.viplevel ?? null;
-    if (vipCandidate) {
-      const s = formatVipString(vipCandidate);
-      if (s) return s;
-    }
-
-    // 2) vipLevels object (e.g. vipLevels: { "1": 1 } or { "vip1": true })
-    const vipLevels = data.vipLevels || data.vip_levels || data.VIPLevels;
-    if (vipLevels && typeof vipLevels === 'object') {
-      let best = 0;
-      Object.keys(vipLevels).forEach(k => {
-        const val = vipLevels[k];
-        // interpret key
-        const m = String(k).match(/\d+/);
-        const num = m ? parseInt(m[0], 10) : NaN;
-        // interpret 'val' as enabled if true or number > 0
-        const enabled = (val === true) || (String(val).toLowerCase() === 'true') || (typeof val === 'number' && val > 0);
-        if (!isNaN(num) && enabled && num > best) best = num;
-      });
-      if (best > 0) return 'VIP' + best;
-    }
-
-    // 3) direct keys like vip1: true at root of user object
-    for (const k in data) {
-      if (Object.prototype.hasOwnProperty.call(data, k)) {
-        if (k.toLowerCase().startsWith('vip')) {
-          const m = k.match(/\d+/);
-          if (m) return 'VIP' + m[0];
-        }
+/* ✅ ACCURATE VIP DETECTION */
+function getVip(data){
+  let max = 0;
+  if(data.vipLevels){
+    Object.keys(data.vipLevels).forEach(k=>{
+      if(data.vipLevels[k]){
+        const lvl = parseInt(k);
+        if(lvl > max) max = lvl;
       }
-    }
-
-    // 4) fallback: vipLevel property may be missing => VIP0
-    return 'VIP0';
-  }
-
-  auth.onAuthStateChanged((user) => {
-    if (!user) {
-      window.location.href = "signin.html";
-      return;
-    }
-
-    document.getElementById("user-email").textContent = user.email || user.providerData?.[0]?.email || "user";
-
-    const userRef = db.ref("users/" + user.uid);
-    let lastVip = null;
-
-    // Real-time listener
-    userRef.on("value", snapshot => {
-      const data = snapshot.val() || {};
-
-      // Update balances
-      const balanceVal = parseFloat(data.balance ?? data.totalBalance ?? 0) || 0;
-      const rechargeVal = parseFloat(data.recharge ?? data.rechargeAmount ?? 0) || 0;
-      document.getElementById("total-balance").textContent = balanceVal.toFixed(2);
-      document.getElementById("recharge-amount").textContent = rechargeVal.toFixed(2);
-
-      // Determine VIP
-      const vip = getVipFromSnapshotData(data); // returns e.g. "VIP3" or "VIP0"
-      const vipEl = document.getElementById("user-vip");
-
-      // update class for colors
-      const vipClass = (vip || "VIP0").toLowerCase(); // "vip3"
-      vipEl.className = "vip " + vipClass;
-
-      // animate if changed
-      if (lastVip !== vip) {
-        vipEl.textContent = vip;
-        vipEl.classList.add("glow");
-        setTimeout(() => vipEl.classList.remove("glow"), 1200);
-        lastVip = vip;
-      } else {
-        vipEl.textContent = vip;
-      }
-    }, err => {
-      console.error("Failed to read user data:", err);
-    });
-  });
-
-  function logout() {
-    auth.signOut().then(() => {
-      localStorage.clear();
-      window.location.href = "signin.html";
     });
   }
-  </script>
+  return "VIP"+max;
+}
+
+auth.onAuthStateChanged(user=>{
+if(!user){ location.href="signin.html"; return; }
+
+document.getElementById("user-email").textContent = user.email;
+
+db.ref("users/"+user.uid).on("value",snap=>{
+  const d = snap.val() || {};
+
+  /* ✅ NO FAKE ADDITIONS */
+  const balance = parseFloat(d.balance || 0);
+  const deposit = parseFloat(d.totalDeposit || 0);
+  const earnings = parseFloat(d.totalEarnings || 0);
+
+  document.getElementById("balance").textContent = balance.toFixed(2);
+  document.getElementById("deposit").textContent = deposit.toFixed(2);
+  document.getElementById("earnings").textContent = earnings.toFixed(2);
+
+  /* VIP */
+  const vip = getVip(d);
+  const el = document.getElementById("user-vip");
+
+  el.className = "vip "+vip.toLowerCase();
+  el.textContent = vip;
+
+  el.classList.add("glow");
+  setTimeout(()=>el.classList.remove("glow"),1000);
+});
+});
+
+function logout(){
+  auth.signOut().then(()=>location.href="signin.html");
+}
+</script>
+
 </body>
 </html>
