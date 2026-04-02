@@ -21,7 +21,8 @@
       };  
       firebase.initializeApp(firebaseConfig);  
       const database = firebase.database();  
-      const auth = firebase.auth();  
+      const auth = firebase.auth(); 
+      
       function formatMoney(amount) {
   return new Intl.NumberFormat('en-KE', {
     minimumFractionDigits: 2,
@@ -349,11 +350,6 @@
       </div>
     </div>
   </div>
-      <div class="earnings-card">
-  <h3>VIP Earnings Breakdown</h3>
-  <div class="earnings-list" id="earnings-list"></div>
-  <div class="earnings-total" id="vip-grand-total"></div>
-      </div>
 
   <div class="balance-buttons">
     <button onclick="location.href='recharge.html'">
@@ -381,7 +377,11 @@
     </div>  
   
     <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>  
-  
+     <div class="earnings-card">
+  <h3>VIP Earnings Breakdown</h3>
+  <div class="earnings-list" id="earnings-list"></div>
+  <div class="earnings-total" id="vip-grand-total"></div>
+     </div>
     <div class="vip-list" id="vip-list"></div>  
     <div class="vip-images">  
       <img src="https://media.istockphoto.com/id/178447404/photo/modern-business-buildings.jpg?s=612x612&w=0&k=20&c=MOG9lvRz7WjsVyW3IiQ0srEzpaBPDcc7qxYsBCvAUJs=" alt="VIP Banner 1">  
@@ -481,12 +481,12 @@ const earningsRef = database.ref("users/" + uid + "/totalEarnings");
 
 depositRef.on("value", snap => {
   document.getElementById("total-deposit").textContent =
-    "KSh " + formatMoney(snap.val() || 0);
+    "KSh " + formatMoney(parseFloat(snap.val()) || 0);
 });
 
 earningsRef.on("value", snap => {
   document.getElementById("total-earnings").textContent =
-    "KSh " + formatMoney(snap.val() || 0);
+    "KSh " + formatMoney(parseFloat(snap.val()) || 0);
 });
   
         // Handle claim bonus  
