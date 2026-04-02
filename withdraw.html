@@ -223,7 +223,7 @@ Balance: <span>KES <span id="balance">—</span></span>
 
 <script>
 const firebaseConfig = {
-apiKey:"AIzaSy...",
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
 authDomain:"quantum-rio.firebaseapp.com",
 databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
 projectId:"quantum-rio"
@@ -243,7 +243,13 @@ const phoneBox = document.getElementById('phoneBox');
 const paypalBox = document.getElementById('paypalBox');
 const cryptoBox = document.getElementById('cryptoBox');
 const cryptoInput = document.getElementById('cryptoAddress');
+const submitBtn = document.querySelector(".btn");
 
+let currentUser=null;
+let authReady=false;
+let userPhone="";
+
+/* POPUP */
 function showPopup(msg,type='success'){
 popup.innerHTML=msg;
 popup.className='popup '+type;
@@ -251,24 +257,33 @@ popup.style.display='block';
 setTimeout(()=>popup.style.display='none',2500);
 }
 
-let currentUser=null;
-
+/* AUTH */
 auth.onAuthStateChanged(user=>{
-if(!user) return;
+authReady=true;
+
+if(!user){
+submitBtn.disabled=true;
+return;
+}
 
 currentUser=user;
+submitBtn.disabled=false;
 
+/* REALTIME BALANCE */
 db.ref(`users/${user.uid}/balance`).on('value',snap=>{
 balanceEl.textContent=(Number(snap.val())||0).toLocaleString();
 });
 
-db.ref(`users/${user.uid}/phone`).once('value',snap=>{
+/* REALTIME PHONE */
+db.ref(`users/${user.uid}/phone`).on('value',snap=>{
 if(snap.exists()){
-phoneInput.value=snap.val();
+userPhone = snap.val();
+phoneInput.value = userPhone;
 }
 });
 });
 
+/* METHOD SWITCH */
 method.addEventListener("change",()=>{
 const m = method.value;
 
@@ -282,33 +297,88 @@ phoneBox.style.display="block";
 else if(m==="paypal"){
 paypalBox.style.display="block";
 }
-else if(m==="btc"){
+else{
 cryptoBox.style.display="block";
+
+if(m==="btc"){
 cryptoInput.placeholder="Enter Bitcoin address";
 }
-else if(m==="usdt_erc20"){
-cryptoBox.style.display="block";
+else{
 cryptoInput.placeholder="Enter ERC20 address (0x...)";
+}
 }
 });
 
+/* PHONE PREFIX CHECK */
+function getCarrier(phone){
+if(!phone) return null;
+
+const prefix = phone.substring(0,3);
+
+if(["070","071","072","074","075","076","079"].includes(prefix)){
+return "mpesa";
+}
+if(["073","078"].includes(prefix)){
+return "airtel";
+}
+return null;
+}
+
+/* SUBMIT */
 document.getElementById("withdrawForm").addEventListener("submit",async e=>{
 e.preventDefault();
 
-if(!currentUser) return showPopup("User not ready","error");
+if(!authReady) return showPopup("Initializing...","error");
+if(!currentUser) return showPopup("Please login again","error");
 
 const amount = Number(document.getElementById("amount").value);
+const selectedMethod = method.value;
 
+/* MIN WITHDRAW */
 if(amount < 500){
 return showPopup("Minimum withdrawal is 500 KES","error");
 }
 
+/* BALANCE */
 const balanceSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
 const balance = Number(balanceSnap.val())||0;
 
 if(balance < amount){
 return showPopup("Insufficient balance","error");
 }
+
+/* 🔥 METHOD VALIDATION */
+if(selectedMethod==="mpesa" || selectedMethod==="airtel"){
+
+if(!userPhone){
+return showPopup("Phone number not found","error");
+}
+
+const carrier = getCarrier(userPhone);
+
+if(carrier !== selectedMethod){
+return showPopup("Phone number does not match selected method","error");
+}
+}
+
+/* PAYPAL */
+if(selectedMethod==="paypal"){
+const email = document.getElementById("paypalEmail").value.trim();
+if(!email){
+return showPopup("Enter PayPal email","error");
+}
+}
+
+/* CRYPTO */
+if(selectedMethod==="btc" || selectedMethod==="usdt_erc20"){
+const address = cryptoInput.value.trim();
+if(!address){
+return showPopup("Enter wallet address","error");
+}
+}
+
+/* REFERRAL LOGIC (UPDATED SAFELY) */
+if(amount >= 1000){
 
 const refSnap = await db.ref(`users/${currentUser.uid}/referrals`).once('value');
 let validRefs=0;
@@ -321,28 +391,38 @@ if(validRefs < 2){
 return showPopup("Referral requirement not met","error");
 }
 
+}
+
+/* DATA */
 let data={
 amount,
-method:method.value,
+method:selectedMethod,
 status:"pending",
 createdAt:Date.now()
 };
 
-if(method.value==="mpesa" || method.value==="airtel"){
-data.phone = phoneInput.value;
+if(selectedMethod==="mpesa" || selectedMethod==="airtel"){
+data.phone = userPhone;
 }
-else if(method.value==="paypal"){
-data.paypalEmail = document.getElementById("paypalEmail").value;
+else if(selectedMethod==="paypal"){
+data.paypalEmail = document.getElementById("paypalEmail").value.trim();
 }
 else{
-data.address = cryptoInput.value;
+data.address = cryptoInput.value.trim();
 }
 
+/* SUBMIT */
+submitBtn.disabled=true;
+submitBtn.textContent="Processing...";
+
 await db.ref(`users/${currentUser.uid}/withdrawals`).push(data);
+
+submitBtn.disabled=false;
+submitBtn.textContent="Submit Withdrawal";
 
 showPopup("Withdrawal submitted ✔","success");
 });
 </script>
 
 </body>
-  </html>
+</html>
