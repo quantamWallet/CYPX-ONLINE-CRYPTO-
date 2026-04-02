@@ -16,6 +16,33 @@ body {
   padding-bottom:80px;
 }
 
+/* LOADER */
+.loader {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000814;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.spinner {
+  width:50px;
+  height:50px;
+  border:4px solid rgba(255,255,255,0.1);
+  border-top:4px solid #00e5ff;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* HEADER */
 .top-bar {
   padding:15px;
@@ -38,23 +65,28 @@ body {
   align-items:center;
 }
 
+/* ✅ IMPROVED VIP VISIBILITY */
 .vip {
-  padding:4px 12px;
-  border-radius:10px;
+  padding:6px 14px;
+  border-radius:12px;
   font-size:13px;
   margin-top:5px;
   display:inline-block;
+  font-weight:bold;
+  letter-spacing:0.5px;
+  backdrop-filter: blur(6px);
 }
 
-.vip.vip0 { background:#777; }
-.vip.vip1 { background:linear-gradient(90deg,#d6d6d6,#bfbfbf); color:#000;}
+/* better contrast */
+.vip.vip0 { background:#555; color:#fff; }
+.vip.vip1 { background:linear-gradient(90deg,#e0e0e0,#bfbfbf); color:#000;}
 .vip.vip2 { background:linear-gradient(90deg,#ffd700,#ffcc00); color:#000;}
-.vip.vip3 { background:linear-gradient(90deg,#7c54ff,#3ad1d1);}
-.vip.vip4 { background:linear-gradient(90deg,#ff7a7a,#ff3d3d);}
+.vip.vip3 { background:linear-gradient(90deg,#7c54ff,#3ad1d1); color:#fff;}
+.vip.vip4 { background:linear-gradient(90deg,#ff7a7a,#ff3d3d); color:#fff;}
 
 .vip.glow {
-  box-shadow:0 0 20px #ffd700;
-  transform:scale(1.1);
+  box-shadow:0 0 25px rgba(255,215,0,0.9);
+  transform:scale(1.08);
 }
 
 /* BALANCE CARD */
@@ -134,6 +166,11 @@ nav i { font-size:20px; }
 
 <body>
 
+<!-- ✅ LOADER -->
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+</div>
+
 <div class="top-bar">
   <i class="fas fa-user"></i> Profile
 </div>
@@ -195,10 +232,17 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* ✅ ACCURATE VIP DETECTION */
+/* ✅ FORMAT CURRENCY */
+function formatMoney(num){
+  return num.toLocaleString("en-KE", {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+/* ✅ VIP */
 function getVip(data){
   let max = 0;
-
   if(data.vipLevels){
     Object.keys(data.vipLevels).forEach(k=>{
       if(data.vipLevels[k]){
@@ -207,33 +251,30 @@ function getVip(data){
       }
     });
   }
-
-  return "VIP" + max;
+  return "VIP"+max;
 }
 
-/* ✅ WAIT FOR AUTH (NO REDIRECT) */
+/* AUTH */
 auth.onAuthStateChanged(user => {
 
-  if (!user) {
-    console.log("User not ready yet...");
-    return; // ❌ NO redirect
-  }
+  if (!user) return;
+
+  document.getElementById("loader").style.display = "none"; // ✅ hide loader
 
   document.getElementById("user-email").textContent = user.email;
 
   db.ref("users/" + user.uid).on("value", snap => {
     const d = snap.val() || {};
 
-    /* ✅ SAFE NUMBERS (NO DOUBLE CREDIT BUG) */
     const balance = Number(d.balance || 0);
     const deposit = Number(d.totalDeposit || 0);
     const earnings = Number(d.totalEarnings || 0);
 
-    document.getElementById("balance").textContent = balance.toFixed(2);
-    document.getElementById("deposit").textContent = deposit.toFixed(2);
-    document.getElementById("earnings").textContent = earnings.toFixed(2);
+    /* ✅ formatted */
+    document.getElementById("balance").textContent = formatMoney(balance);
+    document.getElementById("deposit").textContent = formatMoney(deposit);
+    document.getElementById("earnings").textContent = formatMoney(earnings);
 
-    /* ✅ VIP */
     const vip = getVip(d);
     const el = document.getElementById("user-vip");
 
@@ -241,7 +282,7 @@ auth.onAuthStateChanged(user => {
     el.textContent = vip;
 
     el.classList.add("glow");
-    setTimeout(() => el.classList.remove("glow"), 1000);
+    setTimeout(()=>el.classList.remove("glow"),1000);
   });
 
 });
@@ -252,5 +293,6 @@ function logout(){
   });
 }
 </script>
+
 </body>
 </html>
