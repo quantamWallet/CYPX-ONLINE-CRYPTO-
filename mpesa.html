@@ -4,130 +4,121 @@
 <meta charset="UTF-8"/>      
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>      
 <title>M-PESA Deposit - CYPX</title>      
-      
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>      
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>      
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>      
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>      
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>      
 
 <style>      
+*{box-sizing:border-box;}
+
 body {   
   margin:0;   
   font-family:'Segoe UI',sans-serif;   
   background: linear-gradient(180deg,#000814,#001d3d);   
   color:white;   
-  padding-bottom:85px; /* 🔽 reduced from 120 */
+  overflow-y:auto; /* ✅ scroll */
+  padding-bottom:90px; /* ✅ avoid nav overlap */
 }      
 
 header {   
-  padding:14px;   
+  padding:12px;   
   background: linear-gradient(90deg,#001d3d,#003566);   
   font-weight:bold;   
   text-align:center;  
-  box-shadow:0 0 15px rgba(0,150,255,0.3);  
 }      
 
 .container {   
-  max-width:500px;   
-  margin:15px auto; /* 🔽 tighter */
-  padding:0 12px;   
+  max-width:360px;   
+  margin:10px auto;  
+  padding:0 10px;   
 }      
 
-/* HERO */  
 .hero {   
   background: linear-gradient(145deg,#001f3f,#003566);   
-  padding:16px; /* 🔽 reduced */
-  border-radius:12px; /* 🔽 reduced */
-  box-shadow:0 0 20px rgba(0,200,255,0.2);  
+  padding:14px;  
+  border-radius:14px;  
+  box-shadow:0 6px 20px rgba(0,0,0,0.4);
+  font-size:13px;
 }      
 
 .badge {   
   display:inline-block;  
-  padding:5px 10px;  
-  border-radius:8px;  
+  padding:4px 8px;  
+  border-radius:6px;  
   background:linear-gradient(135deg,#25d366,#128c7e);  
-  font-size:12px;  
-  font-weight:bold;  
-  margin-bottom:8px;  
+  font-size:11px;  
+  margin-bottom:6px;  
 }      
 
 .copy-box {  
-  margin-top:8px;  
+  margin-top:6px;  
   padding:8px;  
   border-radius:8px;  
   background:#002b5c;  
-  cursor:pointer;  
   border:1px dashed #00e5ff;  
-  font-size:14px;
+  cursor:pointer;  
 }  
 
-.copy-box:hover {  
-  background:#003f7f;  
-}  
-
-/* STEPS */  
 .steps {  
-  margin-top:10px;  
-  font-size:13px;  
+  margin-top:6px;  
+  font-size:11.5px;  
   color:#cfe3ff;  
-  text-align:left;  
-  padding-left:18px;
+  padding-left:16px;
 }  
 
-.steps li {  
-  margin-bottom:6px;  
-}  
-
-/* FORM */  
 .card {  
-  margin-top:14px; /* 🔽 reduced gap */
+  margin-top:12px;  
   background: linear-gradient(145deg,#002b5c,#001f3f);  
-  padding:16px; /* 🔽 reduced */
-  border-radius:12px; /* 🔽 reduced */
-  box-shadow:0 0 20px rgba(0,200,255,0.2);  
+  padding:14px;  
+  border-radius:14px;  
+  box-shadow:0 6px 20px rgba(0,0,0,0.4);
 }  
 
 .card h2 {  
-  margin-bottom:12px;  
+  margin-bottom:8px;  
   color:#00e5ff;  
-  font-size:16px;
+  font-size:15px;
 }  
 
 .input {  
   width:100%;  
-  padding:12px;  
-  margin-bottom:10px;  
+  padding:10px;  
+  margin-bottom:8px;  
   border-radius:10px;  
   border:1px solid rgba(255,255,255,0.15);  
   background:#001a33;  
   color:white;  
-  font-size:14px;  
-}  
-
-.input::placeholder {  
-  color:#aaa;  
 }  
 
 .btn {  
   width:100%;  
-  padding:12px;  
+  padding:11px;  
   border:none;  
   border-radius:10px;  
   background:linear-gradient(135deg,#34B233,#1f8f2a);  
   color:white;  
   font-weight:bold;  
-  font-size:14px;  
   cursor:pointer;  
-  box-shadow:0 0 15px rgba(52,178,51,0.5);  
 }  
 
-.btn:hover {  
-  transform:scale(1.02);  
-}  
+/* INFO */
+.info-box {
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  background:linear-gradient(145deg,#001f3f,#002b5c);
+  font-size:12px;
+  color:#cfe3ff;
+}
 
-/* NAV */  
+.info-box strong {
+  color:#ffd700;
+}
+
+/* NAV */
 nav {
   position:fixed;
   bottom:0;
@@ -146,15 +137,15 @@ nav a {
 }
 
 nav i { font-size:20px; }
-/* FOOTER */  
+/* FOOTER */
 footer {  
   text-align:center;  
-  margin-top:15px; /* 🔽 reduced */
-  font-size:12px;  
+  margin-top:10px;  
+  font-size:11px;  
   color:#aaa;  
 }  
 
-/* POPUP */  
+/* POPUP */
 .overlay {  
   position:fixed;  
   top:0;left:0;  
@@ -167,8 +158,8 @@ footer {
   position:fixed;  
   top:50%;left:50%;  
   transform:translate(-50%,-50%);  
-  padding:18px;  
-  border-radius:10px;  
+  padding:14px;  
+  border-radius:8px;  
   display:none;  
   font-weight:bold;  
 }  
@@ -178,7 +169,7 @@ footer {
 
 </style>      
 </head>      
-      
+
 <body>      
 
 <header>Deposit via M-PESA</header>      
@@ -186,25 +177,24 @@ footer {
 <div class="container">  
 
   <div class="hero">  
-    <div class="badge">CYPX ONLINE CRYPTO AGENT</div>  
+    <div class="badge">CYPX AGENT</div>  
 
-    <p><strong>Send money to the official CYPX agent below:</strong></p>  
+    <p><strong>Send money to official agent:</strong></p>  
 
     <div class="copy-box" onclick="copyNumber()">  
       📱 <strong>0707207201</strong> (Tap to copy)  
     </div>  
 
-    <p><strong>Account Name:</strong> LANGAT ROBERT</p>  
+    <p><strong>Name:</strong> LANGAT ROBERT</p>  
 
     <p style="color:#ffd700;font-weight:bold;">Minimum Deposit: KSh 5,000</p>  
 
     <ul class="steps">  
-      <li>1. Go to M-PESA → Send Money</li>  
-      <li>2. Enter number: <strong>0707207201</strong></li>  
-      <li>3. Enter amount (min 5,000)</li>  
-      <li>4. Confirm with your PIN</li>  
-      <li>5. Copy the transaction code</li>  
-      <li>6. Submit details below</li>  
+      <li>1. Open M-PESA</li>  
+      <li>2. Send Money</li>  
+      <li>3. Enter number</li>  
+      <li>4. Confirm payment</li>  
+      <li>5. Paste code below</li>  
     </ul>  
   </div>  
 
@@ -212,20 +202,21 @@ footer {
     <h2>Submit Payment</h2>  
 
     <form id="depositForm">  
-
-      <input id="phone" class="input" type="tel" placeholder="Phone number used (07XXXXXXXX)" required/>  
-
-      <input id="code" class="input" type="text" placeholder="Paste your M-PESA transaction code here" required/>  
-
+      <input id="phone" class="input" type="tel" placeholder="Phone number used" required/>  
+      <input id="code" class="input" type="text" placeholder="Transaction code" required/>  
       <input id="receipt" class="input" type="file" accept="image/*"/>  
-
-      <button type="submit" class="btn">Submit Deposit</button>  
+      <button class="btn">Submit Deposit</button>  
     </form>  
   </div>  
 
-  <footer>  
-    © 2026 CYPX ONLINE CRYPTO • Secure Deposits • All transactions verified manually  
-  </footer>  
+  <div class="info-box">
+    <p><strong>Processing Time:</strong> 5–30 minutes.</p>
+    <p><strong>Status:</strong> Deposits appear as <strong>Pending</strong> before approval.</p>
+    <p><strong>Important:</strong> Enter correct transaction code.</p>
+    <p><strong>Security:</strong> Only send to official number.</p>
+  </div>
+
+  <footer>© 2026 CYPX • Secure Deposits</footer>  
 
 </div>  
 
@@ -250,9 +241,18 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);  
 
-const auth = firebase.auth();  
 const db = firebase.database();  
 const storage = firebase.storage();  
+
+/* UID (NO LOGIN) */
+function getUID(){  
+  let uid = localStorage.getItem("cypx_uid");  
+  if(!uid){  
+    uid = "user_" + Math.random().toString(36).substr(2,9);  
+    localStorage.setItem("cypx_uid", uid);  
+  }  
+  return uid;  
+}  
 
 function copyNumber(){  
   navigator.clipboard.writeText("0707207201");  
@@ -274,11 +274,10 @@ function showPopup(msg,type){
   },2000);  
 }  
 
-document.getElementById("depositForm").addEventListener("submit",async e=>{  
+document.getElementById("depositForm").addEventListener("submit", async e=>{  
   e.preventDefault();  
 
-  const user=auth.currentUser;  
-  if(!user) return showPopup("Login required","error");  
+  const uid = getUID();  
 
   const phone=document.getElementById("phone").value;  
   const code=document.getElementById("code").value.toUpperCase();  
@@ -288,7 +287,7 @@ document.getElementById("depositForm").addEventListener("submit",async e=>{
     const ref=db.ref("deposits").push();  
 
     let data={  
-      uid:user.uid,  
+      uid:uid,  
       phone,  
       code,  
       method:"mpesa",  
@@ -297,20 +296,21 @@ document.getElementById("depositForm").addEventListener("submit",async e=>{
     };  
 
     if(file){  
-      const snap=await storage.ref(`receipts/${user.uid}/${ref.key}`).put(file);  
+      const snap=await storage.ref(`receipts/${uid}/${ref.key}`).put(file);  
       data.receiptUrl=await snap.ref.getDownloadURL();  
     }  
 
     await ref.set(data);  
 
-    showPopup("Deposit submitted successfully","success");  
+    showPopup("Deposit submitted ✔ Pending approval","success");  
     e.target.reset();  
 
   }catch(err){  
-    showPopup("Error submitting deposit","error");  
+    console.error(err);
+    showPopup("Permission denied or network error","error");  
   }  
 });  
 </script>  
 
 </body>      
-  </html>
+</html>
