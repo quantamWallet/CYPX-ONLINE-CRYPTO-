@@ -1,275 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CYPX ONLINE CRYPTO - Team</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #001f3f;
-      color: white;
-      padding-bottom: 80px;
-    }
-    header {
-      background-color: #002f6c;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    header img { height: 30px; }
-    header h2 { margin: 0; font-size: 18px; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYPX Team</title>
 
-    .announcement {
-      background-color: #00274d;
-      color: #fff700;
-      padding: 10px;
-      white-space: nowrap;
-      overflow: hidden;
-      box-sizing: border-box;
-      border-top: 1px solid #003;
-      border-bottom: 1px solid #003;
-      cursor: pointer;
-    }
-    .announcement-content {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 15s linear infinite;
-    }
-    @keyframes scroll-left { 
-      0% { transform: translateX(0); } 
-      100% { transform: translateX(-100%); } 
-    }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    .referral {
-      background-color: #003366;
-      padding: 15px;
-      text-align: center;
-    }
-    .referral input {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      margin-top: 10px;
-      background-color: #f4f4f4;
-      color: #333;
-      cursor: pointer;
-    }
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
 
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 15px;
-      gap: 10px;
-      justify-content: space-between;
-    }
-    .stat-box {
-      flex: 1;
-      min-width: 30%;
-      background-color: #004080;
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-      color: #ffcc00;
-    }
+<style>
+body {
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg,#000814,#001d3d);
+  color:white;
+  padding-bottom:80px;
+}
 
-    .selection-period { text-align: center; margin: 10px 0; font-size: 14px; color: #cfe6ff; }
+/* HEADER */
+header {
+  padding:15px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background: linear-gradient(90deg,#001d3d,#003566);
+}
+header img { height:30px; }
 
-    .team-section-title {
-      background-color: #002b5c;
-      padding: 10px;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 10px;
-      border-top: 1px solid #003;
-      border-bottom: 1px solid #003;
-    }
+/* GLOW CARD */
+.card {
+  margin:15px;
+  padding:15px;
+  border-radius:16px;
+  background: linear-gradient(145deg,#001f3f,#003566);
+  box-shadow: 0 0 15px rgba(0,150,255,0.2);
+}
 
-    .level-box {
-      background-color: #003366;
-      margin: 10px 15px;
-      padding: 15px;
-      border-radius: 10px;
-    }
-    .level-total {
-      font-weight: bold;
-      color: #ffcc00;
-      margin-bottom: 10px;
-    }
-    .level-referrals div {
-      background-color: #004080;
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-      color: #fff;
-    }
+/* REF LINK */
+.ref-box input {
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#0a2540;
+  color:#fff;
+}
 
-    .team-levels { padding-bottom: 80px; }
+/* STATS */
+.stats {
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:10px;
+}
+.stat {
+  background: rgba(255,255,255,0.05);
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+}
+.stat span {
+  color:#00e5ff;
+  font-weight:bold;
+  font-size:18px;
+}
 
-    .explanation {
-      margin: 20px 15px 50px 15px;
-      background-color: #002b5c;
-      padding: 15px;
-      border-radius: 10px;
-      line-height: 1.5;
-      font-size: 14px;
-      color: #cfe6ff;
-    }
+/* LEVELS */
+.level-title {
+  text-align:center;
+  margin-top:10px;
+  color:#00e5ff;
+  font-weight:bold;
+}
 
-    nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: #002244;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      z-index: 9999;
-    }
-    nav a {
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-size: 13px;
-    }
-    nav i { font-size: 20px; margin-bottom: 3px; }
+.level-box {
+  margin:10px 15px;
+  padding:15px;
+  border-radius:12px;
+  background: linear-gradient(145deg,#002b5c,#001f3f);
+}
 
-    #lev1 .level-referrals div { background: #165d2f; }
-    #lev2 .level-referrals div { background: #1c3c66; }
-    #lev3 .level-referrals div { background: #663c1c; }
+.ref-item {
+  padding:8px;
+  margin:5px 0;
+  border-radius:8px;
+  background: rgba(255,255,255,0.05);
+  font-size:13px;
+}
 
-    #lev1 .level-total { color: #33ff99; }
-    #lev2 .level-total { color: #66ccff; }
-    #lev3 .level-total { color: #ff9966; }
+/* NAV */
+nav {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#001a33;
+  padding:10px 0;
+}
 
-    .small-muted { color: #9fb0cf; font-size: 13px; }
-  </style>
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
+}
+
+/* INFO */
+.info-box {
+  margin:15px;
+  padding:15px;
+  border-radius:12px;
+  background:#002b5c;
+  font-size:14px;
+  color:#cfe6ff;
+}
+</style>
 </head>
 
 <body>
-  <header>
-    <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="Logo" />
-    <h2>CYPX ONLINE CRYPTO - Team</h2>
-  </header>
 
-  <div class="announcement">
-    <div class="announcement-content">🛒Welcome to CYPX ONLINE CRYPTO 🛒 Recruiting investors and agents worldwide!</div>
-  </div>
+<header>
+  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+  <h3>Team & Referrals</h3>
+</header>
 
-  <div class="referral">
-    <div>Your Referral Link:</div>
-    <input type="text" id="ref-link" readonly />
-  </div>
+<!-- REFERRAL -->
+<div class="card ref-box">
+  <p>Your Referral Link</p>
+  <input type="text" id="ref-link" readonly>
+</div>
 
-  <div class="selection-period">Selection period</div>
+<!-- STATS -->
+<div class="card stats">
+  <div class="stat">Team Size<br><span id="team-size">0</span></div>
+  <div class="stat">Team Deposit<br><span id="team-deposit">0</span></div>
+  <div class="stat">First Deposits<br><span id="first-deposit">0</span></div>
+  <div class="stat">Total Bonus<br><span id="team-bonus">0</span></div>
+</div>
 
-  <div class="stats">
-    <div class="stat-box"><div>Team Size</div><div id="team-size">0</div></div>
-    <div class="stat-box"><div>Team Recharge</div><div id="team-recharge">KSH 0.00</div></div>
-    <div class="stat-box"><div>Team Withdrawal</div><div id="team-withdraw">KSH 0.00</div></div>
-    <div class="stat-box"><div>New Team</div><div id="new-team">0</div></div>
-    <div class="stat-box"><div>First Recharge</div><div id="first-recharge">0</div></div>
-    <div class="stat-box"><div>First Withdrawal</div><div id="first-withdraw">0</div></div>
-  </div>
+<!-- LEVEL 1 -->
+<div class="level-title">LEVEL 1 – 17%</div>
+<div class="level-box">
+  <div id="lev1-total">Total: KSh 0</div>
+  <div id="lev1-list"></div>
+</div>
 
-  <div class="team-levels">
-    <div class="team-section-title">LEV 1 - 17% Commission</div>
-    <div class="level-box" id="lev1">
-      <div class="level-total" id="lev1-total">Total: KSH 0.00</div>
-      <div class="level-referrals" id="lev1-list"></div>
-    </div>
+<!-- LEVEL 2 -->
+<div class="level-title">LEVEL 2 – 2%</div>
+<div class="level-box">
+  <div id="lev2-total">Total: KSh 0</div>
+  <div id="lev2-list"></div>
+</div>
 
-    <div class="team-section-title">LEV 2 - 2% Commission</div>
-    <div class="level-box" id="lev2">
-      <div class="level-total" id="lev2-total">Total: KSH 0.00</div>
-      <div class="level-referrals" id="lev2-list"></div>
-    </div>
+<!-- LEVEL 3 -->
+<div class="level-title">LEVEL 3 – 1%</div>
+<div class="level-box">
+  <div id="lev3-total">Total: KSh 0</div>
+  <div id="lev3-list"></div>
+</div>
 
-    <div class="team-section-title">LEV 3 - 1% Commission</div>
-    <div class="level-box" id="lev3">
-      <div class="level-total" id="lev3-total">Total: KSH 0.00</div>
-      <div class="level-referrals" id="lev3-list"></div>
-    </div>
-  </div>
+<!-- INFO -->
+<div class="info-box">
+<strong>Invite friends to get three levels of rewards:</strong><br><br>
 
-  <div class="explanation">
-    <strong>Invite friends to get three levels of rewards:</strong><br><br>
-    Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br><br>
-    A: First-level top-up 50,000 KSH → 17% rebate (15,500 KSH)<br>
-    B: Second-level top-up 50,000 KSH → 2% rebate (3,500 KSH)<br>
-    C: Third-level top-up 50,000 KSH → 1% rebate (1,400 KSH)<br><br>
-    Total commission = 20%
-  </div>
+Company benefits - invite subordinates to contribute and get 20% commission (17%, 2%, 1%).<br><br>
 
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
-  </nav>
+A: First-level top-up → 17% rebate<br>
+B: Second-level top-up → 2% rebate<br>
+C: Third-level top-up → 1% rebate<br><br>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+⚠️ Commission is ONLY awarded after deposit is completed.
+</div>
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth();
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
 
-    window.onload = function () {
-      auth.onAuthStateChanged(function (user) {
-        if (!user) {
-          window.location.href = "landing.html";
-          return;
-        }
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+};
 
-        const uid = user.uid;
-        const meRef = database.ref(`users/${uid}/username`);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
 
-        meRef.once('value').then(snap => {
-          let uname = '';
+auth.onAuthStateChanged(user=>{
+if(!user){ location.href="landing.html"; return;}
 
-          if (snap.exists() && String(snap.val()).trim() !== '') {
-            uname = snap.val().trim();
-          } else if (user.displayName && user.displayName.trim() !== '') {
-            uname = user.displayName.trim();
-          } else if (user.email) {
-            uname = user.email.split('@')[0];
-          } else {
-            uname = 'user' + uid.slice(0,6);
-          }
+const uid = user.uid;
 
-          meRef.set(uname);
+// REF LINK
+const usernameRef = db.ref("users/"+uid+"/username");
+usernameRef.once("value").then(snap=>{
+  let uname = snap.val() || user.email.split("@")[0];
+  usernameRef.set(uname);
 
-          // Set referral link
-          document.getElementById('ref-link').value =
-            `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(uname)}`;
-          
-          // **COPY WITHOUT ALERT**
-          document.getElementById('ref-link').addEventListener('click', function () {
-            this.select();
-            document.execCommand('copy');
-          });
-        });
-      });
-    };
-  </script>
+  document.getElementById("ref-link").value =
+    `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${uname}`;
+});
+
+// FETCH ALL USERS
+db.ref("users").on("value",snap=>{
+  const users = snap.val() || {};
+
+  let lev1=[], lev2=[], lev3=[];
+  let totalDeposit=0, bonus=0, firstDeposit=0;
+
+  Object.entries(users).forEach(([id,u])=>{
+    if(!u.referredBy) return;
+
+    // LEVEL 1
+    if(u.referredBy === uid){
+      lev1.push(u);
+    }
+
+    // LEVEL 2
+    if(users[u.referredBy] && users[u.referredBy].referredBy === uid){
+      lev2.push(u);
+    }
+
+    // LEVEL 3
+    if(users[u.referredBy] &&
+       users[users[u.referredBy].referredBy] &&
+       users[users[u.referredBy].referredBy].referredBy === uid){
+      lev3.push(u);
+    }
+  });
+
+  function render(list, container, percent){
+    let total=0;
+    const el = document.getElementById(container);
+    el.innerHTML="";
+
+    list.forEach(u=>{
+      if(u.totalDeposit > 0){ // ✅ ONLY count deposited users
+        total += u.totalDeposit * percent;
+        totalDeposit += u.totalDeposit;
+        firstDeposit++;
+      }
+
+      const div = document.createElement("div");
+      div.className="ref-item";
+      div.textContent = `${u.email || "User"} - KSh ${u.totalDeposit||0}`;
+      el.appendChild(div);
+    });
+
+    return total;
+  }
+
+  const b1 = render(lev1,"lev1-list",0.17);
+  const b2 = render(lev2,"lev2-list",0.02);
+  const b3 = render(lev3,"lev3-list",0.01);
+
+  document.getElementById("lev1-total").textContent="Total: KSh "+b1.toFixed(2);
+  document.getElementById("lev2-total").textContent="Total: KSh "+b2.toFixed(2);
+  document.getElementById("lev3-total").textContent="Total: KSh "+b3.toFixed(2);
+
+  bonus = b1+b2+b3;
+
+  document.getElementById("team-size").textContent =
+    lev1.length+lev2.length+lev3.length;
+
+  document.getElementById("team-deposit").textContent =
+    totalDeposit.toFixed(2);
+
+  document.getElementById("first-deposit").textContent =
+    firstDeposit;
+
+  document.getElementById("team-bonus").textContent =
+    bonus.toFixed(2);
+});
+
+});
+</script>
 
 </body>
 </html>
