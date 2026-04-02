@@ -343,6 +343,11 @@
       </div>
     </div>
   </div>
+      <div class="earnings-card">
+  <h3>VIP Earnings Breakdown</h3>
+  <div class="earnings-list" id="earnings-list"></div>
+  <div class="earnings-total" id="vip-grand-total"></div>
+      </div>
 
   <div class="balance-buttons">
     <button onclick="location.href='recharge.html'">
@@ -469,7 +474,19 @@
 }
 
 document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance)}`;  
-        });  
+        }); 
+        const depositRef = database.ref("users/" + uid + "/totalDeposit");
+const earningsRef = database.ref("users/" + uid + "/totalEarnings");
+
+depositRef.on("value", snap => {
+  document.getElementById("total-deposit").textContent =
+    "KSh " + formatMoney(snap.val() || 0);
+});
+
+earningsRef.on("value", snap => {
+  document.getElementById("total-earnings").textContent =
+    "KSh " + formatMoney(snap.val() || 0);
+});
   
         // Handle claim bonus  
 const claimBtn = document.getElementById("claim-btn");  
@@ -575,11 +592,7 @@ function renderEarnings() {
       }  
   
 renderEarnings();  
-  
-        // real-time updates for vipClaims — update breakdown on every change  
-        vipClaimsRef.on("value", function() {  
-          renderEarnings();  
-        });  
+
   
         // Countdown timer (unchanged)  
         function startCountdown() {  
