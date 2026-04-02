@@ -4,8 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Task - CYPX ONLINE CRYPTO</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -14,55 +17,154 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+
+function formatMoney(amount) {
+  return new Intl.NumberFormat('en-KE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+}
 </script>
+
 <style>
-body { margin:0; font-family: Arial,sans-serif; background-color:#001f3f; color:white; }
-.header { background-color:#002f6c; padding:15px; text-align:center; font-weight:bold; font-size:20px; display:flex; align-items:center; justify-content:center; }
+body { margin:0; font-family: Arial; background:#001f3f; color:white; }
+
+.header {
+  background:#002f6c;
+  padding:15px;
+  text-align:center;
+  font-weight:bold;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
 .header img { height:30px; margin-right:10px; }
-.task-summary { display:flex; justify-content:space-around; padding:20px 10px; background-color:#003366; border-bottom:1px solid #002244; flex-wrap:wrap; }
-.task-summary div { flex:1; min-width:120px; text-align:center; padding:10px; border-radius:8px; background-color:#004080; margin:5px; }
-.task-summary div span { display:block; font-size:18px; font-weight:bold; color:#ffcc00; }
-#vip-levels { padding:15px; margin:10px; background-color:#003366; border-radius:10px; }
-#vip-levels span { display:inline-block; background:rgba(255,255,255,0.05); padding:6px 10px; border-radius:8px; margin:4px; color:#cfe6ff; font-weight:bold; }
-nav { position:fixed; bottom:0; left:0; right:0; background-color:#002244; display:flex; justify-content:space-around; padding:10px 0; }
-nav a { color:white; text-align:center; text-decoration:none; }
+
+.card {
+  background:#003366;
+  margin:10px;
+  padding:15px;
+  border-radius:10px;
+}
+
+.card h3 {
+  margin:0 0 10px;
+  color:#ffcc00;
+}
+
+/* Summary */
+.task-summary {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  padding:10px;
+}
+
+.task-summary div {
+  flex:1;
+  min-width:120px;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  background:#004080;
+}
+
+.task-summary span {
+  display:block;
+  font-size:18px;
+  font-weight:bold;
+  color:#ffd700;
+}
+
+/* VIP badges */
+#vip-levels span {
+  display:inline-block;
+  background:rgba(255,255,255,0.08);
+  padding:6px 10px;
+  border-radius:8px;
+  margin:4px;
+}
+
+/* Earnings rows */
+.row {
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px dashed rgba(255,255,255,0.1);
+}
+
+/* Status badges */
+.badge {
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+.green { background:#28a745; }
+.orange { background:#ff9800; }
+.red { background:#cc0000; }
+
+nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
+}
+
 nav i { font-size:20px; }
-.popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background-color:green; color:white; padding:20px; border-radius:10px; font-weight:bold; z-index:9999; }
 </style>
 </head>
+
 <body>
+
 <div class="header">
-  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png" alt="logo">
-  CYPX ONLINE CRYPTO
+  <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+  CYPX TASK CENTER
 </div>
 
+<!-- TASK SUMMARY -->
 <div class="task-summary">
-  <div>
-    <span id="total-tasks">0</span>
-    Total Tasks
-  </div>
-  <div>
-    <span id="remaining-tasks">0</span>
-    Remaining
-  </div>
-  <div>
-    <span id="in-progress">0</span>
-    In Progress
-  </div>
-  <div>
-    <span id="completed">0</span>
-    Completed
-  </div>
+  <div><span id="total-tasks">0</span>Total</div>
+  <div><span id="remaining-tasks">0</span>Remaining</div>
+  <div><span id="in-progress">0</span>In Progress</div>
+  <div><span id="completed">0</span>Completed</div>
 </div>
 
-<div id="vip-levels">
-  <strong>Unlocked VIP Levels:</strong>
+<!-- BONUS -->
+<div class="card">
+  <h3>Bonus Status</h3>
+  <div id="bonus-status"></div>
+</div>
+
+<!-- VIP LEVELS -->
+<div class="card">
+  <h3>Unlocked VIP Levels</h3>
+  <div id="vip-levels"></div>
+</div>
+
+<!-- EARNINGS -->
+<div class="card">
+  <h3>VIP Earnings</h3>
+  <div id="earnings-list"></div>
+  <div id="total-earnings" style="margin-top:10px;font-weight:bold;"></div>
 </div>
 
 <nav>
@@ -75,50 +177,106 @@ nav i { font-size:20px; }
 
 <script>
 auth.onAuthStateChanged(user => {
-  if(!user){ window.location.href="landing.html"; return; }
-
-  const uid = user.uid;
-  const vipRef = db.ref('users/' + uid + '/vipLevels');
-  const totalVipLevels = 15; // VIP levels 1 to 15
-
-  function updateTaskCounters() {
-    vipRef.on('value', snapshot => {
-      const vipData = snapshot.val() || {}; 
-      const unlocked = Object.keys(vipData).map(Number); // convert keys to numbers
-      let inProgressCount = 0;
-      let completedCount = 0;
-
-      const now = Date.now();
-
-      unlocked.forEach(lvl => {
-        const lvlData = vipData[lvl];
-        // Check if simple interest claimed or 12 days have passed
-        if(lvlData.simpleInterestClaimed || (lvlData.unlockTimestamp && now - lvlData.unlockTimestamp >= 12*24*60*60*1000)) {
-          completedCount++;
-        } else {
-          inProgressCount++;
-        }
-      });
-
-      const remainingCount = totalVipLevels - unlocked.length;
-
-      document.getElementById("total-tasks").textContent = totalVipLevels;
-      document.getElementById("remaining-tasks").textContent = remainingCount;
-      document.getElementById("in-progress").textContent = inProgressCount;
-      document.getElementById("completed").textContent = completedCount;
-
-      const vipContainer = document.getElementById("vip-levels");
-      vipContainer.innerHTML = '<strong>Unlocked VIP Levels:</strong> ';
-      unlocked.sort((a,b)=>a-b).forEach(lvl => {
-        const span = document.createElement('span');
-        span.textContent = 'VIP' + lvl;
-        vipContainer.appendChild(span);
-      });
-    });
+  if (!user) {
+    window.location.href = "landing.html";
+    return;
   }
 
-  updateTaskCounters();
+  const uid = user.uid;
+
+  const vipRef = db.ref("users/" + uid + "/vipLevels");
+  const claimsRef = db.ref("users/" + uid + "/vipClaims");
+  const bonusRef = db.ref("users/" + uid + "/hasClaimedBonus");
+
+  const vipRates = {
+    1:400,2:620,3:1000,4:1600,5:2600,
+    6:4700,7:7000,8:11500,9:18000,10:28000,
+    11:40000,12:58000,13:82000,14:115000,15:170000
+  };
+
+  const totalVipLevels = 15;
+
+  // BONUS STATUS
+  bonusRef.on("value", snap => {
+    const claimed = snap.val();
+    const el = document.getElementById("bonus-status");
+
+    if (claimed) {
+      el.innerHTML = `<span class="badge green">Claimed</span>`;
+    } else {
+      el.innerHTML = `<span class="badge orange">Not Claimed</span>`;
+    }
+  });
+
+  // VIP + TASKS
+  vipRef.on("value", snap => {
+    const data = snap.val() || {};
+    const unlocked = Object.keys(data).map(Number);
+
+    let completed = 0;
+    let inProgress = 0;
+
+    const now = Date.now();
+
+    unlocked.forEach(lvl => {
+      const d = data[lvl];
+
+      if (d.simpleInterestClaimed || (d.unlockTimestamp && now - d.unlockTimestamp >= 12*24*60*60*1000)) {
+        completed++;
+      } else {
+        inProgress++;
+      }
+    });
+
+    document.getElementById("total-tasks").textContent = totalVipLevels;
+    document.getElementById("remaining-tasks").textContent = totalVipLevels - unlocked.length;
+    document.getElementById("completed").textContent = completed;
+    document.getElementById("in-progress").textContent = inProgress;
+
+    // VIP badges
+    const vipBox = document.getElementById("vip-levels");
+    vipBox.innerHTML = "";
+
+    unlocked.sort((a,b)=>a-b).forEach(lvl => {
+      const span = document.createElement("span");
+      span.textContent = "VIP " + lvl;
+      vipBox.appendChild(span);
+    });
+  });
+
+  // EARNINGS
+  claimsRef.on("value", snap => {
+    const claims = snap.val() || {};
+    const list = document.getElementById("earnings-list");
+
+    list.innerHTML = "";
+    let total = 0;
+
+    for (let i = 1; i <= 15; i++) {
+      const c = claims[i] || {};
+      const days = c.daysClaimed ? Number(c.daysClaimed) : 0;
+      const perDay = vipRates[i] || 0;
+      const earned = days * perDay;
+
+      total += earned;
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      row.innerHTML = `
+        <div>VIP ${i}</div>
+        <div>${days}d × ${perDay} = KSh ${formatMoney(earned)}</div>
+      `;
+
+      list.appendChild(row);
+    }
+
+    document.getElementById("total-earnings").textContent =
+      "Total Earnings: KSh " + formatMoney(total);
+  });
+
 });
 </script>
+
 </body>
 </html>
