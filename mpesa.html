@@ -1,219 +1,316 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Recharge via M-PESA - CYPX ONLINE CRYPTO</title>
+<!DOCTYPE html>      
+<html lang="en">      
+<head>      
+<meta charset="UTF-8"/>      
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>      
+<title>M-PESA Deposit - CYPX</title>      
+      
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>      
 
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>      
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>      
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>      
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>      
 
-<!-- Firebase (v8) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+<style>      
+body {   
+  margin:0;   
+  font-family:'Segoe UI',sans-serif;   
+  background: linear-gradient(180deg,#000814,#001d3d);   
+  color:white;   
+  padding-bottom:85px; /* 🔽 reduced from 120 */
+}      
 
-<style>
-:root {
-  --bg: #001a33;
-  --bg2: #07284a;
-  --brand: #25d366;
-  --accent: #ffcc00;
-  --text: #ffffff;
-  --muted: #a7bdd8;
-  --card: #0b2f5a;
-  --card-2: #0e3a6f;
-  --border: #1e477a;
-  --shadow: 0 10px 30px rgba(0,0,0,0.25);
-  --radius: 16px;
-  --icon-size: 20px;
+header {   
+  padding:14px;   
+  background: linear-gradient(90deg,#001d3d,#003566);   
+  font-weight:bold;   
+  text-align:center;  
+  box-shadow:0 0 15px rgba(0,150,255,0.3);  
+}      
+
+.container {   
+  max-width:500px;   
+  margin:15px auto; /* 🔽 tighter */
+  padding:0 12px;   
+}      
+
+/* HERO */  
+.hero {   
+  background: linear-gradient(145deg,#001f3f,#003566);   
+  padding:16px; /* 🔽 reduced */
+  border-radius:12px; /* 🔽 reduced */
+  box-shadow:0 0 20px rgba(0,200,255,0.2);  
+}      
+
+.badge {   
+  display:inline-block;  
+  padding:5px 10px;  
+  border-radius:8px;  
+  background:linear-gradient(135deg,#25d366,#128c7e);  
+  font-size:12px;  
+  font-weight:bold;  
+  margin-bottom:8px;  
+}      
+
+.copy-box {  
+  margin-top:8px;  
+  padding:8px;  
+  border-radius:8px;  
+  background:#002b5c;  
+  cursor:pointer;  
+  border:1px dashed #00e5ff;  
+  font-size:14px;
+}  
+
+.copy-box:hover {  
+  background:#003f7f;  
+}  
+
+/* STEPS */  
+.steps {  
+  margin-top:10px;  
+  font-size:13px;  
+  color:#cfe3ff;  
+  text-align:left;  
+  padding-left:18px;
+}  
+
+.steps li {  
+  margin-bottom:6px;  
+}  
+
+/* FORM */  
+.card {  
+  margin-top:14px; /* 🔽 reduced gap */
+  background: linear-gradient(145deg,#002b5c,#001f3f);  
+  padding:16px; /* 🔽 reduced */
+  border-radius:12px; /* 🔽 reduced */
+  box-shadow:0 0 20px rgba(0,200,255,0.2);  
+}  
+
+.card h2 {  
+  margin-bottom:12px;  
+  color:#00e5ff;  
+  font-size:16px;
+}  
+
+.input {  
+  width:100%;  
+  padding:12px;  
+  margin-bottom:10px;  
+  border-radius:10px;  
+  border:1px solid rgba(255,255,255,0.15);  
+  background:#001a33;  
+  color:white;  
+  font-size:14px;  
+}  
+
+.input::placeholder {  
+  color:#aaa;  
+}  
+
+.btn {  
+  width:100%;  
+  padding:12px;  
+  border:none;  
+  border-radius:10px;  
+  background:linear-gradient(135deg,#34B233,#1f8f2a);  
+  color:white;  
+  font-weight:bold;  
+  font-size:14px;  
+  cursor:pointer;  
+  box-shadow:0 0 15px rgba(52,178,51,0.5);  
+}  
+
+.btn:hover {  
+  transform:scale(1.02);  
+}  
+
+/* NAV */  
+nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
 }
 
-* { box-sizing: border-box; }
-body { margin:0; padding:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif; }
-
-header { padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; font-weight:600; font-size:16px; }
-
-.container { width:min(100%,960px); margin:24px auto 120px; padding:0 16px; }
-
-.hero { background:linear-gradient(180deg,var(--bg2),transparent); border:1px solid var(--border); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
-.hero p { font-size:14px; color:var(--muted); margin-top:10px; }
-.note { font-size:13px; color:var(--accent); font-weight:600; margin:6px 0; }
-
-.bank-badge { background:linear-gradient(90deg,#128c7e,var(--brand)); padding:6px 12px; border-radius:10px; font-size:13px; font-weight:600; color:white; display:flex; align-items:center; gap:6px; box-shadow:inset 0 0 10px rgba(0,0,0,0.25); }
-.bank-badge i { font-size: var(--icon-size); }
-
-.account-info { margin-top:8px; font-size:14px; color:#99ffcc; font-weight:600; }
-.card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); }
-.card h2 { margin-top:0; margin-bottom:14px; font-size:18px; font-weight:700; color:#99ffcc; }
-.card h2 i { font-size: var(--icon-size); }
-
-.label { font-size:13px; color:#cfe3ff; margin-bottom:6px; display:block; }
-.input, .file { width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); background:#0a264a; color:white; font-size:14px; }
-.btn { margin-top:14px; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#2ecc71,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.25s ease; }
-.btn:hover { transform:translateY(-2px); }
-
-.copy { background:#08335e; border:1px dashed var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; font-size:13px; color:#99ffcc; transition:background 0.25s; }
-.copy:hover { background:#0b3d72; }
-
-nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
-nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
-nav i { display:block; font-size:var(--icon-size); margin-bottom:2px; }
-
-.overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 9998; display: none; }
-.popup { position: fixed; top:50%; left:50%; transform: translate(-50%, -50%) scale(0.7); opacity: 0; padding: 24px 28px; border-radius:16px; display: none; text-align: center; max-width:85%; z-index: 9999; font-size: 15px; font-weight: 600; animation: popIn 0.5s ease forwards; }
-.popup.success { background:#0d4220; color:#d6ffd6; }
-.popup.error { background:#3a1111; color:#ffd7d7; }
-@keyframes popIn { from { transform: translate(-50%, -50%) scale(0.7); opacity:0; } to { transform: translate(-50%, -50%) scale(1); opacity:1; } }
-</style>
-</head>
-
-<body>
-<header>Recharge via M-PESA</header>
-
-<div class="container">
-  <div class="hero">
-    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-      <div class="bank-badge"><i class="fa-solid fa-mobile-screen"></i> M-Pesa (Kenya)</div>
-      <div class="note">Minimum deposit: 5,000 KSH</div>
-      <div>
-        <button class="copy" data-copy="0707207201">
-          M-Pesa Number: <strong>0707207201</strong>
-        </button>
-        <div class="account-info">Account Name: <strong>LANGAT ROBERT</strong></div>
-      </div>
-    </div>
-
-    <p>
-      Send money to <strong>0707207201</strong>.  
-      After payment, submit the deposit details below.
-    </p>
-  </div>
-
-  <div class="card">
-    <h2><i class="fa-solid fa-coins"></i> Submit M-Pesa Deposit</h2>
-    <form id="depositForm">
-      <label class="label" for="amount">Amount (KES)</label>
-      <input id="amount" class="input" type="number" min="5000" placeholder="e.g. 5000" required/>
-
-      <label class="label" for="phone">Your Phone Number</label>
-      <input id="phone" class="input" type="tel" placeholder="07XXXXXXXX" required/>
-
-      <label class="label" for="code">Transaction Code</label>
-      <input id="code" class="input" type="text" placeholder="e.g. QJK123ABC" required/>
-
-      <label class="label" for="receipt">Receipt / Screenshot (optional)</label>
-      <input id="receipt" class="file" type="file" accept="image/*"/>
-
-      <button type="submit" class="btn">Submit Deposit</button>
-    </form>
-  </div>
-</div>
-
-<nav>
-  <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
-  <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
-  <a href="team.html"><i class="fas fa-users"></i>Team</a>
-  <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
-  <a href="profile.html"><i class="fas fa-user"></i>Me</a>
-</nav>
-
-<div class="overlay" id="overlay"></div>
-<div class="popup" id="popup"></div>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.database();
-const storage = firebase.storage();
-const overlay = document.getElementById('overlay');
-const popup = document.getElementById('popup');
-
-function showPopup(msg, type='success') {
-  popup.textContent = msg;
-  popup.className = 'popup ' + type;
-  popup.style.display = 'block';
-  overlay.style.display = 'block';
-  setTimeout(()=>{
-    popup.style.display = 'none';
-    overlay.style.display = 'none';
-  }, 2500);
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
 }
 
-// Copy number
-document.querySelectorAll('.copy').forEach(btn=>{
-  btn.onclick = async () => {
-    await navigator.clipboard.writeText(btn.dataset.copy);
-    showPopup('Copied: ' + btn.dataset.copy, 'success');
-  }
-});
+nav i { font-size:20px; }
+/* FOOTER */  
+footer {  
+  text-align:center;  
+  margin-top:15px; /* 🔽 reduced */
+  font-size:12px;  
+  color:#aaa;  
+}  
 
-// Submit deposit
-const form = document.getElementById('depositForm');
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const user = auth.currentUser;
-  if(!user) return showPopup('Login required','error');
+/* POPUP */  
+.overlay {  
+  position:fixed;  
+  top:0;left:0;  
+  width:100%;height:100%;  
+  background:rgba(0,0,0,0.6);  
+  display:none;  
+}  
 
-  const amount = parseInt(document.getElementById('amount').value);
-  const phone = document.getElementById('phone').value.trim();
-  const code = document.getElementById('code').value.trim().toUpperCase();
-  const file = document.getElementById('receipt').files[0];
+.popup {  
+  position:fixed;  
+  top:50%;left:50%;  
+  transform:translate(-50%,-50%);  
+  padding:18px;  
+  border-radius:10px;  
+  display:none;  
+  font-weight:bold;  
+}  
 
-  if(amount < 5000){
-    return showPopup('Minimum deposit is 5,000 KES','error');
-  }
+.success { background:#0d4220; }  
+.error { background:#3a1111; }  
 
-  // Validate transaction code
-  const validFormat = /^[A-Z0-9]{8,12}$/;
-  const hasLetter = /[A-Z]/.test(code);
-  const hasNumber = /[0-9]/.test(code);
+</style>      
+</head>      
+      
+<body>      
 
-  if(!validFormat.test(code) || !hasLetter || !hasNumber){
-    return showPopup('Invalid transaction code','error');
-  }
+<header>Deposit via M-PESA</header>      
 
-  try {
-    const ref = db.ref('deposits').push();
-    const data = {
-      uid: user.uid,
-      amount,
-      phone,
-      code,
-      method: 'mpesa',
-      status: 'pending',
-      account: '0707207201',
-      name: 'LANGATROBERT',
-      createdAt: Date.now()
-    };
+<div class="container">  
 
-    if(file){
-      const path = `receipts/${user.uid}/${ref.key}-${file.name}`;
-      const snap = await storage.ref(path).put(file);
-      data.receiptUrl = await snap.ref.getDownloadURL();
-    }
+  <div class="hero">  
+    <div class="badge">CYPX ONLINE CRYPTO AGENT</div>  
 
-    await ref.set(data);
-    showPopup('Deposit submitted for approval!','success');
-    form.reset();
-  } catch(err){
-    console.error(err);
-    showPopup('Error submitting deposit','error');
-  }
-});
-</script>
+    <p><strong>Send money to the official CYPX agent below:</strong></p>  
 
-</body>
-</html>
+    <div class="copy-box" onclick="copyNumber()">  
+      📱 <strong>0707207201</strong> (Tap to copy)  
+    </div>  
+
+    <p><strong>Account Name:</strong> LANGAT ROBERT</p>  
+
+    <p style="color:#ffd700;font-weight:bold;">Minimum Deposit: KSh 5,000</p>  
+
+    <ul class="steps">  
+      <li>1. Go to M-PESA → Send Money</li>  
+      <li>2. Enter number: <strong>0707207201</strong></li>  
+      <li>3. Enter amount (min 5,000)</li>  
+      <li>4. Confirm with your PIN</li>  
+      <li>5. Copy the transaction code</li>  
+      <li>6. Submit details below</li>  
+    </ul>  
+  </div>  
+
+  <div class="card">  
+    <h2>Submit Payment</h2>  
+
+    <form id="depositForm">  
+
+      <input id="phone" class="input" type="tel" placeholder="Phone number used (07XXXXXXXX)" required/>  
+
+      <input id="code" class="input" type="text" placeholder="Paste your M-PESA transaction code here" required/>  
+
+      <input id="receipt" class="input" type="file" accept="image/*"/>  
+
+      <button type="submit" class="btn">Submit Deposit</button>  
+    </form>  
+  </div>  
+
+  <footer>  
+    © 2026 CYPX ONLINE CRYPTO • Secure Deposits • All transactions verified manually  
+  </footer>  
+
+</div>  
+
+<nav>  
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>  
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>  
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>  
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>  
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>  
+</nav>  
+
+<div class="overlay" id="overlay"></div>  
+<div class="popup" id="popup"></div>  
+
+<script>  
+const firebaseConfig = {  
+  apiKey: "AIzaSy...",  
+  authDomain: "quantum-rio.firebaseapp.com",  
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
+  projectId: "quantum-rio"  
+};  
+
+firebase.initializeApp(firebaseConfig);  
+
+const auth = firebase.auth();  
+const db = firebase.database();  
+const storage = firebase.storage();  
+
+function copyNumber(){  
+  navigator.clipboard.writeText("0707207201");  
+  showPopup("Number copied","success");  
+}  
+
+function showPopup(msg,type){  
+  const p=document.getElementById("popup");  
+  const o=document.getElementById("overlay");  
+
+  p.textContent=msg;  
+  p.className="popup "+type;  
+  p.style.display="block";  
+  o.style.display="block";  
+
+  setTimeout(()=>{  
+    p.style.display="none";  
+    o.style.display="none";  
+  },2000);  
+}  
+
+document.getElementById("depositForm").addEventListener("submit",async e=>{  
+  e.preventDefault();  
+
+  const user=auth.currentUser;  
+  if(!user) return showPopup("Login required","error");  
+
+  const phone=document.getElementById("phone").value;  
+  const code=document.getElementById("code").value.toUpperCase();  
+  const file=document.getElementById("receipt").files[0];  
+
+  try{  
+    const ref=db.ref("deposits").push();  
+
+    let data={  
+      uid:user.uid,  
+      phone,  
+      code,  
+      method:"mpesa",  
+      status:"pending",  
+      createdAt:Date.now()  
+    };  
+
+    if(file){  
+      const snap=await storage.ref(`receipts/${user.uid}/${ref.key}`).put(file);  
+      data.receiptUrl=await snap.ref.getDownloadURL();  
+    }  
+
+    await ref.set(data);  
+
+    showPopup("Deposit submitted successfully","success");  
+    e.target.reset();  
+
+  }catch(err){  
+    showPopup("Error submitting deposit","error");  
+  }  
+});  
+</script>  
+
+</body>      
+  </html>
