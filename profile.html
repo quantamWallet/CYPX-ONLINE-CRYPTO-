@@ -182,19 +182,23 @@ nav i { font-size:20px; }
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
 const auth = firebase.auth();
 const db = firebase.database();
 
 /* ✅ ACCURATE VIP DETECTION */
 function getVip(data){
   let max = 0;
+
   if(data.vipLevels){
     Object.keys(data.vipLevels).forEach(k=>{
       if(data.vipLevels[k]){
@@ -203,42 +207,50 @@ function getVip(data){
       }
     });
   }
-  return "VIP"+max;
+
+  return "VIP" + max;
 }
 
-auth.onAuthStateChanged(user=>{
-if(!user){ location.href="signin.html"; return; }
+/* ✅ WAIT FOR AUTH (NO REDIRECT) */
+auth.onAuthStateChanged(user => {
 
-document.getElementById("user-email").textContent = user.email;
+  if (!user) {
+    console.log("User not ready yet...");
+    return; // ❌ NO redirect
+  }
 
-db.ref("users/"+user.uid).on("value",snap=>{
-  const d = snap.val() || {};
+  document.getElementById("user-email").textContent = user.email;
 
-  /* ✅ NO FAKE ADDITIONS */
-  const balance = parseFloat(d.balance || 0);
-  const deposit = parseFloat(d.totalDeposit || 0);
-  const earnings = parseFloat(d.totalEarnings || 0);
+  db.ref("users/" + user.uid).on("value", snap => {
+    const d = snap.val() || {};
 
-  document.getElementById("balance").textContent = balance.toFixed(2);
-  document.getElementById("deposit").textContent = deposit.toFixed(2);
-  document.getElementById("earnings").textContent = earnings.toFixed(2);
+    /* ✅ SAFE NUMBERS (NO DOUBLE CREDIT BUG) */
+    const balance = Number(d.balance || 0);
+    const deposit = Number(d.totalDeposit || 0);
+    const earnings = Number(d.totalEarnings || 0);
 
-  /* VIP */
-  const vip = getVip(d);
-  const el = document.getElementById("user-vip");
+    document.getElementById("balance").textContent = balance.toFixed(2);
+    document.getElementById("deposit").textContent = deposit.toFixed(2);
+    document.getElementById("earnings").textContent = earnings.toFixed(2);
 
-  el.className = "vip "+vip.toLowerCase();
-  el.textContent = vip;
+    /* ✅ VIP */
+    const vip = getVip(d);
+    const el = document.getElementById("user-vip");
 
-  el.classList.add("glow");
-  setTimeout(()=>el.classList.remove("glow"),1000);
-});
+    el.className = "vip " + vip.toLowerCase();
+    el.textContent = vip;
+
+    el.classList.add("glow");
+    setTimeout(() => el.classList.remove("glow"), 1000);
+  });
+
 });
 
 function logout(){
-  auth.signOut().then(()=>location.href="signin.html");
+  auth.signOut().then(()=>{
+    window.location.href = "signin.html";
+  });
 }
 </script>
-
 </body>
 </html>
