@@ -180,112 +180,144 @@ C: Third-level top-up → 1% rebate<br><br>
   <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
 </nav>
 
-<script>
+  <script>
 
 const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth();
+firebase.initializeApp(firebaseConfig);
 
-auth.onAuthStateChanged(user=>{
-if(!user){ location.href="landing.html"; return;}
+const database = firebase.database();
+const auth = firebase.auth();
 
-const uid = user.uid;
-
-// REF LINK
-const usernameRef = db.ref("users/"+uid+"/username");
-usernameRef.once("value").then(snap=>{
-  let uname = snap.val() || user.email.split("@")[0];
-  usernameRef.set(uname);
-
-  document.getElementById("ref-link").value =
-    `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${uname}`;
-});
-
-// FETCH ALL USERS
-db.ref("users").on("value",snap=>{
-  const users = snap.val() || {};
-
-  let lev1=[], lev2=[], lev3=[];
-  let totalDeposit=0, bonus=0, firstDeposit=0;
-
-  Object.entries(users).forEach(([id,u])=>{
-    if(!u.referredBy) return;
-
-    // LEVEL 1
-    if(u.referredBy === uid){
-      lev1.push(u);
-    }
-
-    // LEVEL 2
-    if(users[u.referredBy] && users[u.referredBy].referredBy === uid){
-      lev2.push(u);
-    }
-
-    // LEVEL 3
-    if(users[u.referredBy] &&
-       users[users[u.referredBy].referredBy] &&
-       users[users[u.referredBy].referredBy].referredBy === uid){
-      lev3.push(u);
-    }
-  });
-
-  function render(list, container, percent){
-    let total=0;
-    const el = document.getElementById(container);
-    el.innerHTML="";
-
-    list.forEach(u=>{
-      if(u.totalDeposit > 0){ // ✅ ONLY count deposited users
-        total += u.totalDeposit * percent;
-        totalDeposit += u.totalDeposit;
-        firstDeposit++;
-      }
-
-      const div = document.createElement("div");
-      div.className="ref-item";
-      div.textContent = `${u.email || "User"} - KSh ${u.totalDeposit||0}`;
-      el.appendChild(div);
-    });
-
-    return total;
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    location.href = "landing.html";
+    return;
   }
 
-  const b1 = render(lev1,"lev1-list",0.17);
-  const b2 = render(lev2,"lev2-list",0.02);
-  const b3 = render(lev3,"lev3-list",0.01);
+  const uid = user.uid;
+  const usernameRef = database.ref("users/" + uid + "/username");
 
-  document.getElementById("lev1-total").textContent="Total: KSh "+b1.toFixed(2);
-  document.getElementById("lev2-total").textContent="Total: KSh "+b2.toFixed(2);
-  document.getElementById("lev3-total").textContent="Total: KSh "+b3.toFixed(2);
+  // ✅ FIX: Always generate username for old + new users
+  usernameRef.once("value").then(snap => {
 
-  bonus = b1+b2+b3;
+    let uname = snap.val();
 
-  document.getElementById("team-size").textContent =
-    lev1.length+lev2.length+lev3.length;
+    if (!uname || uname.trim() === "") {
+      if (user.email) {
+        uname = user.email.split("@")[0];
+      } else {
+        uname = "user" + uid.slice(0,6);
+      }
 
-  document.getElementById("team-deposit").textContent =
-    totalDeposit.toFixed(2);
+      // clean username
+      uname = uname.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 
-  document.getElementById("first-deposit").textContent =
-    firstDeposit;
+      usernameRef.set(uname);
+    }
 
-  document.getElementById("team-bonus").textContent =
-    bonus.toFixed(2);
+    // ✅ SET REF LINK
+    document.getElementById("ref-link").value =
+      `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(uname)}`;
+  });
+
+
+  // ✅ LOAD TEAM DATA
+  database.ref("users").on("value", snap => {
+
+    const users = snap.val() || {};
+
+    let lev1=[], lev2=[], lev3=[];
+    let totalDeposit=0, bonus=0, firstDeposit=0;
+
+    // 🔑 Get MY USERNAME (important)
+    database.ref("users/" + uid + "/username").once("value").then(meSnap => {
+
+      const myUsername = meSnap.val();
+
+      Object.entries(users).forEach(([id,u]) => {
+
+        if (!u.referredBy) return;
+
+        // ✅ LEVEL 1 (username match)
+        if (u.referredBy === myUsername) {
+          lev1.push(u);
+        }
+
+        // ✅ LEVEL 2
+        if (users[u.referredBy] &&
+            users[u.referredBy].referredBy === myUsername) {
+          lev2.push(u);
+        }
+
+        // ✅ LEVEL 3
+        if (users[u.referredBy] &&
+            users[users[u.referredBy].referredBy] &&
+            users[users[u.referredBy].referredBy].referredBy === myUsername) {
+          lev3.push(u);
+        }
+      });
+
+      function render(list, container, percent){
+        let total=0;
+        const el = document.getElementById(container);
+        el.innerHTML="";
+
+        list.forEach(u=>{
+          const deposit = Number(u.totalDeposit || 0);
+
+          if(deposit > 0){ // ✅ ONLY reward after deposit
+            total += deposit * percent;
+            totalDeposit += deposit;
+            firstDeposit++;
+          }
+
+          const div = document.createElement("div");
+          div.className="ref-item";
+          div.textContent = `${u.email || "User"} - KSh ${deposit}`;
+          el.appendChild(div);
+        });
+
+        return total;
+      }
+
+      const b1 = render(lev1,"lev1-list",0.17);
+      const b2 = render(lev2,"lev2-list",0.02);
+      const b3 = render(lev3,"lev3-list",0.01);
+
+      document.getElementById("lev1-total").textContent="Total: KSh "+b1.toFixed(2);
+      document.getElementById("lev2-total").textContent="Total: KSh "+b2.toFixed(2);
+      document.getElementById("lev3-total").textContent="Total: KSh "+b3.toFixed(2);
+
+      bonus = b1+b2+b3;
+
+      document.getElementById("team-size").textContent =
+        lev1.length+lev2.length+lev3.length;
+
+      document.getElementById("team-deposit").textContent =
+        totalDeposit.toFixed(2);
+
+      document.getElementById("first-deposit").textContent =
+        firstDeposit;
+
+      document.getElementById("team-bonus").textContent =
+        bonus.toFixed(2);
+
+    });
+
+  });
+
 });
 
-});
-</script>
-
+  </script>
 </body>
 </html>
