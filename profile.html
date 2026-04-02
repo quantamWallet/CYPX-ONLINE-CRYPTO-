@@ -232,15 +232,15 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* ✅ FORMAT CURRENCY */
+/* 🔥 FORMAT CURRENCY */
 function formatMoney(num){
-  return num.toLocaleString("en-KE", {
-    minimumFractionDigits:2,
-    maximumFractionDigits:2
+  return Number(num).toLocaleString('en-KE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
 }
 
-/* ✅ VIP */
+/* VIP */
 function getVip(data){
   let max = 0;
   if(data.vipLevels){
@@ -254,45 +254,65 @@ function getVip(data){
   return "VIP"+max;
 }
 
+/* 🔥 INSTANT UI UPDATE (FROM CACHE) */
+function updateUI(d){
+  const balance = Number(d.balance || 0);
+  const deposit = Number(d.totalDeposit || 0);
+  const earnings = Number(d.totalEarnings || 0);
+
+  document.getElementById("balance").textContent = formatMoney(balance);
+  document.getElementById("deposit").textContent = formatMoney(deposit);
+  document.getElementById("earnings").textContent = formatMoney(earnings);
+
+  const vip = getVip(d);
+  const el = document.getElementById("user-vip");
+
+  el.className = "vip " + vip.toLowerCase();
+  el.textContent = vip;
+
+  el.classList.add("glow");
+  setTimeout(()=>el.classList.remove("glow"),800);
+}
+
 /* AUTH */
 auth.onAuthStateChanged(user => {
 
   if (!user) return;
 
-  document.getElementById("loader").style.display = "none"; // ✅ hide loader
-
   document.getElementById("user-email").textContent = user.email;
 
+  const cacheKey = "user_" + user.uid;
+
+  /* 🔥 LOAD CACHED DATA INSTANTLY */
+  const cached = localStorage.getItem(cacheKey);
+  if(cached){
+    try {
+      updateUI(JSON.parse(cached));
+    } catch(e){}
+  }
+
+  /* 🔥 HIDE LOADER IMMEDIATELY AFTER AUTH */
+  document.getElementById("loader").style.display = "none";
+
+  /* 🔥 REALTIME SYNC */
   db.ref("users/" + user.uid).on("value", snap => {
     const d = snap.val() || {};
 
-    const balance = Number(d.balance || 0);
-    const deposit = Number(d.totalDeposit || 0);
-    const earnings = Number(d.totalEarnings || 0);
+    /* 🔥 UPDATE UI */
+    updateUI(d);
 
-    /* ✅ formatted */
-    document.getElementById("balance").textContent = formatMoney(balance);
-    document.getElementById("deposit").textContent = formatMoney(deposit);
-    document.getElementById("earnings").textContent = formatMoney(earnings);
-
-    const vip = getVip(d);
-    const el = document.getElementById("user-vip");
-
-    el.className = "vip " + vip.toLowerCase();
-    el.textContent = vip;
-
-    el.classList.add("glow");
-    setTimeout(()=>el.classList.remove("glow"),1000);
+    /* 🔥 SAVE CACHE */
+    localStorage.setItem(cacheKey, JSON.stringify(d));
   });
 
 });
 
 function logout(){
   auth.signOut().then(()=>{
-    window.location.href = "signin.html";
+    localStorage.clear();
+    window.location.href="signin.html";
   });
 }
 </script>
-
 </body>
 </html>
