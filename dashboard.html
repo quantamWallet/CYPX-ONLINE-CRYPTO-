@@ -113,30 +113,7 @@
         color: #ffcc00;  
       }  
   
-      /* Earnings breakdown card */  
-      .earnings-card {  
-        margin: 12px;  
-        padding: 12px;  
-        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));  
-        border-radius: 10px;  
-        border: 1px solid rgba(255,255,255,0.03);  
-      }  
-      .earnings-card h3 {  
-        margin: 0 0 8px 0;  
-        color: #ffd965;  
-      }  
-      .earnings-list {  
-        max-height: 160px;  
-        overflow-y: auto;  
-        padding: 6px 0;  
-      }  
-      .earnings-list .row {  
-  display:flex;  
-  justify-content:space-between;  
-  padding:6px 0;  
-  border-bottom:1px dashed rgba(255,255,255,0.03);  
-  color: #cfe6ff;  
-      }
+      
    .balance-section {
   padding: 20px;
   background: linear-gradient(180deg, #002b5c, #001f3f);
@@ -226,12 +203,6 @@
 .balance-buttons button i {
   font-size: 18px;
 } 
-      .earnings-total {  
-        text-align:right;  
-        font-weight:700;  
-        margin-top:8px;  
-        color: #fff;  
-      }  
   
       .vip-list {  
         padding: 10px;  
@@ -377,11 +348,6 @@
     </div>  
   
     <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>  
-     <div class="earnings-card">
-  <h3>VIP Earnings Breakdown</h3>
-  <div class="earnings-list" id="earnings-list"></div>
-  <div class="earnings-total" id="vip-grand-total"></div>
-     </div>
     <div class="vip-list" id="vip-list"></div>  
     <div class="vip-images">  
       <img src="https://media.istockphoto.com/id/178447404/photo/modern-business-buildings.jpg?s=612x612&w=0&k=20&c=MOG9lvRz7WjsVyW3IiQ0srEzpaBPDcc7qxYsBCvAUJs=" alt="VIP Banner 1">  
@@ -460,8 +426,7 @@
   
         const balanceRef = database.ref("users/" + uid + "/balance");  
         const vipRef = database.ref("users/" + uid + "/vipLevels");  
-        const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");  
-        const vipClaimsRef = database.ref("users/" + uid + "/vipClaims");  
+        const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus"); 
   
         // VIP simple interest (same values used on VIP page)  
         const vipSimpleInterest = {  
@@ -561,39 +526,6 @@ function renderVIPList() {
   
 renderVIPList();  
   
-// VIP earnings breakdown: listen to vipClaims in realtime  
-function renderEarnings() {  
-  const earningsList = document.getElementById("earnings-list");  
-  const grandTotalEl = document.getElementById("vip-grand-total");  
-  
-  vipClaimsRef.on("value", (snap) => {  
-    const claims = snap.val() || {};  
-    earningsList.innerHTML = '';  
-    let grandTotal = 0;  
-  
-    // Loop through all 15 VIP levels  
-    for (let i = 1; i <= 15; i++) {  
-      const levelClaims = claims[i] || {};   
-      const days = levelClaims.daysClaimed ? Number(levelClaims.daysClaimed) : 0;  
-      const perDay = vipSimpleInterest[i] || 0;  
-      const earned = days * perDay;  
-      grandTotal += earned;  
-  
-      const row = document.createElement("div");  
-      row.className = "row";  
-      row.innerHTML = `  
-        <div>VIP ${i}</div>  
-        <div>${days} days × ${perDay.toLocaleString()} = KSh ${earned.toLocaleString()}</div>  
-      `;  
-      earningsList.appendChild(row);  
-    }  
-  
-    grandTotalEl.textContent = `Total VIP Earnings: KSh ${grandTotal.toLocaleString()}`;  
-  });  
-      }  
-  
-renderEarnings();  
-
   
         // Countdown timer (unchanged)  
         function startCountdown() {  
