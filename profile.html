@@ -234,7 +234,7 @@ const db = firebase.database();
 
 /* FORMAT */
 function formatMoney(num){
-  return Number(num).toLocaleString('en-KE', {
+  return Number(num || 0).toLocaleString('en-KE', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
@@ -257,7 +257,7 @@ function getVip(data){
 /* UPDATE UI */
 function updateUI(data, totals){
   document.getElementById("balance").textContent =
-    formatMoney(data.balance || 0);
+    formatMoney(data.balance);
 
   document.getElementById("deposit").textContent =
     formatMoney(totals.deposit);
@@ -270,9 +270,6 @@ function updateUI(data, totals){
 
   el.className = "vip " + vip.toLowerCase();
   el.textContent = vip;
-
-  el.classList.add("glow");
-  setTimeout(()=>el.classList.remove("glow"),800);
 }
 
 /* AUTH */
@@ -288,73 +285,57 @@ auth.onAuthStateChanged(user => {
 
   document.getElementById("loader").style.display = "none";
 
-  /* 🔥 USER DATA */
+  /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
     updateUI(userData, totals);
   });
 
-  /* 🔥 DEPOSITS (STRUCTURE 1: deposits/{uid}) */
-  db.ref("deposits/" + uid).on("value", snap => {
+  /* 🔥 READ ALL DEPOSITS (NO FILTER BUG) */
+  function calculateDeposits(snapshot){
     let total = 0;
 
-    snap.forEach(child => {
+    snapshot.forEach(child => {
       const d = child.val();
-      if(d.status === "approved" || d.status === "completed"){
-        total += Number(d.amount || 0);
+
+      // ✅ FIX: count ANY deposit with amount
+      if(d && d.amount){
+        total += Number(d.amount);
       }
     });
 
     totals.deposit = total;
     updateUI(userData, totals);
-  });
+  }
 
-  /* 🔥 DEPOSITS (STRUCTURE 2: global deposits/) */
+  /* STRUCTURE 1 */
+  db.ref("deposits/" + uid).on("value", calculateDeposits);
+
+  /* STRUCTURE 2 */
   db.ref("deposits").orderByChild("uid").equalTo(uid)
-  .on("value", snap => {
+    .on("value", calculateDeposits);
+
+  /* 🔥 READ ALL WITHDRAWALS */
+  function calculateWithdrawals(snapshot){
     let total = 0;
 
-    snap.forEach(child => {
-      const d = child.val();
-      if(d.status === "approved" || d.status === "completed"){
-        total += Number(d.amount || 0);
-      }
-    });
-
-    totals.deposit = total;
-    updateUI(userData, totals);
-  });
-
-  /* 🔥 WITHDRAWALS */
-  db.ref("withdrawals/" + uid).on("value", snap => {
-    let total = 0;
-
-    snap.forEach(child => {
+    snapshot.forEach(child => {
       const w = child.val();
-      if(w.status === "completed"){
-        total += Number(w.amount || 0);
+
+      // ✅ FIX: count ANY withdrawal with amount
+      if(w && w.amount){
+        total += Number(w.amount);
       }
     });
 
     totals.earnings = total;
     updateUI(userData, totals);
-  });
+  }
 
-  /* 🔥 WITHDRAWALS GLOBAL (backup) */
+  db.ref("withdrawals/" + uid).on("value", calculateWithdrawals);
+
   db.ref("withdrawals").orderByChild("uid").equalTo(uid)
-  .on("value", snap => {
-    let total = 0;
-
-    snap.forEach(child => {
-      const w = child.val();
-      if(w.status === "completed"){
-        total += Number(w.amount || 0);
-      }
-    });
-
-    totals.earnings = total;
-    updateUI(userData, totals);
-  });
+    .on("value", calculateWithdrawals);
 
 });
 
