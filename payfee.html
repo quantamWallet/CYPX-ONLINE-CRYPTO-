@@ -1,162 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pay Transaction Fee - CYPX ONLINE CRYPTO</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Secure Transaction Fee - CYPX</title>
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <style>
-    :root {
-      --bg: #001a33;
-      --bg2: #07284a;
-      --brand: #25d366;
-      --text: #ffffff;
-      --muted: #a7bdd8;
-      --card: #0b2f5a;
-      --card-2: #0e3a6f;
-      --border: #1e477a;
-      --shadow: 0 10px 30px rgba(0,0,0,0.25);
-      --radius: 16px;
-    }
-    body { margin:0; padding:0; background:linear-gradient(180deg,var(--bg),#001f3f); color:var(--text); font-family:system-ui,sans-serif; }
-    header { padding:14px 18px; background:rgba(0,0,0,0.7); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; font-weight:600; font-size:16px; }
-    .container { width:min(100%,800px); margin:24px auto; padding:0 16px; }
-    .card { background:linear-gradient(160deg,var(--card),var(--card-2)); padding:20px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); text-align:center; }
-    .card h2 { margin-top:0; margin-bottom:14px; font-size:20px; font-weight:700; color:#99ffcc; }
-    .info { font-size:15px; margin:10px 0; color:#cfe3ff; }
-    .highlight { font-size:18px; font-weight:700; color:#00ffb3; }
-    .btn { margin-top:20px; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; width:100%; border:none; color:white; font-size:15px; background:linear-gradient(180deg,#2ecc71,var(--brand)); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.25s ease; }
-    .btn:hover { transform:translateY(-2px); }
-    .note { margin-top:15px; font-size:13px; color:#ffcc66; }
-    nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0; border-top:1px solid var(--border); }
-    nav a { color:white; text-align:center; font-size:12px; text-decoration:none; }
-    nav i { display:block; font-size:16px; margin-bottom:2px; }
+<style>
+:root{
+  --bg:#001a33;
+  --card:#07284a;
+  --card2:#0e3a6f;
+  --accent:#00e0ff;
+  --green:#2ecc71;
+  --gold:#ffd700;
+}
 
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.7);
-      opacity: 0;
-      padding: 24px 28px;
-      border-radius: 16px;
-      display: none;
-      text-align: center;
-      max-width: 85%;
-      z-index: 999;
-      font-size: 15px;
-      font-weight: 600;
-      animation: popIn 0.5s ease forwards;
-    }
-    .popup.success { background: #0d4220; color: #d6ffd6; }
-    .popup.error { background: #3a1111; color: #ffd7d7; }
-    @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
-  </style>
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background: radial-gradient(circle at top,#003366,#001f3f);
+  color:white;
+}
+
+/* HEADER */
+header{
+  text-align:center;
+  padding:16px;
+  font-weight:bold;
+  font-size:18px;
+  background:linear-gradient(90deg,#002f6c,#004aad);
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+/* CONTAINER */
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:20px;
+}
+
+/* CARD */
+.card{
+  background:linear-gradient(145deg,var(--card),var(--card2));
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.6);
+  border:1px solid rgba(255,255,255,0.05);
+  text-align:center;
+  position:relative;
+}
+
+/* GLOW BORDER */
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  padding:1px;
+  background:linear-gradient(90deg,#00e0ff,transparent,#00e0ff);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* TITLE */
+h2{
+  margin:0 0 12px;
+  color:var(--accent);
+  text-shadow:0 0 12px rgba(0,224,255,0.6);
+}
+
+/* TEXT */
+.info{
+  font-size:14px;
+  color:#cfe3ff;
+  margin:10px 0;
+  line-height:1.5;
+}
+
+/* PRICE */
+.amount{
+  font-size:26px;
+  font-weight:bold;
+  color:var(--gold);
+  margin:12px 0;
+  text-shadow:0 0 10px rgba(255,215,0,0.6);
+}
+
+/* PAYMENT BOX */
+.payment-box{
+  background:#001f3f;
+  padding:12px;
+  border-radius:12px;
+  margin-top:10px;
+  box-shadow:0 0 12px rgba(0,200,255,0.3);
+}
+
+.payment-box p{
+  margin:5px 0;
+  font-size:14px;
+}
+
+/* BUTTON */
+.btn{
+  margin-top:20px;
+  padding:14px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  font-size:15px;
+  cursor:pointer;
+  color:#001f3f;
+  background:linear-gradient(90deg,#00e0ff,#007bff);
+  box-shadow:0 8px 20px rgba(0,0,0,0.5);
+  transition:0.25s;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(0,200,255,0.7);
+}
+
+/* NOTE */
+.note{
+  margin-top:12px;
+  font-size:12px;
+  color:#ffcc66;
+}
+
+/* NAV */
+nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+
+nav a{
+  color:white;
+  text-align:center;
+  font-size:12px;
+  text-decoration:none;
+}
+
+nav i{
+  display:block;
+  margin-bottom:2px;
+}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.7);
+  opacity:0;
+  padding:20px;
+  border-radius:14px;
+  display:none;
+  text-align:center;
+  z-index:999;
+  font-weight:bold;
+  animation:pop 0.4s forwards;
+}
+
+.popup.success{background:#0d4220;}
+.popup.error{background:#3a1111;}
+
+@keyframes pop{
+  to{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
+</style>
 </head>
+
 <body>
-  <header>
-    Pay Transaction Fee
-  </header>
 
-  <div class="container">
-    <div class="card">
-      <h2><i class="fa-solid fa-coins"></i> Transaction Fee Payment</h2>
-      <p class="info">To unlock withdrawals above <strong>10,000 KSH</strong>, you must pay the one-time transaction fee.</p>
-      <p class="info">Amount: <span class="highlight">896 KSH</span></p>
-      <p class="info">Pay via Airtel to:</p>
-      <p class="highlight">0750858351<br/>Hasan Abdi</p>
-      <p class="note"><i class="fa-solid fa-circle-exclamation"></i> After payment, click confirm below. Your withdrawal will be processed.</p>
-      <button class="btn" id="confirmBtn"><i class="fa-solid fa-check-circle"></i> I Have Paid</button>
+<header>🔐 Secure Transaction Fee</header>
+
+<div class="container">
+  <div class="card">
+    <h2><i class="fa-solid fa-shield-halved"></i> Payment Verification</h2>
+
+    <p class="info">
+      To securely process withdrawals above <b>10,000 KSH</b>, a one-time verification fee is required.
+    </p>
+
+    <div class="amount">1428 KSH</div>
+
+    <div class="payment-box">
+      <p><b>Payment Method:</b> Airtel Money</p>
+      <p><b>Number:</b> 0750858351</p>
+      <p><b>Name:</b> Hasan Abdi</p>
     </div>
+
+    <p class="note">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      Ensure correct details before confirming payment.
+    </p>
+
+    <button class="btn" id="confirmBtn">
+      <i class="fa-solid fa-check-circle"></i> I Have Paid
+    </button>
   </div>
+</div>
 
-  <nav>
-    <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
-    <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
-    <a href="team.html"><i class="fas fa-users"></i>Team</a>
-    <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
-    <a href="profile.html"><i class="fas fa-user"></i>Me</a>
-  </nav>
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i>Me</a>
+</nav>
 
-  <div id="popup" class="popup"></div>
+<div id="popup" class="popup"></div>
 
-  <script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio"
+};
 
-  const popup = document.getElementById('popup');
-  function showPopup(msg, type='success', redirect=null) {
-    popup.textContent = msg;
-    popup.className = 'popup ' + type;
-    popup.style.display = 'block';
-    setTimeout(()=>{
-      popup.style.display = 'none';
-      if(redirect) window.location.href = redirect;
-    },2500);
-  }
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  document.getElementById('confirmBtn').addEventListener('click', async ()=>{
-    const user = auth.currentUser;
-    if(!user) return showPopup('Login required','error','login.html');
+const popup = document.getElementById('popup');
 
-    try {
-      // Get withdrawal amount (saved when user initiated withdraw)
-      const withdrawSnap = await db.ref(`users/${user.uid}/pendingWithdraw`).once('value');
-      const withdrawAmount = withdrawSnap.val();
+function showPopup(msg,type='success',redirect=null){
+  popup.textContent = msg;
+  popup.className = 'popup '+type;
+  popup.style.display='block';
 
-      if(!withdrawAmount) {
-        return showPopup('No pending withdrawal found','error','withdraw.html');
-      }
+  setTimeout(()=>{
+    popup.style.display='none';
+    if(redirect) window.location.href=redirect;
+  },2500);
+}
 
-      // Get current balance
-      const balanceSnap = await db.ref(`users/${user.uid}/balance`).once('value');
-      let balance = balanceSnap.val() || 0;
+document.getElementById('confirmBtn').onclick = async ()=>{
+  const user = auth.currentUser;
+  if(!user) return showPopup('Login required','error','login.html');
 
-      if(balance >= withdrawAmount){
-        // Deduct withdrawal amount
-        balance -= withdrawAmount;
-        await db.ref(`users/${user.uid}/balance`).set(balance);
+  try{
+    const withdrawSnap = await db.ref(`users/${user.uid}/pendingWithdraw`).once('value');
+    const withdrawAmount = withdrawSnap.val();
 
-        // Save withdrawal request
-        const newReqRef = db.ref(`withdrawals/${user.uid}`).push();
-        await newReqRef.set({
-          amount: withdrawAmount,
-          status: "submitted",
-          timestamp: Date.now()
-        });
-
-        // Clear pendingWithdraw
-        await db.ref(`users/${user.uid}/pendingWithdraw`).remove();
-
-        showPopup('Withdrawal request submitted','success','dashboard.html');
-      } else {
-        showPopup('Insufficient balance for withdrawal','error');
-      }
-    } catch(err) {
-      console.error(err);
-      showPopup('Error processing request','error');
+    if(!withdrawAmount){
+      return showPopup('No pending withdrawal found','error','withdraw.html');
     }
-  });
-  </script>
+
+    const balanceSnap = await db.ref(`users/${user.uid}/balance`).once('value');
+    let balance = balanceSnap.val() || 0;
+
+    if(balance >= withdrawAmount){
+      balance -= withdrawAmount;
+
+      await db.ref(`users/${user.uid}/balance`).set(balance);
+
+      const newRef = db.ref(`withdrawals/${user.uid}`).push();
+      await newRef.set({
+        amount: withdrawAmount,
+        fee: 1428,
+        status:"submitted",
+        timestamp: Date.now()
+      });
+
+      await db.ref(`users/${user.uid}/pendingWithdraw`).remove();
+
+      showPopup('Withdrawal request submitted','success','dashboard.html');
+    } else {
+      showPopup('Insufficient balance','error');
+    }
+
+  }catch(err){
+    console.error(err);
+    showPopup('System error','error');
+  }
+};
+</script>
+
 </body>
-</html>
+  </html>
