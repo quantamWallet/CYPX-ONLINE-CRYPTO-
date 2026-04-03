@@ -180,46 +180,69 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let currentUID = null;
+const buttons = document.querySelectorAll(".select-btn");
 
+/* 🔒 Disable buttons initially */
+buttons.forEach(btn => btn.disabled = true);
+
+/* ✅ Wait for auth */
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUID = user.uid;
+
+    // Enable buttons only when ready
+    buttons.forEach(btn => btn.disabled = false);
   } else {
     window.location.href = "landing.html";
   }
 });
 
+/* ✅ MAIN FUNCTION */
 window.selectPackage = function(group, price) {
-  if (!currentUID) return;
+
+  if (!currentUID) {
+    showToast("Please wait...");
+    return;
+  }
 
   showToast("Processing...");
 
   const refPath = ref(db, "referralPurchases/" + currentUID);
 
+  const redirectUrl = `buyref.html?group=${encodeURIComponent(group)}&price=${encodeURIComponent(price)}`;
+
+  /* ✅ Save + ALWAYS redirect */
   push(refPath, {
     group: group,
     price: price,
-    status: "pending",
+    status: "initiated",
     createdAt: Date.now()
   })
   .then(() => {
-    showToast("Package selected");
+    showToast("Redirecting...");
     setTimeout(() => {
-      window.location.href = `buyref.html?group=${group}&price=${price}`;
-    }, 1200);
+      window.location.href = redirectUrl;
+    }, 800);
   })
-  .catch(() => {
-    showToast("Error, try again");
+  .catch((err) => {
+    console.error(err);
+
+    // 🚨 FAIL SAFE → still redirect
+    showToast("Continuing...");
+    setTimeout(() => {
+      window.location.href = redirectUrl;
+    }, 800);
   });
 };
 
+/* TOAST */
 function showToast(msg){
   const toast = document.getElementById("toast");
   toast.innerText = msg;
   toast.style.display = "block";
   setTimeout(()=> toast.style.display="none",2000);
 }
-</script>
+               </script>
 
 </body>
 </html>
