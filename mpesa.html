@@ -231,29 +231,28 @@ footer {
 <div class="overlay" id="overlay"></div>  
 <div class="popup" id="popup"></div>  
 
-<script>  
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+<script>
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.com",
+  storageBucket: "quantum-rio.appspot.com", // ✅ FIXED
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-firebase.initializeApp(firebaseConfig);  
+firebase.initializeApp(firebaseConfig);
 
-const db = firebase.database();  
-const storage = firebase.storage();  
+const db = firebase.database();
+const storage = firebase.storage();
+const auth = firebase.auth(); // ✅ IMPORTANT
 
-firebase.auth() 
-  let uid = null;
+let uid = null;
 
-/* ✅ AUTH STATE (REAL FIREBASE USER) */
-firebase.auth().onAuthStateChanged(user => {
+/* ✅ REAL AUTH USER */
+auth.onAuthStateChanged(user => {
   if(user){
     uid = user.uid;
     console.log("Logged in UID:", uid);
@@ -265,26 +264,29 @@ firebase.auth().onAuthStateChanged(user => {
   }
 });
 
-function copyNumber(){  
-  navigator.clipboard.writeText("0707207201");  
-  showPopup("Number copied","success");  
-}  
+/* COPY NUMBER */
+function copyNumber(){
+  navigator.clipboard.writeText("0707207201");
+  showPopup("Number copied","success");
+}
 
-function showPopup(msg,type){  
-  const p=document.getElementById("popup");  
-  const o=document.getElementById("overlay");  
+/* POPUP */
+function showPopup(msg,type){
+  const p=document.getElementById("popup");
+  const o=document.getElementById("overlay");
 
-  p.textContent=msg;  
-  p.className="popup "+type;  
-  p.style.display="block";  
-  o.style.display="block";  
+  p.textContent=msg;
+  p.className="popup "+type;
+  p.style.display="block";
+  o.style.display="block";
 
-  setTimeout(()=>{  
-    p.style.display="none";  
-    o.style.display="none";  
-  },2000);  
-}  
+  setTimeout(()=>{
+    p.style.display="none";
+    o.style.display="none";
+  },2000);
+}
 
+/* SUBMIT DEPOSIT */
 document.getElementById("depositForm").addEventListener("submit", async e=>{
   e.preventDefault();
 
@@ -298,7 +300,6 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
   const file = document.getElementById("receipt").files[0];
 
   try{
-    /* ✅ NOW MATCHES RULES PERFECTLY */
     const ref = db.ref("deposits/" + uid).push();
 
     let data = {
@@ -310,11 +311,13 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
       method: "mpesa"
     };
 
+    /* UPLOAD RECEIPT */
     if(file){
-      const snap = await storage.ref(`receipts/${uid}/${ref.key}`).put(file);
-      data.receiptUrl = await snap.ref.getDownloadURL();
+      const uploadTask = await storage.ref(`receipts/${uid}/${ref.key}`).put(file);
+      data.receiptUrl = await uploadTask.ref.getDownloadURL();
     }
 
+    /* SAVE TO REALTIME DB */
     await ref.set(data);
 
     showPopup("Deposit submitted ✔ Pending approval","success");
@@ -327,9 +330,9 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
 
   }catch(err){
     console.error(err);
-    showPopup("Permission denied or network error","error");
+    showPopup(err.message || "Permission denied","error");
   }
 });
-  <script>
+  </script>
 </body>      
 </html>
