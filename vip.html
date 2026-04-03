@@ -33,6 +33,15 @@
       gap: 20px;  
       padding: 20px;  
     }  
+    .bottom-space {
+  height: 90px; /* fallback */
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-space {
+    height: calc(90px + env(safe-area-inset-bottom));
+  }
+}
     .vip-card {  
       background: linear-gradient(145deg, #00294d, #003366);  
       padding: 18px;  
@@ -159,6 +168,7 @@ nav i { font-size:20px; }
   </header>  
   
   <div class="vip-grid" id="vip-container"></div>  
+  <div class="bottom-space"></div>  
   
   <nav>
   <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
