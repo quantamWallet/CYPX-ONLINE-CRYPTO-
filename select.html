@@ -1,175 +1,162 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Referral Options</title>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>Referral Options</title>  
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #001f3f, #003366);
-      color: #fff;
-      margin: 0;
-      height: 100vh;
-      overflow: hidden; /* ❌ no scrolling */
-
+  <style>  
+    body {  
+      font-family: Arial, sans-serif;  
+      background: radial-gradient(circle at top, #003366, #001f3f);  
+      color: #fff;  
+      margin: 0;  
+      height: 100vh;  
+      overflow: hidden; /* no scroll */
       display: flex;
       flex-direction: column;
-      justify-content: space-between; /* push footer down */
-      align-items: center;
     }
 
-    /* MAIN CONTENT */
-    .content {
+    /* CENTER CONTENT */
+    .main {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex: 1;
-      width: 100%;
     }
 
-    h1 {
-      font-size: 20px;
-      margin-bottom: 10px;
+    h1 {  
+      font-size: 22px;  
+      margin-bottom: 15px;  
       text-align: center;
-    }
+      color: #00e0ff;
+      text-shadow: 0 0 8px rgba(0,224,255,0.6);
+    }  
 
     /* CARD */
-    .card {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      padding: 12px;
-      width: 80%;
-      max-width: 260px;
-      margin: 8px 0;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.35);
-      transition: 0.2s;
-    }
+    .card {  
+      background: linear-gradient(145deg, #003a78, #002b5c);  
+      border-radius: 14px;  
+      padding: 14px;  
+      width: 80%;  
+      max-width: 300px;  
+      margin: 8px 0;  
+      text-align: center;  
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.25s;  
+    }  
 
-    .card:hover {
-      transform: translateY(-3px);
-      background: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 0 14px rgba(0, 150, 255, 0.5);
-    }
+    .card:hover {  
+      transform: translateY(-3px);  
+      box-shadow: 0 0 18px rgba(0, 200, 255, 0.4);  
+    }  
 
-    .card h2 {
-      font-size: 15px;
+    .card h2 {  
+      font-size: 16px;  
       margin-bottom: 6px;
-    }
+      color: #ffd700;
+    }  
 
-    .card p {
-      font-size: 12px;
-      margin-bottom: 10px;
-      opacity: 0.9;
-    }
+    .card p {  
+      font-size: 12px;  
+      margin-bottom: 10px;  
+      opacity: 0.85;
+      line-height: 1.4;
+    }  
 
-    .card button {
-      background: #ffcc00;
-      border: none;
-      padding: 7px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: bold;
-    }
+    /* BUTTON */
+    .card button {  
+      background: linear-gradient(145deg, #ffcc00, #ffaa00);  
+      border: none;  
+      padding: 8px 14px;  
+      border-radius: 8px;  
+      cursor: pointer;  
+      font-size: 13px;  
+      font-weight: bold;  
+      color: #000;  
+      transition: 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }  
 
-    .card button:hover {
-      background: #ff9900;
-    }
+    .card button:hover {  
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(255, 204, 0, 0.7);  
+    }  
 
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
+    .loading {  
+      opacity: 0.6;  
+      pointer-events: none;  
+    }  
 
     /* FOOTER */
     footer {
-      width: 100%;
       text-align: center;
       padding: 10px;
-      font-size: 11px;
-      background: rgba(0, 0, 0, 0.2);
+      font-size: 12px;
       color: #aaa;
+      background: rgba(0,0,0,0.2);
+      backdrop-filter: blur(6px);
     }
-  </style>
-</head>
 
-<body>
+  </style>  
+</head>  
 
-<div class="content">
-  <h1>Choose Your Referral Option</h1>
+<body>  
 
-  <div class="card">
-    <h2>Purchase Referrals</h2>
-    <p>Buy ready-made referrals and grow faster.</p>
-    <button id="purchaseBtn" onclick="chooseOption('purchase', 'refpackages.html')">
-      Purchase
-    </button>
-  </div>
+<div class="main">
+  <h1>Choose Your Referral Option</h1>  
 
-  <div class="card">
-    <h2>Refer Friends</h2>
-    <p>Invite friends and earn bonuses.</p>
-    <button id="referBtn" onclick="chooseOption('refer', 'team.html')">
-      Refer
-    </button>
-  </div>
+  <div class="card">  
+    <h2>Purchase Referrals</h2>  
+    <p>Buy ready-made referrals and start growing faster. Choose from different packages.</p>  
+    <button id="purchaseBtn" onclick="chooseOption('refpackages.html')">Purchase</button>  
+  </div>  
+
+  <div class="card">  
+    <h2>Refer Friends</h2>  
+    <p>Share your referral link with friends and earn bonuses when they join and invest.</p>  
+    <button id="referBtn" onclick="chooseOption('team.html')">Refer Friends</button>  
+  </div>  
 </div>
 
+<!-- FOOTER -->
 <footer>
-  © 2026 CYPX ONLINE CRYPTO
+  © 2026 CYPX ONLINE CRYPTO — Secure Referral System
 </footer>
 
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-  import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+<!-- Firebase (AUTH ONLY, no DB writes) -->
+<script type="module">  
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";  
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";  
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-  };
+  const firebaseConfig = {  
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
+    authDomain: "quantum-rio.firebaseapp.com",  
+    projectId: "quantum-rio",  
+  };  
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);  
+  const auth = getAuth(app);  
 
-  let currentUID = null;
+  // Auth check only
+  onAuthStateChanged(auth, (user) => {  
+    if (!user) {  
+      window.location.href = "index.html";  
+    }  
+  });  
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUID = user.uid;
-    } else {
-      window.location.href = "index.html";
-    }
-  });
+  // SIMPLE REDIRECT (no database sync)
+  window.chooseOption = function(redirectUrl) {  
+    document.getElementById("purchaseBtn").classList.add("loading");  
+    document.getElementById("referBtn").classList.add("loading");  
 
-  window.chooseOption = function(type, redirectUrl) {
-    if (!currentUID) return;
-
-    document.getElementById("purchaseBtn").classList.add("loading");
-    document.getElementById("referBtn").classList.add("loading");
-
-    const actionRef = push(ref(db, "referralChoices/" + currentUID));
-    set(actionRef, {
-      type: type,
-      timestamp: new Date().toISOString()
-    }).then(() => {
+    setTimeout(() => {
       window.location.href = redirectUrl;
-    }).catch(() => {
-      window.location.href = redirectUrl;
-    });
-  }
-</script>
+    }, 300);
+  }  
+</script>  
 
-</body>
+</body>  
 </html>
