@@ -279,37 +279,45 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
 
   const uid = getUID();  
 
-  const phone=document.getElementById("phone").value;  
-  const code=document.getElementById("code").value.toUpperCase();  
-  const file=document.getElementById("receipt").files[0];  
+  const phone = document.getElementById("phone").value.trim();  
+  const code = document.getElementById("code").value.trim().toUpperCase();  
+  const file = document.getElementById("receipt").files[0];  
 
   try{  
-    const ref=db.ref("deposits").push();  
+    /* ✅ FIXED PATH (MATCHES RULES) */
+    const ref = db.ref("deposits/" + uid).push();  
 
-    let data={  
-      uid:uid,  
-      phone,  
-      code,  
-      method:"mpesa",  
-      status:"pending",  
-      createdAt:Date.now()  
+    let data = {  
+      amount: 5000, /* ✅ REQUIRED BY RULES */
+      phone: phone,  
+      code: code,  
+      status: "pending",  
+      timestamp: Date.now()  
     };  
 
+    /* OPTIONAL EXTRA DATA */
+    data.method = "mpesa";
+
     if(file){  
-      const snap=await storage.ref(`receipts/${uid}/${ref.key}`).put(file);  
-      data.receiptUrl=await snap.ref.getDownloadURL();  
+      const snap = await storage.ref(`receipts/${uid}/${ref.key}`).put(file);  
+      data.receiptUrl = await snap.ref.getDownloadURL();  
     }  
 
     await ref.set(data);  
 
-    showPopup("Deposit submitted ✔ Pending approval","success");  
-    e.target.reset();  
+showPopup("Deposit submitted ✔ Pending approval","success");  
+
+setTimeout(() => {
+  window.location.href = "dashboard.html";
+}, 1500);  // ⏱️ wait 1.5s so user sees message
+
+e.target.reset();
 
   }catch(err){  
-    console.error(err);
+    console.error(err);  
     showPopup("Permission denied or network error","error");  
   }  
-});  
+});
 </script>  
 
 </body>      
