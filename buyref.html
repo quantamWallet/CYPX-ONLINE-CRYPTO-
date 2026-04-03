@@ -198,7 +198,7 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
@@ -209,16 +209,28 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let uid = null;
-let selectedGroup = "";
-let selectedPrice = "";
 
-const params = new URLSearchParams(window.location.search);
-selectedGroup = params.get("group") || "Package";
-selectedPrice = params.get("price") || "0";
+/* ✅ SAFE URL READING */
+function getParams(){
+  const url = new URL(window.location.href);
 
+  let group = url.searchParams.get("group");
+  let price = url.searchParams.get("price");
+
+  // decode safely
+  group = group ? decodeURIComponent(group) : "Unknown Package";
+  price = price ? parseInt(decodeURIComponent(price)) : 0;
+
+  return { group, price };
+}
+
+const { group: selectedGroup, price: selectedPrice } = getParams();
+
+/* ✅ DISPLAY */
 document.getElementById("packageTitle").innerText = selectedGroup;
-document.getElementById("packageInfo").innerText = "Price: " + selectedPrice + " KSH";
+document.getElementById("packageInfo").innerText = `Price: ${selectedPrice.toLocaleString()} KSH`;
 
+/* AUTH */
 onAuthStateChanged(auth, (user)=>{
   if(user) uid = user.uid;
   else window.location.href="landing.html";
@@ -232,7 +244,6 @@ window.copyNumber = function(){
 
   showToast("Number copied");
 
-  // 🔒 LOCK USER INTO SYSTEM
   if(uid){
     const lockRef = push(ref(db, "paymentLocks/" + uid));
     set(lockRef,{
@@ -250,12 +261,22 @@ document.getElementById("depositForm").addEventListener("submit",(e)=>{
 
   if(!uid) return showToast("Login required", false);
 
-  const amount = parseInt(amount.value);
+  const amountVal = document.getElementById("amount").value;
+  const amount = parseInt(amountVal);
+
   const phone = document.getElementById("phone").value.trim();
   const code = document.getElementById("code").value.trim();
 
-  if(amount < selectedPrice){
-    return showToast("Minimum amount is "+selectedPrice,false);
+  if(!amount || amount < selectedPrice){
+    return showToast("Minimum amount is " + selectedPrice + " KSH", false);
+  }
+
+  if(!/^(07\d{8}|01\d{8})$/.test(phone)){
+    return showToast("Invalid phone number", false);
+  }
+
+  if(code.length < 5){
+    return showToast("Invalid transaction code", false);
   }
 
   const refPush = push(ref(db,"referralPurchases/"+uid));
@@ -271,6 +292,8 @@ document.getElementById("depositForm").addEventListener("submit",(e)=>{
   }).then(()=>{
     showToast("Payment submitted");
     document.getElementById("depositForm").reset();
+  }).catch(()=>{
+    showToast("Error submitting", false);
   });
 
 });
