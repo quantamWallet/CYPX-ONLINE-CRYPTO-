@@ -255,15 +255,15 @@ function getVip(data){
 }
 
 /* UPDATE UI */
-function updateUI(data, totals){
+function updateUI(data){
   document.getElementById("balance").textContent =
     formatMoney(data.balance);
 
   document.getElementById("deposit").textContent =
-    formatMoney(totals.deposit);
+    formatMoney(data.totalDeposit);
 
   document.getElementById("earnings").textContent =
-    formatMoney(totals.earnings);
+    formatMoney(data.totalEarnings);
 
   const vip = getVip(data);
   const el = document.getElementById("user-vip");
@@ -280,72 +280,29 @@ auth.onAuthStateChanged(user => {
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
 
-  let userData = {};
-  let totals = { deposit: 0, earnings: 0 };
-
   document.getElementById("loader").style.display = "none";
 
-  /* 🔥 USER DATA (REALTIME) */
+  /* 🔥 SINGLE SOURCE OF TRUTH */
   db.ref("users/" + uid).on("value", snap => {
-    userData = snap.val() || {};
-    updateUI(userData, totals);
-  });
+    const data = snap.val() || {};
 
-  /* =========================
-     ✅ TOTAL DEPOSITS (WORKING)
-     ========================= */
-  function calculateDeposits(snapshot){
-    let total = 0;
-
-    snapshot.forEach(child => {
-      const d = child.val();
-      if(d && d.amount){
-        total += Number(d.amount);
-      }
+    updateUI({
+      balance: data.balance || 0,
+      totalDeposit: data.totalDeposit || 0,
+      totalEarnings: data.totalEarnings || 0,
+      vipLevels: data.vipLevels || {}
     });
-
-    totals.deposit = total;
-    updateUI(userData, totals);
-  }
-
-  db.ref("deposits/" + uid).on("value", calculateDeposits);
-
-  db.ref("deposits")
-    .orderByChild("uid")
-    .equalTo(uid)
-    .on("value", calculateDeposits);
-
-  /* =========================
-     ✅ TOTAL EARNINGS (FIXED)
-     ========================= */
-
-  // ✅ PRIMARY SOURCE (BEST)
-  db.ref("users/" + uid + "/totalEarnings")
-    .on("value", snap => {
-
-      if(snap.exists()){
-        totals.earnings = Number(snap.val() || 0);
-        updateUI(userData, totals);
-      }
-    });
-
-  // ✅ BACKUP (if you store task profits)
-  db.ref("tasks/" + uid).on("value", snap => {
-    let total = 0;
-
-    snap.forEach(child => {
-      const t = child.val();
-      if(t && t.reward){
-        total += Number(t.reward);
-      }
-    });
-
-    if(total > 0){
-      totals.earnings = total;
-      updateUI(userData, totals);
-    }
   });
 
 });
+
+/* LOGOUT */
+function logout(){
+  auth.signOut().then(()=>{
+    localStorage.clear();
+    window.location.href="signin.html";
+  });
+}
+</script>
 </body>
 </html>
