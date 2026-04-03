@@ -4,167 +4,222 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Referral Packages</title>
+
   <style>
     body {
-      background-color: #001f3f;
-      color: white;
-      font-family: Arial, sans-serif;
       margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #003366, #001f3f);
+      color: white;
       padding: 20px;
       text-align: center;
     }
+
     h1 {
-      color: #ffcc00;
+      color: #00e0ff;
       margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(0,224,255,0.6);
     }
+
     .explanation {
-      background-color: #002b5c;
+      background: linear-gradient(145deg, #003a78, #002b5c);
       padding: 15px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 25px;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.6;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
     }
+
     .packages {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
     }
+
     .package {
-      background-color: #003366;
-      border-radius: 15px;
-      padding: 25px 20px;
-      box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background: linear-gradient(145deg, #003a78, #002b5c);
+      border-radius: 14px;
+      padding: 20px 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.25s;
     }
+
     .package:hover {
-      transform: translateY(-5px);
-      box-shadow: 0px 6px 16px rgba(0,0,0,0.5);
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.4);
     }
+
     .package h2 {
-      color: #ffcc00;
-      margin-bottom: 10px;
+      color: #ffd700;
+      margin-bottom: 8px;
+      font-size: 18px;
     }
+
     .package p {
-      font-size: 16px;
+      font-size: 13px;
       margin-bottom: 10px;
+      color: rgba(255,255,255,0.85);
     }
+
     .price {
       font-size: 18px;
       font-weight: bold;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       color: #28a745;
+      text-shadow: 0 0 6px rgba(40,167,69,0.6);
     }
+
     .select-btn {
-      background-color: #28a745;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
+      background: linear-gradient(145deg, #00e0ff, #007bff);
+      color: #001f3f;
+      padding: 10px;
+      width: 100%;
+      border-radius: 10px;
       border: none;
       font-weight: bold;
       cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
     }
+
+    .select-btn:hover:enabled {
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px rgba(0, 200, 255, 0.7);
+    }
+
     .select-btn:disabled {
-      background-color: #6c757d;
+      background: #555;
       cursor: not-allowed;
     }
-    .select-btn:hover:enabled {
-      background-color: #218838;
-    }
-    .popup {
+
+    .toast {
       position: fixed;
-      top: 50%;
+      bottom: 25px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #28a745;
-      color: white;
-      padding: 15px 30px;
+      transform: translateX(-50%);
+      background: #28a745;
+      padding: 12px 20px;
       border-radius: 10px;
       font-weight: bold;
+      display: none;
       z-index: 9999;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
+
+    footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #aaa;
+    }
+
   </style>
 </head>
+
 <body>
-  <h1>Choose Your Referral Package</h1>
 
-  <div class="explanation">
-    Boost your network and grow faster by purchasing referral packages.  
-    Each group gives you a set number of active referrals to strengthen your earnings.  
-    Select the group that fits your goals best!
+<h1>Choose Your Referral Package</h1>
+
+<div class="explanation">
+  Grow your network instantly with verified referral packages.  
+  Each package provides active members to boost your earning potential securely.  
+  Select the best option to accelerate your growth.
+</div>
+
+<div class="packages">
+
+  <div class="package">
+    <h2>Group 1</h2>
+    <p>✅ Get <b>2 Referrals</b> instantly.</p>
+    <div class="price">3,000 KSH</div>
+    <button class="select-btn" onclick="selectPackage('Group 1', 3000)">Select</button>
   </div>
 
-  <div class="packages">
-    <div class="package">
-      <h2>Group 1</h2>
-      <p>✅ Get <b>2 Referrals</b> instantly to kickstart your journey.</p>
-      <div class="price">Price: 4,000 KSH</div>
-      <button class="select-btn" disabled onclick="selectPackage('Group 1', 1500)">Select Group 1</button>
-    </div>
-
-    <div class="package">
-      <h2>Group 2</h2>
-      <p>🔥 Boost with <b>4 Referrals</b> for faster growth and rewards.</p>
-      <div class="price">Price: 6,000 KSH</div>
-      <button class="select-btn" disabled onclick="selectPackage('Group 2', 3000)">Select Group 2</button>
-    </div>
-
-    <div class="package">
-      <h2>Group 3</h2>
-      <p>🚀 Maximize impact with <b>8 Referrals</b> and unlock higher potential.</p>
-      <div class="price">Price: 10,000 KSH</div>
-      <button class="select-btn" disabled onclick="selectPackage('Group 3', 6000)">Select Group 3</button>
-    </div>
+  <div class="package">
+    <h2>Group 2</h2>
+    <p>🔥 Get <b>4 Referrals</b> for faster growth.</p>
+    <div class="price">5,000 KSH</div>
+    <button class="select-btn" onclick="selectPackage('Group 2', 5000)">Select</button>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  <div class="package">
+    <h2>Group 3</h2>
+    <p>🚀 Get <b>8 Referrals</b> and maximize earnings.</p>
+    <div class="price">8,000 KSH</div>
+    <button class="select-btn" onclick="selectPackage('Group 3', 8000)">Select</button>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+<div id="toast" class="toast">Processing...</div>
 
-    let currentUID = null;
-    const buttons = document.querySelectorAll('.select-btn');
+<footer>
+  © 2026 CYPX ONLINE CRYPTO — Trusted Growth System
+</footer>
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUID = user.uid;
-        buttons.forEach(btn => btn.disabled = false); 
-      } else {
-        window.location.href = "landing.html"; 
-      }
-    });
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    window.selectPackage = function(group, price) {
-      if (!currentUID) {
-        showPopup("You must be logged in.");
-        return;
-      }
-      showPopup(group + " selected. Redirecting...");
-      setTimeout(() => {
-        window.location.href = `buyref.html?group=${encodeURIComponent(group)}&price=${price}`;
-      }, 2000);
-    }
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
 
-    function showPopup(message) {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.textContent = message;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 2500);
-    }
-  </script>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let currentUID = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUID = user.uid;
+  } else {
+    window.location.href = "landing.html";
+  }
+});
+
+window.selectPackage = function(group, price) {
+  if (!currentUID) return;
+
+  showToast("Processing...");
+
+  const refPath = ref(db, "referralPurchases/" + currentUID);
+
+  push(refPath, {
+    group: group,
+    price: price,
+    status: "pending",
+    createdAt: Date.now()
+  })
+  .then(() => {
+    showToast("Package selected");
+    setTimeout(() => {
+      window.location.href = `buyref.html?group=${group}&price=${price}`;
+    }, 1200);
+  })
+  .catch(() => {
+    showToast("Error, try again");
+  });
+};
+
+function showToast(msg){
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.style.display = "block";
+  setTimeout(()=> toast.style.display="none",2000);
+}
+</script>
+
 </body>
 </html>
