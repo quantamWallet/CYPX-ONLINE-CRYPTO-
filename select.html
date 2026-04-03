@@ -3,135 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Referral Options</title>
+  <title>Referral Options - CYPX</title>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #001f3f, #003366);
-      color: #fff;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #003366, #001f3f);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(90deg, #002f6c, #004aad);
+      padding: 14px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    /* MAIN */
+    .container {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 15px 10px;
     }
+
     h1 {
-      font-size: 22px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .card {
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 15px;
-      width: 85%;
-      max-width: 320px;
-      margin: 10px 0;
-      text-align: center;
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4); /* glowing shadow */
-      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      background: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 6px 20px rgba(0, 150, 255, 0.6); /* stronger glow */
-    }
-    .card h2 {
       font-size: 18px;
-      margin-bottom: 8px;
-    }
-    .card p {
-      font-size: 13px;
       margin-bottom: 12px;
-      opacity: 0.9;
+      color: #00e0ff;
     }
+
+    /* CARD (SMALLER) */
+    .card {
+      background: linear-gradient(145deg, #003a78, #002b5c);
+      border-radius: 12px;
+      padding: 14px;
+      width: 100%;
+      max-width: 280px; /* reduced */
+      margin: 8px 0;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 14px rgba(0, 200, 255, 0.35);
+    }
+
+    .card h2 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #ffd700;
+    }
+
+    .card p {
+      font-size: 12px;
+      margin-bottom: 12px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.4;
+    }
+
+    /* BUTTON */
     .card button {
-      background: #ffcc00;
+      background: linear-gradient(145deg, #ffcc00, #ffaa00);
       border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
+      color: #000;
+      transition: 0.2s;
     }
+
     .card button:hover {
-      background: #ff9900;
-      box-shadow: 0 0 12px rgba(0, 150, 255, 0.8); /* glowing button */
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
     }
+
     .loading {
       opacity: 0.6;
       pointer-events: none;
     }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #001a33;
+      font-size: 11px;
+      color: #aaa;
+    }
   </style>
 </head>
+
 <body>
+
+<header>
+  CYPX ONLINE CRYPTO
+</header>
+
+<div class="container">
+
   <h1>Choose Your Referral Option</h1>
 
   <div class="card">
     <h2>Purchase Referrals</h2>
     <p>Buy ready-made referrals and start growing faster. Choose from different packages.</p>
-    <button id="purchaseBtn" onclick="chooseOption('purchase', 'refpackages.html')">Purchase</button>
+    <button onclick="redirectTo('refpackages.html')">Purchase</button>
   </div>
 
   <div class="card">
     <h2>Refer Friends</h2>
     <p>Share your referral link with friends and earn bonuses when they join and invest.</p>
-    <button id="referBtn" onclick="chooseOption('refer', 'team.html')">Refer Friends</button>
+    <button onclick="redirectTo('team.html')">Refer Friends</button>
   </div>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+<footer>
+  © 2026 CYPX ONLINE CRYPTO — Referral System
+</footer>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+<!-- Firebase (AUTH ONLY, NO DATABASE WRITES) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-    let currentUID = null;
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    projectId: "quantum-rio",
+  };
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUID = user.uid;
-      } else {
-        // redirect if not logged in
-        window.location.href = "index.html";
-      }
-    });
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    window.chooseOption = function(type, redirectUrl) {
-      if (!currentUID) return;
-
-      const purchaseBtn = document.getElementById("purchaseBtn");
-      const referBtn = document.getElementById("referBtn");
-      purchaseBtn.classList.add("loading");
-      referBtn.classList.add("loading");
-
-      const actionRef = push(ref(db, "referralChoices/" + currentUID));
-      set(actionRef, {
-        type: type,
-        timestamp: new Date().toISOString()
-      }).then(() => {
-        window.location.href = redirectUrl;
-      }).catch(() => {
-        window.location.href = redirectUrl; // fail-safe redirect
-      });
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "index.html";
     }
-  </script>
+  });
+
+  function redirectTo(url) {
+    window.location.href = url;
+  }
+</script>
+
 </body>
 </html>
