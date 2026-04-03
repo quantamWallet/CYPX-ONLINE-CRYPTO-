@@ -441,17 +441,38 @@
 
 document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance)}`;  
         }); 
-        const depositRef = database.ref("users/" + uid + "/totalDeposit");
-const earningsRef = database.ref("users/" + uid + "/totalEarnings");
+        /* ✅ REAL-TIME TOTAL DEPOSITS */
+database.ref("deposits/" + uid).on("value", snapshot => {
+  let totalDeposit = 0;
 
-depositRef.on("value", snap => {
+  snapshot.forEach(child => {
+    const d = child.val();
+
+    // only count approved deposits (optional)
+    if (d.status === "approved" || d.status === "completed") {
+      totalDeposit += parseFloat(d.amount || 0);
+    }
+  });
+
   document.getElementById("total-deposit").textContent =
-    "KSh " + formatMoney(parseFloat(snap.val()) || 0);
+    "KSh " + formatMoney(totalDeposit);
 });
 
-earningsRef.on("value", snap => {
+/* ✅ REAL-TIME TOTAL EARNINGS */
+database.ref("referralPurchases/" + uid).on("value", snapshot => {
+  let totalEarnings = 0;
+
+  snapshot.forEach(child => {
+    const e = child.val();
+
+    // only count completed earnings
+    if (e.status === "completed" || e.status === "approved") {
+      totalEarnings += parseFloat(e.amount || e.price || 0);
+    }
+  });
+
   document.getElementById("total-earnings").textContent =
-    "KSh " + formatMoney(parseFloat(snap.val()) || 0);
+    "KSh " + formatMoney(totalEarnings);
 });
   
         // Handle claim bonus  
