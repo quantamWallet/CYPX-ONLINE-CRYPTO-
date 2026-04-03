@@ -8,163 +8,33 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>    
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>    
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>    
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>    
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>    
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>  
 
 <style>    
 *{box-sizing:border-box;}
-
-body {    
-  margin:0;    
-  font-family:'Segoe UI',sans-serif;    
-  background: linear-gradient(180deg,#000814,#001d3d);    
-  color:white;    
-  overflow-y:auto; /* ✅ scroll enabled */
-  padding-bottom:90px; /* ✅ prevent nav overlap */
-}    
-
-header {    
-  padding:12px;    
-  text-align:center;    
-  font-weight:bold;    
-  background: linear-gradient(90deg,#001d3d,#003566);    
-}    
-
-.container {    
-  max-width:360px;    
-  margin:10px auto;    
-  padding:0 10px;    
-}    
-
-.hero {    
-  background: linear-gradient(145deg,#001f3f,#003566);    
-  padding:14px;    
-  border-radius:14px;    
-  font-size:13px;  
-  box-shadow:0 6px 20px rgba(0,0,0,0.4);
-}    
-
-.badge {    
-  background:linear-gradient(135deg,#ff3b3b,#b30000);    
-  padding:4px 8px;    
-  border-radius:6px;    
-  font-size:11px;    
-  display:inline-block;    
-  margin-bottom:6px;    
-}    
-
-.copy-box {    
-  margin-top:6px;    
-  padding:8px;    
-  border-radius:8px;    
-  background:#002b5c;    
-  border:1px dashed #ff4d4d;    
-  cursor:pointer;    
-}    
-
-.steps {    
-  margin-top:6px;    
-  font-size:11.5px;    
-  color:#cfe3ff;    
-  padding-left:16px;  
-}    
-
-.card {    
-  margin-top:12px;    
-  padding:14px;    
-  border-radius:14px;    
-  background: linear-gradient(145deg,#002b5c,#001f3f);    
-  box-shadow:0 6px 20px rgba(0,0,0,0.4);
-}    
-
-.card h2 {    
-  font-size:15px;    
-  margin-bottom:8px;    
-  color:#ff8080;    
-}    
-
-.input {    
-  width:100%;    
-  padding:10px;    
-  margin-bottom:8px;    
-  border-radius:10px;    
-  border:1px solid rgba(255,255,255,0.15);    
-  background:#001a33;    
-  color:white;    
-}    
-
-.btn {    
-  width:100%;    
-  padding:11px;    
-  border:none;    
-  border-radius:10px;    
-  background:linear-gradient(135deg,#ff3b3b,#b30000);    
-  color:white;    
-  font-weight:bold;    
-  cursor:pointer;    
-}    
-
-.info-box {
-  margin-top:12px;
-  padding:12px;
-  border-radius:12px;
-  background:linear-gradient(145deg,#001f3f,#002b5c);
-  font-size:12px;
-  color:#cfe3ff;
-  line-height:1.5;
-}
-
-.info-box strong {
-  color:#ffd700;
-}
-
-nav {
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#002244;
-  display:flex;
-  justify-content:space-around;
-  padding:10px 0;
-}
-
-nav a {
-  color:white;
-  text-decoration:none;
-  text-align:center;
-}
-
-nav i { font-size:20px; }
-
-footer {    
-  text-align:center;    
-  margin-top:10px;    
-  font-size:11px;    
-  color:#aaa;    
-}    
-
-.overlay {    
-  position:fixed;    
-  top:0;left:0;    
-  width:100%;height:100%;    
-  background:rgba(0,0,0,0.6);    
-  display:none;    
-}    
-
-.popup {    
-  position:fixed;    
-  top:50%;left:50%;    
-  transform:translate(-50%,-50%);    
-  padding:14px;    
-  border-radius:8px;    
-  display:none;    
-  font-weight:bold;    
-}    
-
-.success { background:#0d4220; }    
-.error { background:#3a1111; }    
-
+body { margin:0; font-family:'Segoe UI',sans-serif; background: linear-gradient(180deg,#000814,#001d3d); color:white; overflow-y:auto; padding-bottom:90px;}
+header { padding:12px; text-align:center; font-weight:bold; background: linear-gradient(90deg,#001d3d,#003566);}
+.container { max-width:360px; margin:10px auto; padding:0 10px;}
+.hero { background: linear-gradient(145deg,#001f3f,#003566); padding:14px; border-radius:14px; font-size:13px; box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+.badge { background:linear-gradient(135deg,#ff3b3b,#b30000); padding:4px 8px; border-radius:6px; font-size:11px; display:inline-block; margin-bottom:6px;}
+.copy-box { margin-top:6px; padding:8px; border-radius:8px; background:#002b5c; border:1px dashed #ff4d4d; cursor:pointer;}
+.steps { margin-top:6px; font-size:11.5px; color:#cfe3ff; padding-left:16px;}
+.card { margin-top:12px; padding:14px; border-radius:14px; background: linear-gradient(145deg,#002b5c,#001f3f); box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+.card h2 { font-size:15px; margin-bottom:8px; color:#ff8080;}
+.input { width:100%; padding:10px; margin-bottom:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background:#001a33; color:white;}
+.btn { width:100%; padding:11px; border:none; border-radius:10px; background:linear-gradient(135deg,#ff3b3b,#b30000); color:white; font-weight:bold; cursor:pointer;}
+.info-box { margin-top:12px; padding:12px; border-radius:12px; background:linear-gradient(145deg,#001f3f,#002b5c); font-size:12px; color:#cfe3ff; line-height:1.5;}
+.info-box strong { color:#ffd700;}
+nav { position:fixed; bottom:0; left:0; right:0; background:#002244; display:flex; justify-content:space-around; padding:10px 0;}
+nav a { color:white; text-decoration:none; text-align:center;}
+nav i { font-size:20px;}
+footer { text-align:center; margin-top:10px; font-size:11px; color:#aaa;}
+.overlay { position:fixed; top:0;left:0; width:100%;height:100%; background:rgba(0,0,0,0.6); display:none;}
+.popup { position:fixed; top:50%;left:50%; transform:translate(-50%,-50%); padding:14px; border-radius:8px; display:none; font-weight:bold;}
+.success { background:#0d4220;}
+.error { background:#3a1111;}
 </style>    
 </head>    
 
@@ -176,17 +46,10 @@ footer {
 
   <div class="hero">    
     <div class="badge">CYPX AGENT</div>    
-
     <p><strong>Send money to official Airtel agent:</strong></p>    
-
-    <div class="copy-box" onclick="copyNumber()">    
-      📱 <strong>0750858351</strong> (Tap to copy)    
-    </div>    
-
+    <div class="copy-box" onclick="copyNumber()">📱 <strong>0750858351</strong> (Tap to copy)</div>    
     <p><strong>Name:</strong> HASSAN ABDI</p>    
-
     <p style="color:#ffd700;font-weight:bold;">Minimum Deposit: KSh 3,000</p>    
-
     <ul class="steps">    
       <li>1. Open Airtel Money</li>    
       <li>2. Send Money</li>    
@@ -198,7 +61,6 @@ footer {
 
   <div class="card">    
     <h2>Submit Payment</h2>    
-
     <form id="depositForm">    
       <input id="phone" class="input" type="tel" placeholder="Phone number used" required/>    
       <input id="code" class="input" type="text" placeholder="Paste transaction code" required/>    
@@ -210,7 +72,7 @@ footer {
   <div class="info-box">
     <p><strong>Processing Time:</strong> 5–30 minutes after submission.</p>
     <p><strong>Important:</strong> Double-check your transaction code.</p>
-    <p><strong>Status:</strong> All deposits show as <strong>Pending</strong> before approval.</p>
+    <p><strong>Status:</strong> All deposits show as <strong>Pending</strong>.</p>
     <p><strong>Security:</strong> Only send funds to the official number.</p>
   </div>
 
@@ -231,25 +93,30 @@ footer {
 
 <script>  
 const firebaseConfig = {    
-  apiKey: "AIzaSy...",    
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",    
   authDomain: "quantum-rio.firebaseapp.com",    
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",    
-  projectId: "quantum-rio"    
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com"
 };    
 
 firebase.initializeApp(firebaseConfig);    
 
 const db = firebase.database();    
 const storage = firebase.storage();    
+const auth = firebase.auth();
 
-function getUID(){  
-  let uid = localStorage.getItem("cypx_uid");  
-  if(!uid){  
-    uid = "user_" + Math.random().toString(36).substr(2,9);  
-    localStorage.setItem("cypx_uid", uid);  
-  }  
-  return uid;  
-}  
+let uid = null;
+
+/* ✅ REAL AUTH */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    uid = user.uid;
+  }else{
+    showPopup("Please login first","error");
+    setTimeout(()=>window.location.href="login.html",1500);
+  }
+});
 
 function copyNumber(){    
   navigator.clipboard.writeText("0750858351");    
@@ -259,55 +126,56 @@ function copyNumber(){
 function showPopup(msg,type){    
   const p=document.getElementById("popup");    
   const o=document.getElementById("overlay");    
-
   p.textContent=msg;    
   p.className="popup "+type;    
   p.style.display="block";    
   o.style.display="block";    
-
-  setTimeout(()=>{    
-    p.style.display="none";    
-    o.style.display="none";    
-  },2000);    
+  setTimeout(()=>{ p.style.display="none"; o.style.display="none"; },2000);
 }    
 
 document.getElementById("depositForm").addEventListener("submit", async e=>{    
-  e.preventDefault();    
+  e.preventDefault();
 
-  const uid = getUID();  
+  if(!uid){
+    showPopup("User not ready","error");
+    return;
+  }
 
-  const phone=document.getElementById("phone").value;    
-  const code=document.getElementById("code").value.toUpperCase();    
+  const phone=document.getElementById("phone").value.trim();    
+  const code=document.getElementById("code").value.trim().toUpperCase();    
   const file=document.getElementById("receipt").files[0];    
 
   try{    
-    const ref=db.ref("deposits").push();    
+    const ref=db.ref("deposits/" + uid).push();
 
     let data={    
-      uid:uid,    
-      phone,    
-      code,    
-      method:"airtel",    
-      status:"pending",    
-      createdAt:Date.now()    
-    };    
+      amount:3000,
+      phone,
+      code,
+      method:"airtel",
+      status:"pending",
+      timestamp:Date.now()
+    };
 
     if(file){    
       const snap=await storage.ref(`receipts/${uid}/${ref.key}`).put(file);    
       data.receiptUrl=await snap.ref.getDownloadURL();    
-    }    
+    }
 
-    await ref.set(data);    
+    await ref.set(data);
 
-    showPopup("Deposit submitted ✔ Pending approval","success");    
-    e.target.reset();    
+    showPopup("Deposit submitted ✔ Pending approval","success");
+
+    setTimeout(()=>window.location.href="financial.html",1500);
+
+    e.target.reset();
 
   }catch(err){    
     console.error(err);
-    showPopup("Permission denied or network error","error");    
-  }    
+    showPopup(err.message || "Permission denied","error");    
+  }
 });    
 </script>    
 
 </body>  
-</html>
+        </html>
