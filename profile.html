@@ -262,7 +262,7 @@ let totals = {
 };
 
 /* UPDATE UI */
-function updateUI(){
+function render(){
   document.getElementById("balance").textContent =
     formatMoney(userData.balance);
 
@@ -286,69 +286,72 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
-
   document.getElementById("loader").style.display = "none";
 
-  /* 🔥 USER DATA (NEW SYSTEM) */
+  /* 🔥 USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
-
-    // use stored totals if available
-    if(userData.totalDeposit){
-      totals.deposit = Number(userData.totalDeposit);
-    }
-
-    if(userData.totalEarnings){
-      totals.earnings = Number(userData.totalEarnings);
-    }
-
-    updateUI();
+    render();
   });
 
-  /* 🔥 OLD DEPOSITS SUPPORT */
-  db.ref("deposits").orderByChild("uid").equalTo(uid)
-    .on("value", snap => {
+  /* 🔥 DEPOSITS CALCULATOR */
+  function calcDeposits(snap){
+    let total = 0;
 
-      let total = 0;
+    snap.forEach(child => {
+      const d = child.val();
 
-      snap.forEach(child => {
-        const d = child.val();
-
-        if(d && d.amount){
+      if(d && d.amount){
+        // only count approved
+        if(!d.status || d.status === "approved" || d.status === "completed"){
           total += Number(d.amount);
         }
-      });
-
-      // only override if DB field not set
-      if(!userData.totalDeposit){
-        totals.deposit = total;
-        updateUI();
       }
-  });
+    });
 
-  /* 🔥 OLD EARNINGS SUPPORT (IMPORTANT FIX) */
-  db.ref("earnings").orderByChild("uid").equalTo(uid)
-    .on("value", snap => {
+    totals.deposit = total;
+    render();
+  }
 
-      let total = 0;
+  /* USER DEPOSITS */
+  db.ref("deposits/" + uid).on("value", calcDeposits);
 
-      snap.forEach(child => {
-        const e = child.val();
+  /* GLOBAL DEPOSITS */
+  db.ref("deposits")
+    .orderByChild("uid")
+    .equalTo(uid)
+    .on("value", calcDeposits);
 
-        if(e && e.amount){
-          total += Number(e.amount);
+  /* 🔥 EARNINGS CALCULATOR */
+  function calcEarnings(snap){
+    let total = 0;
+
+    snap.forEach(child => {
+      const w = child.val();
+
+      if(w && w.amount){
+        // only count completed earnings
+        if(!w.status || w.status === "completed" || w.status === "approved"){
+          total += Number(w.amount);
         }
-      });
-
-      // only override if DB field not set
-      if(!userData.totalEarnings){
-        totals.earnings = total;
-        updateUI();
       }
-  });
+    });
+
+    totals.earnings = total;
+    render();
+  }
+
+  /* USER WITHDRAWALS */
+  db.ref("withdrawals/" + uid).on("value", calcEarnings);
+
+  /* GLOBAL WITHDRAWALS */
+  db.ref("withdrawals")
+    .orderByChild("uid")
+    .equalTo(uid)
+    .on("value", calcEarnings);
 
 });
-  
+
 /* LOGOUT */
 function logout(){
   auth.signOut().then(()=>{
