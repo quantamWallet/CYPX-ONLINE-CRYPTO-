@@ -232,12 +232,17 @@ footer {
 <div class="popup" id="popup"></div>  
 
 <script>  
-const firebaseConfig = {  
-  apiKey: "AIzaSy...",  
-  authDomain: "quantum-rio.firebaseapp.com",  
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
-  projectId: "quantum-rio"  
-};  
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
 
 firebase.initializeApp(firebaseConfig);  
 
@@ -274,51 +279,49 @@ function showPopup(msg,type){
   },2000);  
 }  
 
-document.getElementById("depositForm").addEventListener("submit", async e=>{  
-  e.preventDefault();  
+document.getElementById("depositForm").addEventListener("submit", async e=>{
+  e.preventDefault();
 
-  const uid = getUID();  
+  if(!uid){
+    showPopup("Login required","error");
+    return;
+  }
 
-  const phone = document.getElementById("phone").value.trim();  
-  const code = document.getElementById("code").value.trim().toUpperCase();  
-  const file = document.getElementById("receipt").files[0];  
+  const phone = document.getElementById("phone").value.trim();
+  const code = document.getElementById("code").value.trim().toUpperCase();
+  const file = document.getElementById("receipt").files[0];
 
-  try{  
-    /* ✅ FIXED PATH (MATCHES RULES) */
-    const ref = db.ref("deposits/" + uid).push();  
+  try{
+    const ref = db.ref("deposits/" + uid).push();
 
-    let data = {  
-      amount: 5000, /* ✅ REQUIRED BY RULES */
-      phone: phone,  
-      code: code,  
-      status: "pending",  
-      timestamp: Date.now()  
-    };  
+    let data = {
+      amount: 5000,
+      phone: phone,
+      code: code,
+      status: "pending",
+      timestamp: Date.now(),
+      method: "mpesa"
+    };
 
-    /* OPTIONAL EXTRA DATA */
-    data.method = "mpesa";
+    if(file){
+      const snap = await storage.ref(`receipts/${uid}/${ref.key}`).put(file);
+      data.receiptUrl = await snap.ref.getDownloadURL();
+    }
 
-    if(file){  
-      const snap = await storage.ref(`receipts/${uid}/${ref.key}`).put(file);  
-      data.receiptUrl = await snap.ref.getDownloadURL();  
-    }  
+    await ref.set(data);
 
-    await ref.set(data);  
+    showPopup("Deposit submitted ✔ Pending approval","success");
 
-showPopup("Deposit submitted ✔ Pending approval","success");  
+    setTimeout(() => {
+      window.location.href = "financial.html";
+    }, 1500);
 
-setTimeout(() => {
-  window.location.href = "financial.html";
-}, 1500);  // ⏱️ wait 1.5s so user sees message
+    e.target.reset();
 
-e.target.reset();
-
-  }catch(err){  
-    console.error(err);  
-    showPopup("Permission denied or network error","error");  
-  }  
+  }catch(err){
+    console.error(err);
+    showPopup("Permission denied or network error","error");
+  }
 });
-</script>  
-
 </body>      
 </html>
