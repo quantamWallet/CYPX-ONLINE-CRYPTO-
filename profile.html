@@ -254,18 +254,25 @@ function getVip(data){
   return "VIP"+max;
 }
 
+/* GLOBAL STATE */
+let userData = {};
+let totals = {
+  deposit: 0,
+  earnings: 0
+};
+
 /* UPDATE UI */
-function updateUI(data){
+function updateUI(){
   document.getElementById("balance").textContent =
-    formatMoney(data.balance);
+    formatMoney(userData.balance);
 
   document.getElementById("deposit").textContent =
-    formatMoney(data.totalDeposit);
+    formatMoney(totals.deposit);
 
   document.getElementById("earnings").textContent =
-    formatMoney(data.totalEarnings);
+    formatMoney(totals.earnings);
 
-  const vip = getVip(data);
+  const vip = getVip(userData);
   const el = document.getElementById("user-vip");
 
   el.className = "vip " + vip.toLowerCase();
@@ -282,20 +289,66 @@ auth.onAuthStateChanged(user => {
 
   document.getElementById("loader").style.display = "none";
 
-  /* 🔥 SINGLE SOURCE OF TRUTH */
+  /* 🔥 USER DATA (NEW SYSTEM) */
   db.ref("users/" + uid).on("value", snap => {
-    const data = snap.val() || {};
+    userData = snap.val() || {};
 
-    updateUI({
-      balance: data.balance || 0,
-      totalDeposit: data.totalDeposit || 0,
-      totalEarnings: data.totalEarnings || 0,
-      vipLevels: data.vipLevels || {}
-    });
+    // use stored totals if available
+    if(userData.totalDeposit){
+      totals.deposit = Number(userData.totalDeposit);
+    }
+
+    if(userData.totalEarnings){
+      totals.earnings = Number(userData.totalEarnings);
+    }
+
+    updateUI();
+  });
+
+  /* 🔥 OLD DEPOSITS SUPPORT */
+  db.ref("deposits").orderByChild("uid").equalTo(uid)
+    .on("value", snap => {
+
+      let total = 0;
+
+      snap.forEach(child => {
+        const d = child.val();
+
+        if(d && d.amount){
+          total += Number(d.amount);
+        }
+      });
+
+      // only override if DB field not set
+      if(!userData.totalDeposit){
+        totals.deposit = total;
+        updateUI();
+      }
+  });
+
+  /* 🔥 OLD EARNINGS SUPPORT (IMPORTANT FIX) */
+  db.ref("earnings").orderByChild("uid").equalTo(uid)
+    .on("value", snap => {
+
+      let total = 0;
+
+      snap.forEach(child => {
+        const e = child.val();
+
+        if(e && e.amount){
+          total += Number(e.amount);
+        }
+      });
+
+      // only override if DB field not set
+      if(!userData.totalEarnings){
+        totals.earnings = total;
+        updateUI();
+      }
   });
 
 });
-
+  
 /* LOGOUT */
 function logout(){
   auth.signOut().then(()=>{
