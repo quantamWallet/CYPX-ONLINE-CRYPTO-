@@ -335,31 +335,12 @@ auth.onAuthStateChanged(user => {
     render();
   });
 
-  /* GLOBAL DEPOSITS */
-  db.ref("deposits")
-    .orderByChild("uid")
-    .equalTo(uid)
-    .on("value", snap => {
-      depositGlobal = sumSnapshot(snap);
-      render();
-    });
-
   /* USER WITHDRAWALS */
   db.ref("withdrawals/" + uid).on("value", snap => {
     earningsUser = sumSnapshot(snap);
     render();
   });
 
-  /* GLOBAL WITHDRAWALS */
-  db.ref("withdrawals")
-    .orderByChild("uid")
-    .equalTo(uid)
-    .on("value", snap => {
-      earningsGlobal = sumSnapshot(snap);
-      render();
-    });
-
-});
 
 /* LOGOUT */
 function logout(){
