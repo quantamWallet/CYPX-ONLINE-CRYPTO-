@@ -285,20 +285,20 @@ auth.onAuthStateChanged(user => {
 
   document.getElementById("loader").style.display = "none";
 
-  /* USER DATA */
+  /* 🔥 USER DATA (REALTIME) */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
     updateUI(userData, totals);
   });
 
-  /* 🔥 READ ALL DEPOSITS (NO FILTER BUG) */
+  /* =========================
+     ✅ TOTAL DEPOSITS (WORKING)
+     ========================= */
   function calculateDeposits(snapshot){
     let total = 0;
 
     snapshot.forEach(child => {
       const d = child.val();
-
-      // ✅ FIX: count ANY deposit with amount
       if(d && d.amount){
         total += Number(d.amount);
       }
@@ -308,44 +308,44 @@ auth.onAuthStateChanged(user => {
     updateUI(userData, totals);
   }
 
-  /* STRUCTURE 1 */
   db.ref("deposits/" + uid).on("value", calculateDeposits);
 
-  /* STRUCTURE 2 */
-  db.ref("deposits").orderByChild("uid").equalTo(uid)
+  db.ref("deposits")
+    .orderByChild("uid")
+    .equalTo(uid)
     .on("value", calculateDeposits);
 
-  /* 🔥 READ ALL WITHDRAWALS */
-  function calculateWithdrawals(snapshot){
-    let total = 0;
+  /* =========================
+     ✅ TOTAL EARNINGS (FIXED)
+     ========================= */
 
-    snapshot.forEach(child => {
-      const w = child.val();
+  // ✅ PRIMARY SOURCE (BEST)
+  db.ref("users/" + uid + "/totalEarnings")
+    .on("value", snap => {
 
-      // ✅ FIX: count ANY withdrawal with amount
-      if(w && w.amount){
-        total += Number(w.amount);
+      if(snap.exists()){
+        totals.earnings = Number(snap.val() || 0);
+        updateUI(userData, totals);
       }
     });
 
-    totals.earnings = total;
-    updateUI(userData, totals);
-  }
+  // ✅ BACKUP (if you store task profits)
+  db.ref("tasks/" + uid).on("value", snap => {
+    let total = 0;
 
-  db.ref("withdrawals/" + uid).on("value", calculateWithdrawals);
+    snap.forEach(child => {
+      const t = child.val();
+      if(t && t.reward){
+        total += Number(t.reward);
+      }
+    });
 
-  db.ref("withdrawals").orderByChild("uid").equalTo(uid)
-    .on("value", calculateWithdrawals);
+    if(total > 0){
+      totals.earnings = total;
+      updateUI(userData, totals);
+    }
+  });
 
 });
-
-/* LOGOUT */
-function logout(){
-  auth.signOut().then(()=>{
-    localStorage.clear();
-    window.location.href="signin.html";
-  });
-}
-</script>
 </body>
 </html>
