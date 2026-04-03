@@ -256,11 +256,14 @@ function getVip(data){
 
 /* UPDATE UI */
 function updateUI(data, totals){
-  const balance = Number(data.balance || 0);
+  document.getElementById("balance").textContent =
+    formatMoney(data.balance || 0);
 
-  document.getElementById("balance").textContent = formatMoney(balance);
-  document.getElementById("deposit").textContent = formatMoney(totals.deposit);
-  document.getElementById("earnings").textContent = formatMoney(totals.earnings);
+  document.getElementById("deposit").textContent =
+    formatMoney(totals.deposit);
+
+  document.getElementById("earnings").textContent =
+    formatMoney(totals.earnings);
 
   const vip = getVip(data);
   const el = document.getElementById("user-vip");
@@ -277,39 +280,21 @@ auth.onAuthStateChanged(user => {
 
   if (!user) return;
 
-  document.getElementById("user-email").textContent = user.email;
-
   const uid = user.uid;
-  const cacheKey = "user_" + uid;
+  document.getElementById("user-email").textContent = user.email;
 
   let userData = {};
   let totals = { deposit: 0, earnings: 0 };
 
-  /* LOAD CACHE */
-  const cached = localStorage.getItem(cacheKey);
-  if(cached){
-    try {
-      const parsed = JSON.parse(cached);
-      userData = parsed.data || {};
-      totals = parsed.totals || totals;
-      updateUI(userData, totals);
-    } catch(e){}
-  }
-
   document.getElementById("loader").style.display = "none";
 
-  /* 🔥 REALTIME USER DATA */
+  /* 🔥 USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
     updateUI(userData, totals);
-
-    localStorage.setItem(cacheKey, JSON.stringify({
-      data: userData,
-      totals
-    }));
   });
 
-  /* 🔥 REALTIME DEPOSITS TOTAL */
+  /* 🔥 DEPOSITS (STRUCTURE 1: deposits/{uid}) */
   db.ref("deposits/" + uid).on("value", snap => {
     let total = 0;
 
@@ -322,14 +307,25 @@ auth.onAuthStateChanged(user => {
 
     totals.deposit = total;
     updateUI(userData, totals);
-
-    localStorage.setItem(cacheKey, JSON.stringify({
-      data: userData,
-      totals
-    }));
   });
 
-  /* 🔥 REALTIME EARNINGS (example: from withdrawals or tasks) */
+  /* 🔥 DEPOSITS (STRUCTURE 2: global deposits/) */
+  db.ref("deposits").orderByChild("uid").equalTo(uid)
+  .on("value", snap => {
+    let total = 0;
+
+    snap.forEach(child => {
+      const d = child.val();
+      if(d.status === "approved" || d.status === "completed"){
+        total += Number(d.amount || 0);
+      }
+    });
+
+    totals.deposit = total;
+    updateUI(userData, totals);
+  });
+
+  /* 🔥 WITHDRAWALS */
   db.ref("withdrawals/" + uid).on("value", snap => {
     let total = 0;
 
@@ -342,11 +338,22 @@ auth.onAuthStateChanged(user => {
 
     totals.earnings = total;
     updateUI(userData, totals);
+  });
 
-    localStorage.setItem(cacheKey, JSON.stringify({
-      data: userData,
-      totals
-    }));
+  /* 🔥 WITHDRAWALS GLOBAL (backup) */
+  db.ref("withdrawals").orderByChild("uid").equalTo(uid)
+  .on("value", snap => {
+    let total = 0;
+
+    snap.forEach(child => {
+      const w = child.val();
+      if(w.status === "completed"){
+        total += Number(w.amount || 0);
+      }
+    });
+
+    totals.earnings = total;
+    updateUI(userData, totals);
   });
 
 });
