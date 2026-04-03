@@ -254,29 +254,52 @@ function getVip(data){
   return "VIP"+max;
 }
 
-/* GLOBAL STATE */
+/* STATE */
 let userData = {};
-let totals = {
-  deposit: 0,
-  earnings: 0
-};
+let depositUser = 0;
+let depositGlobal = 0;
+let earningsUser = 0;
+let earningsGlobal = 0;
 
-/* UPDATE UI */
+let firstLoadDone = false;
+
+/* RENDER */
 function render(){
+  const totalDeposit = depositUser + depositGlobal;
+  const totalEarnings = earningsUser + earningsGlobal;
+
   document.getElementById("balance").textContent =
     formatMoney(userData.balance);
 
   document.getElementById("deposit").textContent =
-    formatMoney(totals.deposit);
+    formatMoney(totalDeposit);
 
   document.getElementById("earnings").textContent =
-    formatMoney(totals.earnings);
+    formatMoney(totalEarnings);
 
   const vip = getVip(userData);
   const el = document.getElementById("user-vip");
 
   el.className = "vip " + vip.toLowerCase();
   el.textContent = vip;
+
+  /* ✅ HIDE LOADER ONLY AFTER FIRST REAL DATA */
+  if(!firstLoadDone){
+    document.getElementById("loader").style.display = "none";
+    firstLoadDone = true;
+  }
+}
+
+/* CALCULATORS */
+function sumSnapshot(snapshot){
+  let total = 0;
+  snapshot.forEach(child=>{
+    const d = child.val();
+    if(d && d.amount){
+      total += Number(d.amount);
+    }
+  });
+  return total;
 }
 
 /* AUTH */
@@ -286,69 +309,42 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
-  document.getElementById("loader").style.display = "none";
 
-  /* 🔥 USER DATA */
+  /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
     render();
   });
 
-  /* 🔥 DEPOSITS CALCULATOR */
-  function calcDeposits(snap){
-    let total = 0;
-
-    snap.forEach(child => {
-      const d = child.val();
-
-      if(d && d.amount){
-        // only count approved
-        if(!d.status || d.status === "approved" || d.status === "completed"){
-          total += Number(d.amount);
-        }
-      }
-    });
-
-    totals.deposit = total;
-    render();
-  }
-
   /* USER DEPOSITS */
-  db.ref("deposits/" + uid).on("value", calcDeposits);
+  db.ref("deposits/" + uid).on("value", snap => {
+    depositUser = sumSnapshot(snap);
+    render();
+  });
 
   /* GLOBAL DEPOSITS */
   db.ref("deposits")
     .orderByChild("uid")
     .equalTo(uid)
-    .on("value", calcDeposits);
-
-  /* 🔥 EARNINGS CALCULATOR */
-  function calcEarnings(snap){
-    let total = 0;
-
-    snap.forEach(child => {
-      const w = child.val();
-
-      if(w && w.amount){
-        // only count completed earnings
-        if(!w.status || w.status === "completed" || w.status === "approved"){
-          total += Number(w.amount);
-        }
-      }
+    .on("value", snap => {
+      depositGlobal = sumSnapshot(snap);
+      render();
     });
 
-    totals.earnings = total;
-    render();
-  }
-
   /* USER WITHDRAWALS */
-  db.ref("withdrawals/" + uid).on("value", calcEarnings);
+  db.ref("withdrawals/" + uid).on("value", snap => {
+    earningsUser = sumSnapshot(snap);
+    render();
+  });
 
   /* GLOBAL WITHDRAWALS */
   db.ref("withdrawals")
     .orderByChild("uid")
     .equalTo(uid)
-    .on("value", calcEarnings);
+    .on("value", snap => {
+      earningsGlobal = sumSnapshot(snap);
+      render();
+    });
 
 });
 
@@ -359,6 +355,6 @@ function logout(){
     window.location.href="signin.html";
   });
 }
-</script>
+  </script>
 </body>
 </html>
