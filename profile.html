@@ -293,15 +293,26 @@ function render(){
 /* CALCULATORS */
 function sumSnapshot(snapshot){
   let total = 0;
+
   snapshot.forEach(child=>{
     const d = child.val();
-    if(d && d.amount){
-      total += Number(d.amount);
-    }
-  });
-  return total;
-}
 
+    if(!d) return;
+
+    // 🔥 FLEXIBLE FIELD DETECTION
+    const value =
+      d.amount ??
+      d.amt ??
+      d.value ??
+      d.earnings ??
+      d.profit ??
+      0;
+
+    total += Number(value);
+  });
+
+  return total;
+      }
 /* AUTH */
 auth.onAuthStateChanged(user => {
 
@@ -309,7 +320,9 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
-
+  db.ref("withdrawals").once("value", snap=>{
+  console.log("WITHDRAWALS DATA:", snap.val());
+});
   /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
