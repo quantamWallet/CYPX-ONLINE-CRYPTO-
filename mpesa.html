@@ -8,9 +8,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>      
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>      
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>      
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>      
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>      
-
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 <style>      
 *{box-sizing:border-box;}
 
@@ -238,7 +238,7 @@ const firebaseConfig = {
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
+  storageBucket: "quantum-rio.firebasestorage.com",
   messagingSenderId: "805433999377",
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
@@ -249,15 +249,21 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();  
 const storage = firebase.storage();  
 
-/* UID (NO LOGIN) */
-function getUID(){  
-  let uid = localStorage.getItem("cypx_uid");  
-  if(!uid){  
-    uid = "user_" + Math.random().toString(36).substr(2,9);  
-    localStorage.setItem("cypx_uid", uid);  
-  }  
-  return uid;  
-}  
+firebase.auth() 
+  let uid = null;
+
+/* ✅ AUTH STATE (REAL FIREBASE USER) */
+firebase.auth().onAuthStateChanged(user => {
+  if(user){
+    uid = user.uid;
+    console.log("Logged in UID:", uid);
+  }else{
+    showPopup("Please login first","error");
+    setTimeout(()=>{
+      window.location.href = "login.html";
+    },1500);
+  }
+});
 
 function copyNumber(){  
   navigator.clipboard.writeText("0707207201");  
@@ -283,7 +289,7 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
   e.preventDefault();
 
   if(!uid){
-    showPopup("Login required","error");
+    showPopup("User not ready, try again","error");
     return;
   }
 
@@ -292,6 +298,7 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
   const file = document.getElementById("receipt").files[0];
 
   try{
+    /* ✅ NOW MATCHES RULES PERFECTLY */
     const ref = db.ref("deposits/" + uid).push();
 
     let data = {
@@ -312,9 +319,9 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
 
     showPopup("Deposit submitted ✔ Pending approval","success");
 
-    setTimeout(() => {
+    setTimeout(()=>{
       window.location.href = "financial.html";
-    }, 1500);
+    },1500);
 
     e.target.reset();
 
@@ -323,5 +330,6 @@ document.getElementById("depositForm").addEventListener("submit", async e=>{
     showPopup("Permission denied or network error","error");
   }
 });
+  <script>
 </body>      
 </html>
