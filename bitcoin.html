@@ -2,40 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bitcoin Payment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bitcoin Deposit - CYPX</title>
 
   <style>
     body {
       margin: 0;
       padding: 20px;
       font-family: Arial, sans-serif;
-      background-color: #001f3f;
+      background: linear-gradient(180deg, #001f3f, #001733);
       color: white;
       text-align: center;
     }
 
     h2 {
       margin-top: 10px;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: bold;
+      color: #ffcc00;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #9fb0cf;
+      margin-bottom: 20px;
     }
 
     .container {
       background-color: #012a57;
       padding: 22px;
-      border-radius: 14px;
+      border-radius: 16px;
       max-width: 420px;
       margin: 20px auto;
-      box-shadow: 0 0 12px rgba(0,0,0,0.35);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
 
+    /* Address box */
     .btc-address-box {
-      background-color: #003a78;
+      background: linear-gradient(145deg, #003a78, #002f66);
       padding: 16px;
       border-radius: 12px;
       word-break: break-all;
-      font-size: 17px;
+      font-size: 15px;
       margin-top: 15px;
       cursor: pointer;
       border: 1px solid rgba(255,255,255,0.15);
@@ -43,18 +51,40 @@
     }
 
     .btc-address-box:hover {
-      background-color: #004891;
+      transform: scale(1.02);
     }
 
+    .copy-hint {
+      font-size: 12px;
+      color: #9fb0cf;
+      margin-top: 6px;
+    }
+
+    /* QR placeholder */
+    .qr-box {
+      margin-top: 15px;
+      background-color: #003a78;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #9fb0cf;
+    }
+
+    /* Instructions */
     .instructions {
       margin-top: 20px;
       text-align: left;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.7;
     }
 
+    .instructions li {
+      margin-bottom: 6px;
+    }
+
+    /* Upload */
     .upload-box {
-      margin-top: 25px;
+      margin-top: 20px;
       background-color: #003a78;
       padding: 15px;
       border-radius: 10px;
@@ -65,14 +95,15 @@
       width: 100%;
     }
 
+    /* Button */
     .submit-btn {
       margin-top: 20px;
       width: 100%;
       padding: 14px;
-      font-size: 17px;
+      font-size: 16px;
       border: none;
       border-radius: 10px;
-      background-color: #28a745;
+      background: linear-gradient(145deg, #28a745, #1e8c3a);
       color: white;
       font-weight: bold;
       cursor: pointer;
@@ -80,10 +111,18 @@
     }
 
     .submit-btn:hover {
-      opacity: 0.9;
+      transform: translateY(-2px);
     }
 
-    /* Toast Notification */
+    /* Trust box */
+    .trust-box {
+      margin-top: 18px;
+      font-size: 12px;
+      color: #9fb0cf;
+      line-height: 1.6;
+    }
+
+    /* Toasts */
     .toast {
       position: fixed;
       bottom: 25px;
@@ -98,46 +137,62 @@
       z-index: 9999;
     }
 
-    /* Upload status toast */
     .upload-toast {
       background: #28a745;
       bottom: 70px;
     }
+
   </style>
 </head>
 
 <body>
-  <h2>Bitcoin Payment</h2>
+
+  <h2>Bitcoin Deposit</h2>
+  <div class="subtitle">Secure Crypto Payment Gateway</div>
 
   <div class="container">
-    <p>Send your Bitcoin payment to the address below:</p>
 
-    <!-- CLICK TO COPY BOX -->
+    <p><strong>Send BTC to the address below</strong></p>
+
+    <!-- ADDRESS -->
     <div class="btc-address-box" onclick="copyBTC()">
       <span id="btcAddress">1341crN2nSM29KFEqtB7UozdQYyDD6CvzV</span>
     </div>
+    <div class="copy-hint">Tap to copy wallet address</div>
+
+    <!-- OPTIONAL QR -->
+    <div class="qr-box">
+      QR Code support coming soon
+    </div>
 
     <!-- Toasts -->
-    <div id="copyToast" class="toast">Copied</div>
+    <div id="copyToast" class="toast">Address Copied</div>
     <div id="uploadToast" class="toast upload-toast">Proof Submitted</div>
 
+    <!-- Instructions -->
     <div class="instructions">
-      <p><strong>Instructions:</strong></p>
+      <p><strong>How to Deposit:</strong></p>
       <ul>
-        <li>Tap the address above to copy it.</li>
-        <li>Send the required amount to the wallet.</li>
-        <li>Upload a screenshot of the transaction confirmation.</li>
-        <li>Your deposit will be verified shortly.</li>
+        <li>Copy the wallet address above</li>
+        <li>Send the exact BTC amount from your wallet</li>
+        <li>Wait for blockchain confirmation</li>
+        <li>Upload proof of payment below</li>
       </ul>
     </div>
 
-    <!-- FILE UPLOAD -->
+    <!-- Upload -->
     <div class="upload-box">
-      <p><strong>Upload Payment Proof</strong></p>
+      <p><strong>Upload Payment Screenshot</strong></p>
       <input type="file" id="proofFile" accept="image/*" />
     </div>
 
     <button class="submit-btn" onclick="submitProof()">Submit Proof</button>
+
+    <!-- TRUST TEXT -->
+    <div class="trust-box">
+      Deposits are verified after blockchain confirmation.<br>
+      Processing time: 5–30 minutes depending on network traffic.
+    </div>
 
   </div>
 
@@ -160,7 +215,6 @@
         return;
       }
 
-      // SIMULATED UPLOAD (ready for Firebase)
       showUploadToast("Uploading...");
 
       setTimeout(() => {
@@ -177,4 +231,4 @@
   </script>
 
 </body>
-</html>
+  </html>
