@@ -1,246 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>M-Pesa Deposit</title>
-  <style>
-    body {
-      background-color: #001f3f;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 15px;
-      color: #ffffff;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>M-Pesa Deposit - CYPX</title>
 
-    h1 {
-      text-align: center;
-      color: #ffcc00;
-      margin-bottom: 20px;
-      font-size: 1.8rem;
-    }
+<style>
+body{
+  margin:0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: radial-gradient(circle at top, #003366, #001f3f);
+  color:#fff;
+}
 
-    .card {
-      background-color: #002b5c;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: transform 0.2s ease;
-    }
+/* HEADER */
+header{
+  text-align:center;
+  padding:18px;
+  font-size:20px;
+  font-weight:bold;
+  background: linear-gradient(90deg,#002f6c,#004aad);
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
 
-    .card:hover {
-      transform: translateY(-2px);
-    }
+/* CONTAINER */
+.container{
+  max-width:480px;
+  margin:auto;
+  padding:15px;
+}
 
-    .highlight {
-      background: #003366;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 10px;
-      font-size: 0.95rem;
-    }
+/* CARD */
+.card{
+  background: linear-gradient(145deg,#003a78,#002b5c);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.05);
+}
 
-    .mpesa-number {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #004080;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 1rem;
-      margin: 8px 0;
-      animation: glow 1.5s infinite alternate;
-    }
+/* TITLE */
+h2{
+  margin:0 0 10px;
+  color:#00e0ff;
+}
 
-    @keyframes glow {
-      from { box-shadow: 0 0 5px #ffcc00; }
-      to { box-shadow: 0 0 15px #ffcc00; }
-    }
+/* HIGHLIGHT BOX */
+.highlight{
+  background:#001f3f;
+  padding:12px;
+  border-radius:10px;
+  font-size:14px;
+  line-height:1.6;
+}
 
-    .copy-btn {
-      background: #28a745;
-      border: none;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: background 0.3s ease;
-    }
+/* NUMBER BOX */
+.mpesa-number{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(90deg,#004aad,#007bff);
+  padding:10px;
+  border-radius:10px;
+  margin:10px 0;
+  box-shadow:0 0 15px rgba(0,200,255,0.5);
+  font-weight:bold;
+}
 
-    .copy-btn:hover {
-      background: #218838;
-    }
+/* BUTTON */
+.copy-btn{
+  background:#00e0ff;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+  color:#001f3f;
+}
 
-    .form-group {
-      margin-bottom: 12px;
-    }
+.copy-btn:hover{
+  background:#00c3ff;
+}
 
-    label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
+/* FORM */
+input{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  margin-bottom:12px;
+  border-radius:8px;
+  border:none;
+  outline:none;
+  background:#001f3f;
+  color:#fff;
+}
 
-    input {
-      width: 100%;
-      padding: 9px;
-      border-radius: 6px;
-      border: none;
-      outline: none;
-      font-size: 0.95rem;
-    }
+label{
+  font-size:13px;
+}
 
-    .submit-btn {
-      background: #ffcc00;
-      color: #001f3f;
-      font-weight: bold;
-      border: none;
-      padding: 11px;
-      border-radius: 8px;
-      width: 100%;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background 0.3s ease;
-    }
+/* SUBMIT */
+.submit-btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:15px;
+  cursor:pointer;
+  background:linear-gradient(90deg,#00e0ff,#007bff);
+  color:#001f3f;
+  box-shadow:0 6px 18px rgba(0,0,0,0.5);
+}
 
-    .submit-btn:hover {
-      background: #e6b800;
-    }
+.submit-btn:hover{
+  opacity:0.9;
+}
 
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #28a745;
-      padding: 14px 22px;
-      border-radius: 10px;
-      color: white;
-      font-weight: bold;
-      z-index: 9999;
-      font-size: 0.95rem;
-    }
-  </style>
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#28a745;
+  padding:10px 15px;
+  border-radius:8px;
+  font-weight:bold;
+  display:none;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:12px;
+  font-size:12px;
+  color:#aaa;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>Recharge via M-Pesa</h1>
+<header>CYPX SECURE PAYMENT</header>
 
+<div class="container">
+
+  <!-- PACKAGE -->
   <div class="card">
     <h2 id="packageTitle">Selected Package</h2>
     <div class="highlight">
-      <p id="packageInfo">Loading package details...</p>
-      <p><b>Mpesa Number:</b></p>
+      <p id="packageInfo"></p>
+
+      <p><b>Pay To:</b></p>
+
       <div class="mpesa-number">
         <span id="mpesaNumber">0707207201</span>
         <button class="copy-btn" onclick="copyNumber()">Copy</button>
       </div>
+
       <p><b>Name:</b> LANGAT ROBERT</p>
-      <p>Send money directly, then submit details below.</p>
+      <p>Send payment, then submit details below for verification.</p>
     </div>
   </div>
 
+  <!-- FORM -->
   <div class="card">
-    <h2>Submit Deposit</h2>
+    <h2>Submit Payment</h2>
+
     <form id="depositForm">
-      <div class="form-group">
-        <label>Amount (KES)</label>
-        <input type="number" id="amount" placeholder="Enter amount" required>
-      </div>
-      <div class="form-group">
-        <label>Your Phone Number</label>
-        <input type="text" id="phone" placeholder="07XXXXXXXX" required>
-      </div>
-      <div class="form-group">
-        <label>Transaction Code</label>
-        <input type="text" id="code" placeholder="e.g. QJK123ABC" required>
-      </div>
-      <button type="submit" class="submit-btn">Submit Deposit</button>
+      <label>Amount (KES)</label>
+      <input type="number" id="amount" required>
+
+      <label>Phone Number</label>
+      <input type="text" id="phone" placeholder="07XXXXXXXX" required>
+
+      <label>Transaction Code</label>
+      <input type="text" id="code" required>
+
+      <button class="submit-btn">Submit Deposit</button>
     </form>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+<footer>
+  © 2026 CYPX ONLINE CRYPTO — Secure Payments
+</footer>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+<div id="toast" class="toast"></div>
 
-    let currentUID = null;
-    let selectedGroup = "";
-    let selectedPrice = "";
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    const params = new URLSearchParams(window.location.search);
-    selectedGroup = params.get("group") || "Unknown Package";
-    selectedPrice = params.get("price") || "0";
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+};
 
-    document.getElementById("packageTitle").textContent = selectedGroup;
-    document.getElementById("packageInfo").textContent = `Price: ${selectedPrice} KSH`;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) currentUID = user.uid;
-      else window.location.href = "landing.html";
+let uid = null;
+let selectedGroup = "";
+let selectedPrice = "";
+
+const params = new URLSearchParams(window.location.search);
+selectedGroup = params.get("group") || "Package";
+selectedPrice = params.get("price") || "0";
+
+document.getElementById("packageTitle").innerText = selectedGroup;
+document.getElementById("packageInfo").innerText = "Price: " + selectedPrice + " KSH";
+
+onAuthStateChanged(auth, (user)=>{
+  if(user) uid = user.uid;
+  else window.location.href="landing.html";
+});
+
+/* COPY + LOCK USER */
+window.copyNumber = function(){
+  const number = document.getElementById("mpesaNumber").innerText;
+
+  navigator.clipboard.writeText(number);
+
+  showToast("Number copied");
+
+  // 🔒 LOCK USER INTO SYSTEM
+  if(uid){
+    const lockRef = push(ref(db, "paymentLocks/" + uid));
+    set(lockRef,{
+      group:selectedGroup,
+      price:selectedPrice,
+      status:"initiated",
+      timestamp:new Date().toISOString()
     });
+  }
+}
 
-    window.copyNumber = function() {
-      const number = document.getElementById("mpesaNumber").textContent;
-      navigator.clipboard.writeText(number).then(() => showPopup("Mpesa number copied!"));
-    }
+/* SUBMIT */
+document.getElementById("depositForm").addEventListener("submit",(e)=>{
+  e.preventDefault();
 
-    document.getElementById("depositForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!currentUID) return showPopup("You must be logged in.");
+  if(!uid) return showToast("Login required", false);
 
-      const amount = parseInt(document.getElementById("amount").value);
-      const phone = document.getElementById("phone").value.trim();
-      const code = document.getElementById("code").value.trim();
+  const amount = parseInt(amount.value);
+  const phone = document.getElementById("phone").value.trim();
+  const code = document.getElementById("code").value.trim();
 
-      if (!amount || amount < parseInt(selectedPrice)) {
-        return showPopup("Amount must be at least " + selectedPrice + " KSH.");
-      }
+  if(amount < selectedPrice){
+    return showToast("Minimum amount is "+selectedPrice,false);
+  }
 
-      if (!/^(07\d{8}|01\d{8})$/.test(phone)) {
-        return showPopup("Enter a valid Safaricom/Airtel number.");
-      }
+  const refPush = push(ref(db,"referralPurchases/"+uid));
 
-      const purchaseRef = push(ref(db, "referralPurchases/" + currentUID));
-      set(purchaseRef, {
-        group: selectedGroup,
-        price: parseInt(selectedPrice),
-        amount,
-        phone,
-        code,
-        status: "pending", // stays pending until you verify manually/API
-        timestamp: new Date().toISOString()
-      }).then(() => {
-        showPopup("Deposit submitted successfully!");
-        document.getElementById("depositForm").reset();
-      }).catch(err => showPopup("Error: " + err.message));
-    });
+  set(refPush,{
+    group:selectedGroup,
+    price:selectedPrice,
+    amount,
+    phone,
+    code,
+    status:"pending",
+    timestamp:new Date().toISOString()
+  }).then(()=>{
+    showToast("Payment submitted");
+    document.getElementById("depositForm").reset();
+  });
 
-    function showPopup(msg) {
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.textContent = msg;
-      document.body.appendChild(popup);
-      setTimeout(() => popup.remove(), 2500);
-    }
-  </script>
+});
+
+/* TOAST */
+function showToast(msg, success=true){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.background = success ? "#28a745" : "#e53935";
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
+}
+</script>
+
 </body>
-</html>
+  </html>
