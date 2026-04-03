@@ -184,6 +184,7 @@ const tabs = document.querySelectorAll(".tab");
 let deposits = [];
 let withdrawals = [];
 
+/* RENDER */
 function renderRecords(filter="all"){
   listContainer.innerHTML = "";
 
@@ -216,45 +217,55 @@ function renderRecords(filter="all"){
   });
 }
 
+/* AUTH */
 auth.onAuthStateChanged(user=>{
   if(!user){
     listContainer.innerHTML='<p class="no-records">Login required.</p>';
     return;
   }
 
-  db.ref("deposits").orderByChild("uid").equalTo(user.uid)
-  .on("value",snap=>{
-    deposits=[];
+  const uid = user.uid;
+
+  /* ✅ REALTIME DEPOSITS */
+  db.ref("deposits/" + uid).on("value", snap=>{
+    deposits = [];
+
     snap.forEach(child=>{
       const d = child.val();
+
       deposits.push({
         type:"Deposit",
-        amount:d.amount,
+        amount:d.amount || 0,
         method:d.method || "Mpesa",
-        status:d.status || "Pending",
-        createdAt:d.createdAt || Date.now()
+        status:d.status || "pending",
+        createdAt:d.timestamp || Date.now()
       });
     });
+
     renderRecords(document.querySelector(".tab.active").dataset.filter);
   });
 
-  db.ref("withdrawals").orderByChild("uid").equalTo(user.uid)
-  .on("value",snap=>{
-    withdrawals=[];
+  /* ✅ REALTIME WITHDRAWALS */
+  db.ref("withdrawals/" + uid).on("value", snap=>{
+    withdrawals = [];
+
     snap.forEach(child=>{
       const w = child.val();
+
       withdrawals.push({
         type:"Withdrawal",
-        amount:w.amount,
+        amount:w.amount || 0,
         method:w.method || "-",
-        status:w.status || "Pending",
-        createdAt:w.createdAt || Date.now()
+        status:w.status || "pending",
+        createdAt:w.timestamp || Date.now()
       });
     });
+
     renderRecords(document.querySelector(".tab.active").dataset.filter);
   });
 });
 
+/* TABS */
 tabs.forEach(tab=>{
   tab.onclick=()=>{
     document.querySelector(".tab.active").classList.remove("active");
@@ -263,6 +274,5 @@ tabs.forEach(tab=>{
   }
 });
 </script>
-
 </body>
 </html>
