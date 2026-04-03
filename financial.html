@@ -13,7 +13,7 @@ body{
   font-family:Arial, sans-serif;
   background: radial-gradient(circle at top, #003366, #001f3f);
   color:white;
-  padding-bottom:120px;
+  padding-bottom:100px; /* space for nav */
 }
 
 /* HEADER */
@@ -80,15 +80,9 @@ header{
   margin-top:8px;
 }
 
-.badge.pending{
-  background:#ff9800;
-}
-.badge.completed{
-  background:#28a745;
-}
-.badge.failed{
-  background:#e53935;
-}
+.badge.pending{ background:#ff9800; }
+.badge.completed{ background:#28a745; }
+.badge.failed{ background:#e53935; }
 
 /* EMPTY */
 .no-records{
@@ -97,36 +91,38 @@ header{
   color:#ccc;
 }
 
-/* NAV */
-nav {  
-        position: fixed;  
-        bottom: 0;  
-        left: 0;  
-        right: 0;  
-        background-color: #002244;  
-        display: flex;  
-        justify-content: space-around;  
-        padding: 10px 0;  
-      }  
-      nav a {  
-        color: white;  
-        text-align: center;  
-        text-decoration: none;  
-      }  
-      nav i {  
-        font-size: 20px;  
-      }  
+/* FOOTER INSIDE CONTENT */
+.footer-card{
+  background:linear-gradient(145deg,#002b5c,#001f3f);
+  margin:20px 15px;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
+  font-size:13px;
+  color:#aaa;
+  box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
 
-/* FOOTER */
-.footer{
+/* NAV */
+nav{
   position:fixed;
   bottom:0;
-  width:100%;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+nav a{
+  color:white;
+  text-decoration:none;
   text-align:center;
-  background:#001a33;
-  padding:8px;
-  font-size:12px;
-  color:#aaa;
+}
+
+nav i{
+  font-size:20px;
 }
 </style>
 </head>
@@ -148,19 +144,19 @@ nav {
   <p class="no-records">Loading transactions...</p>
 </div>
 
-<!-- NAV -->
-<nav>  
-      <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>  
-      <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>  
-      <a href="team.html"><i class="fas fa-users"></i><br>Team</a>  
-      <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>  
-      <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>  
-    </nav> 
-
-<!-- FOOTER -->
-<div class="footer">
+<!-- FOOTER (NOW INSIDE FLOW ✅) -->
+<div class="footer-card">
   © 2026 CYPX ONLINE CRYPTO — Secure Financial System
 </div>
+
+<!-- NAV -->
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -193,7 +189,6 @@ function renderRecords(filter="all"){
 
   let all = [...deposits, ...withdrawals];
 
-  // Sort newest first
   all.sort((a,b)=> b.createdAt - a.createdAt);
 
   if(filter !== "all"){
@@ -227,7 +222,6 @@ auth.onAuthStateChanged(user=>{
     return;
   }
 
-  // REALTIME DEPOSITS
   db.ref("deposits").orderByChild("uid").equalTo(user.uid)
   .on("value",snap=>{
     deposits=[];
@@ -244,7 +238,6 @@ auth.onAuthStateChanged(user=>{
     renderRecords(document.querySelector(".tab.active").dataset.filter);
   });
 
-  // REALTIME WITHDRAWALS
   db.ref("withdrawals").orderByChild("uid").equalTo(user.uid)
   .on("value",snap=>{
     withdrawals=[];
@@ -262,7 +255,6 @@ auth.onAuthStateChanged(user=>{
   });
 });
 
-/* Tabs */
 tabs.forEach(tab=>{
   tab.onclick=()=>{
     document.querySelector(".tab.active").classList.remove("active");
