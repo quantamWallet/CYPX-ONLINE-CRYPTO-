@@ -232,7 +232,7 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* 🔥 FORMAT CURRENCY */
+/* FORMAT */
 function formatMoney(num){
   return Number(num).toLocaleString('en-KE', {
     minimumFractionDigits: 2,
@@ -254,17 +254,15 @@ function getVip(data){
   return "VIP"+max;
 }
 
-/* 🔥 INSTANT UI UPDATE (FROM CACHE) */
-function updateUI(d){
-  const balance = Number(d.balance || 0);
-  const deposit = Number(d.totalDeposit || 0);
-  const earnings = Number(d.totalEarnings || 0);
+/* UPDATE UI */
+function updateUI(data, totals){
+  const balance = Number(data.balance || 0);
 
   document.getElementById("balance").textContent = formatMoney(balance);
-  document.getElementById("deposit").textContent = formatMoney(deposit);
-  document.getElementById("earnings").textContent = formatMoney(earnings);
+  document.getElementById("deposit").textContent = formatMoney(totals.deposit);
+  document.getElementById("earnings").textContent = formatMoney(totals.earnings);
 
-  const vip = getVip(d);
+  const vip = getVip(data);
   const el = document.getElementById("user-vip");
 
   el.className = "vip " + vip.toLowerCase();
@@ -281,32 +279,79 @@ auth.onAuthStateChanged(user => {
 
   document.getElementById("user-email").textContent = user.email;
 
-  const cacheKey = "user_" + user.uid;
+  const uid = user.uid;
+  const cacheKey = "user_" + uid;
 
-  /* 🔥 LOAD CACHED DATA INSTANTLY */
+  let userData = {};
+  let totals = { deposit: 0, earnings: 0 };
+
+  /* LOAD CACHE */
   const cached = localStorage.getItem(cacheKey);
   if(cached){
     try {
-      updateUI(JSON.parse(cached));
+      const parsed = JSON.parse(cached);
+      userData = parsed.data || {};
+      totals = parsed.totals || totals;
+      updateUI(userData, totals);
     } catch(e){}
   }
 
-  /* 🔥 HIDE LOADER IMMEDIATELY AFTER AUTH */
   document.getElementById("loader").style.display = "none";
 
-  /* 🔥 REALTIME SYNC */
-  db.ref("users/" + user.uid).on("value", snap => {
-    const d = snap.val() || {};
+  /* 🔥 REALTIME USER DATA */
+  db.ref("users/" + uid).on("value", snap => {
+    userData = snap.val() || {};
+    updateUI(userData, totals);
 
-    /* 🔥 UPDATE UI */
-    updateUI(d);
+    localStorage.setItem(cacheKey, JSON.stringify({
+      data: userData,
+      totals
+    }));
+  });
 
-    /* 🔥 SAVE CACHE */
-    localStorage.setItem(cacheKey, JSON.stringify(d));
+  /* 🔥 REALTIME DEPOSITS TOTAL */
+  db.ref("deposits/" + uid).on("value", snap => {
+    let total = 0;
+
+    snap.forEach(child => {
+      const d = child.val();
+      if(d.status === "approved" || d.status === "completed"){
+        total += Number(d.amount || 0);
+      }
+    });
+
+    totals.deposit = total;
+    updateUI(userData, totals);
+
+    localStorage.setItem(cacheKey, JSON.stringify({
+      data: userData,
+      totals
+    }));
+  });
+
+  /* 🔥 REALTIME EARNINGS (example: from withdrawals or tasks) */
+  db.ref("withdrawals/" + uid).on("value", snap => {
+    let total = 0;
+
+    snap.forEach(child => {
+      const w = child.val();
+      if(w.status === "completed"){
+        total += Number(w.amount || 0);
+      }
+    });
+
+    totals.earnings = total;
+    updateUI(userData, totals);
+
+    localStorage.setItem(cacheKey, JSON.stringify({
+      data: userData,
+      totals
+    }));
   });
 
 });
 
+/* LOGOUT */
 function logout(){
   auth.signOut().then(()=>{
     localStorage.clear();
