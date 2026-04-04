@@ -542,32 +542,72 @@ window.onload = function () {
        CLAIM BONUS
     ========================= */
     const claimBtn = document.getElementById("claim-btn");
+/* =========================
+   CLAIM BONUS (FIXED 🔥)
+========================= */
+const claimBtn = document.getElementById("claim-btn");
 
-    claimedRef.once("value").then(snap => {
-      if (snap.val() === true) {
-        claimBtn.textContent = "Completed";
-        claimBtn.disabled = true;
+// 🔥 LIVE button state (always correct)
+claimedRef.on("value", snap => {
+  if (snap.val() === true) {
+    claimBtn.textContent = "Completed";
+    claimBtn.disabled = true;
+  } else {
+    claimBtn.textContent = "Claim 100.00 KSH";
+    claimBtn.disabled = false;
+  }
+});
+
+claimBtn.onclick = function () {
+
+  if (claimBtn.disabled) return;
+
+  // 🔥 disable instantly (prevents spam click)
+  claimBtn.disabled = true;
+  claimBtn.textContent = "Processing...";
+
+  const userRef = database.ref("users/" + uid);
+
+  userRef.transaction(userData => {
+
+    if (userData) {
+
+      // ❌ already claimed → stop
+      if (userData.hasClaimedBonus === true) {
+        return userData;
       }
-    });
 
-    claimBtn.onclick = function () {
-      if (claimBtn.disabled) return;
+      // ✅ first time → apply bonus
+      userData.balance = Number(userData.balance || 0) + 100;
+      userData.hasClaimedBonus = true;
+    }
 
-      balanceRef.once("value").then(b => {
-        const newBalance = Number(b.val() || 0) + 100;
+    return userData;
+  },
+  (error, committed, snapshot) => {
 
-        database.ref("users/" + uid).update({
-          balance: newBalance,
-          hasClaimedBonus: true
-        });
+    if (error) {
+      console.error("Transaction failed:", error);
+      claimBtn.disabled = false;
+      claimBtn.textContent = "Claim 100.00 KSH";
+      showPopup("Error, try again", true);
+      return;
+    }
 
-        claimBtn.textContent = "Completed";
-        claimBtn.disabled = true;
+    if (!committed) {
+      showPopup("Already claimed", true);
+      return;
+    }
 
-        loadTotalEarnings();
-        showPopup("100 KSh successfully Claimed");
-      });
-    };
+    // ✅ success
+    claimBtn.textContent = "Completed";
+    claimBtn.disabled = true;
+
+    loadTotalEarnings(); // refresh earnings
+    showPopup("100 KSh successfully claimed");
+  });
+
+};
 
     /* =========================
        VIP LIST (FIXED BOOLEAN CHECK)
