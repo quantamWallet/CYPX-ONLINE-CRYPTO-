@@ -539,75 +539,85 @@ window.onload = function () {
     database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);
     database.ref("users/" + uid + "/vipEarnings").on("value", loadTotalEarnings);
     /* =========================
-       CLAIM BONUS
-    ========================= */
-    const claimBtn = document.getElementById("claim-btn");
-/* =========================
-   CLAIM BONUS (FIXED 🔥)
+   CLAIM BONUS (SAFE FIX 🔥)
 ========================= */
+
 const claimBtn = document.getElementById("claim-btn");
 
-// 🔥 LIVE button state (always correct)
-claimedRef.on("value", snap => {
-  if (snap.val() === true) {
-    claimBtn.textContent = "Completed";
-    claimBtn.disabled = true;
-  } else {
-    claimBtn.textContent = "Claim 100.00 KSH";
-    claimBtn.disabled = false;
-  }
-});
+auth.onAuthStateChanged(function(user) {
 
-claimBtn.onclick = function () {
+  if (!user) return;
 
-  if (claimBtn.disabled) return;
+  const uid = user.uid;
 
-  // 🔥 disable instantly (prevents spam click)
-  claimBtn.disabled = true;
-  claimBtn.textContent = "Processing...";
-
+  const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
   const userRef = database.ref("users/" + uid);
 
-  userRef.transaction(userData => {
+  // ✅ Keep button state synced
+  claimedRef.on("value", snap => {
+    if (snap.val() === true) {
+      claimBtn.textContent = "Completed";
+      claimBtn.disabled = true;
+    } else {
+      claimBtn.textContent = "Claim 100.00 KSH";
+      claimBtn.disabled = false;
+    }
+  });
 
-    if (userData) {
+  // ✅ Click handler
+  claimBtn.onclick = function () {
 
-      // ❌ already claimed → stop
+    if (claimBtn.disabled) return;
+
+    claimBtn.disabled = true;
+    claimBtn.textContent = "Processing...";
+
+    userRef.transaction(userData => {
+
+      if (!userData) return userData;
+
+      // ❌ already claimed
       if (userData.hasClaimedBonus === true) {
         return userData;
       }
 
-      // ✅ first time → apply bonus
+      // ✅ apply bonus
       userData.balance = Number(userData.balance || 0) + 100;
       userData.hasClaimedBonus = true;
-    }
 
-    return userData;
-  },
-  (error, committed, snapshot) => {
+      return userData;
 
-    if (error) {
-      console.error("Transaction failed:", error);
-      claimBtn.disabled = false;
-      claimBtn.textContent = "Claim 100.00 KSH";
-      showPopup("Error, try again", true);
-      return;
-    }
+    }, (error, committed) => {
 
-    if (!committed) {
-      showPopup("Already claimed", true);
-      return;
-    }
+      if (error) {
+        console.error("Transaction failed:", error);
+        claimBtn.disabled = false;
+        claimBtn.textContent = "Claim 100.00 KSH";
+        showPopup("Error, try again", true);
+        return;
+      }
 
-    // ✅ success
-    claimBtn.textContent = "Completed";
-    claimBtn.disabled = true;
+      if (!committed) {
+        showPopup("Already claimed", true);
+        return;
+      }
 
-    loadTotalEarnings(); // refresh earnings
-    showPopup("100 KSh successfully claimed");
-  });
+      // ✅ success
+      claimBtn.textContent = "Completed";
+      claimBtn.disabled = true;
 
-};
+      showPopup("100 KSh successfully claimed");
+
+      // 🔁 refresh earnings safely (only if function exists)
+      if (typeof loadTotalEarnings === "function") {
+        loadTotalEarnings();
+      }
+
+    });
+
+  };
+
+});
 
     /* =========================
        VIP LIST (FIXED BOOLEAN CHECK)
