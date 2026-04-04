@@ -498,10 +498,7 @@ window.onload = function () {
           refSnap.forEach(child => {
             const e = child.val();
 
-            if (
-              e.status &&
-              e.status.toLowerCase().trim() === "approved"
-            ) {
+            if (e.status && e.status.toLowerCase() === "approved") {
               total += Number(e.price || e.amount || 0);
             }
           });
@@ -517,15 +514,14 @@ window.onload = function () {
         }
 
         // VIP EARNINGS (SAFE - won't break if missing)
-        return database.ref("vipEarnings/" + uid).once("value");
-      })
+        return database.ref("users/" + uid + "/vipEarnings").once("value");
       .then(vipSnap => {
 
         if (vipSnap.exists()) {
-          vipSnap.forEach(child => {
-            const v = child.val();
-            total += Number(v.amount || 0);
-          });
+  vipSnap.forEach(child => {
+    const v = child.val();
+    total += Number(v.totalEarned || 0);
+  });
         }
 
         document.getElementById("total-earnings").textContent =
