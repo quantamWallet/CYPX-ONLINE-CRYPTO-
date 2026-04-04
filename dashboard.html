@@ -419,6 +419,18 @@
   
     <script>
 window.onload = function () {
+
+  /* =========================
+     ANNOUNCEMENT FIX
+  ========================= */
+  document.getElementById("ann-btn").onclick = function () {
+    document.getElementById("announcementModal").style.display = "block";
+  };
+
+  window.closeAnnouncement = function () {
+    document.getElementById("announcementModal").style.display = "none";
+  };
+
   auth.onAuthStateChanged(function(user) {
     if (!user) {
       window.location.href = "landing.html";
@@ -435,7 +447,7 @@ window.onload = function () {
     const vipRef = database.ref("users/" + uid + "/vipLevels");
 
     /* =========================
-       BALANCE (REALTIME)
+       BALANCE
     ========================= */
     balanceRef.on("value", snap => {
       const balance = Number(snap.val() || 0);
@@ -444,7 +456,7 @@ window.onload = function () {
     });
 
     /* =========================
-       TOTAL DEPOSITS (FIXED)
+       TOTAL DEPOSITS (STABLE)
     ========================= */
     database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
@@ -465,25 +477,28 @@ window.onload = function () {
 
     /* =========================
        TOTAL EARNINGS (FULL FIX)
+       Includes:
+       ✔ referrals
+       ✔ bonus
+       ✔ VIP daily earnings
     ========================= */
     function loadTotalEarnings() {
       let total = 0;
 
-      // 1️⃣ Referral earnings
+      // 1️⃣ REFERRALS
       database.ref("referralPurchases/" + uid).once("value")
       .then(refSnap => {
 
         if (refSnap.exists()) {
           refSnap.forEach(child => {
             const e = child.val();
-
             if (e.status) {
               total += Number(e.price || e.amount || 0);
             }
           });
         }
 
-        // 2️⃣ Claimed bonus
+        // 2️⃣ BONUS
         return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
       })
       .then(bonusSnap => {
@@ -492,20 +507,33 @@ window.onload = function () {
           total += 100;
         }
 
+        // 3️⃣ VIP DAILY EARNINGS 🔥🔥🔥
+        return database.ref("vipEarnings/" + uid).once("value");
+      })
+      .then(vipSnap => {
+
+        if (vipSnap.exists()) {
+          vipSnap.forEach(child => {
+            const v = child.val();
+            total += Number(v.amount || 0);
+          });
+        }
+
+        // FINAL DISPLAY
         document.getElementById("total-earnings").textContent =
           "KSh " + formatMoney(total);
       });
     }
 
-    // 🔥 run immediately
+    // RUN + LIVE UPDATE
     loadTotalEarnings();
 
-    // 🔥 auto refresh when data changes
     database.ref("referralPurchases/" + uid).on("value", loadTotalEarnings);
     database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);
+    database.ref("vipEarnings/" + uid).on("value", loadTotalEarnings);
 
     /* =========================
-       CLAIM BONUS (FIXED)
+       CLAIM BONUS
     ========================= */
     const claimBtn = document.getElementById("claim-btn");
 
@@ -530,13 +558,13 @@ window.onload = function () {
         claimBtn.textContent = "Completed";
         claimBtn.disabled = true;
 
-        loadTotalEarnings(); // 🔥 instant update
+        loadTotalEarnings();
         showPopup("100 KSh successfully Claimed");
       });
     };
 
     /* =========================
-       VIP LIST (UNCHANGED)
+       VIP LIST
     ========================= */
     function renderVIPList() {
       const list = document.getElementById("vip-list");
