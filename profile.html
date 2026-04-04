@@ -287,6 +287,7 @@ function sumSnapshot(snapshot){
 
 /* RENDER */
 function render(){
+  document.getElementById("loader").style.display = "none";
   const totalDeposit = depositUser + depositGlobal;
   const totalEarnings = earningsUser + earningsGlobal;
 
@@ -320,8 +321,6 @@ auth.onAuthStateChanged(user => {
   }
 
   const uid = user.uid; // ✅ MOVE THIS HERE (TOP)
-  document.getElementById("user-email").textContent = user.email;
-
   function loadEarnings() {
   let total = 0;
 
@@ -349,8 +348,7 @@ auth.onAuthStateChanged(user => {
     }
 
     // VIP EARNINGS
-    return db.ref("users/" + uid + "/vipEarnings").once("value");
-  })
+    return db.ref("users/" + uid + "/dashboard/vipEarnings").once("value");
   .then(vipSnap => {
 
     if (vipSnap.exists()) {
@@ -365,8 +363,10 @@ auth.onAuthStateChanged(user => {
 
     render();
   })
-  .catch(err => console.error(err));
-  }
+  .catch(err => {
+  console.error(err);
+  render(); // ✅ prevent freeze if error
+});
   loadEarnings();
 
 db.ref("referralPurchases/" + uid).on("value", loadEarnings);
