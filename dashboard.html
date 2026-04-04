@@ -441,16 +441,31 @@
 
 document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance)}`;  
         }); 
-        /* ✅ REAL-TIME TOTAL DEPOSITS */
-database.ref("deposits/" + uid).on("value", snapshot => {
+        database.ref("deposits").on("value", snapshot => {
   let totalDeposit = 0;
+
+  if (!snapshot.exists()) {
+    console.log("No deposits found");
+    document.getElementById("total-deposit").textContent = "KSh 0.00";
+    return;
+  }
 
   snapshot.forEach(child => {
     const d = child.val();
 
-    // only count approved deposits (optional)
-    if (d.status === "approved" || d.status === "completed") {
-      totalDeposit += parseFloat(d.amount || 0);
+    console.log("Deposit record:", d);
+
+    // match user
+    if (d.userId === uid) {
+
+      // accept ANY success status
+      if (
+        d.status === "approved" ||
+        d.status === "completed" ||
+        d.status === "success"
+      ) {
+        totalDeposit += parseFloat(d.amount || 0);
+      }
     }
   });
 
@@ -458,16 +473,32 @@ database.ref("deposits/" + uid).on("value", snapshot => {
     "KSh " + formatMoney(totalDeposit);
 });
 
-/* ✅ REAL-TIME TOTAL EARNINGS */
-database.ref("referralPurchases/" + uid).on("value", snapshot => {
+database.ref("referralPurchases").on("value", snapshot => {
   let totalEarnings = 0;
+
+  if (!snapshot.exists()) {
+    console.log("No earnings found");
+    document.getElementById("total-earnings").textContent = "KSh 0.00";
+    return;
+  }
 
   snapshot.forEach(child => {
     const e = child.val();
 
-    // only count completed earnings
-    if (e.status === "completed" || e.status === "approved") {
-      totalEarnings += parseFloat(e.amount || e.price || 0);
+    console.log("Earning record:", e);
+
+    // match user
+    if (e.userId === uid) {
+
+      if (
+        e.status === "completed" ||
+        e.status === "approved" ||
+        e.status === "success"
+      ) {
+        totalEarnings += parseFloat(
+          e.amount || e.price || e.earning || 0
+        );
+      }
     }
   });
 
