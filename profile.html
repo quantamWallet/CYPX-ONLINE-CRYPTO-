@@ -287,7 +287,9 @@ function sumSnapshot(snapshot){
 
 /* RENDER */
 function render(){
+  // 🔥 ALWAYS hide loader (no conditions)
   document.getElementById("loader").style.display = "none";
+
   const totalDeposit = depositUser + depositGlobal;
   const totalEarnings = earningsUser + earningsGlobal;
 
@@ -305,12 +307,7 @@ function render(){
 
   el.className = "vip " + vip.toLowerCase();
   el.textContent = vip;
-
-  if(!loaded){
-    document.getElementById("loader").style.display = "none";
-    loaded = true;
   }
-}
 
 /* 🔐 AUTH */
 auth.onAuthStateChanged(user => {
@@ -319,9 +316,10 @@ auth.onAuthStateChanged(user => {
     window.location.href = "signin.html";
     return;
   }
-
+const uid = user.uid;
+document.getElementById("user-email").textContent = user.email;
   const uid = user.uid; // ✅ MOVE THIS HERE (TOP)
-  
+  console.log("Loading earnings...");
 function loadEarnings() {
   let total = 0;
 
@@ -344,28 +342,31 @@ function loadEarnings() {
     if (bonusSnap.val() === true) {
       total += 100;
     }
-
+db.ref("users/" + uid + "/dashboard/vipEarnings").once("value")
+.then(snap => console.log("VIP DATA:", snap.val()));
     return db.ref("users/" + uid + "/dashboard/vipEarnings").once("value"); // ✅ FIXED
   })
   .then(vipSnap => {
 
-    if (vipSnap.exists()) {
-      vipSnap.forEach(child => {
-        const v = child.val();
-        total += Number(v.totalEarned || 0);
-      });
-    }
+    .then(vipSnap => {
 
-    earningsUser = total;
-    earningsGlobal = 0;
+  if (vipSnap.exists()) {
+    vipSnap.forEach(child => {
+      const v = child.val();
+      total += Number(v.totalEarned || 0);
+    });
+  }
 
-    render();
-  })
-  .catch(err => {
-    console.error(err);
-    render();
-  });
-}
+  earningsUser = total;
+  earningsGlobal = 0;
+
+  render();
+})
+
+.catch(err => {
+  console.error("Earnings error:", err);
+  render(); // 🔥 prevents spinner from freezing
+});
 
 // ✅ CALL AFTER FUNCTION
 loadEarnings();
