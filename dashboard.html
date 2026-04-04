@@ -417,253 +417,211 @@
   <button onclick="closeAnnouncement()">Close</button>
     </div>
   
-    <script>  
-  window.onload = function () {  
-    auth.onAuthStateChanged(function(user) {  
-      if (user) {  
-        database.ref("referralPurchases/" + uid).on("value", snap => {
-        const uid = user.uid;  
-        const userEmail = user.email;  
-        document.getElementById("user-email").textContent = userEmail;  
-        loadTotalEarnings(uid);
-        const balanceRef = database.ref("users/" + uid + "/balance");  
-        const vipRef = database.ref("users/" + uid + "/vipLevels");  
-        const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus"); 
-        function loadTotalEarnings(uid) {
-  let totalEarnings = 0;
+    <script>
+window.onload = function () {
+  auth.onAuthStateChanged(function(user) {
+    if (!user) {
+      window.location.href = "landing.html";
+      return;
+    }
 
-  database.ref("referralPurchases/" + uid).once("value", snap => {
-    if (snap.exists()) {
-      snap.forEach(child => {
-        const e = child.val();
+    const uid = user.uid;
+    const userEmail = user.email;
 
-        if (e.status) {
-          totalEarnings += Number(e.price || e.amount || 0);
+    document.getElementById("user-email").textContent = userEmail;
+
+    const balanceRef = database.ref("users/" + uid + "/balance");
+    const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
+    const vipRef = database.ref("users/" + uid + "/vipLevels");
+
+    /* =========================
+       BALANCE (REALTIME)
+    ========================= */
+    balanceRef.on("value", snap => {
+      const balance = Number(snap.val() || 0);
+      document.getElementById("user-balance").textContent =
+        "KSh " + formatMoney(balance);
+    });
+
+    /* =========================
+       TOTAL DEPOSITS (FIXED)
+    ========================= */
+    database.ref("deposits/" + uid).on("value", snap => {
+      let totalDeposit = 0;
+
+      if (snap.exists()) {
+        snap.forEach(child => {
+          const d = child.val();
+
+          if (d.status && d.status.toLowerCase() === "approved") {
+            totalDeposit += Number(d.amount || 0);
+          }
+        });
+      }
+
+      document.getElementById("total-deposit").textContent =
+        "KSh " + formatMoney(totalDeposit);
+    });
+
+    /* =========================
+       TOTAL EARNINGS (FULL FIX)
+    ========================= */
+    function loadTotalEarnings() {
+      let total = 0;
+
+      // 1️⃣ Referral earnings
+      database.ref("referralPurchases/" + uid).once("value")
+      .then(refSnap => {
+
+        if (refSnap.exists()) {
+          refSnap.forEach(child => {
+            const e = child.val();
+
+            if (e.status) {
+              total += Number(e.price || e.amount || 0);
+            }
+          });
         }
+
+        // 2️⃣ Claimed bonus
+        return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
+      })
+      .then(bonusSnap => {
+
+        if (bonusSnap.val() === true) {
+          total += 100;
+        }
+
+        document.getElementById("total-earnings").textContent =
+          "KSh " + formatMoney(total);
       });
     }
 
-    database.ref("users/" + uid + "/hasClaimedBonus").once("value", bSnap => {
-      if (bSnap.val() === true) {
-        totalEarnings += 100;
+    // 🔥 run immediately
+    loadTotalEarnings();
+
+    // 🔥 auto refresh when data changes
+    database.ref("referralPurchases/" + uid).on("value", loadTotalEarnings);
+    database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);
+
+    /* =========================
+       CLAIM BONUS (FIXED)
+    ========================= */
+    const claimBtn = document.getElementById("claim-btn");
+
+    claimedRef.once("value").then(snap => {
+      if (snap.val() === true) {
+        claimBtn.textContent = "Completed";
+        claimBtn.disabled = true;
       }
-
-      document.getElementById("total-earnings").textContent =
-        "KSh " + formatMoney(totalEarnings);
     });
-  });
-        }
-        // VIP simple interest (same values used on VIP page)  
-        const vipSimpleInterest = {  
-          1: 400, 2: 620, 3: 1000, 4: 1600, 5: 2600,  
-          6: 4700, 7: 7000, 8: 11500, 9: 18000, 10: 28000, 11: 40000, 12: 58000, 13: 82000, 14: 115000, 15: 170000  
-        };   
-  
-        // Sync balance in real time  
-        balanceRef.on("value", (snapshot) => {  
-          let balance = parseFloat(snapshot.val() || 0);  
-          
 
-document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance)}`;  
-        }); 
-        database.ref("deposits/" + uid).on("value", snapshot => {
-  let totalDeposit = 0;
+    claimBtn.onclick = function () {
+      if (claimBtn.disabled) return;
 
-  if (!snapshot.exists()) {
-    document.getElementById("total-deposit").textContent = "KSh 0.00";
-    return;
-  }
+      balanceRef.once("value").then(b => {
+        const newBalance = Number(b.val() || 0) + 100;
 
-  snapshot.forEach(child => {
-    const d = child.val();
+        database.ref("users/" + uid).update({
+          balance: newBalance,
+          hasClaimedBonus: true
+        });
 
-    console.log("Deposit:", d);
+        claimBtn.textContent = "Completed";
+        claimBtn.disabled = true;
 
-    // FIX: match your actual status
-    if (d.status && d.status.toLowerCase() === "approved") {
-      totalDeposit += parseFloat(d.amount || 0);
-    }
-  });
+        loadTotalEarnings(); // 🔥 instant update
+        showPopup("100 KSh successfully Claimed");
+      });
+    };
 
-  document.getElementById("total-deposit").textContent =
-  database.ref("deposits/" + uid).on("value", snapshot => {
-  let totalDeposit = 0;
+    /* =========================
+       VIP LIST (UNCHANGED)
+    ========================= */
+    function renderVIPList() {
+      const list = document.getElementById("vip-list");
 
-  if (!snapshot.exists()) {
-    document.getElementById("total-deposit").textContent = "KSh 0.00";
-    return;
-  }
+      vipRef.on("value", snap => {
+        const unlocked = snap.val() || {};
+        list.innerHTML = "";
 
-  snapshot.forEach(child => {
-    const d = child.val();
+        const vipData = [
+          5000,10000,15000,25000,35000,50000,80000,
+          120000,190000,250000,350000,450000,600000,
+          700000,1000000
+        ];
 
-    // 🔥 IMPORTANT: your DB uses "Approved" (capital A)
-    if (d.status && d.status.toLowerCase() === "approved") {
-      totalDeposit += Number(d.amount || 0);
-    }
-  });
+        vipData.forEach((amt, i) => {
+          const lvl = i + 1;
 
-  document.getElementById("total-deposit").textContent =
-    "KSh " + formatMoney(totalDeposit);
-});
+          const div = document.createElement("div");
+          div.className = "vip-box";
+          div.innerHTML = `
+            <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+            <div class="info">
+              <p>Unlock amount: <span class="amount">KSh ${amt.toLocaleString()}</span></p>
+              <p>${unlocked[lvl] ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
+            </div>
+            <div class="arrow">»</div>
+          `;
 
-  function loadTotalEarnings(uid) {
-  let totalEarnings = 0;
+          div.querySelector(".arrow").onclick = () => {
+            if (unlocked[lvl]) {
+              showPopup("This VIP level has been unlocked");
+            } else {
+              showPopup("Please unlock your VIP levels first", true);
+            }
+          };
 
-  // 1️⃣ Referral Earnings
-  database.ref("referralPurchases/" + uid).once("value", snap => {
-    if (snap.exists()) {
-      snap.forEach(child => {
-        const e = child.val();
-
-        if (e.status) {
-          totalEarnings += Number(e.price || e.amount || 0);
-        }
+          list.appendChild(div);
+        });
       });
     }
 
-    // 2️⃣ Claimed Bonus
-    database.ref("users/" + uid + "/hasClaimedBonus").once("value", bSnap => {
-      if (bSnap.val() === true) {
-        totalEarnings += 100;
+    renderVIPList();
+
+    /* =========================
+       COUNTDOWN
+    ========================= */
+    function startCountdown() {
+      const countdown = document.getElementById("countdown");
+      let start = localStorage.getItem("countdownStart");
+
+      if (!start) {
+        start = Date.now();
+        localStorage.setItem("countdownStart", start);
       }
 
-      // 👉 FINAL DISPLAY
-      document.getElementById("total-earnings").textContent =
-        "KSh " + formatMoney(totalEarnings);
-    });
+      setInterval(() => {
+        let diff = 86400000 - (Date.now() - start);
+
+        if (diff <= 0) {
+          start = Date.now();
+          localStorage.setItem("countdownStart", start);
+          diff = 86400000;
+        }
+
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        countdown.textContent =
+          `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+      }, 1000);
+    }
+
+    startCountdown();
   });
-      }
-  
-        // Handle claim bonus  
-const claimBtn = document.getElementById("claim-btn");  
-claimedRef.once("value").then((snap) => {  
-  const claimed = snap.val() === true;  
-  if (claimed) {  
-    claimBtn.textContent = "Completed";  
-    claimBtn.disabled = true;  
-  }  
-  
-  claimBtn.onclick = function () {  
-    if (claimBtn.disabled) return;  
-  
-    balanceRef.once("value").then((b) => {  
-      let currentBalance = parseFloat(b.val() || 0);  
-      const newBalance = currentBalance + 100;  
-  
-      // ✅ Save new balance and mark bonus claimed  
-      database.ref("users/" + uid).update({  
-        balance: newBalance,  
-        hasClaimedBonus: true  
-      });  
-  
-      claimBtn.textContent = "Completed";  
-      claimBtn.disabled = true;  
-      showPopup("100 KSh successfully Claimed");  
-    });  
-  };  
-});  
-  
-        // Render VIP list and keep it synced in realtime  
-function renderVIPList() {  
-  const list = document.getElementById("vip-list");  
-  
-  vipRef.on("value", (snap) => {  
-    const unlocked = snap.val() || {}; // stored as object  
-    list.innerHTML = "";  
-  
-    const vipData = [  
-      5000, 10000, 15000, 25000, 35000, 50000, 80000,  
-      120000, 190000, 250000, 350000, 450000, 600000,  
-      700000, 1000000  
-    ];  
-  
-    vipData.forEach((amt, idx) => {  
-      const lvl = idx + 1;  
-      const div = document.createElement("div");  
-      div.className = "vip-box";  
-      div.innerHTML = `  
-        <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">  
-        <div class="info">  
-          <p>Unlock amount: <span class="amount">KSh ${amt.toLocaleString()}</span></p>  
-          <p>${unlocked[lvl] ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>  
-        </div>  
-        <div class="arrow">»</div>  
-      `;  
-  
-      // arrow click behavior  
-      div.querySelector(".arrow").onclick = () => {  
-        if (unlocked[lvl]) {  
-          showPopup("This VIP level has been unlocked");  
-        } else {  
-          showPopup("Please unlock your VIP levels first", true);  
-        }  
-      };  
-  
-      list.appendChild(div);  
-    });  
-  });  
-}  
-  
-renderVIPList();  
-  
-  
-        // Countdown timer (unchanged)  
-        function startCountdown() {  
-          const countdown = document.getElementById("countdown");  
-          let start = localStorage.getItem("countdownStart");  
-          if (!start) {  
-            start = Date.now();  
-            localStorage.setItem("countdownStart", start);  
-          }  
-  
-          function update() {  
-            const now = Date.now();  
-            let diff = 86400000 - (now - start);  
-            if (diff <= 0) {  
-              start = Date.now();  
-              localStorage.setItem("countdownStart", start);  
-              diff = 86400000;  
-            }  
-            const h = Math.floor(diff / 3600000),  
-                  m = Math.floor((diff % 3600000) / 60000),  
-                  s = Math.floor((diff % 60000) / 1000);  
-            countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;  
-          }  
-  
-          setInterval(update, 1000);  
-        }  
-  
-        startCountdown();  
-  
-      } else {  
-        // Not logged in, redirect  
-        window.location.href = "landing.html";  
-      }  
-    });  
-  
-    // Announcement modal logic  
-    document.getElementById("ann-btn").onclick = function () {  
-      document.getElementById("announcementModal").style.display = "block";  
-    };  
-    document.querySelector("#announcementModal button").onclick = function () {  
-      document.getElementById("announcementModal").style.display = "none";  
-    };  
-  
-    function showPopup(msg, red = false) {  
-      // create popup element and auto-remove  
-      const popup = document.createElement("div");  
-      popup.className = "popup" + (red ? " red" : "");  
-      popup.textContent = msg;  
-      document.body.appendChild(popup);  
-      setTimeout(() => popup.remove(), 3000);  
-    }  
-  
-    function closeAnnouncement() {  
-      document.getElementById("announcementModal").style.display = "none";  
-    }  
-  };  
-</script>  
+
+  function showPopup(msg, red = false) {
+    const popup = document.createElement("div");
+    popup.className = "popup" + (red ? " red" : "");
+    popup.textContent = msg;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 3000);
+  }
+};
+    </script>
     <!-- Telegram Floating Button -->  
 <a href="https://t.me/cypxonline" target="_blank" class="telegram-float">  
    <i class=
