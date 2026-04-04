@@ -318,6 +318,10 @@ auth.onAuthStateChanged(user => {
     window.location.href = "signin.html";
     return;
   }
+
+  const uid = user.uid; // ✅ MOVE THIS HERE (TOP)
+  document.getElementById("user-email").textContent = user.email;
+
   function loadEarnings() {
   let total = 0;
 
@@ -368,7 +372,6 @@ auth.onAuthStateChanged(user => {
 db.ref("referralPurchases/" + uid).on("value", loadEarnings);
 db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
 db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
-  const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
 
   /* USER DATA */
