@@ -261,7 +261,29 @@ let depositGlobal = 0;
 let earningsUser = 0;
 let earningsGlobal = 0;
 
-let firstLoadDone = false;
+let loaded = false;
+
+/* SUM FUNCTION */
+function sumSnapshot(snapshot){
+  let total = 0;
+
+  snapshot.forEach(child=>{
+    const d = child.val();
+    if(!d) return;
+
+    const value =
+      d.amount ??
+      d.amt ??
+      d.value ??
+      d.earnings ??
+      d.profit ??
+      0;
+
+    total += Number(value);
+  });
+
+  return total;
+}
 
 /* RENDER */
 function render(){
@@ -283,46 +305,23 @@ function render(){
   el.className = "vip " + vip.toLowerCase();
   el.textContent = vip;
 
-  /* ✅ HIDE LOADER ONLY AFTER FIRST REAL DATA */
-  if(!firstLoadDone){
+  if(!loaded){
     document.getElementById("loader").style.display = "none";
-    firstLoadDone = true;
+    loaded = true;
   }
 }
 
-/* CALCULATORS */
-function sumSnapshot(snapshot){
-  let total = 0;
-
-  snapshot.forEach(child=>{
-    const d = child.val();
-
-    if(!d) return;
-
-    // 🔥 FLEXIBLE FIELD DETECTION
-    const value =
-      d.amount ??
-      d.amt ??
-      d.value ??
-      d.earnings ??
-      d.profit ??
-      0;
-
-    total += Number(value);
-  });
-
-  return total;
-      }
-/* AUTH */
+/* 🔐 AUTH */
 auth.onAuthStateChanged(user => {
 
-  if (!user) return;
+  if (!user) {
+    window.location.href = "signin.html";
+    return;
+  }
 
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
-  db.ref("withdrawals").once("value", snap=>{
-  console.log("WITHDRAWALS DATA:", snap.val());
-});
+
   /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
@@ -335,12 +334,25 @@ auth.onAuthStateChanged(user => {
     render();
   });
 
-  /* USER WITHDRAWALS */
+  /* GLOBAL DEPOSITS */
+  db.ref("deposits").on("value", snap => {
+    depositGlobal = sumSnapshot(snap);
+    render();
+  });
+
+  /* USER EARNINGS (withdrawals) */
   db.ref("withdrawals/" + uid).on("value", snap => {
     earningsUser = sumSnapshot(snap);
     render();
   });
 
+  /* GLOBAL EARNINGS */
+  db.ref("withdrawals").on("value", snap => {
+    earningsGlobal = sumSnapshot(snap);
+    render();
+  });
+
+});
 
 /* LOGOUT */
 function logout(){
@@ -349,6 +361,11 @@ function logout(){
     window.location.href="signin.html";
   });
 }
+
+/* 🔥 SAFETY: hide loader if Firebase slow */
+setTimeout(()=>{
+  document.getElementById("loader").style.display = "none";
+}, 4000);
   </script>
 </body>
 </html>
