@@ -259,55 +259,44 @@ let userData = {};
 let depositUser = 0;
 let depositGlobal = 0;
 let earningsUser = 0;
-let earningsGlobal = 0;
-
-let loaded = false;
 
 /* SUM FUNCTION */
 function sumSnapshot(snapshot){
   let total = 0;
-
   snapshot.forEach(child=>{
     const d = child.val();
-    if(!d) return;
-
     const value =
-      d.amount ??
-      d.amt ??
-      d.value ??
-      d.earnings ??
-      d.profit ??
+      d?.amount ??
+      d?.amt ??
+      d?.value ??
+      d?.earnings ??
+      d?.profit ??
       0;
 
     total += Number(value);
   });
-
   return total;
 }
 
 /* RENDER */
 function render(){
-  // 🔥 ALWAYS hide loader (no conditions)
   document.getElementById("loader").style.display = "none";
-
-  const totalDeposit = depositUser + depositGlobal;
-  const totalEarnings = earningsUser + earningsGlobal;
 
   document.getElementById("balance").textContent =
     formatMoney(userData.balance);
 
   document.getElementById("deposit").textContent =
-    formatMoney(totalDeposit);
+    formatMoney(depositUser + depositGlobal);
 
   document.getElementById("earnings").textContent =
-    formatMoney(totalEarnings);
+    formatMoney(earningsUser);
 
   const vip = getVip(userData);
   const el = document.getElementById("user-vip");
 
   el.className = "vip " + vip.toLowerCase();
   el.textContent = vip;
-  }
+}
 
 /* 🔐 AUTH */
 auth.onAuthStateChanged(user => {
@@ -316,82 +305,82 @@ auth.onAuthStateChanged(user => {
     window.location.href = "signin.html";
     return;
   }
-const uid = user.uid;
-document.getElementById("user-email").textContent = user.email;
-  const uid = user.uid; // ✅ MOVE THIS HERE (TOP)
-  console.log("Loading earnings...");
-function loadEarnings() {
-  let total = 0;
 
-  db.ref("referralPurchases/" + uid).once("value")
-  .then(refSnap => {
+  const uid = user.uid;
+  document.getElementById("user-email").textContent = user.email;
 
-    if (refSnap.exists()) {
-      refSnap.forEach(child => {
-        const e = child.val();
-        if (e.status && e.status.toLowerCase() === "approved") {
-          total += Number(e.price || e.amount || 0);
-        }
-      });
-    }
+  /* ✅ CLEAN EARNINGS FUNCTION */
+  function loadEarnings() {
+    let total = 0;
 
-    return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
-  })
-  .then(bonusSnap => {
+    db.ref("referralPurchases/" + uid).once("value")
+    .then(refSnap => {
 
-    if (bonusSnap.val() === true) {
-      total += 100;
-    }
-db.ref("users/" + uid + "/dashboard/vipEarnings").once("value")
-.then(snap => console.log("VIP DATA:", snap.val()));
-    return db.ref("users/" + uid + "/dashboard/vipEarnings").once("value"); // ✅ FIXED
-  })
-  .then(vipSnap => {
+      if (refSnap.exists()) {
+        refSnap.forEach(child => {
+          const e = child.val();
+          if (e.status && e.status.toLowerCase() === "approved") {
+            total += Number(e.price || e.amount || 0);
+          }
+        });
+      }
 
+      return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
+    })
+    .then(bonusSnap => {
+
+      if (bonusSnap.val() === true) {
+        total += 100;
+      }
+
+      // 🔥 TRY BOTH PATHS (important)
+      return db.ref("users/" + uid + "/vipEarnings").once("value");
+    })
     .then(vipSnap => {
 
-  if (vipSnap.exists()) {
-    vipSnap.forEach(child => {
-      const v = child.val();
-      total += Number(v.totalEarned || 0);
+      if (vipSnap.exists()) {
+        vipSnap.forEach(child => {
+          const v = child.val();
+          total += Number(v.totalEarned || 0);
+        });
+      }
+
+      earningsUser = total;
+      render();
+    })
+    .catch(err => {
+      console.error("Earnings error:", err);
+      render(); // 🔥 NEVER freeze loader
     });
   }
 
-  earningsUser = total;
-  earningsGlobal = 0;
+  // ✅ RUN IT
+  loadEarnings();
 
-  render();
-})
+  // ✅ REALTIME LISTENERS
+  db.ref("referralPurchases/" + uid).on("value", loadEarnings);
+  db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
+  db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
 
-.catch(err => {
-  console.error("Earnings error:", err);
-  render(); // 🔥 prevents spinner from freezing
-});
-
-// ✅ CALL AFTER FUNCTION
-loadEarnings();
-
-db.ref("referralPurchases/" + uid).on("value", loadEarnings);
-db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
-db.ref("users/" + uid + "/dashboard/vipEarnings").on("value", loadEarnings);
   /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
     render();
   });
 
-  /* USER DEPOSITS */
+  /* DEPOSITS */
   db.ref("deposits/" + uid).on("value", snap => {
     depositUser = sumSnapshot(snap);
     render();
   });
 
-  /* GLOBAL DEPOSITS */
   db.ref("deposits").on("value", snap => {
     depositGlobal = sumSnapshot(snap);
     render();
   });
-  
+
+});
+
 /* LOGOUT */
 function logout(){
   auth.signOut().then(()=>{
@@ -400,10 +389,10 @@ function logout(){
   });
 }
 
-/* 🔥 SAFETY: hide loader if Firebase slow */
+/* SAFETY */
 setTimeout(()=>{
   document.getElementById("loader").style.display = "none";
 }, 4000);
-  </script>
+</script>
 </body>
 </html>
