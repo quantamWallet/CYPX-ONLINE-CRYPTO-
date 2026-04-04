@@ -318,7 +318,56 @@ auth.onAuthStateChanged(user => {
     window.location.href = "signin.html";
     return;
   }
+  function loadEarnings() {
+  let total = 0;
 
+  // REFERRALS
+  db.ref("referralPurchases/" + uid).once("value")
+  .then(refSnap => {
+
+    if (refSnap.exists()) {
+      refSnap.forEach(child => {
+        const e = child.val();
+
+        if (e.status && e.status.toLowerCase() === "approved") {
+          total += Number(e.price || e.amount || 0);
+        }
+      });
+    }
+
+    // BONUS
+    return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
+  })
+  .then(bonusSnap => {
+
+    if (bonusSnap.val() === true) {
+      total += 100;
+    }
+
+    // VIP EARNINGS
+    return db.ref("users/" + uid + "/vipEarnings").once("value");
+  })
+  .then(vipSnap => {
+
+    if (vipSnap.exists()) {
+      vipSnap.forEach(child => {
+        const v = child.val();
+        total += Number(v.totalEarned || 0);
+      });
+    }
+
+    earningsUser = total;   // ✅ IMPORTANT
+    earningsGlobal = 0;     // ❗ prevent duplication
+
+    render();
+  })
+  .catch(err => console.error(err));
+  }
+  loadEarnings();
+
+db.ref("referralPurchases/" + uid).on("value", loadEarnings);
+db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
+db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
 
@@ -339,21 +388,7 @@ auth.onAuthStateChanged(user => {
     depositGlobal = sumSnapshot(snap);
     render();
   });
-
-  /* USER EARNINGS (withdrawals) */
-  db.ref("withdrawals/" + uid).on("value", snap => {
-    earningsUser = sumSnapshot(snap);
-    render();
-  });
-
-  /* GLOBAL EARNINGS */
-  db.ref("withdrawals").on("value", snap => {
-    earningsGlobal = sumSnapshot(snap);
-    render();
-  });
-
-});
-
+  
 /* LOGOUT */
 function logout(){
   auth.signOut().then(()=>{
