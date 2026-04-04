@@ -355,13 +355,15 @@ nav i { font-size:20px; }
       claims+=1;  
       const newBalance=(data.balance||0)+profit;  
   
-      await update(userRef,{  
-        balance:newBalance,  
-        [`vipLevels/${level}/claims`]:claims,  
-        [`vipLevels/${level}/lastClaim`]:now,  
-        [`dashboard/vipEarnings/${level}/daysClaimed`]: claims,  
-        [`dashboard/vipEarnings/${level}/lastClaim`]: now  
-      });  
+      await update(userRef,{      
+  balance:newBalance,      
+  [`vipLevels/${level}/claims`]:claims,      
+  [`vipLevels/${level}/lastClaim`]:now,      
+
+  // ✅ STORE REAL MONEY EARNED
+  [`vipEarnings/${level}/totalEarned`]: claims * profit,
+  [`vipEarnings/${level}/lastClaim`]: now
+});
   
       showToast(`Daily profit of ${profit} KSH claimed for VIP${level}`);  
     }  
