@@ -441,11 +441,10 @@
 
 document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance)}`;  
         }); 
-        database.ref("deposits").on("value", snapshot => {
+        database.ref("deposits/" + uid).on("value", snapshot => {
   let totalDeposit = 0;
 
   if (!snapshot.exists()) {
-    console.log("No deposits found");
     document.getElementById("total-deposit").textContent = "KSh 0.00";
     return;
   }
@@ -453,19 +452,11 @@ document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance
   snapshot.forEach(child => {
     const d = child.val();
 
-    console.log("Deposit record:", d);
+    console.log("Deposit:", d);
 
-    // match user
-    if (d.userId === uid) {
-
-      // accept ANY success status
-      if (
-        d.status === "approved" ||
-        d.status === "completed" ||
-        d.status === "success"
-      ) {
-        totalDeposit += parseFloat(d.amount || 0);
-      }
+    // FIX: match your actual status
+    if (d.status && d.status.toLowerCase() === "approved") {
+      totalDeposit += parseFloat(d.amount || 0);
     }
   });
 
@@ -473,11 +464,10 @@ document.getElementById("user-balance").textContent = `KSh ${formatMoney(balance
     "KSh " + formatMoney(totalDeposit);
 });
 
-database.ref("referralPurchases").on("value", snapshot => {
+database.ref("referralPurchases/" + uid).on("value", snapshot => {
   let totalEarnings = 0;
 
   if (!snapshot.exists()) {
-    console.log("No earnings found");
     document.getElementById("total-earnings").textContent = "KSh 0.00";
     return;
   }
@@ -485,20 +475,11 @@ database.ref("referralPurchases").on("value", snapshot => {
   snapshot.forEach(child => {
     const e = child.val();
 
-    console.log("Earning record:", e);
+    console.log("Earning:", e);
 
-    // match user
-    if (e.userId === uid) {
-
-      if (
-        e.status === "completed" ||
-        e.status === "approved" ||
-        e.status === "success"
-      ) {
-        totalEarnings += parseFloat(
-          e.amount || e.price || e.earning || 0
-        );
-      }
+    // FIX: count ALL or change condition
+    if (e.status) {
+      totalEarnings += parseFloat(e.price || e.amount || 0);
     }
   });
 
