@@ -321,24 +321,22 @@ auth.onAuthStateChanged(user => {
   }
 
   const uid = user.uid; // ✅ MOVE THIS HERE (TOP)
-  function loadEarnings() {
+  
+function loadEarnings() {
   let total = 0;
 
-  // REFERRALS
   db.ref("referralPurchases/" + uid).once("value")
   .then(refSnap => {
 
     if (refSnap.exists()) {
       refSnap.forEach(child => {
         const e = child.val();
-
         if (e.status && e.status.toLowerCase() === "approved") {
           total += Number(e.price || e.amount || 0);
         }
       });
     }
 
-    // BONUS
     return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
   })
   .then(bonusSnap => {
@@ -347,8 +345,8 @@ auth.onAuthStateChanged(user => {
       total += 100;
     }
 
-    // VIP EARNINGS
-    return db.ref("users/" + uid + "/dashboard/vipEarnings").once("value");
+    return db.ref("users/" + uid + "/dashboard/vipEarnings").once("value"); // ✅ FIXED
+  })
   .then(vipSnap => {
 
     if (vipSnap.exists()) {
@@ -358,22 +356,23 @@ auth.onAuthStateChanged(user => {
       });
     }
 
-    earningsUser = total;   // ✅ IMPORTANT
-    earningsGlobal = 0;     // ❗ prevent duplication
+    earningsUser = total;
+    earningsGlobal = 0;
 
     render();
   })
   .catch(err => {
-  console.error(err);
-  render(); // ✅ prevent freeze if error
-});
-  loadEarnings();
+    console.error(err);
+    render();
+  });
+}
+
+// ✅ CALL AFTER FUNCTION
+loadEarnings();
 
 db.ref("referralPurchases/" + uid).on("value", loadEarnings);
 db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
-db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
-  document.getElementById("user-email").textContent = user.email;
-
+db.ref("users/" + uid + "/dashboard/vipEarnings").on("value", loadEarnings);
   /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
     userData = snap.val() || {};
