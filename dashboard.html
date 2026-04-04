@@ -488,56 +488,56 @@ window.onload = function () {
        ✔ vip earnings (if exists)
     ========================= */
     function loadTotalEarnings() {
-      let total = 0;
+  let total = 0;
 
-      // REFERRALS
-      database.ref("referralPurchases/" + uid).once("value")
-      .then(refSnap => {
+  // REFERRALS
+  database.ref("referralPurchases/" + uid).once("value")
+  .then(refSnap => {
 
-        if (refSnap.exists()) {
-          refSnap.forEach(child => {
-            const e = child.val();
+    if (refSnap.exists()) {
+      refSnap.forEach(child => {
+        const e = child.val();
 
-            if (e.status && e.status.toLowerCase() === "approved") {
-              total += Number(e.price || e.amount || 0);
-            }
-          });
+        if (e.status && e.status.toLowerCase() === "approved") {
+          total += Number(e.price || e.amount || 0);
         }
-
-        // BONUS
-        return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
-      })
-      .then(bonusSnap => {
-
-        if (bonusSnap.val() === true) {
-          total += 100;
-        }
-
-        // VIP EARNINGS (SAFE - won't break if missing)
-        return database.ref("users/" + uid + "/vipEarnings").once("value");
-      .then(vipSnap => {
-
-        if (vipSnap.exists()) {
-  vipSnap.forEach(child => {
-    const v = child.val();
-    total += Number(v.totalEarned || 0);
-  });
-        }
-
-        document.getElementById("total-earnings").textContent =
-          "KSh " + formatMoney(total);
-      })
-      .catch(err => {
-        console.error("Earnings error:", err);
       });
     }
+
+    // BONUS
+    return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
+  })
+  .then(bonusSnap => {
+
+    if (bonusSnap.val() === true) {
+      total += 100;
+    }
+
+    // ✅ FIXED: removed wrong semicolon + chained properly
+    return database.ref("users/" + uid + "/vipEarnings").once("value");
+  })
+  .then(vipSnap => {
+
+    if (vipSnap.exists()) {
+      vipSnap.forEach(child => {
+        const v = child.val();
+        total += Number(v.totalEarned || 0);
+      });
+    }
+
+    document.getElementById("total-earnings").textContent =
+      "KSh " + formatMoney(total);
+  })
+  .catch(err => {
+    console.error("Earnings error:", err);
+  });
+      }
 
     // RUN + LIVE
     loadTotalEarnings();
     database.ref("referralPurchases/" + uid).on("value", loadTotalEarnings);
     database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);
-    database.ref("vipEarnings/" + uid).on("value", loadTotalEarnings);
-
+    database.ref("users/" + uid + "/vipEarnings").on("value", loadTotalEarnings);
     /* =========================
        CLAIM BONUS
     ========================= */
