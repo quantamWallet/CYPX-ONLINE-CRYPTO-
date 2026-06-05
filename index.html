@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>CYPX HOLDINGS</title>
-
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007a54">
-
+    <link rel="icon" href="cypx_icon_192x192.png">
 <style>
 *{
     margin:0;
@@ -375,10 +374,11 @@ footer a:hover{
     <p>© 2026 CYPX HOLDINGS. All rights reserved.</p>
 
 </footer>
-
 <script>
-if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js');
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js');
+  });
 }
 </script>
 
