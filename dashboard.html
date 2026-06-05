@@ -291,27 +291,64 @@
   
       /* small helper for style */  
       .small-muted { color: #9fb0cf; font-size:13px; }  
-      .telegram-float {
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
-  width: 60px;
-  height: 60px;
-  background: #0088cc;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  font-size: 30px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  z-index: 9999;
+      /* TELEGRAM FLOAT BUTTON */
+.telegram-float {
+    position: fixed;
+    bottom: 85px; /* above bottom nav */
+    right: 18px;
+    width: 62px;
+    height: 62px;
+    background: linear-gradient(145deg, #27A5E7, #0088cc);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    z-index: 9999;
+
+    /* Premium shadow */
+    box-shadow:
+        0 6px 18px rgba(0, 136, 204, 0.45),
+        inset 0 2px 6px rgba(255,255,255,0.25);
+
+    transition: all 0.25s ease;
+    animation: telegramPulse 2s infinite;
 }
 
-.telegram-float:hover {
-  transform: scale(1.08);
+/* Telegram Icon */
+.telegram-float i {
+    color: white;
+    font-size: 30px;
+    transform: translateX(-2px);
 }
+
+/* Hover / tap effect */
+.telegram-float:hover {
+    transform: scale(1.08);
+}
+
+/* Mobile tap effect */
+.telegram-float:active {
+    transform: scale(0.95);
+}
+
+/* Soft pulse animation */
+@keyframes telegramPulse {
+    0% {
+        box-shadow:
+        0 0 0 0 rgba(0,136,204,0.5);
+    }
+
+    70% {
+        box-shadow:
+        0 0 0 14px rgba(0,136,204,0);
+    }
+
+    100% {
+        box-shadow:
+        0 0 0 0 rgba(0,136,204,0);
+    }
+      }
     </style>  
   </head>  
   <body>  
