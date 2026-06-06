@@ -328,7 +328,7 @@ accept="image/*"
 required
 />
 
-<button class="submit-btn">
+<button type="submit" class="submit-btn" id="submitBtn">
 Submit Deposit
 </button>
 
@@ -379,11 +379,9 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.appspot.com",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-/* SAFE INIT */
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
@@ -393,12 +391,14 @@ const db = firebase.database();
 const storage = firebase.storage();
 
 let uid = null;
+let userReady = false;
 
 /* AUTH */
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged((user) => {
   if (user) {
     uid = user.uid;
-    console.log("User UID:", uid);
+    userReady = true;
+    console.log("Logged in:", uid);
   } else {
     showPopup("Please login first", "error");
 
@@ -431,112 +431,133 @@ function showPopup(message, type) {
   }, 2000);
 }
 
-/* SUBMIT */
-document.getElementById("depositForm")
-.addEventListener("submit", async function(e) {
+/* FORM SUBMIT */
+document.addEventListener("DOMContentLoaded", () => {
 
-  e.preventDefault();
+const form = document.getElementById("depositForm");
+const submitBtn = document.getElementById("submitBtn");
 
-  if (!uid) {
-    showPopup("Please wait, user loading...", "error");
-    return;
-  }
+form.addEventListener("submit", async function(e) {
 
-  const amount =
-    Number(document.getElementById("amount").value);
+e.preventDefault();
 
-  const phone =
-    document.getElementById("phone").value.trim();
+if (!userReady || !uid) {
+  showPopup("Please wait...", "error");
+  return;
+}
 
-  const receipt =
-    document.getElementById("receipt").files[0];
+submitBtn.disabled = true;
+submitBtn.innerText = "Submitting...";
 
-  if (amount < 5000) {
-    showPopup(
-      "Minimum deposit is KSh 5,000",
-      "error"
-    );
-    return;
-  }
+const amount =
+Number(document.getElementById("amount").value);
 
+const phone =
+document.getElementById("phone").value.trim();
+
+const receipt =
+document.getElementById("receipt").files[0];
+
+if (amount < 5000) {
+  showPopup(
+    "Minimum deposit is KSh 5,000",
+    "error"
+  );
+
+  submitBtn.disabled = false;
+  submitBtn.innerText = "Submit Deposit";
+  return;
+}
+
+try {
+
+const depositId =
+db.ref().push().key;
+
+/* SAVE IMMEDIATELY */
+let depositData = {
+  id: depositId,
+  amount: amount,
+  phone: phone,
+  method: "P2P",
+  status: "pending",
+  traderMpesa: "0707207201",
+  traderAirtel: "0750858351",
+  timestamp: Date.now(),
+  type: "deposit"
+};
+
+/* SAVE TO DEPOSITS */
+await db.ref(
+  "deposits/" + uid + "/" + depositId
+).set(depositData);
+
+/* SAVE TO FINANCIAL */
+await db.ref(
+  "financial/" + uid + "/" + depositId
+).set(depositData);
+
+/* OPTIONAL RECEIPT */
+if (receipt) {
   try {
 
-    const depositRef =
-      db.ref("deposits/" + uid).push();
+    const snapshot =
+    await storage.ref(
+      "receipts/" +
+      uid +
+      "/" +
+      depositId
+    ).put(receipt);
 
-    let depositData = {
-      id: depositRef.key,
-      amount: amount,
-      phone: phone,
-      traderMpesa: "0707207201",
-      traderAirtel: "0750858351",
-      traderNames: [
-        "LANGAT ROBERT",
-        "Hassan Abdi"
-      ],
-      method: "P2P",
-      status: "pending",
-      timestamp: Date.now(),
-      type: "deposit"
-    };
+    const url =
+    await snapshot.ref.getDownloadURL();
 
-    /* UPLOAD RECEIPT */
-    if (receipt) {
-
-      const storageRef =
-        storage.ref(
-          "receipts/" +
-          uid + "/" +
-          depositRef.key
-        );
-
-      const snapshot =
-        await storageRef.put(receipt);
-
-      const downloadURL =
-        await snapshot.ref.getDownloadURL();
-
-      depositData.receiptUrl =
-        downloadURL;
-    }
-
-    /* SAVE DEPOSIT */
-    await depositRef.set(depositData);
-
-    /* ALSO SAVE TO FINANCIAL HISTORY */
     await db.ref(
-      "financial/" +
-      uid + "/" +
-      depositRef.key
-    ).set({
-      ...depositData
+      "deposits/" +
+      uid +
+      "/" +
+      depositId
+    ).update({
+      receiptUrl: url
     });
 
-    showPopup(
-      "Deposit submitted ✔ Pending approval",
-      "success"
-    );
-
-    document
-      .getElementById("depositForm")
-      .reset();
-
-    setTimeout(() => {
-      window.location.href =
-        "financial.html";
-    }, 1500);
-
-  } catch (error) {
-
-    console.error(error);
-
-    showPopup(
-      error.message ||
-      "Deposit failed",
-      "error"
+  } catch(uploadErr) {
+    console.log(
+      "Receipt upload skipped:",
+      uploadErr
     );
   }
+}
+
+showPopup(
+  "Deposit submitted ✔ Pending approval",
+  "success"
+);
+
+form.reset();
+
+setTimeout(() => {
+  window.location.href =
+  "financial.html";
+}, 1500);
+
+} catch(err) {
+
+console.error(err);
+
+showPopup(
+  err.message || "Submission failed",
+  "error"
+);
+
+submitBtn.disabled = false;
+submitBtn.innerText =
+"Submit Deposit";
+}
+
 });
-</script>
+
+});
+    </script>
 </body>
   </html>
