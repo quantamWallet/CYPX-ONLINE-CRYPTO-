@@ -511,24 +511,30 @@ const form = document.getElementById('withdrawForm');
 const popup = document.getElementById('popup');              
               
 // show popup              
-function showPopup(msg,type='success',timeout=2800,redirect=null){              
-  popup.innerHTML = msg;              
-  popup.className='popup '+(type||'success');              
-  popup.style.display='block';              
-  if(type === 'confirm'){
-  popup.innerHTML += `
-    <br><br>
-    <button id="confirmBtn">Go to Select</button>
-  `;
+function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
+  popup.innerHTML = msg;
+  popup.className = 'popup ' + type;
+  popup.style.display = 'block';
 
-  document.getElementById('confirmBtn').onclick = () => {
-    popup.style.display = 'none';
-    window.location.href = redirect || 'select.html';
-  };
-  }              
-  } else {              
-    setTimeout(()=>popup.style.display='none',timeout);              
-  }              
+  if (type === 'confirm') {
+
+    popup.innerHTML += `
+      <br><br>
+      <button id="confirmBtn">Go to Select</button>
+    `;
+
+    document.getElementById('confirmBtn').onclick = () => {
+      popup.style.display = 'none';
+      window.location.href = redirect || 'select.html';
+    };
+
+  } else {
+
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, timeout);
+
+  }
 }              
               
 let currentUser=null;              
