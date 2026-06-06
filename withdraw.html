@@ -673,4 +673,36 @@ form.addEventListener('submit',async e=>{
   }, async (err, committed)=>{              
     submitBtn.disabled=false;              
     submitBtn.textContent='Submit Withdrawal';              
-    if(err || !comm
+    if(err || !committed){ showPopup('Error or insufficient funds','error'); return; }              
+              
+    // Build payload with method-specific fields              
+    const payload = {              
+      amount,              
+      method,              
+      timestamp: Date.now(),              
+      status: 'submitted'              
+    };              
+    if(method === "mpesa" || method === "airtel"){              
+      payload.phone = phone;              
+    } else if(method === "paypal"){              
+      payload.paypalEmail = paypalEmail;              
+    } else if(method === "btc"){              
+      payload.btcAddress = cryptoAddress;              
+    } else if(method === "usdt_erc20"){              
+      payload.usdtAddress = cryptoAddress;              
+      payload.network = "ERC20";              
+    }              
+              
+    await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);              
+              
+    amountInput.value='';              
+    phoneInput.value='';              
+    paypalEmailInput.value='';              
+    cryptoAddressInput.value='';              
+              
+    showPopup(`Withdrawal request of KES ${amount.toLocaleString()} submitted.`,'success');              
+  });              
+});              
+</script>              
+</body>              
+  </html>
