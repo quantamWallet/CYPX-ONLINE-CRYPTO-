@@ -497,17 +497,17 @@ await db.ref(
   "financial/" + uid + "/" + depositId
 ).set(depositData);
 
-/* OPTIONAL RECEIPT */
+/* RECEIPT UPLOAD (NON-BLOCKING) */
 if (receipt) {
-  try {
 
-    const snapshot =
-    await storage.ref(
-      "receipts/" +
-      uid +
-      "/" +
-      depositId
-    ).put(receipt);
+  storage.ref(
+    "receipts/" +
+    uid +
+    "/" +
+    depositId
+  )
+  .put(receipt)
+  .then(async(snapshot)=>{
 
     const url =
     await snapshot.ref.getDownloadURL();
@@ -521,13 +521,31 @@ if (receipt) {
       receiptUrl: url
     });
 
-  } catch(uploadErr) {
+  })
+  .catch((uploadErr)=>{
     console.log(
-      "Receipt upload skipped:",
+      "Receipt upload failed:",
       uploadErr
     );
-  }
+  });
 }
+
+/* SUCCESS IMMEDIATELY */
+showPopup(
+  "Deposit submitted ✔ Pending approval",
+  "success"
+);
+
+submitBtn.disabled = false;
+submitBtn.innerText =
+"Submit Deposit";
+
+form.reset();
+
+setTimeout(() => {
+  window.location.href =
+  "financial.html";
+}, 1500);
 
 showPopup(
   "Deposit submitted ✔ Pending approval",
