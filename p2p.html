@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>P2P Deposit - CYPX HOLDINGS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:linear-gradient(to bottom,#071426,#0d1b2a);
+  color:white;
+  padding-bottom:90px;
+}
+
+.header{
+  background:#10233d;
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#ffcc00;
+  box-shadow:0 2px 10px rgba(0,0,0,0.3);
+}
+
+.container{
+  max-width:430px;
+  margin:20px auto;
+  padding:0 15px;
+}
+
+.hero{
+  background:#10233d;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+}
+
+.verified-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:linear-gradient(to right,#25d366,#128c7e);
+  padding:7px 14px;
+  border-radius:30px;
+  font-size:12px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.hero h2{
+  color:#ffcc00;
+  margin-bottom:14px;
+}
+
+.hero p{
+  color:#ddd;
+  margin-bottom:12px;
+}
+
+.trader-card{
+  background:#0b1b2d;
+  border-radius:14px;
+  padding:16px;
+  margin-top:15px;
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.trader-title{
+  color:#ffcc00;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.copy-box{
+  background:#071426;
+  border:1px dashed #25d366;
+  padding:14px;
+  border-radius:12px;
+  text-align:center;
+  margin:12px 0;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.copy-box small{
+  color:#aaa;
+}
+
+.agent-name{
+  font-size:15px;
+  margin:8px 0;
+}
+
+.minimum{
+  color:#ffcc00;
+  font-weight:bold;
+  margin-top:15px;
+}
+
+.steps{
+  margin-top:16px;
+  padding-left:20px;
+  color:#d4d4d4;
+  line-height:1.8;
+}
+
+.card{
+  background:#10233d;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+}
+
+.card h2{
+  color:#ffcc00;
+  margin-bottom:15px;
+}
+
+.input{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:#071426;
+  color:white;
+  margin-bottom:15px;
+  font-size:15px;
+}
+
+.input::placeholder{
+  color:#999;
+}
+
+.submit-btn{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(to right,#ffcc00,#f2b600);
+  color:#071426;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.info-box{
+  margin-top:20px;
+  background:#10233d;
+  border-left:4px solid #ffcc00;
+  padding:16px;
+  border-radius:12px;
+  color:#ddd;
+  line-height:1.8;
+}
+
+.delay-box{
+  margin-top:20px;
+  background:#10233d;
+  border-left:4px solid #25d366;
+  padding:16px;
+  border-radius:12px;
+}
+
+.delay-box h3{
+  color:#25d366;
+  margin-bottom:10px;
+}
+
+.telegram-btn{
+  display:block;
+  width:100%;
+  text-align:center;
+  background:linear-gradient(to right,#229ED9,#1b87bb);
+  color:white;
+  text-decoration:none;
+  padding:14px;
+  border-radius:12px;
+  margin-top:15px;
+  font-weight:bold;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+}
+
+.popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:#10233d;
+  padding:16px 22px;
+  border-radius:12px;
+  font-weight:bold;
+  display:none;
+  z-index:1000;
+}
+
+.success{
+  border-left:4px solid #25d366;
+}
+
+.error{
+  border-left:4px solid red;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  P2P Deposit
+</div>
+
+<div class="container">
+
+<div class="hero">
+
+<div class="verified-badge">
+<i class="fas fa-check-circle"></i>
+Verified CYPX Traders
+</div>
+
+<h2>Official P2P Traders</h2>
+
+<p>
+Send money only to the verified traders below.
+Deposits are reviewed manually for security.
+</p>
+
+<!-- MPESA -->
+<div class="trader-card">
+
+<div class="trader-title">
+M-PESA Trader
+</div>
+
+<div class="copy-box" onclick="copyNumber('0707207201')">
+📱 0707207201 <br>
+<small>Tap to copy</small>
+</div>
+
+<div class="agent-name">
+<strong>Name:</strong> LANGAT ROBERT
+</div>
+
+</div>
+
+<!-- AIRTEL -->
+<div class="trader-card">
+
+<div class="trader-title">
+Airtel Money Trader
+</div>
+
+<div class="copy-box" onclick="copyNumber('0750858351')">
+📱 0750858351 <br>
+<small>Tap to copy</small>
+</div>
+
+<div class="agent-name">
+<strong>Name:</strong> Hassan Abdi
+</div>
+
+</div>
+
+<div class="minimum">
+Minimum Deposit: KSh 5,000
+</div>
+
+<ul class="steps">
+<li>Open M-PESA or Airtel Money</li>
+<li>Send payment to one trader above</li>
+<li>Enter amount above KSh 5,000</li>
+<li>Upload payment screenshot</li>
+<li>Submit deposit request</li>
+</ul>
+
+</div>
+<!-- DEPOSIT FORM -->
+<div class="card">
+
+<h2>Submit Deposit</h2>
+
+<form id="depositForm">
+
+<input
+type="number"
+id="amount"
+class="input"
+placeholder="Enter amount (Min 5000 KSH)"
+required
+/>
+
+<input
+type="tel"
+id="phone"
+class="input"
+placeholder="Phone number used"
+required
+/>
+
+<input
+type="file"
+id="receipt"
+class="input"
+accept="image/*"
+required
+/>
+
+<button class="submit-btn">
+Submit Deposit
+</button>
+
+</form>
+
+</div>
+
+<!-- INFO BOX -->
+<div class="info-box">
+<strong>Processing Time:</strong> 5–30 minutes.<br>
+<strong>Status:</strong> Deposits appear as <strong>Pending</strong> before approval.<br>
+<strong>Security:</strong> Only send money to verified trader accounts.<br>
+<strong>Important:</strong> Wrong transfers may delay approval.
+</div>
+
+<!-- DELAY SUPPORT -->
+<div class="delay-box">
+
+<h3>Deposit Delayed?</h3>
+
+<p>
+If your deposit takes longer than expected,
+contact CYPX support with your payment screenshot
+for manual verification.
+</p>
+
+<a
+href="https://t.me/cypxholdings"
+target="_blank"
+class="telegram-btn"
+>
+<i class="fab fa-telegram-plane"></i>
+ Contact Support @cypxholdings
+</a>
+
+</div>
+
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+let uid = null;
+
+/* AUTH */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    uid = user.uid;
+  }else{
+    showPopup("Please login first","error");
+
+    setTimeout(()=>{
+      window.location.href = "signin.html";
+    },1500);
+  }
+});
+
+/* COPY NUMBER */
+function copyNumber(number){
+  navigator.clipboard.writeText(number);
+  showPopup("Trader number copied","success");
+}
+
+/* POPUP */
+function showPopup(message,type){
+
+  const popup =
+  document.getElementById("popup");
+
+  const overlay =
+  document.getElementById("overlay");
+
+  popup.textContent = message;
+  popup.className = "popup " + type;
+
+  popup.style.display = "block";
+  overlay.style.display = "block";
+
+  setTimeout(()=>{
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  },2000);
+}
+
+/* SUBMIT */
+document.getElementById("depositForm")
+.addEventListener("submit", async(e)=>{
+
+e.preventDefault();
+
+if(!uid){
+  showPopup("User not ready","error");
+  return;
+}
+
+const amount =
+Number(document.getElementById("amount").value);
+
+const phone =
+document.getElementById("phone")
+.value.trim();
+
+const receipt =
+document.getElementById("receipt")
+.files[0];
+
+if(amount < 5000){
+  showPopup(
+    "Minimum deposit is KSh 5,000",
+    "error"
+  );
+  return;
+}
+
+try{
+
+const ref =
+db.ref("deposits/" + uid).push();
+
+let data = {
+  amount: amount,
+  phone: phone,
+  status: "pending",
+  method: "p2p",
+  timestamp: Date.now()
+};
+
+/* RECEIPT */
+if(receipt){
+
+const uploadTask =
+await storage
+.ref(`receipts/${uid}/${ref.key}`)
+.put(receipt);
+
+data.receiptUrl =
+await uploadTask.ref
+.getDownloadURL();
+}
+
+/* SAVE */
+await ref.set(data);
+
+showPopup(
+"Deposit submitted ✔ Pending approval",
+"success"
+);
+
+document
+.getElementById("depositForm")
+.reset();
+
+setTimeout(()=>{
+window.location.href =
+"financial.html";
+},1500);
+
+}catch(error){
+
+console.error(error);
+
+showPopup(
+error.message || "Failed",
+"error"
+);
+
+}
+
+});
+</script>
+
+</body>
+  </html>
