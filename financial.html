@@ -170,108 +170,146 @@ const tabs = document.querySelectorAll(".tab");
 
 let deposits = [];
 let withdrawals = [];
-let purchases = []; // ✅ NEW
+let purchases = [];
 
-function renderRecords(filter="all"){
+function renderRecords(filter = "all") {
 
   listContainer.innerHTML = "";
 
-  let all = [...deposits, ...withdrawals, ...purchases];
+  let all = [
+    ...deposits,
+    ...withdrawals,
+    ...purchases
+  ];
 
-  all.sort((a,b)=> b.createdAt - a.createdAt);
+  /* ✅ FIXED: FORCE NEWEST FIRST */
+  all = all.sort((a, b) => {
+    const timeA = Number(a.createdAt || 0);
+    const timeB = Number(b.createdAt || 0);
+    return timeB - timeA;
+  });
 
-  if(filter !== "all"){
-    all = all.filter(r => r.type.toLowerCase() === filter);
+  if (filter !== "all") {
+    all = all.filter(r =>
+      r.type.toLowerCase() === filter
+    );
   }
 
-  if(all.length === 0){
-    listContainer.innerHTML = '<p class="no-records">No transactions found.</p>';
+  if (all.length === 0) {
+    listContainer.innerHTML =
+      '<p class="no-records">No transactions found.</p>';
     return;
   }
 
-  all.forEach(r=>{
-    const div = document.createElement("div");
+  all.forEach(r => {
 
-    div.className="record-item";
+    const div = document.createElement("div");
+    div.className = "record-item";
 
     div.innerHTML = `
       <p class="record-type">${r.type}</p>
-      <p>Amount: KSh ${parseFloat(r.amount).toFixed(2)}</p>
+      <p>Amount: KSh ${parseFloat(r.amount || 0).toFixed(2)}</p>
       <p>Method: ${r.method}</p>
       <p>Date: ${new Date(r.createdAt).toLocaleString()}</p>
-      <span class="badge ${r.status.toLowerCase()}">${r.status}</span>
+      <span class="badge ${(r.status || "pending").toLowerCase()}">
+        ${r.status || "pending"}
+      </span>
     `;
 
     listContainer.appendChild(div);
   });
 }
 
-auth.onAuthStateChanged(user=>{
-  if(!user){
-    listContainer.innerHTML='<p class="no-records">Login required.</p>';
+auth.onAuthStateChanged(user => {
+
+  if (!user) {
+    listContainer.innerHTML =
+      '<p class="no-records">Login required.</p>';
     return;
   }
 
   const uid = user.uid;
 
   /* DEPOSITS */
-  db.ref("deposits/" + uid).on("value", snap=>{
+  db.ref("deposits/" + uid).on("value", snap => {
+
     deposits = [];
-    snap.forEach(child=>{
+
+    snap.forEach(child => {
+
       const d = child.val();
+
       deposits.push({
-        type:"Deposit",
-        amount:d.amount || 0,
-        method:d.method || "Mpesa",
-        status:d.status || "pending",
-        createdAt:d.timestamp || Date.now()
+        type: "Deposit",
+        amount: d.amount || 0,
+        method: d.method || "Mpesa",
+        status: d.status || "pending",
+        createdAt: Number(d.timestamp || d.createdAt || 0)
       });
     });
-    renderRecords(document.querySelector(".tab.active").dataset.filter);
+
+    renderRecords(
+      document.querySelector(".tab.active").dataset.filter
+    );
   });
 
   /* WITHDRAWALS */
-  db.ref("withdrawals/" + uid).on("value", snap=>{
+  db.ref("withdrawals/" + uid).on("value", snap => {
+
     withdrawals = [];
-    snap.forEach(child=>{
+
+    snap.forEach(child => {
+
       const w = child.val();
+
       withdrawals.push({
-        type:"Withdrawal",
-        amount:w.amount || 0,
-        method:w.method || "-",
-        status:w.status || "pending",
-        createdAt:w.timestamp || Date.now()
+        type: "Withdrawal",
+        amount: w.amount || 0,
+        method: w.method || "-",
+        status: w.status || "pending",
+        createdAt: Number(w.timestamp || w.createdAt || 0)
       });
     });
-    renderRecords(document.querySelector(".tab.active").dataset.filter);
+
+    renderRecords(
+      document.querySelector(".tab.active").dataset.filter
+    );
   });
 
-  /* ✅ REFERRAL PURCHASES (FIX ADDED) */
-  db.ref("referralPurchases/" + uid).on("value", snap=>{
+  /* REFERRAL PURCHASES */
+  db.ref("referralPurchases/" + uid).on("value", snap => {
+
     purchases = [];
 
-    snap.forEach(child=>{
+    snap.forEach(child => {
+
       const p = child.val();
 
       purchases.push({
-        type:"Deposit",
-        amount:p.amount || p.price || 0,
-        method:"Referral purchase " + (p.group || ""),
-        status:p.status || "pending",
-        createdAt:p.createdAt || Date.now()
+        type: "Deposit",
+        amount: p.amount || p.price || 0,
+        method: "Referral purchase " + (p.group || ""),
+        status: p.status || "pending",
+        createdAt: Number(p.createdAt || 0)
       });
     });
 
-    renderRecords(document.querySelector(".tab.active").dataset.filter);
+    renderRecords(
+      document.querySelector(".tab.active").dataset.filter
+    );
   });
 });
 
-tabs.forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelector(".tab.active").classList.remove("active");
+tabs.forEach(tab => {
+  tab.onclick = () => {
+    document
+      .querySelector(".tab.active")
+      .classList.remove("active");
+
     tab.classList.add("active");
+
     renderRecords(tab.dataset.filter);
-  }
+  };
 });
 </script>
 
