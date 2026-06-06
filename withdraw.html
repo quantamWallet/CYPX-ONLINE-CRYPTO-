@@ -491,7 +491,10 @@ const firebaseConfig = {
   appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -506,41 +509,44 @@ const paypalBox = document.getElementById('paypalBox');
 const cryptoBox = document.getElementById('cryptoBox');
 const cryptoLabel = document.getElementById('cryptoLabel');
 const cryptoAddressInput = document.getElementById('cryptoAddress');
-const cryptoHint = document.getElementById('cryptoHint');
 const submitBtn = document.getElementById('submitBtn');
 const form = document.getElementById('withdrawForm');
 const popup = document.getElementById('popup');
 
-// === POPUP FIX (FORCED VISIBILITY) ===
-function showPopup(msg, type='success', timeout=2800, redirect=null){
-  popup.innerHTML = msg;
-  popup.className = 'popup ' + type;
-  popup.style.display = 'block';
-  popup.style.zIndex = 99999;
+let currentUser = null;
 
-  if(type === 'confirm'){
+// === POPUP (FORCED + RELIABLE) ===
+function showPopup(msg, type='success', timeout=2500, redirect=null){
+  popup.innerHTML = msg;
+  popup.className = `popup ${type}`;
+  popup.style.display = 'block';
+  popup.style.zIndex = '999999';
+
+  if (type === 'confirm') {
     popup.innerHTML += `<br><br><button id="confirmBtn">Continue</button>`;
     document.getElementById('confirmBtn').onclick = () => {
       popup.style.display = 'none';
-      if(redirect) window.location.href = redirect;
+      if (redirect) window.location.href = redirect;
     };
     return;
   }
 
-  setTimeout(()=> popup.style.display='none', timeout);
+  if (timeout > 0) {
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, timeout);
+  }
 }
 
-let currentUser = null;
-
-// === Auth ===
-auth.onAuthStateChanged(user=>{
+// === AUTH ===
+auth.onAuthStateChanged(user => {
   currentUser = user;
 
-  if(user){
+  if (user) {
     submitBtn.disabled = false;
 
-    db.ref(`users/${user.uid}/balance`).on('value', s=>{
-      balanceEl.textContent = (Number(s.val())||0).toLocaleString('en-US');
+    db.ref(`users/${user.uid}/balance`).on('value', snap => {
+      balanceEl.textContent = (Number(snap.val()) || 0).toLocaleString('en-US');
     });
 
   } else {
@@ -549,25 +555,25 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
-// === validation helpers ===
+// === VALIDATION ===
 function isValidNumberForMethod(phone, method){
   if(!/^07\d{8}$/.test(phone)) return false;
-  const prefix = phone.substring(0,3);
-  const mpesa = ["070","071","072","074","075","076","079"];
-  const airtel = ["073","078"];
-  return method === "mpesa" ? mpesa.includes(prefix) : airtel.includes(prefix);
+  const p = phone.substring(0,3);
+  return method === "mpesa"
+    ? ["070","071","072","074","075","076","079"].includes(p)
+    : ["073","078"].includes(p);
 }
 
-function isValidBTC(addr){
-  return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(addr || '');
+function isValidBTC(a){
+  return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(a || '');
 }
 
-function isValidERC20(addr){
-  return /^0x[a-fA-F0-9]{40}$/.test(addr || '');
+function isValidERC20(a){
+  return /^0x[a-fA-F0-9]{40}$/.test(a || '');
 }
 
-// === Switch inputs ===
-methodInput.addEventListener("change", ()=>{
+// === INPUT SWITCH ===
+methodInput.addEventListener("change", () => {
   const m = methodInput.value;
 
   phoneBox.style.display = (m === "mpesa" || m === "airtel") ? "block" : "none";
@@ -581,92 +587,102 @@ methodInput.addEventListener("change", ()=>{
 
 methodInput.dispatchEvent(new Event('change'));
 
-// === Submit ===
-form.addEventListener('submit', async e=>{
+// === SUBMIT ===
+form.addEventListener('submit', async e => {
   e.preventDefault();
 
-  if(!currentUser)
-    return showPopup("Not authenticated","error");
+  if (!currentUser) {
+    showPopup("Not authenticated", "error");
+    return;
+  }
 
-  const amount = Math.floor(Number(amountInput.value || 0));
+  const amount = Math.floor(Number(amountInput.value));
   const method = methodInput.value;
 
-  if(!amount || amount < 1000)
-    return showPopup("Minimum withdrawal is 1,000 KES","error");
+  if (!amount || amount < 1000) {
+    showPopup("Minimum withdrawal is 1,000 KES", "error");
+    return;
+  }
 
-  // balance check
-  const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-  const balance = Number(balSnap.val()) || 0;
+  try {
+    const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+    const balance = Number(balSnap.val()) || 0;
 
-  if(balance < amount)
-    return showPopup("Insufficient balance","error");
+    if (balance < amount) {
+      showPopup("Insufficient balance", "error");
+      return;
+    }
 
-  // === SAFE REFERRAL CHECK (FULL FIX) ===
-  const refSnap = await db.ref(`referrals/${currentUser.uid}`).once('value');
+    // === REFERRAL CHECK (SAFE + GUARDED) ===
+    const refSnap = await db.ref(`referrals/${currentUser.uid}`).once('value');
 
-  let validRefs = 0;
+    let validRefs = 0;
 
-  if(refSnap && refSnap.exists()){
-    refSnap.forEach(child=>{
-      const d = child.val() || {};
+    if (refSnap && refSnap.exists()) {
+      refSnap.forEach(child => {
+        const d = child.val() || {};
+        const deposit = Number(d.deposited || d.amount || d.deposit || 0);
+        if (deposit >= 3000) validRefs++;
+      });
+    }
 
-      const deposit =
-        Number(d.deposited ?? d.amount ?? d.deposit ?? d.totalDeposit ?? 0);
+    if (validRefs < 2) {
+      showPopup(
+        "You need 2 referrals with 3,000+ deposit",
+        "confirm",
+        0,
+        "select.html"
+      );
+      return;
+    }
 
-      if(deposit >= 3000) validRefs++;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Processing...";
+
+    const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+
+    balanceRef.transaction(bal => {
+      bal = Number(bal) || 0;
+      if (bal < amount) return;
+      return bal - amount;
+    }, async (err, committed) => {
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Withdrawal";
+
+      if (err || !committed) {
+        showPopup("Transaction failed", "error");
+        return;
+      }
+
+      const methodNames = {
+        mpesa: "M-Pesa",
+        airtel: "Airtel Money",
+        paypal: "PayPal",
+        btc: "Bitcoin (BTC)",
+        usdt_erc20: "USDT (ERC20)"
+      };
+
+      await db.ref(`withdrawals/${currentUser.uid}`).push({
+        amount,
+        method,
+        methodName: methodNames[method],
+        status: "pending",
+        timestamp: Date.now()
+      });
+
+      showPopup("Withdrawal submitted successfully", "success");
+
+      setTimeout(() => {
+        window.location.href = "financial.html";
+      }, 1500);
     });
+
+  } catch (e) {
+    console.error(e);
+    showPopup("Unexpected error occurred", "error");
   }
-
-  if(validRefs < 2){
-    return showPopup(
-      "You need 2 referrals with 3,000+ deposit",
-      "confirm",
-      0,
-      "select.html"
-    );
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Processing...";
-
-  const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
-
-  balanceRef.transaction(bal=>{
-    bal = Number(bal) || 0;
-    if(bal < amount) return;
-    return bal - amount;
-  }, async (err, committed)=>{
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Withdrawal";
-
-    if(err || !committed)
-      return showPopup("Transaction failed","error");
-
-    const methodNames = {
-      mpesa: "M-Pesa",
-      airtel: "Airtel Money",
-      paypal: "PayPal",
-      btc: "Bitcoin (BTC)",
-      usdt_erc20: "USDT (ERC20)"
-    };
-
-    const payload = {
-      amount,
-      method,
-      methodName: methodNames[method],
-      status: "pending",
-      timestamp: Date.now()
-    };
-
-    await db.ref(`withdrawals/${currentUser.uid}`).push(payload);
-
-    showPopup("Withdrawal submitted successfully","success");
-
-    setTimeout(()=>{
-      window.location.href = "financial.html";
-    },1500);
-  });
 });
+<script>
 </body>
 </html>
