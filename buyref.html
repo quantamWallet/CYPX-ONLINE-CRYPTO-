@@ -219,7 +219,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-/* YOUR CONFIG */
+/* CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -236,6 +236,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let uid = null;
+let authReady = false;
 
 /* PACKAGE */
 const url = new URL(window.location.href);
@@ -253,9 +254,10 @@ onAuthStateChanged(auth, (user) => {
 document.getElementById("loading").style.display = "none";
 
 if (user) {
-uid = user.uid;
+  uid = user.uid;
+  authReady = true;
 } else {
-window.location.href = "landing.html";
+  window.location.href = "landing.html";
 }
 
 });
@@ -263,17 +265,21 @@ window.location.href = "landing.html";
 /* SUBMIT */
 document.getElementById("submitBtn").addEventListener("click", async () => {
 
-if (!uid) return showToast("Please wait...", false);
+if (!authReady || !uid) {
+  return showToast("Session loading...", false);
+}
 
 const phone = document.getElementById("phone").value.trim();
 
-if (!/^(07\d{8}|01\d{8})$/.test(phone))
-return showToast("Invalid phone number", false);
+if (!/^(07\d{8}|01\d{8})$/.test(phone)) {
+  return showToast("Invalid phone number", false);
+}
 
 try {
 
 const path = `referralPurchases/${uid}`;
 const newRef = push(ref(db, path));
+
 await set(newRef, {
   group,
   price,
@@ -283,22 +289,23 @@ await set(newRef, {
   createdAt: Date.now()
 });
 
+/* OPTIONAL: REMOVE THIS if causing issues */
 await set(ref(db, "userPackages/" + uid), {
-group,
-price,
-status: "pending_activation",
-createdAt: Date.now()
+  group,
+  price,
+  status: "pending_activation",
+  createdAt: Date.now()
 });
 
 showToast("Payment submitted");
 
 setTimeout(() => {
-window.location.href = "financial.html?group=" + encodeURIComponent(group);
+  window.location.href = "financial.html?group=" + encodeURIComponent(group);
 }, 1200);
 
 } catch (e) {
-console.error(e);
-showToast("Error submitting payment", false);
+console.error("Firebase Error:", e);
+showToast(e.message || "Error submitting payment", false);
 }
 
 });
@@ -313,6 +320,5 @@ setTimeout(() => t.style.display = "none", 2000);
 }
 
 </script>
-
 </body>
 </html>
