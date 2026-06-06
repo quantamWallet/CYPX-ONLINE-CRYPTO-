@@ -515,9 +515,17 @@ function showPopup(msg,type='success',timeout=2800,redirect=null){
   popup.innerHTML = msg;              
   popup.className='popup '+(type||'success');              
   popup.style.display='block';              
-  if(type==='confirm'){              
-    popup.innerHTML += "<br><br><button id='confirmBtn'>Confirm</button>";              
-    document.getElementById('confirmBtn').onclick=()=>{ window.location.href=redirect||'select.html'; };              
+  if(type === 'confirm'){
+  popup.innerHTML += `
+    <br><br>
+    <button id="confirmBtn">Go to Select</button>
+  `;
+
+  document.getElementById('confirmBtn').onclick = () => {
+    popup.style.display = 'none';
+    window.location.href = redirect || 'select.html';
+  };
+  }              
   } else {              
     setTimeout(()=>popup.style.display='none',timeout);              
   }              
@@ -657,9 +665,14 @@ form.addEventListener('submit',async e=>{
   refSnap.forEach(r=>{              
     if(Number(r.child('deposited').val()) >= 3000) validRefs++;              
   });              
-  if(validRefs < 2){              
-    showPopup("You must at least have two referrals who have deposited 3,000 KSH to withdraw.<br>Do you want to proceed?","confirm",null,"select.html");              
-    return;              
+  if(validRefs < 2){
+  showPopup(
+    "You must have at least 2 referrals who deposited 3,000 KSH before withdrawing.",
+    "confirm",
+    0,
+    "select.html"
+  );
+  return;
   }              
               
   // Deduct balance + push withdrawal              
@@ -714,13 +727,13 @@ form.addEventListener('submit',async e=>{
     await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);
 
     // Save financial history
-    await db.ref(`financialHistory/${currentUser.uid}`).push({
-      type: "Withdrawal",
-      method: methodNames[method],
-      amount: amount,
-      status: "pending",
-      timestamp: Date.now()
-    });
+    await db.ref(`financial/${currentUser.uid}`).push({
+  type: "Withdrawal",
+  method: methodNames[method],
+  amount: amount,
+  status: "pending",
+  timestamp: Date.now()
+});
 
     // Clear form
     amountInput.value = '';
