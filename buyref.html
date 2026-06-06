@@ -23,7 +23,6 @@ align-items:center;
 padding:20px;
 }
 
-/* LOADING */
 .loading-screen{
 position:fixed;
 inset:0;
@@ -36,7 +35,6 @@ font-size:14px;
 color:#00e0ff;
 }
 
-/* HEADER */
 header{
 font-size:22px;
 font-weight:bold;
@@ -45,7 +43,6 @@ margin-top:10px;
 text-align:center;
 }
 
-/* CARD */
 .card{
 width:100%;
 max-width:440px;
@@ -57,7 +54,6 @@ margin-top:18px;
 box-shadow:0 10px 35px rgba(0,0,0,0.6);
 }
 
-/* TITLE */
 h2{
 color:#ffd700;
 font-size:18px;
@@ -71,7 +67,6 @@ color:#00ff88;
 margin-bottom:12px;
 }
 
-/* VERIFIED */
 .verified{
 display:inline-block;
 margin-top:8px;
@@ -84,7 +79,6 @@ font-weight:bold;
 border:1px solid rgba(0,224,255,0.3);
 }
 
-/* INFO */
 .info{
 background:#071a2e;
 padding:12px;
@@ -95,7 +89,6 @@ margin-bottom:12px;
 color:#cfe6ff;
 }
 
-/* MPESA */
 .mpesa{
 display:flex;
 justify-content:space-between;
@@ -116,7 +109,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* INPUTS */
 input{
 width:100%;
 padding:13px;
@@ -129,12 +121,6 @@ outline:none;
 font-size:14px;
 }
 
-input:focus{
-border-color:#00e0ff;
-box-shadow:0 0 10px rgba(0,224,255,0.3);
-}
-
-/* BUTTON */
 button{
 width:100%;
 padding:14px;
@@ -146,14 +132,8 @@ font-size:15px;
 cursor:pointer;
 background:linear-gradient(90deg,#00e0ff,#007bff);
 color:#001a33;
-transition:0.2s;
 }
 
-button:hover{
-transform:translateY(-2px);
-}
-
-/* TOAST */
 .toast{
 position:fixed;
 bottom:20px;
@@ -166,7 +146,6 @@ display:none;
 font-weight:bold;
 }
 
-/* FOOTER */
 footer{
 margin-top:20px;
 font-size:12px;
@@ -184,7 +163,7 @@ text-align:center;
 
 <div class="card">
 
-<h2 id="packageTitle">Package</h2>
+<h2 id="packageTitle"></h2>
 <div class="price" id="packagePrice"></div>
 
 <div class="verified">✔ Verified P2P Trader</div>
@@ -219,7 +198,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-/* CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -236,9 +214,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let uid = null;
-let authReady = false;
 
-/* PACKAGE */
 const url = new URL(window.location.href);
 const group = url.searchParams.get("group") || "Unknown Package";
 const price = parseInt(url.searchParams.get("price") || "0");
@@ -246,39 +222,27 @@ const price = parseInt(url.searchParams.get("price") || "0");
 document.getElementById("packageTitle").innerText = group;
 document.getElementById("packagePrice").innerText = price.toLocaleString() + " KSH";
 document.getElementById("packageInfo").innerText =
-"You selected " + group + " referral package";
+"You selected " + group;
 
-/* AUTH */
 onAuthStateChanged(auth, (user) => {
-
 document.getElementById("loading").style.display = "none";
 
-if (user) {
-  uid = user.uid;
-  authReady = true;
-} else {
-  window.location.href = "landing.html";
-}
-
+if (user) uid = user.uid;
+else window.location.href = "landing.html";
 });
 
-/* SUBMIT */
 document.getElementById("submitBtn").addEventListener("click", async () => {
 
-if (!authReady || !uid) {
-  return showToast("Session loading...", false);
-}
+if (!uid) return showToast("Session not ready", false);
 
 const phone = document.getElementById("phone").value.trim();
 
-if (!/^(07\d{8}|01\d{8})$/.test(phone)) {
-  return showToast("Invalid phone number", false);
-}
+if (!/^(07\d{8}|01\d{8})$/.test(phone))
+return showToast("Invalid phone number", false);
 
 try {
 
-const path = `referralPurchases/${uid}`;
-const newRef = push(ref(db, path));
+const newRef = push(ref(db, "referralPurchases/" + uid));
 
 await set(newRef, {
   group,
@@ -289,28 +253,19 @@ await set(newRef, {
   createdAt: Date.now()
 });
 
-/* OPTIONAL: REMOVE THIS if causing issues */
-await set(ref(db, "userPackages/" + uid), {
-  group,
-  price,
-  status: "pending_activation",
-  createdAt: Date.now()
-});
-
 showToast("Payment submitted");
 
 setTimeout(() => {
-  window.location.href = "financial.html?group=" + encodeURIComponent(group);
+window.location.href = "financial.html?group=" + encodeURIComponent(group);
 }, 1200);
 
 } catch (e) {
-console.error("Firebase Error:", e);
-showToast(e.message || "Error submitting payment", false);
+console.error(e);
+showToast(e.message, false);
 }
 
 });
 
-/* TOAST */
 function showToast(msg, ok = true) {
 const t = document.getElementById("toast");
 t.innerText = msg;
@@ -320,5 +275,6 @@ setTimeout(() => t.style.display = "none", 2000);
 }
 
 </script>
+
 </body>
 </html>
