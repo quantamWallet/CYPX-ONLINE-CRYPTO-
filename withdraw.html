@@ -479,7 +479,7 @@ select option{
 </nav>              
               
 <div id="popup" class="popup"></div>              
-<script>              
+<script>
 // === Firebase Config ===
 const firebaseConfig = {
   apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -491,14 +491,10 @@ const firebaseConfig = {
   appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// === Elements ===
 const balanceEl = document.getElementById('balance');
 const amountInput = document.getElementById('amount');
 const phoneInput = document.getElementById('phone');
@@ -509,36 +505,31 @@ const paypalBox = document.getElementById('paypalBox');
 const cryptoBox = document.getElementById('cryptoBox');
 const cryptoLabel = document.getElementById('cryptoLabel');
 const cryptoAddressInput = document.getElementById('cryptoAddress');
+const cryptoHint = document.getElementById('cryptoHint');
 const submitBtn = document.getElementById('submitBtn');
 const form = document.getElementById('withdrawForm');
 const popup = document.getElementById('popup');
 
-let currentUser = null;
-
-// === POPUP (FORCED + RELIABLE) ===
-function showPopup(msg, type='success', timeout=2500, redirect=null){
+// === Popup ===
+function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
   popup.innerHTML = msg;
-  popup.className = `popup ${type}`;
+  popup.className = 'popup ' + type;
   popup.style.display = 'block';
-  popup.style.zIndex = '999999';
 
   if (type === 'confirm') {
-    popup.innerHTML += `<br><br><button id="confirmBtn">Continue</button>`;
+    popup.innerHTML += `<br><br><button id="confirmBtn">Go</button>`;
     document.getElementById('confirmBtn').onclick = () => {
       popup.style.display = 'none';
-      if (redirect) window.location.href = redirect;
+      window.location.href = redirect || 'select.html';
     };
-    return;
-  }
-
-  if (timeout > 0) {
-    setTimeout(() => {
-      popup.style.display = 'none';
-    }, timeout);
+  } else {
+    setTimeout(() => popup.style.display = 'none', timeout);
   }
 }
 
-// === AUTH ===
+let currentUser = null;
+
+// === Auth ===
 auth.onAuthStateChanged(user => {
   currentUser = user;
 
@@ -555,40 +546,62 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// === VALIDATION ===
-function isValidNumberForMethod(phone, method){
-  if(!/^07\d{8}$/.test(phone)) return false;
-  const p = phone.substring(0,3);
-  return method === "mpesa"
-    ? ["070","071","072","074","075","076","079"].includes(p)
-    : ["073","078"].includes(p);
+// === Phone validation ===
+const mpesaPrefixes = ["070","071","072","074","075","076","079"];
+const airtelPrefixes = ["073","078"];
+
+function isValidNumber(phone, method) {
+  if (!/^07\d{8}$/.test(phone)) return false;
+  const prefix = phone.substring(0,3);
+  return method === 'mpesa'
+    ? mpesaPrefixes.includes(prefix)
+    : airtelPrefixes.includes(prefix);
 }
 
-function isValidBTC(a){
-  return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(a || '');
+// === BTC validation ===
+function isValidBTC(address){
+  const re = /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/;
+  return re.test(address);
 }
 
-function isValidERC20(a){
-  return /^0x[a-fA-F0-9]{40}$/.test(a || '');
+// === ERC20 validation ===
+function isValidERC20(address){
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
-// === INPUT SWITCH ===
+// === UI Switch ===
 methodInput.addEventListener("change", () => {
   const m = methodInput.value;
 
-  phoneBox.style.display = (m === "mpesa" || m === "airtel") ? "block" : "none";
-  paypalBox.style.display = (m === "paypal") ? "block" : "none";
-  cryptoBox.style.display = (m === "btc" || m === "usdt_erc20") ? "block" : "none";
+  if (m === "paypal") {
+    phoneBox.style.display = "none";
+    paypalBox.style.display = "block";
+    cryptoBox.style.display = "none";
 
-  phoneInput.required = (m === "mpesa" || m === "airtel");
-  paypalEmailInput.required = (m === "paypal");
-  cryptoAddressInput.required = (m === "btc" || m === "usdt_erc20");
+  } else if (m === "btc" || m === "usdt_erc20") {
+    phoneBox.style.display = "none";
+    paypalBox.style.display = "none";
+    cryptoBox.style.display = "block";
+
+    if (m === "btc") {
+      cryptoLabel.textContent = "Bitcoin Address";
+      cryptoHint.textContent = "Valid BTC address required.";
+    } else {
+      cryptoLabel.textContent = "USDT ERC20 Address";
+      cryptoHint.textContent = "0x + 40 hex characters required.";
+    }
+
+  } else {
+    phoneBox.style.display = "block";
+    paypalBox.style.display = "none";
+    cryptoBox.style.display = "none";
+  }
 });
 
 methodInput.dispatchEvent(new Event('change'));
 
-// === SUBMIT ===
-form.addEventListener('submit', async e => {
+// === Submit ===
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   if (!currentUser) {
@@ -598,62 +611,91 @@ form.addEventListener('submit', async e => {
 
   const amount = Math.floor(Number(amountInput.value));
   const method = methodInput.value;
+  const phone = phoneInput.value.trim();
+  const paypalEmail = paypalEmailInput.value.trim();
+  const cryptoAddress = cryptoAddressInput.value.trim();
 
   if (!amount || amount < 1000) {
     showPopup("Minimum withdrawal is 1,000 KES", "error");
     return;
   }
 
-  try {
-    const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
-    const balance = Number(balSnap.val()) || 0;
+  // Method validation
+  if (method === "mpesa" || method === "airtel") {
+    if (!isValidNumber(phone, method)) {
+      showPopup("Invalid phone number", "error");
+      return;
+    }
+  }
 
-    if (balance < amount) {
-      showPopup("Insufficient balance", "error");
+  if (method === "paypal") {
+    if (!/^\S+@\S+\.\S+$/.test(paypalEmail)) {
+      showPopup("Invalid PayPal email", "error");
+      return;
+    }
+  }
+
+  if (method === "btc") {
+    if (!isValidBTC(cryptoAddress)) {
+      showPopup("Invalid BTC address", "error");
+      return;
+    }
+  }
+
+  if (method === "usdt_erc20") {
+    if (!isValidERC20(cryptoAddress)) {
+      showPopup("Invalid ERC20 address", "error");
+      return;
+    }
+  }
+
+  // Balance check
+  const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+  const balance = Number(balSnap.val()) || 0;
+
+  if (balance < amount) {
+    showPopup("Insufficient balance", "error");
+    return;
+  }
+
+  // Referral check
+  const refSnap = await db.ref(`users/${currentUser.uid}/referrals`).once('value');
+  let validRefs = 0;
+
+  refSnap.forEach(r => {
+    if (Number(r.child('deposited').val()) >= 3000) validRefs++;
+  });
+
+  if (validRefs < 2) {
+    showPopup(
+      "You need at least 2 referrals with 3,000 KES deposits",
+      "confirm",
+      0,
+      "select.html"
+    );
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Processing...";
+
+  const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+
+  balanceRef.transaction((bal) => {
+    bal = Number(bal) || 0;
+    if (bal < amount) return;
+    return bal - amount;
+  }, async (error, committed) => {
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Withdrawal";
+
+    if (error || !committed) {
+      showPopup("Transaction failed", "error");
       return;
     }
 
-    // === REFERRAL CHECK (SAFE + GUARDED) ===
-    const refSnap = await db.ref(`referrals/${currentUser.uid}`).once('value');
-
-    let validRefs = 0;
-
-    if (refSnap && refSnap.exists()) {
-      refSnap.forEach(child => {
-        const d = child.val() || {};
-        const deposit = Number(d.deposited || d.amount || d.deposit || 0);
-        if (deposit >= 3000) validRefs++;
-      });
-    }
-
-    if (validRefs < 2) {
-      showPopup(
-        "You need 2 referrals with 3,000+ deposit",
-        "confirm",
-        0,
-        "select.html"
-      );
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Processing...";
-
-    const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
-
-    balanceRef.transaction(bal => {
-      bal = Number(bal) || 0;
-      if (bal < amount) return;
-      return bal - amount;
-    }, async (err, committed) => {
-
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Withdrawal";
-
-      if (err || !committed) {
-        showPopup("Transaction failed", "error");
-        return;
-      }
+    try {
 
       const methodNames = {
         mpesa: "M-Pesa",
@@ -663,26 +705,51 @@ form.addEventListener('submit', async e => {
         usdt_erc20: "USDT (ERC20)"
       };
 
-      await db.ref(`withdrawals/${currentUser.uid}`).push({
-        amount,
-        method,
-        methodName: methodNames[method],
+      const payload = {
+        amount: amount,
+        method: methodNames[method],
+        methodKey: method,
         status: "pending",
-        timestamp: Date.now()
-      });
+        timestamp: Date.now(),
+        createdAt: Date.now()
+      };
 
-      showPopup("Withdrawal submitted successfully", "success");
+      if (method === "mpesa" || method === "airtel") {
+        payload.phone = phone;
+      } else if (method === "paypal") {
+        payload.paypalEmail = paypalEmail;
+      } else if (method === "btc") {
+        payload.btcAddress = cryptoAddress;
+      } else if (method === "usdt_erc20") {
+        payload.usdtAddress = cryptoAddress;
+        payload.network = "ERC20";
+      }
+
+      // SAVE ONLY TO WITHDRAWALS (FIXED)
+      await db.ref(`withdrawals/${currentUser.uid}`).push(payload);
+
+      // reset form
+      amountInput.value = '';
+      phoneInput.value = '';
+      paypalEmailInput.value = '';
+      cryptoAddressInput.value = '';
+
+      showPopup(
+        `Withdrawal of KES ${amount.toLocaleString()} submitted`,
+        "success",
+        3000
+      );
 
       setTimeout(() => {
         window.location.href = "financial.html";
       }, 1500);
-    });
 
-  } catch (e) {
-    console.error(e);
-    showPopup("Unexpected error occurred", "error");
-  }
+    } catch (e) {
+      console.error(e);
+      showPopup("Saved but failed to sync history", "error");
+    }
+  });
 });
-<script>
+    </script>
 </body>
 </html>
