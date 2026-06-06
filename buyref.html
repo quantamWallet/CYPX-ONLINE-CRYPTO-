@@ -71,17 +71,17 @@ color:#00ff88;
 margin-bottom:12px;
 }
 
-/* VERIFIED TAG */
+/* VERIFIED */
 .verified{
 display:inline-block;
 margin-top:8px;
-padding:5px 10px;
+padding:6px 12px;
 border-radius:20px;
-background:rgba(0,255,136,0.15);
-color:#00ff88;
+background:rgba(0,224,255,0.15);
+color:#00e0ff;
 font-size:12px;
 font-weight:bold;
-border:1px solid rgba(0,255,136,0.4);
+border:1px solid rgba(0,224,255,0.3);
 }
 
 /* INFO */
@@ -171,6 +171,7 @@ footer{
 margin-top:20px;
 font-size:12px;
 color:#7f93ad;
+text-align:center;
 }
 </style>
 </head>
@@ -186,7 +187,7 @@ color:#7f93ad;
 <h2 id="packageTitle">Package</h2>
 <div class="price" id="packagePrice"></div>
 
-<div class="verified">✔ Trader Receiving Payment Verified</div>
+<div class="verified">✔ Verified P2P Trader</div>
 
 <div class="info">
 <p id="packageInfo"></p>
@@ -201,7 +202,6 @@ color:#7f93ad;
 <p><b>Account Name:</b> LANGAT ROBERT</p>
 </div>
 
-<!-- ONLY INPUT LEFT -->
 <label>Phone Number</label>
 <input type="text" id="phone" placeholder="07XXXXXXXX">
 
@@ -219,7 +219,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-/* YOUR EXACT CONFIG */
+/* YOUR CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -237,7 +237,7 @@ const db = getDatabase(app);
 
 let uid = null;
 
-/* PACKAGE FROM URL */
+/* PACKAGE */
 const url = new URL(window.location.href);
 const group = url.searchParams.get("group") || "Unknown Package";
 const price = parseInt(url.searchParams.get("price") || "0");
@@ -245,9 +245,9 @@ const price = parseInt(url.searchParams.get("price") || "0");
 document.getElementById("packageTitle").innerText = group;
 document.getElementById("packagePrice").innerText = price.toLocaleString() + " KSH";
 document.getElementById("packageInfo").innerText =
-"You selected " + group + " referral package.";
+"You selected " + group + " referral package";
 
-/* AUTH FIX */
+/* AUTH */
 onAuthStateChanged(auth, (user) => {
 
 document.getElementById("loading").style.display = "none";
@@ -272,7 +272,9 @@ return showToast("Invalid phone number", false);
 
 try {
 
-await set(push(ref(db, "referralPurchases/" + uid)), {
+const newRef = push(ref(db, "referralPurchases/" + uid));
+
+await set(newRef, {
 group,
 price,
 amount: price,
@@ -295,6 +297,7 @@ window.location.href = "financial.html?group=" + encodeURIComponent(group);
 }, 1200);
 
 } catch (e) {
+console.error(e);
 showToast("Error submitting payment", false);
 }
 
