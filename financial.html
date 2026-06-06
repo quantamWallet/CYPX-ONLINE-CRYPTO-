@@ -263,7 +263,7 @@ auth.onAuthStateChanged(user => {
     );
   });
 
-  /* WITHDRAWALS */
+
   /* WITHDRAWALS */
 db.ref("users/" + uid + "/withdrawals").on("value", snap => {
 
@@ -273,11 +273,27 @@ db.ref("users/" + uid + "/withdrawals").on("value", snap => {
 
     const w = child.val();
 
+    // Normalize status
+    let status = "pending";
+
+    if (w.status) {
+      status = String(w.status).trim().toLowerCase();
+
+      // convert admin status names
+      if (status === "approved") {
+        status = "completed";
+      }
+
+      if (status === "declined") {
+        status = "failed";
+      }
+    }
+
     withdrawals.push({
       type: "Withdrawal",
       amount: w.amount || 0,
       method: w.methodName || w.method || "-",
-      status: (w.status || "pending").toLowerCase(),
+      status: status,
       createdAt: Number(w.timestamp || w.createdAt || 0)
     });
   });
