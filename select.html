@@ -2,36 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>Referral Options</title>
 
-<link
-rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
 font-family:Arial,sans-serif;
-background:
-radial-gradient(circle at top,
-#12335c 0%,
-#071426 45%,
-#04101d 100%);
+background:radial-gradient(circle at top,#12335c 0%,#071426 45%,#04101d 100%);
 color:#fff;
 min-height:100vh;
 overflow:hidden;
@@ -39,34 +25,17 @@ display:flex;
 flex-direction:column;
 }
 
-/* BACKGROUND GLOW */
-body::before{
+body::before,body::after{
 content:"";
 position:fixed;
-top:-100px;
-left:-100px;
-width:280px;
-height:280px;
-background:
-rgba(0,224,255,0.15);
+width:280px;height:280px;
 border-radius:50%;
 filter:blur(80px);
 }
 
-body::after{
-content:"";
-position:fixed;
-bottom:-100px;
-right:-100px;
-width:280px;
-height:280px;
-background:
-rgba(255,204,0,0.12);
-border-radius:50%;
-filter:blur(80px);
-}
+body::before{top:-100px;left:-100px;background:rgba(0,224,255,0.15);}
+body::after{bottom:-100px;right:-100px;background:rgba(255,204,0,0.12);}
 
-/* MAIN */
 .main{
 flex:1;
 display:flex;
@@ -76,125 +45,60 @@ align-items:center;
 padding:25px;
 }
 
-/* LOGO */
-.logo-wrap{
-display:flex;
-align-items:center;
-gap:12px;
-margin-bottom:15px;
-}
+.logo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:15px;}
 
 .logo{
-width:58px;
-height:58px;
-border-radius:18px;
-background:
-linear-gradient(
-145deg,
-#ffcc00,
-#ffaa00
-);
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:26px;
-color:#071426;
-box-shadow:
-0 0 30px rgba(255,204,0,0.3);
+width:58px;height:58px;border-radius:18px;
+background:linear-gradient(145deg,#ffcc00,#ffaa00);
+display:flex;justify-content:center;align-items:center;
+font-size:26px;color:#071426;
+box-shadow:0 0 30px rgba(255,204,0,0.3);
 }
 
-.brand{
-font-size:22px;
-font-weight:bold;
-color:#ffcc00;
-}
+.brand{font-size:22px;font-weight:bold;color:#ffcc00;}
 
 .subtitle{
-color:#9eb2c8;
-text-align:center;
-margin-bottom:35px;
-font-size:14px;
-max-width:320px;
-line-height:1.6;
+color:#9eb2c8;text-align:center;margin-bottom:35px;
+font-size:14px;max-width:320px;line-height:1.6;
 }
 
-/* CARD */
 .card{
-width:100%;
-max-width:360px;
-margin-bottom:18px;
-padding:22px;
-border-radius:24px;
-background:
-rgba(255,255,255,0.06);
+width:100%;max-width:360px;margin-bottom:18px;
+padding:22px;border-radius:24px;
+background:rgba(255,255,255,0.06);
 backdrop-filter:blur(14px);
-border:
-1px solid rgba(
-255,255,255,0.08);
-box-shadow:
-0 10px 35px
-rgba(0,0,0,0.35);
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 10px 35px rgba(0,0,0,0.35);
 transition:0.3s ease;
 }
 
 .card:hover{
-transform:
-translateY(-4px);
-box-shadow:
-0 0 35px
-rgba(0,224,255,0.12);
+transform:translateY(-4px);
+box-shadow:0 0 35px rgba(0,224,255,0.12);
 }
 
-.card-header{
-display:flex;
-align-items:center;
-gap:14px;
-margin-bottom:15px;
-}
+.card-header{display:flex;align-items:center;gap:14px;margin-bottom:15px;}
 
 .icon-box{
-width:56px;
-height:56px;
-border-radius:18px;
-display:flex;
-align-items:center;
-justify-content:center;
+width:56px;height:56px;border-radius:18px;
+display:flex;align-items:center;justify-content:center;
 font-size:22px;
 }
 
 .purchase-icon{
-background:
-linear-gradient(
-145deg,
-rgba(255,204,0,0.2),
-rgba(255,170,0,0.1)
-);
+background:linear-gradient(145deg,rgba(255,204,0,0.2),rgba(255,170,0,0.1));
 color:#ffcc00;
 }
 
 .refer-icon{
-background:
-linear-gradient(
-145deg,
-rgba(0,224,255,0.2),
-rgba(0,150,255,0.1)
-);
+background:linear-gradient(145deg,rgba(0,224,255,0.2),rgba(0,150,255,0.1));
 color:#00e0ff;
 }
 
-.card h2{
-font-size:18px;
-color:#fff;
-}
+.card h2{font-size:18px;color:#fff;}
 
-.card p{
-color:#b8c4d0;
-font-size:14px;
-line-height:1.6;
-margin-bottom:20px;
-}
+.card p{color:#b8c4d0;font-size:14px;line-height:1.6;margin-bottom:20px;}
 
-/* BUTTON */
 .card button{
 width:100%;
 border:none;
@@ -207,46 +111,24 @@ transition:0.25s ease;
 }
 
 .purchase-btn{
-background:
-linear-gradient(
-to right,
-#ffcc00,
-#ffaa00
-);
+background:linear-gradient(to right,#ffcc00,#ffaa00);
 color:#071426;
 }
 
 .refer-btn{
-background:
-linear-gradient(
-to right,
-#00cfff,
-#008cff
-);
-color:white;
+background:linear-gradient(to right,#00cfff,#008cff);
+color:#fff;
 }
 
-.card button:hover{
-transform:translateY(-2px);
-}
+.card button:hover{transform:translateY(-2px);}
 
-.loading{
-opacity:0.65;
-pointer-events:none;
-}
+.loading{opacity:0.65;pointer-events:none;}
 
-/* FOOTER */
 footer{
-text-align:center;
-padding:16px;
-color:#8ea2b5;
-font-size:12px;
-border-top:
-1px solid rgba(
-255,255,255,0.06
-);
-background:
-rgba(255,255,255,0.03);
+text-align:center;padding:16px;
+color:#8ea2b5;font-size:12px;
+border-top:1px solid rgba(255,255,255,0.06);
+background:rgba(255,255,255,0.03);
 backdrop-filter:blur(10px);
 }
 </style>
@@ -257,93 +139,49 @@ backdrop-filter:blur(10px);
 <div class="main">
 
 <div class="logo-wrap">
-
-<div class="logo">
-<i class="fas fa-coins"></i>
-</div>
-
-<div class="brand">
-CYPX HOLDINGS
-</div>
-
+<div class="logo"><i class="fas fa-coins"></i></div>
+<div class="brand">CYPX HOLDINGS</div>
 </div>
 
 <div class="subtitle">
-Choose how you want to grow your network
-and maximize your referral rewards.
+Choose how you want to grow your network and maximize your referral rewards.
 </div>
 
 <!-- PURCHASE -->
 <div class="card">
-
 <div class="card-header">
-
-<div class="icon-box purchase-icon">
-<i class="fas fa-cart-plus"></i>
+<div class="icon-box purchase-icon"><i class="fas fa-cart-plus"></i></div>
+<div><h2>Purchase Referrals</h2></div>
 </div>
 
-<div>
-<h2>Purchase Referrals</h2>
-</div>
+<p>Buy ready-made referrals and accelerate your earnings with high-converting packages.</p>
 
-</div>
-
-<p>
-Buy ready-made referrals and
-accelerate your earnings with
-high-converting referral packages.
-</p>
-
-<button
-id="purchaseBtn"
-class="purchase-btn"
-onclick="chooseOption('refpackages.html')"
->
+<button id="purchaseBtn" class="purchase-btn">
 Purchase Referrals
 </button>
-
 </div>
 
 <!-- REFER -->
 <div class="card">
-
 <div class="card-header">
-
-<div class="icon-box refer-icon">
-<i class="fas fa-user-plus"></i>
+<div class="icon-box refer-icon"><i class="fas fa-user-plus"></i></div>
+<div><h2>Refer Friends</h2></div>
 </div>
 
-<div>
-<h2>Refer Friends</h2>
-</div>
+<p>Invite friends using your referral link and earn bonuses when they register and invest.</p>
 
-</div>
-
-<p>
-Invite friends using your referral
-link and earn bonuses when they
-register and invest.
-</p>
-
-<button
-id="referBtn"
-class="refer-btn"
-onclick="chooseOption('team.html')"
->
+<button id="referBtn" class="refer-btn">
 Refer Friends
 </button>
-
 </div>
 
 </div>
 
 <footer>
-© 2026 CYPX HOLDINGS —
-Secure Referral System
+© 2026 CYPX HOLDINGS — Secure Referral System
 </footer>
 
 <script>
-/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -355,73 +193,37 @@ const firebaseConfig = {
   measurementId: "G-4RSQXZJX44"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 
-/* AUTH CHECK (NO REDIRECT) */
-auth.onAuthStateChanged((user) => {
-  console.log(
-    user ? "Logged in" : "Guest access"
-  );
+/* RESET ON REFRESH */
+window.addEventListener("load", () => {
+  purchaseBtn.disabled = false;
+  referBtn.disabled = false;
+  purchaseBtn.classList.remove("loading");
+  referBtn.classList.remove("loading");
 });
 
-/* BUTTON ELEMENTS */
-const purchaseBtn =
-document.getElementById(
-"purchaseBtn"
-);
+auth.onAuthStateChanged(user => {
+  console.log(user ? "Logged in" : "Guest access");
+});
 
-const referBtn =
-document.getElementById(
-"referBtn"
-);
+const purchaseBtn = document.getElementById("purchaseBtn");
+const referBtn = document.getElementById("referBtn");
 
-/* PURCHASE BUTTON */
-purchaseBtn.addEventListener(
-"click",
-function(){
+function go(url, btn){
+  btn.disabled = true;
+  btn.classList.add("loading");
 
-purchaseBtn.disabled =
-true;
-
-purchaseBtn.classList.add(
-"loading"
-);
-
-setTimeout(() => {
-
-window.location.href =
-"refpackages.html";
-
-},300);
-
+  setTimeout(() => {
+    window.location.href = url;
+  }, 250);
 }
-);
 
-/* REFER FRIENDS BUTTON */
-referBtn.addEventListener(
-"click",
-function(){
+purchaseBtn.addEventListener("click", () => go("refpackages.html", purchaseBtn));
+referBtn.addEventListener("click", () => go("team.html", referBtn));
+</script>
 
-referBtn.disabled =
-true;
-
-referBtn.classList.add(
-"loading"
-);
-
-setTimeout(() => {
-
-window.location.href =
-"team.html";
-
-},300);
-
-}
-);
-  </script>
 </body>
 </html>
