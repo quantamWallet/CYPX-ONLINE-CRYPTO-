@@ -3,308 +3,305 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>M-Pesa Deposit - CYPX</title>
+<title>CYPX HOLDINGS - Secure P2P</title>
 
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
 body{
-  margin:0;
-  font-family: 'Inter', Arial, sans-serif;
-  background: radial-gradient(circle at top, #003366, #001f3f);
-  color:#fff;
+background: radial-gradient(circle at top,#061a33,#000d1a);
+color:#fff;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:20px;
 }
 
 /* HEADER */
 header{
-  text-align:center;
-  padding:18px;
-  font-size:20px;
-  font-weight:bold;
-  background: linear-gradient(90deg,#002f6c,#004aad);
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+font-size:22px;
+font-weight:bold;
+color:#00e0ff;
+margin-top:10px;
+text-align:center;
+letter-spacing:1px;
 }
 
-/* CONTAINER */
-.container{
-  max-width:480px;
-  margin:auto;
-  padding:15px;
+/* SUB TEXT */
+.sub{
+font-size:13px;
+color:#9bb7d4;
+margin-bottom:15px;
+text-align:center;
 }
 
 /* CARD */
 .card{
-  background: linear-gradient(145deg,#003a78,#002b5c);
-  border-radius:16px;
-  padding:18px;
-  margin-bottom:18px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.5);
-  border:1px solid rgba(255,255,255,0.05);
+width:100%;
+max-width:440px;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:18px;
+padding:18px;
+margin-top:15px;
+backdrop-filter:blur(14px);
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* TITLE */
+/* PACKAGE HEADER */
 h2{
-  margin:0 0 10px;
-  color:#00e0ff;
+color:#ffd700;
+font-size:18px;
+margin-bottom:8px;
 }
 
-/* HIGHLIGHT BOX */
-.highlight{
-  background:#001f3f;
-  padding:12px;
-  border-radius:10px;
-  font-size:14px;
-  line-height:1.6;
+/* PRICE TAG */
+.price{
+font-size:22px;
+font-weight:bold;
+color:#00ff88;
+margin-bottom:12px;
+text-shadow:0 0 10px rgba(0,255,136,0.3);
 }
 
-/* NUMBER BOX */
-.mpesa-number{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:linear-gradient(90deg,#004aad,#007bff);
-  padding:10px;
-  border-radius:10px;
-  margin:10px 0;
-  box-shadow:0 0 15px rgba(0,200,255,0.5);
-  font-weight:bold;
+/* INFO BOX */
+.info{
+background:#001427;
+padding:12px;
+border-radius:12px;
+font-size:14px;
+line-height:1.6;
+margin-bottom:12px;
+color:#cfe6ff;
 }
 
-/* BUTTON */
+/* MPESA BOX */
+.mpesa{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:linear-gradient(90deg,#004aad,#007bff);
+padding:12px;
+border-radius:10px;
+font-weight:bold;
+margin:12px 0;
+box-shadow:0 0 15px rgba(0,200,255,0.4);
+}
+
 .copy-btn{
-  background:#00e0ff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:bold;
-  color:#001f3f;
+background:#00e0ff;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+color:#001a2e;
 }
 
-.copy-btn:hover{
-  background:#00c3ff;
-}
-
-/* FORM */
+/* INPUTS */
 input{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  margin-bottom:12px;
-  border-radius:8px;
-  border:none;
-  outline:none;
-  background:#001f3f;
-  color:#fff;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#001a33;
+color:#fff;
+outline:none;
 }
 
 label{
-  font-size:13px;
+font-size:12px;
+color:#9fb6d1;
+margin-top:10px;
+display:block;
 }
 
-/* SUBMIT */
-.submit-btn{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  font-size:15px;
-  cursor:pointer;
-  background:linear-gradient(90deg,#00e0ff,#007bff);
-  color:#001f3f;
-  box-shadow:0 6px 18px rgba(0,0,0,0.5);
+/* BUTTON */
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:12px;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+background:linear-gradient(90deg,#00e0ff,#007bff);
+color:#001a33;
+transition:0.2s;
 }
 
-.submit-btn:hover{
-  opacity:0.9;
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 0 15px rgba(0,224,255,0.4);
+}
+
+/* NOTICE */
+.notice{
+font-size:12px;
+color:#9bb7d4;
+margin-top:10px;
+line-height:1.5;
+opacity:0.9;
 }
 
 /* TOAST */
 .toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#28a745;
-  padding:10px 15px;
-  border-radius:8px;
-  font-weight:bold;
-  display:none;
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#28a745;
+padding:10px 15px;
+border-radius:8px;
+display:none;
+font-weight:bold;
 }
 
 /* FOOTER */
 footer{
-  text-align:center;
-  padding:12px;
-  font-size:12px;
-  color:#aaa;
+margin-top:20px;
+font-size:12px;
+color:#7f93ad;
+text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<header>CYPX SECURE PAYMENT</header>
+<header>CYPX HOLDINGS</header>
+<div class="sub">Secure P2P Payment Gateway</div>
 
-<div class="container">
+<div class="card">
 
-  <!-- PACKAGE -->
-  <div class="card">
-    <h2 id="packageTitle">Selected Package</h2>
-    <div class="highlight">
-      <p id="packageInfo"></p>
+<h2 id="packageTitle">Package</h2>
+<div class="price" id="packagePrice"></div>
 
-      <p><b>Pay To:</b></p>
+<div class="info">
+<p id="packageInfo"></p>
 
-      <div class="mpesa-number">
-        <span id="mpesaNumber">0707207201</span>
-        <button class="copy-btn" onclick="copyNumber()">Copy</button>
-      </div>
+<p><b>Send Payment To:</b></p>
 
-      <p><b>Name:</b> LANGAT ROBERT</p>
-      <p>Send payment, then submit details below for verification.</p>
-    </div>
-  </div>
+<div class="mpesa">
+<span id="mpesaNumber">0707207201</span>
+<button class="copy-btn" onclick="copyNumber()">Copy</button>
+</div>
 
-  <!-- FORM -->
-  <div class="card">
-    <h2>Submit Payment</h2>
+<p><b>Account Name:</b> LANGAT ROBERT</p>
 
-    <form id="depositForm">
-      <label>Amount (KES)</label>
-      <input type="number" id="amount" required>
+<div class="notice">
+⚠️ Ensure you send exact amount before confirming payment.  
+Your package will be activated after verification.
+</div>
+</div>
 
-      <label>Phone Number</label>
-      <input type="text" id="phone" placeholder="07XXXXXXXX" required>
+<label>Amount Paid</label>
+<input type="number" id="amount" placeholder="Enter amount">
 
-      <label>Transaction Code</label>
-      <input type="text" id="code" required>
+<label>Phone Number</label>
+<input type="text" id="phone" placeholder="07XXXXXXXX">
 
-      <button class="submit-btn">Submit Deposit</button>
-    </form>
-  </div>
+<button id="submitBtn">Confirm Payment</button>
 
 </div>
 
-<footer>
-  © 2026 CYPX ONLINE CRYPTO — Secure Payments
-</footer>
+<footer>© 2026 CYPX HOLDINGS — Secure P2P System</footer>
 
 <div id="toast" class="toast"></div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
+apiKey: "AIzaSyC...",
+authDomain: "quantum-rio.firebaseapp.com",
+databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+projectId: "quantum-rio"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-let uid = null;
+let uid=null;
 
-/* ✅ SAFE URL READING */
-function getParams(){
-  const url = new URL(window.location.href);
+const url = new URL(window.location.href);
+const group = url.searchParams.get("group") || "Unknown";
+const price = parseInt(url.searchParams.get("price") || "0");
 
-  let group = url.searchParams.get("group");
-  let price = url.searchParams.get("price");
+document.getElementById("packageTitle").innerText = group;
+document.getElementById("packagePrice").innerText = price.toLocaleString()+" KSH";
+document.getElementById("packageInfo").innerText =
+"You selected "+group+" referral package.";
 
-  // decode safely
-  group = group ? decodeURIComponent(group) : "Unknown Package";
-  price = price ? parseInt(decodeURIComponent(price)) : 0;
-
-  return { group, price };
-}
-
-const { group: selectedGroup, price: selectedPrice } = getParams();
-
-/* ✅ DISPLAY */
-document.getElementById("packageTitle").innerText = selectedGroup;
-document.getElementById("packageInfo").innerText = `Price: ${selectedPrice.toLocaleString()} KSH`;
-
-/* AUTH */
-onAuthStateChanged(auth, (user)=>{
-  if(user) uid = user.uid;
-  else window.location.href="landing.html";
+onAuthStateChanged(auth,(user)=>{
+if(user) uid=user.uid;
+else window.location.href="landing.html";
 });
 
-/* COPY + LOCK USER */
-window.copyNumber = function(){
-  const number = document.getElementById("mpesaNumber").innerText;
+window.copyNumber=function(){
+navigator.clipboard.writeText("0707207201");
+showToast("Copied");
+};
 
-  navigator.clipboard.writeText(number);
+document.getElementById("submitBtn").addEventListener("click",async()=>{
 
-  showToast("Number copied");
+const amount=parseInt(document.getElementById("amount").value);
+const phone=document.getElementById("phone").value.trim();
 
-  if(uid){
-    const lockRef = push(ref(db, "paymentLocks/" + uid));
-    set(lockRef,{
-      group:selectedGroup,
-      price:selectedPrice,
-      status:"initiated",
-      timestamp:new Date().toISOString()
-    });
-  }
+if(!uid) return showToast("Login required",false);
+if(!amount||amount<price) return showToast("Minimum "+price,false);
+if(!/^(07\d{8}|01\d{8})$/.test(phone)) return showToast("Invalid phone",false);
+
+try{
+
+const newRef = push(ref(db,"referralPurchases/"+uid));
+
+await set(newRef,{
+group,
+price,
+amount,
+phone,
+status:"pending",
+createdAt:Date.now()
+});
+
+/* STORE PACKAGE LOCK */
+await set(ref(db,"userPackages/"+uid),{
+group,
+price,
+status:"pending_activation",
+createdAt:Date.now()
+});
+
+showToast("Payment submitted");
+
+setTimeout(()=>{
+window.location.href="financial.html?group="+encodeURIComponent(group);
+},1200);
+
+}catch(e){
+showToast("Error submitting",false);
 }
-
-/* SUBMIT */
-document.getElementById("depositForm").addEventListener("submit",(e)=>{
-  e.preventDefault();
-
-  if(!uid) return showToast("Login required", false);
-
-  const amountVal = document.getElementById("amount").value;
-  const amount = parseInt(amountVal);
-
-  const phone = document.getElementById("phone").value.trim();
-  const code = document.getElementById("code").value.trim();
-
-  if(!amount || amount < selectedPrice){
-    return showToast("Minimum amount is " + selectedPrice + " KSH", false);
-  }
-
-  if(!/^(07\d{8}|01\d{8})$/.test(phone)){
-    return showToast("Invalid phone number", false);
-  }
-
-  if(code.length < 5){
-    return showToast("Invalid transaction code", false);
-  }
-
-  const refPush = push(ref(db,"referralPurchases/"+uid));
-
-  set(refPush,{
-    group:selectedGroup,
-    price:selectedPrice,
-    amount,
-    phone,
-    code,
-    status:"pending",
-    timestamp:new Date().toISOString()
-  }).then(()=>{
-    showToast("Payment submitted");
-    document.getElementById("depositForm").reset();
-  }).catch(()=>{
-    showToast("Error submitting", false);
-  });
 
 });
 
-/* TOAST */
-function showToast(msg, success=true){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.style.background = success ? "#28a745" : "#e53935";
-  t.style.display="block";
-  setTimeout(()=>t.style.display="none",2000);
+function showToast(msg,ok=true){
+const t=document.getElementById("toast");
+t.innerText=msg;
+t.style.background=ok?"#28a745":"#e53935";
+t.style.display="block";
+setTimeout(()=>t.style.display="none",2000);
 }
 </script>
 
