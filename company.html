@@ -1,139 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Company Profile - CYPX ONLINE CRYPTO</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      background-color: #001f3f;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .header img {
-      width: 40px;
-    }
-    .header h2 {
-      margin: 0;
-      font-size: 24px;
-      color: #ffcc00;
-    }
-    .section {
-      background-color: #002b5c;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-    }
-    .section p {
-      line-height: 1.6;
-      font-size: 14px;
-    }
-    .license {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .license img {
-      max-width: 100%;
-      border-radius: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYPX HOLDINGS - Company Profile</title>
 
-  <!-- Firebase JS SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-  </script>
+body{
+  background:
+  radial-gradient(circle at top,#003366,#00152e,#000814);
+  color:#fff;
+  padding:20px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:25px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+}
+
+.header img{
+  width:55px;
+  height:55px;
+  border-radius:12px;
+}
+
+.header-text h1{
+  color:#ffd700;
+  font-size:28px;
+}
+
+.header-text p{
+  color:#bcd7ff;
+  font-size:14px;
+  margin-top:5px;
+}
+
+/* SECTION */
+.section{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+}
+
+.section-title{
+  font-size:20px;
+  color:#00e0ff;
+  margin-bottom:15px;
+  border-left:4px solid #00e0ff;
+  padding-left:12px;
+}
+
+.section p{
+  line-height:1.8;
+  color:#d8e6ff;
+  font-size:14px;
+}
+
+/* COMPANY DETAILS */
+.company-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-top:15px;
+}
+
+.company-card{
+  background:rgba(0,224,255,0.08);
+  border:1px solid rgba(0,224,255,0.15);
+  border-radius:12px;
+  padding:15px;
+}
+
+.company-card h3{
+  color:#ffd700;
+  margin-bottom:8px;
+  font-size:14px;
+}
+
+.company-card p{
+  color:#fff;
+  font-size:14px;
+}
+
+/* VIP TABLE */
+.vip-box{
+  overflow-x:auto;
+}
+
+.vip-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+.vip-table th{
+  background:#004aad;
+  color:#fff;
+  padding:12px;
+  font-size:14px;
+}
+
+.vip-table td{
+  background:rgba(255,255,255,0.05);
+  padding:12px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  font-size:14px;
+}
+
+.vip-table tr:hover td{
+  background:rgba(0,224,255,0.08);
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  color:#9db7d9;
+  font-size:13px;
+  margin-top:20px;
+  padding-bottom:20px;
+}
+
+.highlight{
+  color:#ffd700;
+  font-weight:bold;
+}
+</style>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
+</script>
+
 </head>
 <body>
-  <div class="header">
-    <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="logo" />
-    <h2>CYPX ONLINE CRYPTO</h2>
+
+<div class="container">
+
+<div class="header">
+  <img src="file_0000000060cc71f5ae523b84facdb23d.png">
+  <div class="header-text">
+    <h1>CYPX HOLDINGS</h1>
+    <p>Professional Global Digital Investment Platform</p>
   </div>
+</div>
 
-  <div class="section">
-    <p>To ensure transparency and good public accountability, we invite you to visit Companies House, the official company information platform in the UK, to obtain the complete registration information of CYPX ONLINE CRYPTO LTD.
-    The platform provides officially verified data and reflects our commitment to standardization, transparency and good corporate governance practices.</p>
-    <p><strong>Company Name:</strong> CYPX ONLINE CRYPTO LTD<br>
-    <strong>Registered Address:</strong> 68 Hillside, Hoddesdon, UK, EN11 8RW<br>
-    <strong>Company Number:</strong> 15865738<br>
-    <strong>Date of Establishment:</strong> April 02, 2024<br>
+<div class="section">
+  <div class="section-title">Company Registration</div>
+
+  <p>
+    To ensure transparency and public accountability, we invite users to review our registration information through official company verification channels.
+    CYPX HOLDINGS LTD is committed to transparency, innovation, and trusted financial solutions.
+  </p>
+
+  <div class="company-grid">
+
+    <div class="company-card">
+      <h3>Company Name</h3>
+      <p>CYPX HOLDINGS LTD</p>
+    </div>
+
+    <div class="company-card">
+      <h3>Registered Address</h3>
+      <p>68 Hillside, Hoddesdon, UK, EN11 8RW</p>
+    </div>
+
+    <div class="company-card">
+      <h3>Company Number</h3>
+      <p>15865738</p>
+    </div>
+
+    <div class="company-card">
+      <h3>Date Established</h3>
+      <p>April 02, 2024</p>
+    </div>
+
   </div>
+</div>
 
-  <div class="section">
-    <p><strong>❶ Register</strong><br>
-    CYPX is an online company that mainly provides services for e-commerce platforms. Our core business is to help e-commerce platforms increase production and sales.
-    You only need to use your mobile phone to help us process some virtual orders in your spare time. After completing the work for the day, you can withdraw your commission.</p>
+<div class="section">
+  <div class="section-title">About CYPX HOLDINGS LTD</div>
 
-    <p><strong>❷ Reasons to choose us</strong><br>
-    - Global market coverage (you can join anytime, anywhere, no matter where you are)<br>
-    - Strong financial system<br>
-    - Trust and brand effect<br>
-    - Global payment settlement service (cryptocurrency settlement committee)<br>
-    - Innovative global financial platform operation strategy</p>
+  <p>
+    <span class="highlight">CYPX HOLDINGS LTD</span> is a modern digital platform focused on supporting global e-commerce growth and financial technology innovation.
+    Our system allows members to complete virtual tasks and earn daily commissions through structured membership plans.
+  </p>
 
-    <p><strong>❸ Member and committee rebate</strong><br>
-    To become a platform member, you must prepay a membership fee equivalent to (platform specified amount) KSH.<br>
-    Payment must be made through a virtual currency wallet or cryptocurrency exchange, supporting TRC20-USDT, BEP20-USDT, TRX, BNB, etc.<br>
-    Users need to have basic knowledge of virtual currency operations, including but not limited to wallet address generation, transaction confirmation, on-chain query, etc.<br>
-    Your income and profit will be determined by the amount of top-up.</p>
+  <br>
 
-    <p><strong>VIP Levels:</strong><br>  
-VIP1: Charge [5000] KSH Daily profit [200] KSH<br>  
-VIP2: Charge [10000] KSH Daily profit [400] KSH<br>  
-VIP3: Charge [15000] KSH Daily profit [600] KSH<br>  
-VIP4: Charge [25000] KSH Daily profit [900] KSH<br>  
-VIP5: Charge [35000] KSH Daily profit [1200] KSH<br>  
-VIP6: Charge [50000] KSH Daily profit [1600] KSH<br>  
-VIP7: Charge [80000] KSH Daily profit [2400] KSH<br>  
-VIP8: Charge [120000] KSH Daily profit [3300] KSH<br>  
-VIP9: Charge [190000] KSH Daily profit [5000] KSH<br>  
-VIP10: Charge [250000] KSH Daily profit [6500] KSH<br>  
-VIP11: Charge [350000] KSH Daily profit [8500] KSH<br>  
-VIP12: Charge [450000] KSH Daily profit [10500] KSH<br>  
-VIP13: Charge [600000] KSH Daily profit [13500] KSH<br>  
-VIP14: Charge [700000] KSH Daily profit [15000] KSH<br>  
-VIP15: Charge [1000000] KSH Daily profit [20000] KSH</p>
-    <p><strong>❹ Invitation mechanism and team committee</strong><br>
-    Users can invite others to register as VIP members through personal invitation codes or exclusive links. Three-level rebate: 17%, 2%, 1% commissions are earned when team members recharge.<br>
-    If misuse or fraudulent behavior is detected, CYPX reserves the right to cancel rewards and suspend accounts.</p>
+  <p>
+    <strong>Why choose us?</strong><br><br>
 
-    <p><strong>❺ Membership period and renewal mechanism</strong><br>
-    Each VIP level is valid for 12 days from confirmation. After expiration, benefits expire unless recharged.<br>
-    The platform reserves the right to adjust rules and benefits based on strategy.</p>
+    • Global accessibility — available worldwide<br>
+    • Strong digital financial system<br>
+    • Secure payment processing<br>
+    • Fast commission settlements<br>
+    • Advanced investment infrastructure<br>
+    • Transparent operational policies
+  </p>
+</div>
 
-    <p><strong>❻ Task Agent</strong><br>
-    Tasks are randomly assigned. Failure to comply may lead to suspension. Advanced tasks may have conditions.<br>
-    Withdrawals: Daily, instant, settled in TRC20/BEP20 KSH equivalent.</p>
+<div class="section">
+  <div class="section-title">VIP Membership Plans</div>
 
-    <p><strong>❼ Membership validity period and automatic refund</strong><br>
-    Refunds will be automatically processed after 12 days if rules are followed. Violations will void refund rights.</p>
+  <div class="vip-box">
+    <table class="vip-table">
+      <tr>
+        <th>VIP</th>
+        <th>Recharge (KSH)</th>
+        <th>Daily Profit</th>
+      </tr>
 
-    <p><strong>❽ User Guide and Disclaimer</strong><br>
-    Users must ensure security and legality. CYPX is not liable for user errors. The platform can modify rules at any time and users must comply with local regulations.</p>
+      <tr><td>VIP1</td><td>5,000</td><td>200</td></tr>
+      <tr><td>VIP2</td><td>10,000</td><td>400</td></tr>
+      <tr><td>VIP3</td><td>15,000</td><td>600</td></tr>
+      <tr><td>VIP4</td><td>25,000</td><td>900</td></tr>
+      <tr><td>VIP5</td><td>35,000</td><td>1,200</td></tr>
+      <tr><td>VIP6</td><td>50,000</td><td>1,600</td></tr>
+      <tr><td>VIP7</td><td>80,000</td><td>2,400</td></tr>
+      <tr><td>VIP8</td><td>120,000</td><td>3,300</td></tr>
+      <tr><td>VIP9</td><td>190,000</td><td>5,000</td></tr>
+      <tr><td>VIP10</td><td>250,000</td><td>6,500</td></tr>
+      <tr><td>VIP11</td><td>350,000</td><td>8,500</td></tr>
+      <tr><td>VIP12</td><td>450,000</td><td>10,500</td></tr>
+      <tr><td>VIP13</td><td>600,000</td><td>13,500</td></tr>
+      <tr><td>VIP14</td><td>700,000</td><td>15,000</td></tr>
+      <tr><td>VIP15</td><td>1,000,000</td><td>20,000</td></tr>
+    </table>
   </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Referral & Commission System</div>
+
+  <p>
+    Members can invite others using referral links and receive commissions through a three-level structure:
+    <br><br>
+
+    <strong>Level 1:</strong> 17% Commission<br>
+    <strong>Level 2:</strong> 2% Commission<br>
+    <strong>Level 3:</strong> 1% Commission
+    <br><br>
+
+    Commissions are only credited after successful deposits and approved transactions.
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-title">Terms & Disclaimer</div>
+
+  <p>
+    Members are responsible for maintaining account security and complying with local financial regulations.
+    CYPX HOLDINGS LTD reserves the right to adjust policies, membership plans, and reward systems where necessary to improve platform performance and security.
+  </p>
+</div>
+
+<div class="footer">
+  © 2026 CYPX HOLDINGS LTD — All Rights Reserved
+</div>
+
+</div>
 
 </body>
 </html>
