@@ -187,6 +187,7 @@
     
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+
 import {
   getAuth,
   onAuthStateChanged,
@@ -229,7 +230,10 @@ function showToast(msg, success = false) {
   t.style.background = success ? "#28a745" : "#ff4d4f";
   t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2000);
+
+  setTimeout(() => {
+    t.remove();
+  }, 2000);
 }
 
 const refUsername =
@@ -268,26 +272,30 @@ document
       return showToast("Enter a valid Kenyan number.");
     }
 
-    const emailMethods = await fetchSignInMethodsForEmail(auth, email);
-
-    if (emailMethods.length > 0) {
-      return showToast("This email is already registered.");
-    }
-
-    const userSnap = await get(
-      child(ref(db), "usernames/" + username)
-    );
-
-    if (userSnap.exists()) {
-      return showToast("Username already taken.");
-    }
-
     try {
-      const cred = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
+      const emailMethods =
+        await fetchSignInMethodsForEmail(auth, email);
+
+      if (emailMethods.length > 0) {
+        return showToast(
+          "This email is already registered."
+        );
+      }
+
+      const userSnap = await get(
+        child(ref(db), "usernames/" + username)
       );
+
+      if (userSnap.exists()) {
+        return showToast("Username already taken.");
+      }
+
+      const cred =
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
 
       const user = cred.user;
 
@@ -342,13 +350,17 @@ document
       console.error(err);
 
       if (err.code === "auth/email-already-in-use") {
-        showToast("This email is already registered.");
+        showToast(
+          "This email is already registered."
+        );
       } else if (err.code === "auth/weak-password") {
         showToast(
           "Password must be at least 6 characters."
         );
       } else {
-        showToast("Something went wrong. Try again.");
+        showToast(
+          "Something went wrong. Try again."
+        );
       }
     }
   });
