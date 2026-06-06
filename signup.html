@@ -144,7 +144,7 @@
   
   <div class="card">  
     <div style="text-align:center;margin-bottom:6px;">  
-      <div class="title">CYPX ONLINE CRYPTO</div>  
+      <div class="title">CYPX HOLDINGS</div>  
       <div class="subtitle">Secure • Reliable • Growth</div>  
     </div>  
   
@@ -185,7 +185,36 @@
     </div>  
   </div>  
   
-  
+  <script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* AUTO LOGIN CHECK */
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    window.location.href = "dashboard.html";
+  }
+});
+  </script>
 <script type="module">  
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";  
 import {   
