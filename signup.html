@@ -213,128 +213,176 @@ onAuthStateChanged(auth, (user)=>{
     window.location.href = "dashboard.html";
   }
 });
-  <script>
+<script>
     
-<script type="module">  
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";  
-import {   
-  getAuth,  
-  createUserWithEmailAndPassword,  
-  fetchSignInMethodsForEmail   
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";  
-import {   
-  getDatabase,  
-  ref,  
-  set,  
-  get,  
-  child  
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";  
-  
-const firebaseConfig = {  
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
-  authDomain: "quantum-rio.firebaseapp.com",  
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
-  projectId: "quantum-rio",  
-  storageBucket: "quantum-rio.appspot.com",  
-  messagingSenderId: "805433999377",  
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"  
-};  
-  
-const app = initializeApp(firebaseConfig);  
-const auth = getAuth(app);  
-const db = getDatabase(app);  
-  
-function showToast(msg, success=false){  
-  const t = document.createElement("div");  
-  t.className = "toast";  
-  t.style.background = success ? "#28a745" : "#ff4d4f";  
-  t.textContent = msg;  
-  document.body.appendChild(t);  
-  setTimeout(()=> t.remove(), 2000);  
-}  
-  
-const refUsername = new URLSearchParams(window.location.search).get("ref") || null;  
-  
-const emailInput = document.getElementById("email");  
-const usernameInput = document.getElementById("username");  
-const phoneInput = document.getElementById("phone");  
-const passInput = document.getElementById("password");  
-const confirmInput = document.getElementById("confirm_password");  
-  
-document.getElementById("signupForm").addEventListener("submit", async (e) => {  
-  e.preventDefault();  
-  
-  const username = usernameInput.value.trim();  
-  const email = emailInput.value.trim();  
-  const phone = phoneInput.value.trim();  
-  const password = passInput.value.trim();  
-  const confirm = confirmInput.value.trim();  
-  
-  if(!username || !email || !phone || !password || !confirm){  
-    return showToast("All fields are required.");  
-  }  
-  if(password.length < 6){  
-    return showToast("Password must be at least 6 characters.");  
-  }  
-  if(password !== confirm){  
-    return showToast("Passwords do not match.");  
-  }  
-  if(!/^[7][0-9]{8}$/.test(phone)){  
-    return showToast("Enter a valid Kenyan number.");  
-  }  
-  
-  const emailMethods = await fetchSignInMethodsForEmail(auth, email);  
-  if(emailMethods.length > 0){  
-    return showToast("This email is already registered.");  
-  }  
-  
-  const userSnap = await get(child(ref(db), "usernames/" + username));  
-  if(userSnap.exists()){  
-    return showToast("Username already taken.");  
-  }  
-  
-  try {  
-    const cred = await createUserWithEmailAndPassword(auth, email, password);  
-    const user = cred.user;  
-  
-    await set(ref(db, "users/" + user.uid), {  
-      username,  
-      email,  
-      phone,  
-      referredBy: refUsername || "",  
-      createdAt: Date.now()  
-    });  
-  
-    await set(ref(db, "usernames/" + username), user.uid);  
-  
-    if(refUsername){  
-      const sponsorSnap = await get(child(ref(db), "usernames/" + refUsername));  
-      if(sponsorSnap.exists()){  
-        const sponsorUid = sponsorSnap.val();  
-        await set(ref(db, "referrals/" + sponsorUid + "/" + user.uid), {  
-          username,  
-          email,  
-          timestamp: Date.now()  
-        });  
-      }  
-    }  
-  
-    showToast("Account created successfully!", true);  
-    setTimeout(() => window.location.href = "dashboard.html", 500);  
-  
-  } catch(err){  
-    console.error(err);  
-    if(err.code === "auth/email-already-in-use"){  
-      showToast("This email is already registered.");  
-    }  
-    else if(err.code === "auth/weak-password"){  
-      showToast("Password must be at least 6 characters.");  
-    }  
-    else {  
-      showToast("Something went wrong. Try again.");  
-    }  
-  }  
-});  
-  </script>
-</body>  
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  set,
+  get,
+  child
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+/* AUTO LOGIN CHECK */
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.location.href = "dashboard.html";
+  }
+});
+
+function showToast(msg, success = false) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.style.background = success ? "#28a745" : "#ff4d4f";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+const refUsername =
+  new URLSearchParams(window.location.search).get("ref") || null;
+
+const emailInput = document.getElementById("email");
+const usernameInput = document.getElementById("username");
+const phoneInput = document.getElementById("phone");
+const passInput = document.getElementById("password");
+const confirmInput = document.getElementById("confirm_password");
+
+document
+  .getElementById("signupForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const username = usernameInput.value.trim();
+    const email = emailInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const password = passInput.value.trim();
+    const confirm = confirmInput.value.trim();
+
+    if (!username || !email || !phone || !password || !confirm) {
+      return showToast("All fields are required.");
+    }
+
+    if (password.length < 6) {
+      return showToast("Password must be at least 6 characters.");
+    }
+
+    if (password !== confirm) {
+      return showToast("Passwords do not match.");
+    }
+
+    if (!/^[7][0-9]{8}$/.test(phone)) {
+      return showToast("Enter a valid Kenyan number.");
+    }
+
+    const emailMethods = await fetchSignInMethodsForEmail(auth, email);
+
+    if (emailMethods.length > 0) {
+      return showToast("This email is already registered.");
+    }
+
+    const userSnap = await get(
+      child(ref(db), "usernames/" + username)
+    );
+
+    if (userSnap.exists()) {
+      return showToast("Username already taken.");
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const user = cred.user;
+
+      await set(ref(db, "users/" + user.uid), {
+        username,
+        email,
+        phone,
+        referredBy: refUsername || "",
+        createdAt: Date.now()
+      });
+
+      await set(
+        ref(db, "usernames/" + username),
+        user.uid
+      );
+
+      if (refUsername) {
+        const sponsorSnap = await get(
+          child(ref(db), "usernames/" + refUsername)
+        );
+
+        if (sponsorSnap.exists()) {
+          const sponsorUid = sponsorSnap.val();
+
+          await set(
+            ref(
+              db,
+              "referrals/" +
+                sponsorUid +
+                "/" +
+                user.uid
+            ),
+            {
+              username,
+              email,
+              timestamp: Date.now()
+            }
+          );
+        }
+      }
+
+      showToast(
+        "Account created successfully!",
+        true
+      );
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 500);
+
+    } catch (err) {
+      console.error(err);
+
+      if (err.code === "auth/email-already-in-use") {
+        showToast("This email is already registered.");
+      } else if (err.code === "auth/weak-password") {
+        showToast(
+          "Password must be at least 6 characters."
+        );
+      } else {
+        showToast("Something went wrong. Try again.");
+      }
+    }
+  });
+</script>
+
+</body>
 </html>
