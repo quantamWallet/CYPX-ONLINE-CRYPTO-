@@ -189,28 +189,53 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
 
-  // ================================
-  // REF LINK (UNCHANGED)
-  // ================================
-  database.ref("users/" + uid + "/username").once("value").then(snap => {
+// ================================
+// REFERRAL PURCHASES → REF COUNT
+// PURCHASED REFS AUTO-DEPOSIT 3000
+// ================================
+database.ref("referralPurchases/" + uid).on("value", async snap => {
 
-    let uname = snap.exists() ? snap.val() : (user.email ? user.email.split("@")[0] : "user");
+  const data = snap.val() || {};
 
-    const refLink =
-      `https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=${encodeURIComponent(uname)}`;
+  let totalReferrals = 0;
+  let purchasedDepositedRefs = {};
 
-    const input = document.getElementById("ref-link");
-    input.value = refLink;
+  Object.entries(data).forEach(([purchaseId, item]) => {
 
-    input.onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(refLink);
-      } catch (e) {
-        input.select();
-        document.execCommand("copy");
+    const status = (item.status || "").toLowerCase();
+
+    if (status === "approved") {
+
+      const group = item.group || "";
+      let refsToAdd = 0;
+
+      if (group === "Group 1") refsToAdd = 2;
+      if (group === "Group 2") refsToAdd = 4;
+      if (group === "Group 3") refsToAdd = 8;
+
+      totalReferrals += refsToAdd;
+
+      // Create purchased referrals as deposited 3000
+      for (let i = 1; i <= refsToAdd; i++) {
+
+        const refKey = `purchase_${purchaseId}_${i}`;
+
+        purchasedDepositedRefs[refKey] = {
+          deposited: 3000,
+          purchased: true,
+          createdAt: firebase.database.ServerValue.TIMESTAMP
+        };
       }
-    };
+    }
   });
+
+  // Save purchased referrals so withdraw.html can read them
+  await database.ref("users/" + uid + "/referrals").update(purchasedDepositedRefs);
+
+  // Update counts
+  document.getElementById("refCount").innerText = totalReferrals;
+  document.getElementById("team-size").innerText = totalReferrals;
+});
 
   // ================================
   // REFERRAL PURCHASES → REF COUNT
