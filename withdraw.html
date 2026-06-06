@@ -706,7 +706,7 @@ if(method === "mpesa" || method === "airtel"){
 // Save withdrawal
 await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);
 
-// Also save to financial history
+// Save to financial history
 await db.ref(`financialHistory/${currentUser.uid}`).push({
   type: "Withdrawal",
   method: methodNames[method],
@@ -716,20 +716,25 @@ await db.ref(`financialHistory/${currentUser.uid}`).push({
 });
 
 // Clear form
-amountInput.value='';
-phoneInput.value='';
-paypalEmailInput.value='';
-cryptoAddressInput.value='';
+amountInput.value = '';
+phoneInput.value = '';
+paypalEmailInput.value = '';
+cryptoAddressInput.value = '';
 
-// Success + redirect
+// Success popup
 showPopup(
   `Withdrawal request of KES ${amount.toLocaleString()} submitted successfully.`,
   'success'
 );
 
+// Redirect to financial.html
 setTimeout(() => {
   window.location.href = "financial.html";
-}, 1500);              
-</script>              
-</body>              
-  </html>
+}, 1500);
+
+}); // transaction callback ends
+
+}); // form submit ends
+</script>
+</body>
+</html>
