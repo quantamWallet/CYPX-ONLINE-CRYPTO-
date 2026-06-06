@@ -135,6 +135,7 @@ nav i { font-size:20px; }
 <!-- STATS -->
 <div class="card stats">
   <div class="stat">Team Size<br><span id="team-size">0</span></div>
+  <div class="stat">Referrals Earned<br><span id="refCount">0</span></div>
   <div class="stat">Team Deposit<br><span id="team-deposit">0</span></div>
   <div class="stat">First Deposits<br><span id="first-deposit">0</span></div>
   <div class="stat">Total Bonus<br><span id="team-bonus">0</span></div>
@@ -207,6 +208,32 @@ auth.onAuthStateChanged(user => {
   }  
 
   const uid = user.uid;  
+// 🔥 REAL-TIME LISTENER FOR APPROVED REFERRALS
+database.ref("referralPurchases/" + uid).on("value", (snapshot) => {
+
+  const data = snapshot.val() || {};
+  let totalReferrals = 0;
+
+  Object.values(data).forEach(item => {
+
+    if (item.status === "approved") {
+
+      if (item.group === "Group 1") totalReferrals += 2;
+      if (item.group === "Group 2") totalReferrals += 4;
+      if (item.group === "Group 3") totalReferrals += 8;
+
+    }
+
+  });
+
+  // ✅ UPDATE UI
+  document.getElementById("refCount").innerText = totalReferrals;
+
+}); // 🔥 IMPORTANT CLOSING BRACKET
+  // ⚠️ You MUST create this element in HTML (see below)
+  document.getElementById("team-size").innerText = totalReferrals;
+
+});
 
   // ✅ FIXED: correct reference
   const usernameRef = database.ref("users/" + uid + "/username");  
