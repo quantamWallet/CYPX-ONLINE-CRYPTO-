@@ -254,27 +254,28 @@ auth.onAuthStateChanged(user => {
   });
 
   /* WITHDRAWALS */
-  db.ref("withdrawals/" + uid).on("value", snap => {
+  /* WITHDRAWALS */
+db.ref("users/" + uid + "/withdrawals").on("value", snap => {
 
-    withdrawals = [];
+  withdrawals = [];
 
-    snap.forEach(child => {
+  snap.forEach(child => {
 
-      const w = child.val();
+    const w = child.val();
 
-      withdrawals.push({
-        type: "Withdrawal",
-        amount: w.amount || 0,
-        method: w.method || "-",
-        status: w.status || "pending",
-        createdAt: Number(w.timestamp || w.createdAt || 0)
-      });
+    withdrawals.push({
+      type: "Withdrawal",
+      amount: w.amount || 0,
+      method: w.methodName || w.method || "-",
+      status: w.status || "pending",
+      createdAt: Number(w.timestamp || w.createdAt || 0)
     });
-
-    renderRecords(
-      document.querySelector(".tab.active").dataset.filter
-    );
   });
+
+  renderRecords(
+    document.querySelector(".tab.active").dataset.filter
+  );
+});
 
   /* REFERRAL PURCHASES */
   db.ref("referralPurchases/" + uid).on("value", snap => {
