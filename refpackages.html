@@ -1,334 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Referral Packages</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYPX HOLDINGS - Referral Packages</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #003366, #001f3f);
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
 
-    h1 {
-      color: #00e0ff;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px rgba(0,224,255,0.6);
-    }
+body{
+min-height:100vh;
+background: radial-gradient(circle at top,#0b2b4d,#061a2e,#030f1c);
+color:#fff;
+padding:25px;
+text-align:center;
+}
 
-    .explanation {
-      background: linear-gradient(145deg, #003a78, #002b5c);
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      font-size: 14px;
-      line-height: 1.6;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
+h1{
+font-size:24px;
+color:#00e0ff;
+margin-bottom:8px;
+text-shadow:0 0 12px rgba(0,224,255,0.5);
+}
 
-    .packages {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
+.brand{
+font-size:13px;
+color:#ffd700;
+letter-spacing:2px;
+margin-bottom:15px;
+}
 
-    .package {
-      background: linear-gradient(145deg, #003a78, #002b5c);
-      border-radius: 14px;
-      padding: 20px 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: 0.25s;
-    }
+.explanation{
+max-width:700px;
+margin:0 auto 30px;
+padding:18px;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:14px;
+font-size:14px;
+line-height:1.6;
+color:#cfe6ff;
+backdrop-filter:blur(12px);
+box-shadow:0 8px 25px rgba(0,0,0,0.4);
+}
 
-    .package:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 20px rgba(0, 200, 255, 0.4);
-    }
+.packages{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:20px;
+max-width:900px;
+margin:0 auto;
+}
 
-    .package h2 {
-      color: #ffd700;
-      margin-bottom: 8px;
-      font-size: 18px;
-    }
+.package{
+background:linear-gradient(145deg,#0e3a66,#07233f);
+border-radius:16px;
+padding:22px;
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 12px 30px rgba(0,0,0,0.5);
+transition:0.25s ease;
+position:relative;
+overflow:hidden;
+}
 
-    .package p {
-      font-size: 13px;
-      margin-bottom: 10px;
-      color: rgba(255,255,255,0.85);
-    }
+.package:hover{
+transform:translateY(-6px);
+box-shadow:0 0 25px rgba(0,224,255,0.25);
+}
 
-    .price {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #28a745;
-      text-shadow: 0 0 6px rgba(40,167,69,0.6);
-    }
+.package h2{
+color:#ffd700;
+font-size:18px;
+margin-bottom:10px;
+}
 
-    .select-btn {
-      background: linear-gradient(145deg, #00e0ff, #007bff);
-      color: #001f3f;
-      padding: 10px;
-      width: 100%;
-      border-radius: 10px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    }
+.package p{
+font-size:13px;
+color:#d6e6ff;
+margin-bottom:12px;
+line-height:1.5;
+}
 
-    .select-btn:hover:enabled {
-      transform: translateY(-2px);
-      box-shadow: 0 0 12px rgba(0, 200, 255, 0.7);
-    }
+.price{
+font-size:20px;
+font-weight:bold;
+color:#00ff88;
+margin-bottom:15px;
+text-shadow:0 0 8px rgba(0,255,136,0.4);
+}
 
-    .select-btn:disabled {
-      background: #555;
-      cursor: not-allowed;
-    }
+.select-btn{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+font-weight:bold;
+font-size:14px;
+color:#001a2e;
+background:linear-gradient(145deg,#00e0ff,#007bff);
+transition:0.2s;
+box-shadow:0 8px 18px rgba(0,0,0,0.4);
+}
 
-    .toast {
-      position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #28a745;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      display: none;
-      z-index: 9999;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+.select-btn:hover:enabled{
+transform:translateY(-3px);
+box-shadow:0 0 15px rgba(0,224,255,0.6);
+}
 
-    footer {
-      margin-top: 30px;
-      font-size: 12px;
-      color: #aaa;
-    }
+.select-btn:disabled{
+background:#555;
+cursor:not-allowed;
+}
 
-  </style>
+.toast{
+position:fixed;
+bottom:25px;
+left:50%;
+transform:translateX(-50%);
+background:#00c853;
+padding:12px 20px;
+border-radius:10px;
+font-weight:bold;
+display:none;
+z-index:9999;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+footer{
+margin-top:35px;
+font-size:12px;
+color:#8ea2b5;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Choose Your Referral Package</h1>
+<h1>CYPX HOLDINGS</h1>
+<div class="brand">REFERRAL PACKAGES</div>
 
 <div class="explanation">
-  Grow your network instantly with verified referral packages.  
-  Each package provides active members to boost your earning potential securely.  
-  Select the best option to accelerate your growth.
+Grow your network instantly with verified referral packages from CYPX HOLDINGS.  
+Each package gives you active referrals designed to boost engagement and earnings safely inside the system.
 </div>
 
 <div class="packages">
 
-  <div class="package">
-    <h2>Group 1</h2>
-    <p>✅ Get <b>2 Referrals</b> instantly.</p>
-    <div class="price">3,000 KSH</div>
-    <button class="select-btn" onclick="selectPackage('Group 1', 3000)">Select</button>
-  </div>
+<div class="package">
+<h2>Group 1</h2>
+<p>Get <b>2 active referrals</b> instantly to begin your growth journey.</p>
+<div class="price">4,500 KSH</div>
+<button class="select-btn" onclick="selectPackage('Group 1', 4500)">Select Package</button>
+</div>
 
-  <div class="package">
-    <h2>Group 2</h2>
-    <p>🔥 Get <b>4 Referrals</b> for faster growth.</p>
-    <div class="price">5,000 KSH</div>
-    <button class="select-btn" onclick="selectPackage('Group 2', 5000)">Select</button>
-  </div>
+<div class="package">
+<h2>Group 2</h2>
+<p>Unlock <b>4 referrals</b> for faster and stronger network expansion.</p>
+<div class="price">8,000 KSH</div>
+<button class="select-btn" onclick="selectPackage('Group 2', 8000)">Select Package</button>
+</div>
 
-  <div class="package">
-    <h2>Group 3</h2>
-    <p>🚀 Get <b>8 Referrals</b> and maximize earnings.</p>
-    <div class="price">8,000 KSH</div>
-    <button class="select-btn" onclick="selectPackage('Group 3', 8000)">Select</button>
-  </div>
+<div class="package">
+<h2>Group 3</h2>
+<p>Receive <b>8 high-quality referrals</b> for maximum earning potential.</p>
+<div class="price">12,000 KSH</div>
+<button class="select-btn" onclick="selectPackage('Group 3', 12000)">Select Package</button>
+</div>
 
 </div>
 
 <div id="toast" class="toast">Processing...</div>
 
 <footer>
-  © 2026 CYPX ONLINE CRYPTO — Trusted Growth System
+© 2026 CYPX HOLDINGS — Premium Referral Network System
 </footer>
 
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script type="module">
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-
-import {
-  getDatabase,
-  ref,
-  push
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey:
-  "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-
-  authDomain:
-  "quantum-rio.firebaseapp.com",
-
-  databaseURL:
-  "https://quantum-rio-default-rtdb.firebaseio.com",
-
-  projectId:
-  "quantum-rio",
-
-  storageBucket:
-  "quantum-rio.firebasestorage.app",
-
-  messagingSenderId:
-  "805433999377",
-
-  appId:
-  "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+authDomain: "quantum-rio.firebaseapp.com",
+databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+projectId: "quantum-rio",
+storageBucket: "quantum-rio.firebasestorage.app",
+messagingSenderId: "805433999377",
+appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-const app =
-initializeApp(firebaseConfig);
-
-const auth =
-getAuth(app);
-
-const db =
-getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
 let currentUID = null;
+const buttons = document.querySelectorAll(".select-btn");
 
-const buttons =
-document.querySelectorAll(
-".select-btn"
-);
+buttons.forEach(b => b.disabled = true);
 
-/* DISABLE BUTTONS */
-buttons.forEach(btn=>{
-btn.disabled = true;
-});
-
-/* AUTH CHECK */
-onAuthStateChanged(
-auth,
-(user)=>{
-
+onAuthStateChanged(auth, user => {
 if(user){
-
-currentUID =
-user.uid;
-
-/* ENABLE */
-buttons.forEach(btn=>{
-btn.disabled = false;
+currentUID = user.uid;
+buttons.forEach(b => b.disabled = false);
+}else{
+window.location.href = "landing.html";
+}
 });
 
-}else{
-
-window.location.href =
-"landing.html";
-
-}
-
-}
-);
-
-/* SELECT PACKAGE */
-window.selectPackage =
-function(group, price){
+window.selectPackage = function(group, price){
 
 if(!currentUID){
-
-showToast(
-"Please wait..."
-);
-
+showToast("Please wait...");
 return;
 }
 
-/* DISABLE BUTTONS */
-buttons.forEach(btn=>{
-btn.disabled = true;
-});
-
-showToast(
-"Processing..."
-);
+buttons.forEach(b => b.disabled = true);
+showToast("Processing...");
 
 const redirectUrl =
 `buyref.html?group=${encodeURIComponent(group)}&price=${encodeURIComponent(price)}`;
 
-/* TRY SAVE (NON-BLOCKING) */
-try{
+push(ref(db, "referralPurchases/" + currentUID), {
+group,
+price,
+status:"initiated",
+createdAt: Date.now()
+}).catch(()=>{});
 
-push(
-ref(
-db,
-"referralPurchases/" +
-currentUID
-),
-{
-group: group,
-price: price,
-status: "initiated",
-createdAt:
-Date.now()
-}
-).catch(err=>{
-console.log(
-"Firebase save skipped:",
-err
-);
-});
-
-}catch(err){
-console.log(err);
-}
-
-/* ALWAYS REDIRECT */
 setTimeout(()=>{
-
-window.location.href =
-redirectUrl;
-
+window.location.href = redirectUrl;
 },500);
 
 };
 
-/* TOAST */
 function showToast(msg){
-
-const toast =
-document.getElementById(
-"toast"
-);
-
-toast.innerText =
-msg;
-
-toast.style.display =
-"block";
-
-setTimeout(()=>{
-
-toast.style.display =
-"none";
-
-},2000);
-
+const toast = document.getElementById("toast");
+toast.innerText = msg;
+toast.style.display = "block";
+setTimeout(()=>toast.style.display="none",2000);
 }
 </script>
+
 </body>
 </html>
