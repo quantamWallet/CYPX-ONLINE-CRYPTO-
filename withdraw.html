@@ -665,13 +665,19 @@ form.addEventListener('submit',async e=>{
   const balance = Number(balSnap.val())||0;              
   if(balance < amount){ showPopup('Insufficient balance','error'); return; }              
               
-  // referral check              
-  const refSnap = await db.ref(`users/${currentUser.uid}`).once('value');              
-  let validRefs=0;              
-  refSnap.forEach(r=>{              
-    if(Number(r.child('deposited').val()) >= 3000) validRefs++;              
-  });              
-  if(validRefs < 2){
+  // referral check (FIXED)
+const refSnap = await db.ref(`referrals/${currentUser.uid}`).once('value');
+
+let validRefs = 0;
+
+refSnap.forEach(child => {
+  const data = child.val();
+  if (data && Number(data.deposited || 0) >= 3000) {
+    validRefs++;
+  }
+});
+
+if (validRefs < 2) {
   showPopup(
     "You must have at least 2 referrals who deposited 3,000 KSH before withdrawing.",
     "confirm",
@@ -679,8 +685,11 @@ form.addEventListener('submit',async e=>{
     "select.html"
   );
   return;
-  }              
-                            
+}             
+   if (!amount || isNaN(amount)) {
+  showPopup("Invalid amount", "error");
+  return;
+   }                         
   // Deduct balance + push withdrawal                
 submitBtn.disabled=true;                
 submitBtn.textContent='Processing...';                
