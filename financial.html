@@ -75,9 +75,19 @@ header{
   margin-top:8px;
 }
 
-.badge.pending{ background:#ff9800; }
-.badge.completed{ background:#28a745; }
-.badge.failed{ background:#e53935; }
+.badge.pending{
+  background:#ff9800;
+}
+
+.badge.completed,
+.badge.approved{
+  background:#28a745;
+}
+
+.badge.failed,
+.badge.rejected{
+  background:#e53935;
+}
 
 .no-records{
   text-align:center;
@@ -267,7 +277,7 @@ db.ref("users/" + uid + "/withdrawals").on("value", snap => {
       type: "Withdrawal",
       amount: w.amount || 0,
       method: w.methodName || w.method || "-",
-      status: w.status || "pending",
+      status: (w.status || "pending").toLowerCase(),
       createdAt: Number(w.timestamp || w.createdAt || 0)
     });
   });
