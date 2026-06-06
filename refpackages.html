@@ -161,88 +161,174 @@
 
 <!-- Firebase -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  push
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  apiKey:
+  "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+  authDomain:
+  "quantum-rio.firebaseapp.com",
+
+  databaseURL:
+  "https://quantum-rio-default-rtdb.firebaseio.com",
+
+  projectId:
+  "quantum-rio",
+
+  storageBucket:
+  "quantum-rio.firebasestorage.app",
+
+  messagingSenderId:
+  "805433999377",
+
+  appId:
+  "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+const app =
+initializeApp(firebaseConfig);
+
+const auth =
+getAuth(app);
+
+const db =
+getDatabase(app);
 
 let currentUID = null;
-const buttons = document.querySelectorAll(".select-btn");
 
-/* 🔒 Disable buttons initially */
-buttons.forEach(btn => btn.disabled = true);
+const buttons =
+document.querySelectorAll(
+".select-btn"
+);
 
-/* ✅ Wait for auth */
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUID = user.uid;
-
-    // Enable buttons only when ready
-    buttons.forEach(btn => btn.disabled = false);
-  } else {
-    window.location.href = "landing.html";
-  }
+/* DISABLE BUTTONS */
+buttons.forEach(btn=>{
+btn.disabled = true;
 });
 
-/* ✅ MAIN FUNCTION */
-window.selectPackage = function(group, price) {
+/* AUTH CHECK */
+onAuthStateChanged(
+auth,
+(user)=>{
 
-  if (!currentUID) {
-    showToast("Please wait...");
-    return;
-  }
+if(user){
 
-  showToast("Processing...");
+currentUID =
+user.uid;
 
-  const refPath = ref(db, "referralPurchases/" + currentUID);
+/* ENABLE */
+buttons.forEach(btn=>{
+btn.disabled = false;
+});
 
-  const redirectUrl = `buyref.html?group=${encodeURIComponent(group)}&price=${encodeURIComponent(price)}`;
+}else{
 
-  /* ✅ Save + ALWAYS redirect */
-  push(refPath, {
-    group: group,
-    price: price,
-    status: "initiated",
-    createdAt: Date.now()
-  })
-  .then(() => {
-    showToast("Redirecting...");
-    setTimeout(() => {
-      window.location.href = redirectUrl;
-    }, 800);
-  })
-  .catch((err) => {
-    console.error(err);
+window.location.href =
+"landing.html";
 
-    // 🚨 FAIL SAFE → still redirect
-    showToast("Continuing...");
-    setTimeout(() => {
-      window.location.href = redirectUrl;
-    }, 800);
-  });
+}
+
+}
+);
+
+/* SELECT PACKAGE */
+window.selectPackage =
+function(group, price){
+
+if(!currentUID){
+
+showToast(
+"Please wait..."
+);
+
+return;
+}
+
+/* DISABLE BUTTONS */
+buttons.forEach(btn=>{
+btn.disabled = true;
+});
+
+showToast(
+"Processing..."
+);
+
+const redirectUrl =
+`buyref.html?group=${encodeURIComponent(group)}&price=${encodeURIComponent(price)}`;
+
+/* TRY SAVE (NON-BLOCKING) */
+try{
+
+push(
+ref(
+db,
+"referralPurchases/" +
+currentUID
+),
+{
+group: group,
+price: price,
+status: "initiated",
+createdAt:
+Date.now()
+}
+).catch(err=>{
+console.log(
+"Firebase save skipped:",
+err
+);
+});
+
+}catch(err){
+console.log(err);
+}
+
+/* ALWAYS REDIRECT */
+setTimeout(()=>{
+
+window.location.href =
+redirectUrl;
+
+},500);
+
 };
 
 /* TOAST */
 function showToast(msg){
-  const toast = document.getElementById("toast");
-  toast.innerText = msg;
-  toast.style.display = "block";
-  setTimeout(()=> toast.style.display="none",2000);
-}
-               </script>
 
+const toast =
+document.getElementById(
+"toast"
+);
+
+toast.innerText =
+msg;
+
+toast.style.display =
+"block";
+
+setTimeout(()=>{
+
+toast.style.display =
+"none";
+
+},2000);
+
+}
+</script>
 </body>
 </html>
