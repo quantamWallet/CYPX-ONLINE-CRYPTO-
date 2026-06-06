@@ -427,6 +427,16 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<script>
+/* APK AUTO REDIRECT TO SIGNIN */
+const isAPK =
+  window.location.protocol === "file:" ||
+  navigator.userAgent.includes("wv") ||
+  navigator.userAgent.includes("Android");
 
+if (isAPK) {
+  window.location.replace("signin.html");
+}
+</script>
 </body>
 </html>
