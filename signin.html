@@ -3,128 +3,265 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sign In</title>
+<title>CYPX HOLDINGS - Sign In</title>
 
 <style>
-  html,body{height:100%;margin:0;}
-  body{
-    font-family:"Segoe UI",Roboto,Arial,sans-serif;
-    display:flex; justify-content:center; align-items:center;
-    background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
-    position:relative; overflow:hidden;
-  }
-  body::before{
-    content:""; position:absolute; inset:0;
-    background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
-    background-repeat:repeat; background-size:150px;
-    opacity:0.04; z-index:0; filter:blur(0.5px);
-  }
+html,body{
+  height:100%;
+  margin:0;
+}
 
-  /* ⭐ SMALLER CARD (Perfect size now) */
-  .card{
-    position:relative; z-index:1;
-    width:300px;                          /* smaller width */
-    max-width:90%;
-    background:linear-gradient(180deg,rgba(6,20,40,0.96),rgba(7,18,34,0.95));
-    border-radius:18px; 
-    padding:20px;                         /* smaller padding */
-    box-shadow:0 10px 30px rgba(2,6,23,0.7);
-    color:#fff;
-  }
+body{
+  font-family:"Segoe UI",Roboto,Arial,sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(180deg,#0f355b 0%,#071a33 100%);
+  position:relative;
+  overflow:hidden;
+}
 
-  .title{text-align:center;margin-bottom:4px;font-weight:800;font-size:22px;}
-  .subtitle{text-align:center;color:rgba(255,255,255,0.75);font-size:12px;margin-bottom:12px;}
+body::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:url("https://upload.wikimedia.org/wikipedia/commons/4/46/Bitcoin.svg");
+  background-repeat:repeat;
+  background-size:150px;
+  opacity:0.04;
+  z-index:0;
+  filter:blur(0.5px);
+}
 
-  .field{margin-bottom:10px;}
-  label{
-    display:block;color:rgba(255,255,255,0.55);font-size:13px;
-    margin-bottom:4px;font-weight:600;
-  }
+.card{
+  position:relative;
+  z-index:1;
+  width:300px;
+  max-width:90%;
+  background:linear-gradient(180deg,rgba(6,20,40,0.96),rgba(7,18,34,0.95));
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(2,6,23,0.7);
+  color:#fff;
+}
 
-  .input{
-    width:100%;
-    padding:10px 12px;
-    border-radius:8px;
-    border:1px solid rgba(255,255,255,0.08);
-    background:rgba(255,255,255,0.04);
-    color:#e9f5ff;
-    font-size:13px;
-  }
+.company-title{
+  text-align:center;
+  color:#ffd400;
+  font-size:24px;
+  font-weight:900;
+  margin-bottom:10px;
+}
 
-  .input::placeholder{color:rgba(255,255,255,0.45);}
+.title{
+  text-align:center;
+  margin-bottom:4px;
+  font-weight:800;
+  font-size:22px;
+}
 
-  .forgot{
-    text-align:center;
-    margin-top:4px;
-    margin-bottom:12px;
-  }
-  .forgot a{
-    color:rgba(255,255,255,0.55);
-    font-size:12px;
-    text-decoration:none;
-  }
+.subtitle{
+  text-align:center;
+  color:rgba(255,255,255,0.75);
+  font-size:12px;
+  margin-bottom:12px;
+}
 
-  .btn{
-    width:100%; padding:12px; 
-    border-radius:10px;
-    border:none; cursor:pointer; 
-    font-weight:800; font-size:16px;
-    background:linear-gradient(90deg,#ffd400,#ffcf00); 
-    color:#111;
-  }
+.field{
+  margin-bottom:10px;
+}
 
-  .signup-line{
-    text-align:center;margin-top:12px;
-    color:rgba(255,255,255,0.85);font-size:13px;
-  }
-  .signup-line a{color:#7fc4ff;font-weight:700;}
+label{
+  display:block;
+  color:rgba(255,255,255,0.55);
+  font-size:13px;
+  margin-bottom:4px;
+  font-weight:600;
+}
 
-  /* Toast */
-  .toast{
-    position:fixed;top:20px;right:20px;
-    padding:12px 18px;border-radius:8px;
-    color:#fff;font-size:15px;font-weight:500;z-index:9999;
-    box-shadow:0 3px 12px rgba(0,0,0,0.35);
-    animation:fadeIn .3s ease;
+.input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.04);
+  color:#e9f5ff;
+  font-size:13px;
+  box-sizing:border-box;
+}
+
+.input::placeholder{
+  color:rgba(255,255,255,0.45);
+}
+
+.remember-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:8px 0 12px;
+  font-size:13px;
+  color:#ddd;
+}
+
+.remember-wrap input{
+  width:16px;
+  height:16px;
+}
+
+.forgot{
+  text-align:center;
+  margin-top:4px;
+  margin-bottom:12px;
+}
+
+.forgot a{
+  color:rgba(255,255,255,0.55);
+  font-size:12px;
+  text-decoration:none;
+}
+
+.btn{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-weight:800;
+  font-size:16px;
+  background:linear-gradient(90deg,#ffd400,#ffcf00);
+  color:#111;
+}
+
+.signup-line{
+  text-align:center;
+  margin-top:12px;
+  color:rgba(255,255,255,0.85);
+  font-size:13px;
+}
+
+.signup-line a{
+  color:#7fc4ff;
+  font-weight:700;
+}
+
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  padding:12px 18px;
+  border-radius:8px;
+  color:#fff;
+  font-size:15px;
+  font-weight:500;
+  z-index:9999;
+  box-shadow:0 3px 12px rgba(0,0,0,0.35);
+  animation:fadeIn .3s ease;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(-6px);
   }
-  @keyframes fadeIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
 </style>
 </head>
+
 <body>
 
 <div class="card">
-  <div class="title">Sign In</div>
-  <div class="subtitle">Welcome back to CYPX Online Crypto</div>
 
-  <form id="signinForm" autocomplete="off" novalidate>
-    <div class="field">
-      <label for="email">Email</label>
-      <input id="email" class="input" type="email" placeholder="Enter your email" required />
-    </div>
+<div class="company-title">
+CYPX HOLDINGS
+</div>
 
-    <div class="field">
-      <label for="password">Password</label>
-      <input id="password" class="input" type="password" placeholder="Enter your password" required />
-    </div>
+<div class="title">
+Sign In
+</div>
 
-    <div class="forgot">
-      <a href="#" id="forgotPasswordBtn">Forgot Password?</a>
-    </div>
+<div class="subtitle">
+Welcome back to CYPX HOLDINGS
+</div>
 
-    <button class="btn" type="submit">Login</button>
-  </form>
+<form id="signinForm" autocomplete="off" novalidate>
 
-  <div class="signup-line">Don’t have an account? <a href="signup.html">Create Account</a></div>
+<div class="field">
+<label for="email">Email</label>
+<input
+id="email"
+class="input"
+type="email"
+placeholder="Enter your email"
+required
+/>
+</div>
+
+<div class="field">
+<label for="password">Password</label>
+<input
+id="password"
+class="input"
+type="password"
+placeholder="Enter your password"
+required
+/>
+</div>
+
+<div class="remember-wrap">
+<input type="checkbox" id="rememberMe">
+<label for="rememberMe" style="margin:0;">
+Remember Me (30 Days)
+</label>
+</div>
+
+<div class="forgot">
+<a href="#" id="forgotPasswordBtn">
+Forgot Password?
+</a>
+</div>
+
+<button class="btn" type="submit">
+Login
+</button>
+
+</form>
+
+<div class="signup-line">
+Don’t have an account?
+<a href="signup.html">
+Create Account
+</a>
+</div>
+
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-import { 
-  getAuth, 
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+
+import {
+  getAuth,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  get,
+  child
+}
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -140,71 +277,231 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+const THIRTY_DAYS =
+30 * 24 * 60 * 60 * 1000;
+
 function showToast(msg, success=false){
-  const t=document.createElement("div");
-  t.className="toast";
-  t.style.background=success?"#28a745":"#ff4d4f";
-  t.textContent=msg;
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.style.background =
+    success ? "#28a745" : "#ff4d4f";
+
+  t.textContent = msg;
+
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),4000);
+
+  setTimeout(()=>{
+    t.remove();
+  },4000);
 }
 
-document.getElementById("signinForm").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const email=document.getElementById("email").value.trim();
-  const password=document.getElementById("password").value.trim();
+/* AUTO LOGIN CHECK */
+onAuthStateChanged(auth, async(user)=>{
 
-  if(!email || !password){
-    showToast("Please enter email and password");
-    return;
-  }
+  if(user){
 
-  try{
-    const cred = await signInWithEmailAndPassword(auth,email,password);
-    const user = cred.user;
+    const loginExpiry =
+    localStorage.getItem(
+      "loginExpiry"
+    );
 
-    const snap = await get(child(ref(db),"users/"+user.uid));
+    if(loginExpiry &&
+    Date.now() >
+    Number(loginExpiry)){
 
-    if(!snap.exists()){
-      showToast("User profile missing in database");
+      await signOut(auth);
+
+      localStorage.removeItem(
+        "loginExpiry"
+      );
+
+      showToast(
+      "Session expired. Login again."
+      );
+
       return;
     }
 
-    showToast("Login successful!", true);
-    setTimeout(()=> window.location.href="dashboard.html", 1200);
+    if(window.location.pathname
+      .includes("signin.html")){
 
-  }catch(err){
-    console.error(err.code);
-
-    if(err.code === "auth/user-not-found"){
-      showToast("Email is not registered");
-    }
-    else if(err.code === "auth/invalid-credential"){
-      showToast("Wrong password");
-    }
-    else{
-      showToast("Something went wrong. Try again.");
+      window.location.href =
+      "dashboard.html";
     }
   }
 });
 
-document.getElementById("forgotPasswordBtn").addEventListener("click", async ()=>{
-  const email = document.getElementById("email").value.trim();
+/* LOGIN */
+document.getElementById(
+"signinForm"
+).addEventListener(
+"submit",
+async e=>{
 
-  if(!email){
-    showToast("Enter your email to reset password.");
-    return;
-  }
+e.preventDefault();
 
-  try{
-    await sendPasswordResetEmail(auth, email);
-    showToast("Reset link sent to your email!", true);
-  }
-  catch(err){
-    console.error(err.code);
-    if(err.code==="auth/user-not-found") showToast("Email is not registered");
-    else showToast("Failed to send reset link.");
-  }
+const email =
+document.getElementById(
+"email"
+).value.trim();
+
+const password =
+document.getElementById(
+"password"
+).value.trim();
+
+const rememberMe =
+document.getElementById(
+"rememberMe"
+).checked;
+
+if(!email || !password){
+showToast(
+"Please enter email and password"
+);
+return;
+}
+
+try{
+
+await setPersistence(
+auth,
+rememberMe
+? browserLocalPersistence
+: browserSessionPersistence
+);
+
+const cred =
+await signInWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+const user =
+cred.user;
+
+const snap =
+await get(
+child(
+ref(db),
+"users/" + user.uid
+)
+);
+
+if(!snap.exists()){
+showToast(
+"User profile missing in database"
+);
+return;
+}
+
+/* SAVE 30 DAYS LOGIN */
+if(rememberMe){
+
+localStorage.setItem(
+"loginExpiry",
+Date.now() +
+THIRTY_DAYS
+);
+
+}else{
+
+localStorage.removeItem(
+"loginExpiry"
+);
+}
+
+showToast(
+"Login successful!",
+true
+);
+
+setTimeout(()=>{
+window.location.href =
+"dashboard.html";
+},1200);
+
+}catch(err){
+
+console.error(err.code);
+
+if(err.code ===
+"auth/user-not-found"){
+
+showToast(
+"Email is not registered"
+);
+
+}else if(
+err.code ===
+"auth/invalid-credential"
+){
+
+showToast(
+"Wrong password"
+);
+
+}else{
+
+showToast(
+"Something went wrong. Try again."
+);
+}
+}
+
+});
+
+/* FORGOT PASSWORD */
+document.getElementById(
+"forgotPasswordBtn"
+).addEventListener(
+"click",
+async ()=>{
+
+const email =
+document.getElementById(
+"email"
+).value.trim();
+
+if(!email){
+showToast(
+"Enter your email to reset password."
+);
+return;
+}
+
+try{
+
+await sendPasswordResetEmail(
+auth,
+email
+);
+
+showToast(
+"Reset link sent to your email!",
+true
+);
+
+}catch(err){
+
+console.error(err.code);
+
+if(err.code ===
+"auth/user-not-found"){
+
+showToast(
+"Email is not registered"
+);
+
+}else{
+
+showToast(
+"Failed to send reset link."
+);
+}
+}
+
 });
 </script>
 
