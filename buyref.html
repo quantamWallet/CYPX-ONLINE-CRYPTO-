@@ -272,15 +272,15 @@ return showToast("Invalid phone number", false);
 
 try {
 
-const newRef = push(ref(db, "referralPurchases/" + uid));
-
+const path = `referralPurchases/${uid}`;
+const newRef = push(ref(db, path));
 await set(newRef, {
-group,
-price,
-amount: price,
-phone,
-status: "pending",
-createdAt: Date.now()
+  group,
+  price,
+  amount: price,
+  phone,
+  status: "pending",
+  createdAt: Date.now()
 });
 
 await set(ref(db, "userPackages/" + uid), {
