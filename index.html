@@ -431,7 +431,8 @@ if ('serviceWorker' in navigator) {
 /* APK AUTO REDIRECT TO SIGNIN */
 const isAPK =
   window.location.protocol === "file:" ||
-  navigator.userAgent.includes("wv");
+  navigator.userAgent.includes("wv") ||
+  window.location.href.startsWith("android_asset");
 
 if (isAPK) {
   window.location.replace("signin.html");
