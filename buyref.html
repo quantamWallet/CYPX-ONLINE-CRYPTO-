@@ -23,15 +23,6 @@ align-items:center;
 padding:20px;
 }
 
-/* HEADER */
-header{
-font-size:22px;
-font-weight:bold;
-color:#00e0ff;
-margin-top:10px;
-text-align:center;
-}
-
 /* LOADING */
 .loading-screen{
 position:fixed;
@@ -45,11 +36,20 @@ font-size:14px;
 color:#00e0ff;
 }
 
+/* HEADER */
+header{
+font-size:22px;
+font-weight:bold;
+color:#00e0ff;
+margin-top:10px;
+text-align:center;
+}
+
 /* CARD */
 .card{
 width:100%;
 max-width:440px;
-background: rgba(10,25,45,0.95);
+background:#0b1f35;
 border:1px solid rgba(0,224,255,0.15);
 border-radius:18px;
 padding:20px;
@@ -80,7 +80,6 @@ font-size:14px;
 line-height:1.6;
 margin-bottom:12px;
 color:#cfe6ff;
-border:1px solid rgba(255,255,255,0.05);
 }
 
 /* MPESA */
@@ -95,7 +94,6 @@ font-weight:bold;
 margin:12px 0;
 }
 
-/* COPY BUTTON */
 .copy-btn{
 background:#00e0ff;
 border:none;
@@ -105,14 +103,14 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* INPUTS - FIXED VISIBILITY */
+/* INPUTS */
 input{
 width:100%;
 padding:13px;
 margin-top:10px;
-border:1px solid rgba(255,255,255,0.15);
+border:1px solid rgba(255,255,255,0.2);
 border-radius:10px;
-background:#0b1f35;
+background:#081a2f;
 color:#fff;
 outline:none;
 font-size:14px;
@@ -166,8 +164,8 @@ color:#7f93ad;
 
 <body>
 
-<!-- LOADING SCREEN -->
-<div class="loading-screen" id="loading">Checking session...</div>
+<!-- LOADING -->
+<div class="loading-screen" id="loading">Loading session...</div>
 
 <header>CYPX HOLDINGS</header>
 
@@ -204,15 +202,21 @@ color:#7f93ad;
 <div id="toast" class="toast"></div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
+/* ✅ YOUR CORRECT CONFIG */
 const firebaseConfig = {
-apiKey: "AIzaSyC...",
-authDomain: "quantum-rio.firebaseapp.com",
-databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-projectId: "quantum-rio"
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -231,7 +235,7 @@ document.getElementById("packagePrice").innerText = price.toLocaleString() + " K
 document.getElementById("packageInfo").innerText =
 "You selected " + group;
 
-/* AUTH - FIXED (NO INSTANT REDIRECT BUG) */
+/* AUTH FIX (NO INSTANT REDIRECT BUG) */
 onAuthStateChanged(auth, (user) => {
 
 document.getElementById("loading").style.display = "none";
@@ -241,12 +245,12 @@ uid = user.uid;
 } else {
 setTimeout(() => {
 window.location.href = "landing.html";
-}, 500);
+}, 800);
 }
 
 });
 
-/* SUBMIT */
+/* SUBMIT PAYMENT */
 document.getElementById("submitBtn").addEventListener("click", async () => {
 
 if (!uid) return showToast("Please wait...", false);
@@ -254,8 +258,11 @@ if (!uid) return showToast("Please wait...", false);
 const amount = parseInt(document.getElementById("amount").value);
 const phone = document.getElementById("phone").value.trim();
 
-if (!amount || amount < price) return showToast("Minimum " + price, false);
-if (!/^(07\d{8}|01\d{8})$/.test(phone)) return showToast("Invalid phone", false);
+if (!amount || amount < price)
+return showToast("Minimum " + price + " KSH", false);
+
+if (!/^(07\d{8}|01\d{8})$/.test(phone))
+return showToast("Invalid phone number", false);
 
 try {
 
@@ -268,6 +275,7 @@ status: "pending",
 createdAt: Date.now()
 });
 
+/* PACKAGE LOCK */
 await set(ref(db, "userPackages/" + uid), {
 group,
 price,
@@ -278,11 +286,12 @@ createdAt: Date.now()
 showToast("Payment submitted");
 
 setTimeout(() => {
-window.location.href = "financial.html?group=" + encodeURIComponent(group);
+window.location.href =
+"financial.html?group=" + encodeURIComponent(group) + "&status=pending";
 }, 1200);
 
 } catch (e) {
-showToast("Error submitting", false);
+showToast("Error submitting payment", false);
 }
 
 });
@@ -295,6 +304,7 @@ t.style.background = ok ? "#28a745" : "#e53935";
 t.style.display = "block";
 setTimeout(() => t.style.display = "none", 2000);
 }
+
 </script>
 
 </body>
