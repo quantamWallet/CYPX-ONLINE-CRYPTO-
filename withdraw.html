@@ -12,123 +12,414 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>              
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>              
               
-<style>              
+<style>
 :root{
-  --bg:#000814;
-  --card:#0a2540;
-  --card2:#0f3b6d;
-  --accent:#00e5ff;
-  --accent2:#00ffcc;
+  --bg:#061426;
+  --bg2:#0b1f3a;
+  --card:#10294d;
+  --card2:#163d72;
+  --gold:#d4af37;
+  --gold2:#f5d06f;
+  --blue:#0f52ba;
+  --lightBlue:#63b3ff;
   --text:#ffffff;
-  --radius:16px;
-  --shadow:0 10px 40px rgba(0,0,0,0.6);
-}              
-html,body{margin:0;padding:0;font-family:system-ui,Roboto,Arial;background:linear-gradient(180deg,var(--bg),#001f3f);color:var(--text);height:100%;}              
-body{display:flex;justify-content:center;align-items:flex-start;padding:16px 0 80px 0;}              
+  --muted:#c7d6ea;
+  --success:#1fbf75;
+  --danger:#ff5a5a;
+  --radius:22px;
+  --shadow:
+    0 10px 35px rgba(0,0,0,0.35),
+    0 0 25px rgba(15,82,186,0.12);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(circle at top right, rgba(212,175,55,.12), transparent 25%),
+    radial-gradient(circle at top left, rgba(15,82,186,.18), transparent 30%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  color:var(--text);
+  min-height:100%;
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:90px 14px 100px;
+}
+
+/* HEADER */
 header{
   position:fixed;
   top:0;
-  width:100%;
+  left:0;
+  right:0;
+  z-index:100;
   text-align:center;
-  padding:14px 0;
+  padding:18px 16px;
+  font-size:19px;
   font-weight:700;
-  background:linear-gradient(90deg,#001d3d,#003566);
-  box-shadow:0 0 20px rgba(0,229,255,0.2);
-  letter-spacing:0.5px;
-}           
-.container{width:100%;max-width:420px;margin-top:60px;}              
-.card{
-  background:linear-gradient(145deg,#061a33,#0f3b6d);
-  padding:22px 18px;
-  border-radius:var(--radius);
+  letter-spacing:.5px;
+  color:#fff;
+  background:
+    linear-gradient(90deg,#082041,#103b72,#082041);
+  border-bottom:1px solid rgba(212,175,55,.25);
   box-shadow:
-    0 0 20px rgba(0,229,255,0.15),
-    0 0 40px rgba(0,255,204,0.08),
-    inset 0 0 10px rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.05);
-  backdrop-filter:blur(6px);
-  transition:0.3s ease;
+    0 6px 30px rgba(0,0,0,.35),
+    0 0 18px rgba(212,175,55,.08);
 }
 
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:
-    0 0 30px rgba(0,229,255,0.25),
-    0 0 60px rgba(0,255,204,0.12);
-}             
-h2{margin:0 0 12px;font-size:18px;color:#ffd8d8;text-align:center;}              
-.label{display:block;margin:8px 0 6px;color:#cfe3ff;font-size:13px;}              
-.input,select{
+/* CONTAINER */
+.container{
   width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid rgba(0,229,255,0.15);
-  background:rgba(0,20,40,0.7);
+  max-width:430px;
+}
+
+/* CARD */
+.card{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(145deg,
+      rgba(16,41,77,.96),
+      rgba(9,28,56,.98)
+    );
+  border:1px solid rgba(212,175,55,.16);
+  border-radius:var(--radius);
+  padding:24px 20px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(16px);
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:4px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--gold),
+      var(--gold2),
+      var(--gold)
+    );
+}
+
+/* TITLE */
+h2{
+  margin:0 0 20px;
+  font-size:22px;
+  font-weight:700;
+  color:var(--gold2);
+  text-align:center;
+}
+
+h2 i{
+  margin-right:8px;
+}
+
+/* BALANCE */
+#balanceBox{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:180px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(212,175,55,.16),
+      rgba(15,82,186,.20)
+    );
+  border:1px solid rgba(212,175,55,.25);
+  border-radius:18px;
+  padding:14px 20px;
+  margin-top:10px;
+  font-size:18px;
+  font-weight:700;
+  color:#fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 10px 25px rgba(0,0,0,.2);
+}
+
+/* LABELS */
+.label{
+  display:block;
+  margin:14px 0 8px;
+  color:#dce9ff;
+  font-size:14px;
+  font-weight:600;
+}
+
+/* INPUTS */
+.input,
+select{
+  width:100%;
+  border:none;
+  outline:none;
+  padding:15px 16px;
+  border-radius:16px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.06),
+      rgba(255,255,255,.03)
+    );
+  border:1px solid rgba(255,255,255,.08);
   color:#fff;
   font-size:15px;
-  margin-bottom:10px;
-  outline:none;
-  transition:0.2s;
+  transition:.25s ease;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.03);
 }
 
-.input:focus,select:focus{
-  border-color:#00e5ff;
-  box-shadow:0 0 10px rgba(0,229,255,0.4);
-}            
+.input::placeholder{
+  color:#95aac7;
+}
+
+.input:focus,
+select:focus{
+  border-color:rgba(212,175,55,.45);
+  box-shadow:
+    0 0 0 4px rgba(212,175,55,.12),
+    0 0 22px rgba(15,82,186,.18);
+  transform:translateY(-1px);
+}
+
+/* BUTTON */
 .btn{
   width:100%;
-  margin-top:14px;
-  padding:12px;
-  border-radius:12px;
   border:none;
-  font-weight:700;
-  font-size:15px;
+  outline:none;
   cursor:pointer;
-  background:linear-gradient(135deg,#00e5ff,#00ffcc);
-  color:#001a33;
-  box-shadow:0 0 15px rgba(0,229,255,0.4);
-  transition:0.25s ease;
+  margin-top:24px;
+  padding:16px;
+  border-radius:18px;
+  font-size:16px;
+  font-weight:700;
+  color:#071426;
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold2),
+      var(--gold)
+    );
+  transition:.25s ease;
+  box-shadow:
+    0 12px 30px rgba(212,175,55,.22);
 }
 
 .btn:hover{
-  transform:scale(1.03);
-  box-shadow:0 0 25px rgba(0,255,204,0.6);
+  transform:translateY(-2px);
 }
-.small{font-size:13px;color:#d8ecff;margin-top:8px;text-align:center;}              
-#balanceBox{
-  display:inline-block;
-  background:linear-gradient(135deg,#00e5ff22,#00ffcc22);
-  padding:10px 14px;
-  border-radius:12px;
+
+.btn:active{
+  transform:scale(.98);
+}
+
+.btn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
+
+/* SMALL TEXT */
+.small{
+  text-align:center;
+  margin-top:10px;
+  color:#c9d7ec;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.small strong{
+  color:var(--gold2);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  min-width:300px;
+  max-width:90%;
+  padding:22px 20px;
+  border-radius:22px;
+  z-index:9999;
+  display:none;
+  text-align:center;
+  font-weight:600;
+  line-height:1.6;
+  backdrop-filter:blur(14px);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.45);
+  animation:popupFade .25s ease;
+}
+
+.popup.success{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18,87,48,.95),
+      rgba(10,55,29,.96)
+    );
+  border:1px solid rgba(78,255,144,.22);
+  color:#d7ffe7;
+}
+
+.popup.error{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(90,22,22,.95),
+      rgba(55,12,12,.96)
+    );
+  border:1px solid rgba(255,90,90,.20);
+  color:#ffe1e1;
+}
+
+.popup.confirm{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18,41,76,.98),
+      rgba(8,24,48,.98)
+    );
+  border:1px solid rgba(212,175,55,.18);
+  color:#eaf3ff;
+}
+
+#confirmBtn{
+  margin-top:14px;
+  border:none;
+  cursor:pointer;
+  padding:12px 24px;
+  border-radius:14px;
   font-weight:700;
-  margin-bottom:10px;
-  box-shadow:0 0 15px rgba(0,229,255,0.2);
-  border:1px solid rgba(0,229,255,0.2);
-}              
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:240px;padding:16px 18px;border-radius:12px;z-index:999;display:none;text-align:center;font-weight:700;}              
-.popup.success{background:#083b18;color:#d6ffd6;}              
-.popup.error{background:#3a1111;color:#ffd7d7;}              
-.popup.confirm{background:#223355;color:#d6e4ff;}              
-nav{position:fixed;bottom:0;left:0;right:0;background:#002244;display:flex;justify-content:space-around;height:60px;align-items:center;}              
-nav {
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold2),
+      var(--gold)
+    );
+  color:#071426;
+  transition:.25s ease;
+}
+
+#confirmBtn:hover{
+  transform:translateY(-2px);
+}
+
+/* NAVIGATION */
+nav{
   position:fixed;
   bottom:0;
   left:0;
   right:0;
-  background:#002244;
+  z-index:100;
+  height:74px;
   display:flex;
   justify-content:space-around;
-  padding:10px 0;
+  align-items:center;
+  background:
+    linear-gradient(
+      180deg,
+      #0b2347,
+      #07182f
+    );
+  border-top:1px solid rgba(212,175,55,.18);
+  box-shadow:
+    0 -10px 30px rgba(0,0,0,.25);
+  backdrop-filter:blur(14px);
 }
 
-nav a {
-  color:white;
+nav a{
+  color:#dce7f7;
   text-decoration:none;
   text-align:center;
+  font-size:12px;
+  font-weight:600;
+  transition:.25s ease;
 }
 
-nav i { font-size:20px; }
-</style>              
+nav a:hover{
+  color:var(--gold2);
+  transform:translateY(-2px);
+}
+
+nav i{
+  display:block;
+  margin-bottom:5px;
+  font-size:20px;
+}
+
+/* SELECT DROPDOWN */
+select option{
+  background:#10294d;
+  color:white;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{
+  width:6px;
+}
+
+::-webkit-scrollbar-thumb{
+  background:rgba(212,175,55,.4);
+  border-radius:20px;
+}
+
+/* ANIMATION */
+@keyframes popupFade{
+  from{
+    opacity:0;
+    transform:translate(-50%,-45%);
+  }
+  to{
+    opacity:1;
+    transform:translate(-50%,-50%);
+  }
+}
+
+/* MOBILE OPTIMIZATION */
+@media(max-width:480px){
+
+  body{
+    padding:85px 12px 100px;
+  }
+
+  .card{
+    padding:22px 16px;
+    border-radius:20px;
+  }
+
+  h2{
+    font-size:20px;
+  }
+
+  .btn{
+    padding:15px;
+    font-size:15px;
+  }
+
+  #balanceBox{
+    width:100%;
+  }
+
+  .popup{
+    min-width:90%;
+  }
+}
+</style>
 </head>              
 <body>              
 <header>Withdraw Funds</header>              
@@ -382,37 +673,4 @@ form.addEventListener('submit',async e=>{
   }, async (err, committed)=>{              
     submitBtn.disabled=false;              
     submitBtn.textContent='Submit Withdrawal';              
-    if(err || !committed){ showPopup('Error or insufficient funds','error'); return; }              
-              
-    // Build payload with method-specific fields              
-    const payload = {              
-      amount,              
-      method,              
-      timestamp: Date.now(),              
-      status: 'submitted'              
-    };              
-    if(method === "mpesa" || method === "airtel"){              
-      payload.phone = phone;              
-    } else if(method === "paypal"){              
-      payload.paypalEmail = paypalEmail;              
-    } else if(method === "btc"){              
-      payload.btcAddress = cryptoAddress;              
-    } else if(method === "usdt_erc20"){              
-      payload.usdtAddress = cryptoAddress;              
-      payload.network = "ERC20";              
-    }              
-              
-    await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);              
-              
-    amountInput.value='';              
-    phoneInput.value='';              
-    paypalEmailInput.value='';              
-    cryptoAddressInput.value='';              
-              
-    showPopup(`Withdrawal request of KES ${amount.toLocaleString()} submitted.`,'success');              
-  });              
-});              
-</script>              
-</body>              
-  </html>            
-            
+    if(err || !comm
