@@ -343,66 +343,72 @@ Secure Referral System
 </footer>
 
 <script>
+/* FIREBASE CONFIG */
 const firebaseConfig = {
-apiKey:
-"AAIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-
-authDomain:
-"quantum-rio.firebaseapp.com",
-
-projectId:
-"quantum-rio"
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
-if(!firebase.apps.length){
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
 }
 
-const auth =
-firebase.auth();
+const auth = firebase.auth();
 
-/* AUTH CHECK */
-auth.onAuthStateChanged(
-(user)=>{
-
-if(!user){
-window.location.href =
-"index.html";
-}
-
-}
-);
+/* OPTIONAL AUTH CHECK */
+auth.onAuthStateChanged((user) => {
+  console.log(
+    user
+      ? "Logged in"
+      : "Guest access"
+  );
+});
 
 /* BUTTON REDIRECT */
-function chooseOption(
-redirectUrl
-){
+function chooseOption(redirectUrl){
 
-document
-.getElementById(
+const purchaseBtn =
+document.getElementById(
 "purchaseBtn"
-)
-.classList.add(
-"loading"
 );
 
-document
-.getElementById(
+const referBtn =
+document.getElementById(
 "referBtn"
-)
-.classList.add(
+);
+
+/* Disable buttons safely */
+purchaseBtn.disabled = true;
+referBtn.disabled = true;
+
+purchaseBtn.classList.add(
 "loading"
 );
 
-setTimeout(()=>{
+referBtn.classList.add(
+"loading"
+);
+
+console.log(
+"Redirecting to:",
+redirectUrl
+);
+
+/* Small delay */
+setTimeout(() => {
 
 window.location.href =
 redirectUrl;
 
-},300);
+}, 300);
 
 }
 </script>
-
 </body>
 </html>
