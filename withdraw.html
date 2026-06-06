@@ -633,7 +633,10 @@ form.addEventListener('submit',async e=>{
     showPopup('Minimum withdrawal is 1,000 KES','error');               
     return;               
   }              
-              
+ if (!amount || isNaN(amount)) {
+  showPopup("Invalid amount", "error");
+  return;
+    }       
   // Method-specific validation              
   if(method === "mpesa" || method === "airtel"){              
     if(!isValidNumberForMethod(phone, method)){              
@@ -686,10 +689,7 @@ if (validRefs < 2) {
   );
   return;
 }             
-   if (!amount || isNaN(amount)) {
-  showPopup("Invalid amount", "error");
-  return;
-   }                         
+                           
   // Deduct balance + push withdrawal                
 submitBtn.disabled=true;                
 submitBtn.textContent='Processing...';                
