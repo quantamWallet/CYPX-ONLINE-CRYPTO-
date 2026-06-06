@@ -666,75 +666,87 @@ form.addEventListener('submit',async e=>{
   submitBtn.disabled=true;              
   submitBtn.textContent='Processing...';              
   const balanceRef = db.ref(`users/${currentUser.uid}/balance`);              
-  balanceRef.transaction(bal=>{              
-    bal = Number(bal)||0;              
-    if(bal < amount) return;              
-    return bal - amount;              
-  }, async (err, committed)=>{              
-    submitBtn.disabled=false;              
-    submitBtn.textContent='Submit Withdrawal';              
-    if(err || !committed){ showPopup('Error or insufficient funds','error'); return; }              
-              
-    // Build payload with method-specific fields
-const methodNames = {
-  mpesa: "M-Pesa",
-  airtel: "Airtel Money",
-  paypal: "PayPal",
-  btc: "Bitcoin (BTC)",
-  usdt_erc20: "USDT (ERC20)"
-};
+  balanceRef.transaction((bal) => {
+  bal = Number(bal) || 0;
+  if (bal < amount) return;
+  return bal - amount;
+}, async (error, committed) => {
 
-const payload = {
-  amount,
-  method,
-  methodName: methodNames[method],
-  timestamp: Date.now(),
-  status: 'pending'
-};
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Submit Withdrawal';
 
-if(method === "mpesa" || method === "airtel"){
-  payload.phone = phone;
-} else if(method === "paypal"){
-  payload.paypalEmail = paypalEmail;
-} else if(method === "btc"){
-  payload.btcAddress = cryptoAddress;
-} else if(method === "usdt_erc20"){
-  payload.usdtAddress = cryptoAddress;
-  payload.network = "ERC20";
-}
+  if (error || !committed) {
+    showPopup('Error or insufficient funds', 'error');
+    return;
+  }
 
-// Save withdrawal
-await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);
+  try {
 
-// Save to financial history
-await db.ref(`financialHistory/${currentUser.uid}`).push({
-  type: "Withdrawal",
-  method: methodNames[method],
-  amount: amount,
-  status: "pending",
-  timestamp: Date.now()
-});
+    const methodNames = {
+      mpesa: "M-Pesa",
+      airtel: "Airtel Money",
+      paypal: "PayPal",
+      btc: "Bitcoin (BTC)",
+      usdt_erc20: "USDT (ERC20)"
+    };
 
-// Clear form
-amountInput.value = '';
-phoneInput.value = '';
-paypalEmailInput.value = '';
-cryptoAddressInput.value = '';
+    const payload = {
+      amount: amount,
+      method: method,
+      methodName: methodNames[method],
+      timestamp: Date.now(),
+      status: "pending"
+    };
 
-// Success popup
-showPopup(
-  `Withdrawal request of KES ${amount.toLocaleString()} submitted successfully.`,
-  'success'
-);
+    // Save method details
+    if (method === "mpesa" || method === "airtel") {
+      payload.phone = phone;
+    } else if (method === "paypal") {
+      payload.paypalEmail = paypalEmail;
+    } else if (method === "btc") {
+      payload.btcAddress = cryptoAddress;
+    } else if (method === "usdt_erc20") {
+      payload.usdtAddress = cryptoAddress;
+      payload.network = "ERC20";
+    }
 
-// Redirect to financial.html
-setTimeout(() => {
-  window.location.href = "financial.html";
-}, 1500);
+    // Save withdrawal
+    await db.ref(`users/${currentUser.uid}/withdrawals`).push(payload);
 
-}); // transaction callback ends
+    // Save financial history
+    await db.ref(`financialHistory/${currentUser.uid}`).push({
+      type: "Withdrawal",
+      method: methodNames[method],
+      amount: amount,
+      status: "pending",
+      timestamp: Date.now()
+    });
 
-}); // form submit ends
+    // Clear form
+    amountInput.value = '';
+    phoneInput.value = '';
+    paypalEmailInput.value = '';
+    cryptoAddressInput.value = '';
+
+    // Show success popup
+    showPopup(
+      `Withdrawal request of KES ${amount.toLocaleString()} submitted successfully.`,
+      'success',
+      3000
+    );
+
+    // Redirect
+    setTimeout(() => {
+      window.location.href = "financial.html";
+    }, 1500);
+
+  } catch (e) {
+    console.error(e);
+    showPopup("Withdrawal saved but financial record failed.", "error");
+  }
+
+});// transaction callback ends
+  
 </script>
 </body>
 </html>
