@@ -23,17 +23,14 @@ align-items:center;
 padding:20px;
 }
 
-/* HEADER */
 header{
 font-size:22px;
 font-weight:bold;
 color:#00e0ff;
 margin-top:10px;
 text-align:center;
-letter-spacing:1px;
 }
 
-/* SUB TEXT */
 .sub{
 font-size:13px;
 color:#9bb7d4;
@@ -41,7 +38,6 @@ margin-bottom:15px;
 text-align:center;
 }
 
-/* CARD */
 .card{
 width:100%;
 max-width:440px;
@@ -54,23 +50,19 @@ backdrop-filter:blur(14px);
 box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* PACKAGE HEADER */
 h2{
 color:#ffd700;
 font-size:18px;
 margin-bottom:8px;
 }
 
-/* PRICE TAG */
 .price{
 font-size:22px;
 font-weight:bold;
 color:#00ff88;
 margin-bottom:12px;
-text-shadow:0 0 10px rgba(0,255,136,0.3);
 }
 
-/* INFO BOX */
 .info{
 background:#001427;
 padding:12px;
@@ -81,7 +73,6 @@ margin-bottom:12px;
 color:#cfe6ff;
 }
 
-/* MPESA BOX */
 .mpesa{
 display:flex;
 justify-content:space-between;
@@ -91,7 +82,6 @@ padding:12px;
 border-radius:10px;
 font-weight:bold;
 margin:12px 0;
-box-shadow:0 0 15px rgba(0,200,255,0.4);
 }
 
 .copy-btn{
@@ -104,7 +94,6 @@ font-weight:bold;
 color:#001a2e;
 }
 
-/* INPUTS */
 input{
 width:100%;
 padding:12px;
@@ -123,7 +112,6 @@ margin-top:10px;
 display:block;
 }
 
-/* BUTTON */
 button{
 width:100%;
 padding:14px;
@@ -135,24 +123,14 @@ font-size:15px;
 cursor:pointer;
 background:linear-gradient(90deg,#00e0ff,#007bff);
 color:#001a33;
-transition:0.2s;
 }
 
-button:hover{
-transform:translateY(-2px);
-box-shadow:0 0 15px rgba(0,224,255,0.4);
-}
-
-/* NOTICE */
 .notice{
 font-size:12px;
 color:#9bb7d4;
 margin-top:10px;
-line-height:1.5;
-opacity:0.9;
 }
 
-/* TOAST */
 .toast{
 position:fixed;
 bottom:20px;
@@ -165,7 +143,6 @@ display:none;
 font-weight:bold;
 }
 
-/* FOOTER */
 footer{
 margin-top:20px;
 font-size:12px;
@@ -201,13 +178,14 @@ text-align:center;
 ⚠️ Ensure you send exact amount before confirming payment.  
 Your package will be activated after verification.
 </div>
+
 </div>
 
 <label>Amount Paid</label>
-<input type="number" id="amount" placeholder="Enter amount">
+<input type="number" id="amount">
 
 <label>Phone Number</label>
-<input type="text" id="phone" placeholder="07XXXXXXXX">
+<input type="text" id="phone">
 
 <button id="submitBtn">Confirm Payment</button>
 
@@ -222,6 +200,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
+/* FIREBASE */
 const firebaseConfig = {
 apiKey: "AIzaSyC...",
 authDomain: "quantum-rio.firebaseapp.com",
@@ -233,8 +212,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-let uid=null;
+/* IMPORTANT FIX: prevent fake logout */
+let uid = null;
+let authReady = false;
 
+/* GET PACKAGE */
 const url = new URL(window.location.href);
 const group = url.searchParams.get("group") || "Unknown";
 const price = parseInt(url.searchParams.get("price") || "0");
@@ -244,26 +226,50 @@ document.getElementById("packagePrice").innerText = price.toLocaleString()+" KSH
 document.getElementById("packageInfo").innerText =
 "You selected "+group+" referral package.";
 
-onAuthStateChanged(auth,(user)=>{
-if(user) uid=user.uid;
-else window.location.href="landing.html";
+/* FIXED AUTH (NO RANDOM LOGOUT) */
+onAuthStateChanged(auth, (user) => {
+
+authReady = true;
+
+if (user) {
+uid = user.uid;
+console.log("Logged in:", uid);
+} else {
+uid = null;
+
+// only redirect AFTER auth is confirmed
+setTimeout(() => {
+if (!auth.currentUser) {
+window.location.href = "landing.html";
+}
+}, 800);
+
+}
+
 });
 
-window.copyNumber=function(){
+/* COPY */
+window.copyNumber = function(){
 navigator.clipboard.writeText("0707207201");
 showToast("Copied");
 };
 
-document.getElementById("submitBtn").addEventListener("click",async()=>{
+/* SUBMIT */
+document.getElementById("submitBtn").addEventListener("click", async () => {
 
-const amount=parseInt(document.getElementById("amount").value);
-const phone=document.getElementById("phone").value.trim();
+if (!authReady) return showToast("Please wait...", false);
+if (!uid) return showToast("Login required", false);
 
-if(!uid) return showToast("Login required",false);
-if(!amount||amount<price) return showToast("Minimum "+price,false);
-if(!/^(07\d{8}|01\d{8})$/.test(phone)) return showToast("Invalid phone",false);
+const amount = parseInt(document.getElementById("amount").value);
+const phone = document.getElementById("phone").value.trim();
 
-try{
+if (!amount || amount < price)
+return showToast("Minimum " + price, false);
+
+if (!/^(07\d{8}|01\d{8})$/.test(phone))
+return showToast("Invalid phone", false);
+
+try {
 
 const newRef = push(ref(db,"referralPurchases/"+uid));
 
@@ -276,7 +282,6 @@ status:"pending",
 createdAt:Date.now()
 });
 
-/* STORE PACKAGE LOCK */
 await set(ref(db,"userPackages/"+uid),{
 group,
 price,
@@ -287,7 +292,8 @@ createdAt:Date.now()
 showToast("Payment submitted");
 
 setTimeout(()=>{
-window.location.href="financial.html?group="+encodeURIComponent(group);
+window.location.href =
+"financial.html?group="+encodeURIComponent(group);
 },1200);
 
 }catch(e){
@@ -296,6 +302,7 @@ showToast("Error submitting",false);
 
 });
 
+/* TOAST */
 function showToast(msg,ok=true){
 const t=document.getElementById("toast");
 t.innerText=msg;
