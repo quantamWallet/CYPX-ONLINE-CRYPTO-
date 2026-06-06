@@ -189,7 +189,9 @@ auth.onAuthStateChanged(user => {
 
   const uid = user.uid;
 
-  /* FIXED REF LINK */
+  // ================================
+  // REF LINK (UNCHANGED)
+  // ================================
   database.ref("users/" + uid + "/username").once("value").then(snap => {
 
     let uname = snap.exists() ? snap.val() : (user.email ? user.email.split("@")[0] : "user");
@@ -210,32 +212,38 @@ auth.onAuthStateChanged(user => {
     };
   });
 
-  /* REFERRAL PURCHASES (FIXED + REAL APPROVAL CHECK) */
+  // ================================
+  // REFERRAL PURCHASES → REF COUNT
+  // ================================
   database.ref("referralPurchases/" + uid).on("value", snap => {
 
     const data = snap.val() || {};
+
     let totalReferrals = 0;
 
     Object.values(data).forEach(item => {
 
       const status = (item.status || "").toLowerCase();
 
-      // ✅ ACCEPT ANY APPROVED STATE
-      if (status === "approved" || status === "completed") {
+      if (status === "approved") {
 
-        const amount = parseFloat(item.amount || item.price || 0);
+        const group = item.group || "";
 
-        if (amount > 0) {
-          totalReferrals += amount;
-        }
+        // ✅ FIXED CONVERSION (REFERRALS NOT MONEY)
+        if (group === "Group 1") totalReferrals += 2;
+        if (group === "Group 2") totalReferrals += 4;
+        if (group === "Group 3") totalReferrals += 8;
       }
     });
 
+    // ✅ ONLY REFERRAL COUNT
     document.getElementById("refCount").innerText = totalReferrals;
     document.getElementById("team-size").innerText = totalReferrals;
   });
 
-  /* USERS TREE (UNCHANGED LOGIC) */
+  // ================================
+  // USERS TREE (UNCHANGED LOGIC)
+  // ================================
   database.ref("users").on("value", snap => {
 
     const users = snap.val() || {};
@@ -287,23 +295,15 @@ auth.onAuthStateChanged(user => {
     const b2 = render(lev2, "lev2-list", 0.02);
     const b3 = render(lev3, "lev3-list", 0.01);
 
-    document.getElementById("lev1-total").textContent = "Total: KSh " + b1.toFixed(2);
-    document.getElementById("lev2-total").textContent = "Total: KSh " + b2.toFixed(2);
-    document.getElementById("lev3-total").textContent = "Total: KSh " + b3.toFixed(2);
+    document.getElementById("lev1-total").innerText = "Total: KSh " + b1.toFixed(2);
+    document.getElementById("lev2-total").innerText = "Total: KSh " + b2.toFixed(2);
+    document.getElementById("lev3-total").innerText = "Total: KSh " + b3.toFixed(2);
 
     bonus = b1 + b2 + b3;
 
-    document.getElementById("team-size").textContent =
-      lev1.length + lev2.length + lev3.length;
-
-    document.getElementById("team-deposit").textContent =
-      totalDeposit.toFixed(2);
-
-    document.getElementById("first-deposit").textContent =
-      firstDeposit;
-
-    document.getElementById("team-bonus").textContent =
-      bonus.toFixed(2);
+    document.getElementById("team-deposit").innerText = totalDeposit.toFixed(2);
+    document.getElementById("first-deposit").innerText = firstDeposit;
+    document.getElementById("team-bonus").innerText = bonus.toFixed(2);
   });
 
 });
