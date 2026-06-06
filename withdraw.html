@@ -629,14 +629,11 @@ form.addEventListener('submit',async e=>{
   const paypalEmail = paypalEmailInput.value.trim();              
   const cryptoAddress = cryptoAddressInput.value.trim();              
               
-  if(!amount || amount < 1000){               
-    showPopup('Minimum withdrawal is 1,000 KES','error');               
-    return;               
-  }              
- if (!amount || isNaN(amount)) {
-  showPopup("Invalid amount", "error");
+  if (!amount || isNaN(amount) || amount < 1000) {
+  showPopup("Minimum withdrawal is 1,000 KES", "error");
   return;
-    }       
+  }              
+ 
   // Method-specific validation              
   if(method === "mpesa" || method === "airtel"){              
     if(!isValidNumberForMethod(phone, method)){              
@@ -675,7 +672,11 @@ let validRefs = 0;
 
 refSnap.forEach(child => {
   const data = child.val();
-  if (data && Number(data.deposited || 0) >= 3000) {
+
+  const depositedAmount =
+    Number(data?.deposited || data?.amount || 0);
+
+  if (depositedAmount >= 3000) {
     validRefs++;
   }
 });
@@ -712,13 +713,13 @@ balanceRef.transaction((bal) => {
 
   try {  
 
-    const methodNames = {  
-      mpesa: "M-Pesa",  
-      airtel: "Airtel Money",  
-      paypal: "PayPal",  
-      btc: "Bitcoin (BTC)",  
-      usdt_erc20: "USDT (ERC20)"  
-    };
+    const methodNames = {
+  mpesa: "M-Pesa",
+  airtel: "Airtel Money",
+  paypal: "PayPal",
+  btc: "Bitcoin (BTC)",
+  usdt_erc20: "USDT (ERC20)"
+};
 
     const payload = {
       amount: amount,
