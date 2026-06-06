@@ -361,18 +361,14 @@ if (!firebase.apps.length) {
 
 const auth = firebase.auth();
 
-/* OPTIONAL AUTH CHECK */
+/* AUTH CHECK (NO REDIRECT) */
 auth.onAuthStateChanged((user) => {
   console.log(
-    user
-      ? "Logged in"
-      : "Guest access"
+    user ? "Logged in" : "Guest access"
   );
 });
 
-/* BUTTON REDIRECT */
-function chooseOption(redirectUrl){
-
+/* BUTTON ELEMENTS */
 const purchaseBtn =
 document.getElementById(
 "purchaseBtn"
@@ -383,32 +379,49 @@ document.getElementById(
 "referBtn"
 );
 
-/* Disable buttons safely */
-purchaseBtn.disabled = true;
-referBtn.disabled = true;
+/* PURCHASE BUTTON */
+purchaseBtn.addEventListener(
+"click",
+function(){
+
+purchaseBtn.disabled =
+true;
 
 purchaseBtn.classList.add(
 "loading"
 );
 
+setTimeout(() => {
+
+window.location.href =
+"refpackages.html";
+
+},300);
+
+}
+);
+
+/* REFER FRIENDS BUTTON */
+referBtn.addEventListener(
+"click",
+function(){
+
+referBtn.disabled =
+true;
+
 referBtn.classList.add(
 "loading"
 );
 
-console.log(
-"Redirecting to:",
-redirectUrl
-);
-
-/* Small delay */
 setTimeout(() => {
 
 window.location.href =
-redirectUrl;
+"team.html";
 
-}, 300);
+},300);
 
 }
-</script>
+);
+  </script>
 </body>
 </html>
