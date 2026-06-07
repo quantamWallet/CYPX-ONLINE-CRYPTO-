@@ -237,44 +237,82 @@ function showToast(msg, success = false) {
 }
 
 const refUsername =
-  new URLSearchParams(window.location.search).get("ref") || null;
+  new URLSearchParams(window.location.search)
+  .get("ref") || null;
 
-const emailInput = document.getElementById("email");
-const usernameInput = document.getElementById("username");
-const phoneInput = document.getElementById("phone");
-const passInput = document.getElementById("password");
-const confirmInput = document.getElementById("confirm_password");
+const emailInput =
+  document.getElementById("email");
+
+const usernameInput =
+  document.getElementById("username");
+
+const phoneInput =
+  document.getElementById("phone");
+
+const passInput =
+  document.getElementById("password");
+
+const confirmInput =
+  document.getElementById("confirm_password");
 
 document
   .getElementById("signupForm")
   .addEventListener("submit", async (e) => {
+
     e.preventDefault();
 
-    const username = usernameInput.value.trim();
-    const email = emailInput.value.trim();
-    const phone = phoneInput.value.trim();
-    const password = passInput.value.trim();
-    const confirm = confirmInput.value.trim();
+    const username =
+      usernameInput.value.trim();
 
-    if (!username || !email || !phone || !password || !confirm) {
-      return showToast("All fields are required.");
+    const email =
+      emailInput.value.trim();
+
+    const phone =
+      phoneInput.value.trim();
+
+    const password =
+      passInput.value.trim();
+
+    const confirm =
+      confirmInput.value.trim();
+
+    if (
+      !username ||
+      !email ||
+      !phone ||
+      !password ||
+      !confirm
+    ) {
+      return showToast(
+        "All fields are required."
+      );
     }
 
     if (password.length < 6) {
-      return showToast("Password must be at least 6 characters.");
+      return showToast(
+        "Password must be at least 6 characters."
+      );
     }
 
     if (password !== confirm) {
-      return showToast("Passwords do not match.");
+      return showToast(
+        "Passwords do not match."
+      );
     }
 
     if (!/^[7][0-9]{8}$/.test(phone)) {
-      return showToast("Enter a valid Kenyan number.");
+      return showToast(
+        "Enter a valid Kenyan number."
+      );
     }
 
     try {
+
       const emailMethods =
-        await fetchSignInMethodsForEmail(auth, email);
+        await fetchSignInMethodsForEmail(
+          auth,
+          email
+        );
 
       if (emailMethods.length > 0) {
         return showToast(
@@ -283,11 +321,16 @@ document
       }
 
       const userSnap = await get(
-        child(ref(db), "usernames/" + username)
+        child(
+          ref(db),
+          "usernames/" + username
+        )
       );
 
       if (userSnap.exists()) {
-        return showToast("Username already taken.");
+        return showToast(
+          "Username already taken."
+        );
       }
 
       const cred =
@@ -299,39 +342,129 @@ document
 
       const user = cred.user;
 
-      await set(ref(db, "users/" + user.uid), {
-        username,
-        email,
-        phone,
-        referredBy: refUsername || "",
-        createdAt: Date.now()
-      });
+      /* FULL USER STRUCTURE
+         SAME AS OLD USERS */
+      await set(
+        ref(db, "users/" + user.uid),
+        {
+
+          username,
+          email,
+          phone,
+
+          referredBy:
+            refUsername || "",
+
+          createdAt:
+            Date.now(),
+
+          /* DEFAULTS */
+          balance: 0,
+
+          hasClaimedBonus:
+            false,
+
+          fcmToken: "",
+
+          dashboard: {
+            active: true
+          },
+
+          vipEarnings: {},
+
+          vipLevels: {
+            1: {
+              unlocked: false
+            },
+            2: {
+              unlocked: false
+            },
+            3: {
+              unlocked: false
+            },
+            4: {
+              unlocked: false
+            },
+            5: {
+              unlocked: false
+            },
+            6: {
+              unlocked: false
+            },
+            7: {
+              unlocked: false
+            },
+            8: {
+              unlocked: false
+            },
+            9: {
+              unlocked: false
+            },
+            10: {
+              unlocked: false
+            },
+            11: {
+              unlocked: false
+            },
+            12: {
+              unlocked: false
+            },
+            13: {
+              unlocked: false
+            },
+            14: {
+              unlocked: false
+            },
+            15: {
+              unlocked: false
+            }
+          },
+
+          withdrawals: {},
+
+          referrals: {}
+        }
+      );
 
       await set(
-        ref(db, "usernames/" + username),
+        ref(
+          db,
+          "usernames/" + username
+        ),
         user.uid
       );
 
+      /* REFERRAL LOGIC
+         UNCHANGED */
       if (refUsername) {
-        const sponsorSnap = await get(
-          child(ref(db), "usernames/" + refUsername)
-        );
+
+        const sponsorSnap =
+          await get(
+            child(
+              ref(db),
+              "usernames/" +
+              refUsername
+            )
+          );
 
         if (sponsorSnap.exists()) {
-          const sponsorUid = sponsorSnap.val();
+
+          const sponsorUid =
+            sponsorSnap.val();
 
           await set(
             ref(
               db,
               "referrals/" +
-                sponsorUid +
-                "/" +
-                user.uid
+              sponsorUid +
+              "/" +
+              user.uid
             ),
             {
               username,
               email,
-              timestamp: Date.now()
+              timestamp:
+                Date.now()
             }
           );
         }
@@ -343,28 +476,41 @@ document
       );
 
       setTimeout(() => {
-        window.location.href = "dashboard.html";
+        window.location.href =
+          "dashboard.html";
       }, 500);
 
     } catch (err) {
+
       console.error(err);
 
-      if (err.code === "auth/email-already-in-use") {
+      if (
+        err.code ===
+        "auth/email-already-in-use"
+      ) {
+
         showToast(
           "This email is already registered."
         );
-      } else if (err.code === "auth/weak-password") {
+
+      } else if (
+        err.code ===
+        "auth/weak-password"
+      ) {
+
         showToast(
           "Password must be at least 6 characters."
         );
+
       } else {
+
         showToast(
           "Something went wrong. Try again."
         );
       }
     }
   });
-</script>
+      </script>
 
 </body>
 </html>
