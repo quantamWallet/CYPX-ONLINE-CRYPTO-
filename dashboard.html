@@ -820,98 +820,68 @@ window.addEventListener("appinstalled", () => {
   installBtn.style.display = "none";
 });
   </script>  
-<script type="module">
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+<!-- Firebase Messaging -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
 
-import {
-  getAuth
-}
-from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+<script>
+const messaging = firebase.messaging();
 
-import {
-  getDatabase,
-  ref,
-  set
-}
-from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-
-import {
-  getMessaging,
-  getToken,
-  onMessage
-}
-from "https://www.gstatic.com/firebasejs/10.12.3/firebase-messaging.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-const messaging = getMessaging(app);
-
-/* Ask notification permission */
 async function enableNotifications() {
   try {
+
     const permission =
       await Notification.requestPermission();
 
     if (permission !== "granted") {
-      console.log("Notification denied");
+      console.log("Notification blocked");
       return;
     }
 
-    const token = await getToken(messaging, {
-      vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4"
-    });
+    const token =
+      await messaging.getToken({
+        vapidKey:
+        "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4"
+      });
 
-    if (token && auth.currentUser) {
+    console.log("FCM TOKEN:", token);
 
-      await set(
-        ref(
-          db,
-          "users/" +
-          auth.currentUser.uid +
-          "/fcmToken"
-        ),
-        token
-      );
+    const user = firebase.auth().currentUser;
 
-      console.log("FCM Token saved");
+    if (user && token) {
+      firebase.database()
+      .ref("users/" + user.uid + "/fcmToken")
+      .set(token);
+
+      console.log("Token saved");
     }
 
   } catch (err) {
-    console.error(err);
+    console.error("FCM Error:", err);
   }
 }
 
-/* Run after login */
-auth.onAuthStateChanged((user) => {
+/* After login */
+firebase.auth().onAuthStateChanged(user => {
   if (user) {
     enableNotifications();
   }
 });
 
-/* Foreground notification */
-onMessage(messaging, (payload) => {
+/* Foreground notifications */
+messaging.onMessage((payload) => {
+
   new Notification(
     payload.notification.title,
     {
       body:
       payload.notification.body,
+
       icon:
       "cypx_icon_192x192.png"
     }
   );
+
 });
-</script>    
-</body>
-</html>
+</script>
+<body
+<html>
