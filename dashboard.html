@@ -839,72 +839,61 @@ if ("serviceWorker" in navigator) {
 const messaging = firebase.messaging();
 
 async function enableNotifications() {
+
+  alert("1. Function started");
+
   try {
 
     const permission =
       await Notification.requestPermission();
 
+    alert("2. Permission: " + permission);
+
     if (permission !== "granted") {
-      console.log("Notification blocked");
+      alert("Permission denied");
       return;
     }
 
+    const sw =
+      await navigator.serviceWorker.ready;
+
+    alert("3. SW ready");
+
     const token =
-  await messaging.getToken({
-    vapidKey:
-    "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
-    serviceWorkerRegistration:
-      await navigator.serviceWorker.ready
-  });
+      await messaging.getToken({
+        vapidKey:
+        "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+        serviceWorkerRegistration: sw
+      });
 
-alert("TOKEN: " + token);
-console.log("FCM TOKEN:", token);
-
-    console.log("FCM TOKEN:", token);
+    alert("4. TOKEN = " + token);
 
     const user =
       firebase.auth().currentUser;
 
     if (user && token) {
 
-      firebase.database()
-      .ref(
-        "users/" +
-        user.uid +
-        "/fcmToken"
-      )
+      await firebase.database()
+      .ref("users/" + user.uid + "/fcmToken")
       .set(token);
 
-      console.log("Token saved");
+      alert("5. Token saved");
     }
 
   } catch (err) {
-    console.error("FCM ERROR:", err);
+    alert("ERROR: " + err.message);
+    console.error(err);
   }
 }
 
-/* Run after login */
 firebase.auth()
 .onAuthStateChanged(user => {
+
+  alert("AUTH CHANGED");
+
   if (user) {
     enableNotifications();
   }
-});
-
-/* Foreground notification */
-messaging.onMessage(payload => {
-
-  new Notification(
-    payload.notification.title,
-    {
-      body:
-      payload.notification.body,
-
-      icon:
-      "cypx_icon_192x192.png"
-    }
-  );
-
 });
 </script>
 
