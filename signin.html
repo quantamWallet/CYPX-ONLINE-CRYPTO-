@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="/CYPX-ONLINE-CRYPTO-/manifest.json">
+<meta name="theme-color" content="#007a54">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>CYPX HOLDINGS - Sign In</title>
@@ -504,6 +506,12 @@ showToast(
 
 });
 </script>
-
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./firebase-messaging-sw.js')
+    .then(() => console.log('SW registered'))
+    .catch(err => console.error(err));
+}
+</script>
 </body>
 </html>
