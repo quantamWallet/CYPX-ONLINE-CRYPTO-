@@ -840,24 +840,27 @@ const messaging = firebase.messaging();
 async function enableNotifications() {
   try {
 
-    // Register Service Worker
-    const registration =
-      await navigator.serviceWorker.register(
-        "/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js"
-      );
-
-    console.log("Firebase SW Registered");
-
-    // Ask permission
+    // Ask permission FIRST
     const permission =
       await Notification.requestPermission();
 
     if (permission !== "granted") {
-      console.log("Notification permission denied");
+      console.log("Notification denied");
       return;
     }
 
-    // Get FCM token
+    // Register service worker
+    const registration =
+      await navigator.serviceWorker.register(
+        "./firebase-messaging-sw.js"
+      );
+
+    console.log("SW REGISTERED");
+
+    // Wait until active
+    await navigator.serviceWorker.ready;
+
+    // Get token
     const token =
       await messaging.getToken({
         vapidKey:
@@ -867,15 +870,19 @@ async function enableNotifications() {
         registration
       });
 
-    console.log("FCM TOKEN:", token);
+    console.log("TOKEN:", token);
+
+    if (!token) {
+      console.log("No token generated");
+      return;
+    }
 
     const user =
       firebase.auth().currentUser;
 
-    // Save token to Firebase
-    if (user && token) {
+    if (user) {
 
-      firebase.database()
+      await firebase.database()
       .ref(
         "users/" +
         user.uid +
@@ -884,17 +891,15 @@ async function enableNotifications() {
       .set(token);
 
       console.log(
-        "FCM token saved to Firebase"
+        "Token saved to Firebase"
       );
     }
 
   } catch (err) {
-
     console.error(
       "FCM ERROR:",
       err
     );
-
   }
 }
 
@@ -908,46 +913,30 @@ firebase.auth()
 
 });
 
-/* Foreground notification */
+/* Direct notifications */
 messaging.onMessage(payload => {
 
-  console.log(
-    "Foreground Message:",
-    payload
-  );
+  navigator.serviceWorker
+  .getRegistration()
+  .then(registration => {
 
-  if (
-    Notification.permission ===
-    "granted"
-  ) {
+    if (registration) {
+      registration.showNotification(
+        payload.notification.title,
+        {
+          body:
+          payload.notification.body,
 
-    navigator.serviceWorker
-    .getRegistration(
-      "/CYPX-ONLINE-CRYPTO-/"
-    )
-    .then(registration => {
+          icon:
+          "cypx_icon_192x192.png",
 
-      if (registration) {
+          badge:
+          "cypx_icon_192x192.png"
+        }
+      );
+    }
 
-        registration.showNotification(
-          payload.notification.title,
-          {
-            body:
-              payload.notification.body,
-
-            icon:
-              "cypx_icon_192x192.png",
-
-            badge:
-              "cypx_icon_192x192.png"
-          }
-        );
-
-      }
-
-    });
-
-  }
+  });
 
 });
 </script>
