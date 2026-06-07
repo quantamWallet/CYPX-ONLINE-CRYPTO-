@@ -850,10 +850,15 @@ async function enableNotifications() {
     }
 
     const token =
-      await messaging.getToken({
-        vapidKey:
-        "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4"
-      });
+  await messaging.getToken({
+    vapidKey:
+    "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+    serviceWorkerRegistration:
+      await navigator.serviceWorker.ready
+  });
+
+alert("TOKEN: " + token);
+console.log("FCM TOKEN:", token);
 
     console.log("FCM TOKEN:", token);
 
