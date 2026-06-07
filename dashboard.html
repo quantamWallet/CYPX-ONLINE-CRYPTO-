@@ -767,6 +767,58 @@ auth.onAuthStateChanged(function(user) {
 <a href="https://t.me/cypxonline" target="_blank" class="telegram-float">
     <i class="fab fa-telegram-plane"></i>
 </a>
-    
+   <!-- Install App Button -->
+<button id="installBtn" style="
+display:none;
+position:fixed;
+bottom:80px;
+right:20px;
+z-index:9999;
+padding:14px 20px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#00e0ff,#00ffaa);
+color:#001f3f;
+font-weight:700;
+font-size:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+cursor:pointer;
+">
+📲 Install App
+</button>
+
+<script>
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+
+/* Detect install prompt */
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+
+  deferredPrompt = e;
+  installBtn.style.display = "block";
+});
+
+/* Install click */
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+
+  const { outcome } = await deferredPrompt.userChoice;
+
+  if (outcome === "accepted") {
+    console.log("App installed");
+  }
+
+  deferredPrompt = null;
+  installBtn.style.display = "none";
+});
+
+/* Hide if already installed */
+window.addEventListener("appinstalled", () => {
+  installBtn.style.display = "none";
+});
+                            </script> 
 </body>
 </html>
