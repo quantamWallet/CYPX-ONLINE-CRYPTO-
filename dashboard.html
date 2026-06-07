@@ -766,15 +766,15 @@ auth.onAuthStateChanged(function(user) {
     <!-- Telegram Floating Button -->
 <a href="https://t.me/cypxonline" target="_blank" class="telegram-float">
     <i class="fab fa-telegram-plane"></i>
-</a>
-   <!-- Install App Button -->
+</a> 
+  <!-- Install App Button -->
 <button id="installBtn" style="
 display:none;
 position:fixed;
-bottom:80px;
-right:20px;
+top:90px;
+right:15px;
 z-index:9999;
-padding:14px 20px;
+padding:12px 18px;
 border:none;
 border-radius:14px;
 background:linear-gradient(135deg,#00e0ff,#00ffaa);
@@ -819,6 +819,6 @@ installBtn.addEventListener("click", async () => {
 window.addEventListener("appinstalled", () => {
   installBtn.style.display = "none";
 });
-                            </script> 
+  </script>  
 </body>
 </html>
