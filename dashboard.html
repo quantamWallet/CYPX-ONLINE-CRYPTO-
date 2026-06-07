@@ -840,15 +840,14 @@ const messaging = firebase.messaging();
 async function enableNotifications() {
   try {
 
-    // Register service worker manually
+    // Register service worker (IMPORTANT FIX)
     const registration =
       await navigator.serviceWorker.register(
         "/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js"
       );
 
-    console.log("SW REGISTERED");
+    console.log("SW Registered");
 
-    // Ask permission
     const permission =
       await Notification.requestPermission();
 
@@ -857,7 +856,6 @@ async function enableNotifications() {
       return;
     }
 
-    // Get FCM token
     const token =
       await messaging.getToken({
         vapidKey:
@@ -872,18 +870,13 @@ async function enableNotifications() {
     const user =
       firebase.auth().currentUser;
 
-    // Save token to Firebase
     if (user && token) {
 
       firebase.database()
-      .ref(
-        "users/" +
-        user.uid +
-        "/fcmToken"
-      )
+      .ref("users/" + user.uid + "/fcmToken")
       .set(token);
 
-      console.log("Token saved");
+      console.log("Token saved to Firebase");
     }
 
   } catch (err) {
@@ -892,36 +885,29 @@ async function enableNotifications() {
 }
 
 /* Run after login */
-firebase.auth()
-.onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(user => {
   if (user) {
     enableNotifications();
   }
 });
 
-/* Direct notification (NO ALERTS) */
+/* Direct foreground notification */
 messaging.onMessage(payload => {
 
-  navigator.serviceWorker.ready.then(registration => {
+  if (Notification.permission === "granted") {
 
-    registration.showNotification(
+    new Notification(
       payload.notification.title,
       {
-        body:
-        payload.notification.body,
-
-        icon:
-        "cypx_icon_192x192.png",
-
-        badge:
-        "cypx_icon_192x192.png"
+        body: payload.notification.body,
+        icon: "cypx_icon_192x192.png",
+        badge: "cypx_icon_192x192.png"
       }
     );
 
-  });
+  }
 
 });
 </script>
-
 </body>
 </html>
