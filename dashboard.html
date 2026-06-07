@@ -820,10 +820,10 @@ window.addEventListener("appinstalled", () => {
   installBtn.style.display = "none";
 });
   </script>  
+
 <!-- Firebase Messaging -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
-<script>
+
 <script>
 const messaging = firebase.messaging();
 
@@ -846,15 +846,20 @@ async function enableNotifications() {
 
     console.log("FCM TOKEN:", token);
 
-    const user = firebase.auth().currentUser;
+    const user =
+      firebase.auth().currentUser;
 
     if (user && token) {
 
       firebase.database()
-      .ref("users/" + user.uid + "/fcmToken")
+      .ref(
+        "users/" +
+        user.uid +
+        "/fcmToken"
+      )
       .set(token);
 
-      console.log("Token saved to Firebase");
+      console.log("Token saved");
     }
 
   } catch (err) {
@@ -862,21 +867,23 @@ async function enableNotifications() {
   }
 }
 
-/* Wait for login */
-firebase.auth().onAuthStateChanged(user => {
+/* Run after login */
+firebase.auth()
+.onAuthStateChanged(user => {
   if (user) {
     enableNotifications();
   }
 });
 
-/* Foreground notifications */
-messaging.onMessage((payload) => {
+/* Foreground notification */
+messaging.onMessage(payload => {
 
   new Notification(
     payload.notification.title,
     {
       body:
       payload.notification.body,
+
       icon:
       "cypx_icon_192x192.png"
     }
@@ -884,5 +891,6 @@ messaging.onMessage((payload) => {
 
 });
 </script>
-<body
-<html>
+
+</body>
+</html>
