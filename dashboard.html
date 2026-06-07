@@ -820,7 +820,18 @@ window.addEventListener("appinstalled", () => {
   installBtn.style.display = "none";
 });
   </script>  
-
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/firebase-messaging-sw.js")
+    .then(reg => {
+      console.log("SW registered:", reg.scope);
+    })
+    .catch(err => {
+      console.error("SW failed:", err);
+    });
+}
+</script>
 <!-- Firebase Messaging -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
 
