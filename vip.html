@@ -202,7 +202,14 @@ nav i { font-size:20px; }
       appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"  
     };  
   
-    const app = initializeApp(firebaseConfig);  
+    const app = initializeApp(firebaseConfig);
+    document.addEventListener('backbutton', function (e) {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        e.preventDefault();
+    }
+}, false);
     const auth = getAuth(app);  
     const db = getDatabase(app);  
   
