@@ -172,13 +172,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-  document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -339,6 +332,6 @@ tabs.forEach(tab => {
   };
 });
 </script>
-
+<script src="js/app-back.js"></script>
 </body>
 </html>
