@@ -22,13 +22,6 @@
         measurementId: "G-4RSQXZJX44"  
       };  
       firebase.initializeApp(firebaseConfig);  
-      document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
       const database = firebase.database();  
       const auth = firebase.auth(); 
       
@@ -948,5 +941,6 @@ messaging.onMessage(payload => {
 
 });
 </script>
+    <script src="js/app-back.js"></script>
 </body>
 </html>
