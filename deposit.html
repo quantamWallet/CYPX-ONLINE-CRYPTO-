@@ -114,13 +114,6 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
     const auth = firebase.auth();
     const database = firebase.database();
   </script>
@@ -170,6 +163,6 @@
     Incorrect transfers may lead to delays or loss of funds. 
     Always verify payment details carefully before confirming transactions.
   </div>
-
+<script src="js/app-back.js"></script>
 </body>
   </html>
