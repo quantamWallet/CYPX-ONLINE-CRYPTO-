@@ -325,8 +325,7 @@ onAuthStateChanged(auth, async(user)=>{
     if(window.location.pathname
       .includes("signin.html")){
 
-      window.location.href =
-      "dashboard.html";
+      window.location.replace("dashboard.html");
     }
   }
 });
