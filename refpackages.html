@@ -198,13 +198,6 @@ appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
 const app = initializeApp(firebaseConfig);
-  document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
@@ -255,6 +248,6 @@ toast.style.display = "block";
 setTimeout(()=>toast.style.display="none",2000);
 }
 </script>
-
+<script src="js/app-back.js"></script>
 </body>
 </html>
