@@ -1,15 +1,20 @@
-document.addEventListener("deviceready", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-  if (window.Capacitor?.Plugins?.App) {
+  history.pushState(null, null, location.href);
 
-    window.Capacitor.Plugins.App.addListener("backButton", () => {
+  window.addEventListener("popstate", () => {
 
-      if (window.history.length > 1) {
-        window.history.back();
-      }
+    if (document.referrer &&
+        document.referrer.startsWith(location.origin)) {
 
-    });
+      history.back();
 
-  }
+    } else {
+
+      history.pushState(null, null, location.href);
+
+    }
+
+  });
 
 });
