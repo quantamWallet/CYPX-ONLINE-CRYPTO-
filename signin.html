@@ -274,13 +274,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-  document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
@@ -511,5 +504,6 @@ showToast(
 
 });
 </script>
+  <script src="js/app-back.js"></script>
 </body>
 </html>
