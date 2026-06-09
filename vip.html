@@ -203,13 +203,6 @@ nav i { font-size:20px; }
     };  
   
     const app = initializeApp(firebaseConfig);
-    document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
     const auth = getAuth(app);  
     const db = getDatabase(app);  
   
@@ -397,5 +390,6 @@ nav i { font-size:20px; }
       if(lastClaim>0){ tick(); }  
     }  
   </script>  
+  <script src="js/app-back.js"></script>
 </body>  
   </html>
