@@ -319,13 +319,6 @@ measurementId: "G-4RSQXZJX44"
 if (!firebase.apps.length) {
 firebase.initializeApp(firebaseConfig);
 }
-document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
 const auth = firebase.auth();
 
 const purchaseBtn =
@@ -363,6 +356,6 @@ referBtn.addEventListener("click", ()=>{
 go("team.html", referBtn);
 });
 </script>
-
+<script src="js/app-back.js"></script>
 </body>
 </html>
