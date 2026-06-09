@@ -492,13 +492,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-  document.addEventListener('backbutton', function (e) {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        e.preventDefault();
-    }
-}, false);
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -758,5 +751,6 @@ form.addEventListener('submit', async (e) => {
   });
 });
     </script>
+  <script src="js/app-back.js"></script>
 </body>
 </html>
