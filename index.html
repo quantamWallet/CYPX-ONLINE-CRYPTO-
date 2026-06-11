@@ -389,6 +389,7 @@ footer a:hover{
 </footer>
 <!-- Firebase Auto Login Check -->
 <script type="module">
+<script type="module">
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 
@@ -412,14 +413,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 /* AUTO LOGIN CHECK */
-onAuthStateChanged(auth, (user)=>{
-  const user = localStorage.getItem("user");
+onAuthStateChanged(auth, (user) => {
 
-if (user) {
+  if (user) {
     window.location.replace("dashboard.html");
-} else {
+  } else {
     window.location.replace("signin.html");
-    }
+  }
+
+});
 </script>
 
 <!-- Service Worker -->
