@@ -413,10 +413,13 @@ const auth = getAuth(app);
 
 /* AUTO LOGIN CHECK */
 onAuthStateChanged(auth, (user)=>{
-  if(user){
-    window.location.href = "dashboard.html";
-  }
-});
+  const user = localStorage.getItem("user");
+
+if (user) {
+    window.location.replace("dashboard.html");
+} else {
+    window.location.replace("signin.html");
+    }
 </script>
 
 <!-- Service Worker -->
