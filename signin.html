@@ -296,40 +296,37 @@ function showToast(msg, success=false){
 }
 
 /* AUTO LOGIN CHECK */
-onAuthStateChanged(auth, async(user)=>{
+onAuthStateChanged(auth, async (user) => {
 
-  if(user){
+  const loginExpiry = localStorage.getItem("loginExpiry");
 
-    const loginExpiry =
-    localStorage.getItem(
-      "loginExpiry"
-    );
-
-    if(loginExpiry &&
-    Date.now() >
-    Number(loginExpiry)){
-
-      await signOut(auth);
-
-      localStorage.removeItem(
-        "loginExpiry"
-      );
-
-      showToast(
-      "Session expired. Login again."
-      );
-
-      return;
+  // No user → go to signin
+  if (!user) {
+    localStorage.removeItem("loginExpiry");
+    if (!window.location.pathname.includes("signin.html")) {
+      window.location.replace("signin.html");
     }
+    return;
+  }
 
-    if(window.location.pathname
-      .includes("signin.html")){
+  // Session expired
+  if (loginExpiry && Date.now() > Number(loginExpiry)) {
+    await signOut(auth);
+    localStorage.removeItem("loginExpiry");
 
-      window.location.replace("dashboard.html");
+    showToast("Session expired. Login again.");
+
+    if (!window.location.pathname.includes("signin.html")) {
+      window.location.replace("signin.html");
     }
+    return;
+  }
+
+  // Logged in but on signin page → go dashboard
+  if (window.location.pathname.includes("signin.html")) {
+    window.location.replace("dashboard.html");
   }
 });
-
 /* LOGIN */
 document.getElementById(
 "signinForm"
