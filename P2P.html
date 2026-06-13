@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CYPX P2P</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#071426;color:#fff}
+.header{padding:18px;text-align:center;background:#10233d;color:#ffcc00;font-weight:bold;font-size:22px}
+.container{max-width:430px;margin:auto;padding:15px}
+.card{background:#10233d;border-radius:16px;padding:18px;margin-bottom:15px}
+.badge{display:inline-block;background:#25d366;padding:6px 12px;border-radius:20px;font-size:12px;margin-bottom:10px}
+.tabs{display:flex;gap:10px;margin-top:12px}
+.tab{flex:1;background:#071426;padding:10px;border-radius:10px;text-align:center}
+.input{width:100%;padding:14px;border:none;border-radius:10px;background:#071426;color:#fff;margin-top:12px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;background:#ffcc00;color:#071426;font-weight:bold;margin-top:12px}
+.offer{background:#0b1b2d;padding:15px;border-radius:12px;margin-top:12px}
+.status{display:flex;justify-content:space-between;margin-top:12px}
+.step{flex:1;text-align:center;background:#071426;margin:2px;padding:8px;border-radius:8px;font-size:12px}
+.active{background:#25d366}
+.copy{background:#071426;padding:12px;border:1px dashed #25d366;border-radius:10px;text-align:center;margin-top:10px;cursor:pointer}
+#orderCard{display:none}
+</style>
+</head>
+<body>
+
+<div class="header">CYPX P2P MARKET</div>
+
+<div class="container">
+
+<div class="card">
+<div class="badge">Verified P2P</div>
+<h2>Buy USDT</h2>
+<p>Create an order and get assigned a verified trader automatically.</p>
+
+<div class="tabs">
+<div class="tab">BUY</div>
+<div class="tab">USDT</div>
+<div class="tab">KES</div>
+</div>
+</div>
+
+<div class="card">
+<h3>Create Order</h3>
+
+<input type="number" id="amount" class="input" placeholder="Amount (Min 5000 KES)">
+<input type="tel" id="phone" class="input" placeholder="Phone Number Used">
+
+<button class="btn" id="createOrderBtn">Create Order</button>
+</div>
+
+<div class="card" id="orderCard">
+<h3>Assigned Trader</h3>
+
+<p><strong>Order Ref:</strong> <span id="orderRef"></span></p>
+<p><strong>Trader:</strong> <span id="traderName"></span></p>
+
+<div class="copy" id="copyTrader">
+<span id="traderNumber"></span><br>
+<small>Tap to copy number</small>
+</div>
+
+<div class="status">
+<div class="step active">Created</div>
+<div class="step">Verify</div>
+<div class="step">Credit</div>
+</div>
+
+<input type="file" id="receipt" class="input" accept="image/*">
+<button class="btn" id="submitReceiptBtn">Submit Receipt</button>
+</div>
+
+</div>
+
+<script>
+const firebaseConfig={
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+authDomain:"quantum-rio.firebaseapp.com",
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+projectId:"quantum-rio",
+storageBucket:"quantum-rio.firebasestorage.app",
+messagingSenderId:"805433999377",
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+measurementId:"G-4RSQXZJX44"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth=firebase.auth();
+const db=firebase.database();
+const storage=firebase.storage();
+
+let uid=null;
+let currentOrder=null;
+
+const traders=[
+{name:"LANGAT ROBERT",number:"0707207201"},
+{name:"Hassan Abdi",number:"0750858351"}
+];
+
+auth.onAuthStateChanged(user=>{
+ if(user){uid=user.uid;}
+ else{location.href="signin.html";}
+});
+
+document.getElementById("createOrderBtn").onclick=async()=>{
+
+if(!uid)return;
+
+const amount=Number(document.getElementById("amount").value);
+const phone=document.getElementById("phone").value.trim();
+
+if(amount<5000){
+alert("Minimum deposit is 5000 KES");
+return;
+}
+
+const countSnap=await db.ref("p2pOrders").once("value");
+const trader=traders[countSnap.numChildren()%2];
+
+const orderId=db.ref().push().key;
+const orderRef="CYPX-"+Math.floor(100000+Math.random()*900000);
+
+const order={
+id:orderId,
+uid:uid,
+amount:amount,
+phone:phone,
+orderRef:orderRef,
+traderName:trader.name,
+traderNumber:trader.number,
+status:"awaiting_payment",
+createdAt:Date.now()
+};
+
+await db.ref("p2pOrders/"+orderId).set(order);
+await db.ref("adminP2POrders/"+orderId).set(order);
+
+currentOrder=order;
+
+document.getElementById("orderCard").style.display="block";
+document.getElementById("orderRef").textContent=orderRef;
+document.getElementById("traderName").textContent=trader.name;
+document.getElementById("traderNumber").textContent=trader.number;
+};
+
+document.getElementById("copyTrader").onclick=()=>{
+navigator.clipboard.writeText(
+document.getElementById("traderNumber").textContent
+);
+};
+
+document.getElementById("submitReceiptBtn").onclick=async()=>{
+
+if(!currentOrder)return;
+
+const file=document.getElementById("receipt").files[0];
+
+if(!file){
+alert("Upload receipt first");
+return;
+}
+
+const snap=await storage.ref(
+"p2pReceipts/"+currentOrder.id
+).put(file);
+
+const url=await snap.ref.getDownloadURL();
+
+await db.ref("p2pOrders/"+currentOrder.id).update({
+receiptUrl:url,
+status:"awaiting_verification"
+});
+
+await db.ref("adminP2POrders/"+currentOrder.id).update({
+receiptUrl:url,
+status:"awaiting_verification"
+});
+
+await db.ref(
+"financial/"+uid+"/"+currentOrder.id
+).set({
+...currentOrder,
+receiptUrl:url,
+type:"deposit",
+method:"P2P"
+});
+
+alert("Receipt submitted successfully");
+location.href="financial.html";
+};
+</script>
+
+</body>
+</html>
