@@ -894,6 +894,8 @@ Math.floor(
 100000 + Math.random() * 900000
 );
 
+console.log("Starting upload...");
+
 const uploadTask =
 await storage
 .ref(
@@ -904,8 +906,12 @@ orderId
 )
 .put(receipt);
 
+console.log("Upload complete");
+
 const receiptUrl =
 await uploadTask.ref.getDownloadURL();
+
+console.log("URL obtained");
 
 const orderData = {
 
@@ -958,6 +964,8 @@ await db.ref(
 orderId
 ).set(orderData);
 
+console.log("P2P Order saved");
+
 /* USER DEPOSITS */
 
 await db.ref(
@@ -967,6 +975,8 @@ uid +
 orderId
 ).set(orderData);
 
+console.log("Deposit saved");
+
 /* FINANCIAL */
 
 await db.ref(
@@ -975,6 +985,8 @@ uid +
 "/" +
 orderId
 ).set(orderData);
+
+console.log("Financial saved");
 
 notify(
 "Order Created: " +
@@ -1009,7 +1021,6 @@ document
 }
 
 };
-
 </script>
 
 </body>
