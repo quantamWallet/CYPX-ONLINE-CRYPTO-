@@ -116,24 +116,33 @@ overflow:hidden;
 background:
 linear-gradient(
 180deg,
-rgba(255,255,255,.08),
+rgba(255,255,255,.07),
 rgba(255,255,255,.03)
 );
 
-backdrop-filter:blur(18px);
+backdrop-filter:blur(16px);
 
 border:1px solid rgba(255,255,255,.08);
 
-border-radius:28px;
+border-radius:20px;
 
-padding:22px;
+padding:16px;
 
-margin-bottom:20px;
+margin-bottom:14px;
 
 box-shadow:
-0 10px 35px rgba(0,0,0,.45);
+0 8px 25px rgba(0,0,0,.35);
 }
-
+.trader-info h3{
+font-size:16px;
+font-weight:700;
+}
+.price-value{
+font-size:34px;
+}
+.small{
+font-size:12px;
+}
 .offer-card::before{
 content:"";
 position:absolute;
@@ -149,7 +158,10 @@ rgba(0,255,170,.25),
 transparent
 );
 }
-
+.offer-grid{
+gap:10px;
+margin-top:14px;
+}
 .offer-card.active{
 border-color:#00ffb3;
 box-shadow:
@@ -167,9 +179,10 @@ margin-bottom:18px;
 }
 
 .avatar{
-width:62px;
-height:62px;
-border-radius:50%;
+width:48px;
+height:48px;
+font-size:18px;
+}
 
 background:
 linear-gradient(
@@ -257,7 +270,11 @@ font-size:13px;
 font-weight:700;
 font-size:15px;
 }
-
+.payment{
+padding:8px 12px;
+font-size:13px;
+margin-top:12px;
+ }
 /* PAYMENT */
 
 .payment{
@@ -298,7 +315,12 @@ linear-gradient(
 #00ffb3,
 #38bdf8
 );
-
+.buy-btn{
+height:48px;
+font-size:15px;
+margin-top:16px;
+border-radius:14px;
+}
 font-size:18px;
 font-weight:800;
 color:#000;
