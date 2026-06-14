@@ -13,8 +13,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-
-<style>
+ <style>
 
 *{
 margin:0;
@@ -37,74 +36,65 @@ overflow-x:hidden;
 /* HEADER */
 
 .header{
-padding:22px;
-font-size:28px;
+padding:18px;
+font-size:24px;
 font-weight:800;
 text-align:center;
 background:rgba(10,20,40,.75);
 backdrop-filter:blur(18px);
 border-bottom:1px solid rgba(255,255,255,.08);
-box-shadow:0 0 30px rgba(59,130,246,.25);
+box-shadow:0 0 25px rgba(59,130,246,.20);
 }
 
 .header::after{
 content:"CYPX HOLDINGS";
 display:block;
-font-size:12px;
-color:#7dd3fc;
+font-size:11px;
 letter-spacing:2px;
 margin-top:4px;
+color:#7dd3fc;
 }
 
 /* TOP BUTTONS */
 
 .top-tabs{
 display:flex;
-gap:12px;
-padding:18px;
+gap:10px;
+padding:14px;
 }
 
 .market-btn{
 flex:1;
-height:55px;
+height:48px;
 border:none;
-border-radius:16px;
-font-size:16px;
+border-radius:14px;
+font-size:14px;
 font-weight:700;
 cursor:pointer;
-transition:.3s;
+transition:.25s;
 }
 
 .buy-tab{
-background:linear-gradient(
-135deg,
-#00ffb3,
-#00d084
-);
+background:linear-gradient(135deg,#00ffb3,#00d084);
 color:#000;
-box-shadow:
-0 0 25px rgba(0,255,179,.35);
-}
-
-.buy-tab:hover{
-transform:translateY(-2px);
+box-shadow:0 0 20px rgba(0,255,179,.25);
 }
 
 .sell-tab{
 background:rgba(255,255,255,.05);
-color:#fff;
 border:1px solid rgba(255,255,255,.08);
+color:#fff;
 backdrop-filter:blur(10px);
 }
 
-.sell-tab:hover{
-background:rgba(255,255,255,.08);
+.market-btn:hover{
+transform:translateY(-2px);
 }
 
 /* MARKET */
 
 .market-container{
-padding:18px;
+padding:14px;
 }
 
 /* OFFER CARD */
@@ -112,142 +102,119 @@ padding:18px;
 .offer-card{
 position:relative;
 overflow:hidden;
-
 background:
 linear-gradient(
 180deg,
 rgba(255,255,255,.07),
 rgba(255,255,255,.03)
 );
-
 backdrop-filter:blur(16px);
-
 border:1px solid rgba(255,255,255,.08);
-
 border-radius:20px;
-
 padding:16px;
-
 margin-bottom:14px;
+box-shadow:0 8px 25px rgba(0,0,0,.35);
+transition:.25s;
+}
 
+.offer-card:hover{
+transform:translateY(-2px);
+}
+
+.offer-card.active{
+border-color:#00ffb3;
 box-shadow:
-0 8px 25px rgba(0,0,0,.35);
+0 0 0 1px rgba(0,255,170,.15),
+0 0 25px rgba(0,255,170,.10);
 }
-.trader-info h3{
-font-size:16px;
-font-weight:700;
-}
-.price-value{
-font-size:34px;
-}
-.small{
-font-size:12px;
-}
+
 .offer-card::before{
 content:"";
 position:absolute;
-top:-60px;
-right:-60px;
-width:140px;
-height:140px;
+top:-50px;
+right:-50px;
+width:120px;
+height:120px;
 border-radius:50%;
 background:
 radial-gradient(
 circle,
-rgba(0,255,170,.25),
+rgba(0,255,170,.20),
 transparent
 );
 }
-.offer-grid{
-gap:10px;
-margin-top:14px;
-}
-.offer-card.active{
-border-color:#00ffb3;
-box-shadow:
-0 0 0 1px rgba(0,255,170,.2),
-0 0 35px rgba(0,255,170,.15);
-}
 
-/* TRADER TOP */
+/* TRADER */
 
 .offer-top{
 display:flex;
 align-items:center;
-gap:15px;
-margin-bottom:18px;
+gap:12px;
+margin-bottom:14px;
 }
 
 .avatar{
 width:48px;
 height:48px;
-font-size:18px;
-}
-
+border-radius:50%;
 background:
 linear-gradient(
 135deg,
 #3b82f6,
 #06b6d4
 );
-
 display:flex;
 align-items:center;
 justify-content:center;
-
-font-size:24px;
+font-size:18px;
 font-weight:800;
-
-box-shadow:
-0 0 25px rgba(59,130,246,.45);
+box-shadow:0 0 18px rgba(59,130,246,.35);
 }
 
 .trader-info h3{
-font-size:19px;
+font-size:16px;
 font-weight:700;
 }
 
 .verify{
 color:#facc15;
-margin-left:6px;
+margin-left:5px;
 }
 
 .small{
+margin-top:2px;
+font-size:12px;
 color:#94a3b8;
-font-size:13px;
-margin-top:3px;
 }
 
 .country{
 display:inline-block;
-margin-top:8px;
-padding:6px 12px;
-border-radius:12px;
+margin-top:6px;
+padding:5px 10px;
+border-radius:10px;
 background:rgba(255,255,255,.05);
-font-size:12px;
+font-size:11px;
 color:#cbd5e1;
 }
 
 /* PRICE */
 
 .price{
+font-size:13px;
 color:#94a3b8;
-font-size:14px;
-margin-top:12px;
+margin-top:8px;
 }
 
 .price-value{
-font-size:48px;
+font-size:34px;
 font-weight:800;
-margin-top:4px;
-
+margin-top:2px;
 background:
 linear-gradient(
 135deg,
 #00ffb3,
 #38bdf8
 );
-
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
@@ -257,44 +224,33 @@ linear-gradient(
 .offer-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
-gap:14px;
-margin-top:18px;
+gap:10px;
+margin-top:14px;
 }
 
 .label{
+font-size:12px;
 color:#94a3b8;
-font-size:13px;
 }
 
 .value{
+font-size:14px;
 font-weight:700;
-font-size:15px;
 }
-.payment{
-padding:8px 12px;
-font-size:13px;
-margin-top:12px;
- }
+
 /* PAYMENT */
 
 .payment{
 display:inline-flex;
 align-items:center;
 gap:8px;
-
-margin-top:16px;
-
-padding:10px 16px;
-
-border-radius:14px;
-
-background:
-rgba(0,255,170,.08);
-
+margin-top:12px;
+padding:8px 12px;
+border-radius:12px;
+background:rgba(0,255,170,.08);
 border:1px solid rgba(0,255,170,.25);
-
 color:#00ffb3;
-
+font-size:13px;
 font-weight:700;
 }
 
@@ -302,38 +258,26 @@ font-weight:700;
 
 .buy-btn{
 width:100%;
-height:60px;
-
-margin-top:22px;
-
+height:48px;
+margin-top:16px;
 border:none;
-border-radius:16px;
-
+border-radius:14px;
 background:
 linear-gradient(
 135deg,
 #00ffb3,
 #38bdf8
 );
-.buy-btn{
-height:48px;
 font-size:15px;
-margin-top:16px;
-border-radius:14px;
-}
-font-size:18px;
 font-weight:800;
 color:#000;
-
 cursor:pointer;
-
-transition:.3s;
+transition:.25s;
 }
 
 .buy-btn:hover{
-transform:translateY(-3px);
-box-shadow:
-0 0 30px rgba(0,255,179,.35);
+transform:translateY(-2px);
+box-shadow:0 0 25px rgba(0,255,179,.25);
 }
 
 /* MODAL */
@@ -343,11 +287,9 @@ position:fixed;
 inset:0;
 background:rgba(0,0,0,.75);
 backdrop-filter:blur(6px);
-
 display:none;
 justify-content:center;
 align-items:center;
-
 padding:20px;
 z-index:9999;
 }
@@ -359,18 +301,12 @@ linear-gradient(
 #08111f,
 #0f172a
 );
-
 width:100%;
-max-width:450px;
-
-border-radius:25px;
-
-padding:22px;
-
+max-width:420px;
+padding:20px;
+border-radius:20px;
 border:1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 0 40px rgba(0,0,0,.5);
+box-shadow:0 0 35px rgba(0,0,0,.45);
 }
 
 /* INPUTS */
@@ -378,18 +314,12 @@ box-shadow:
 .input,
 .file-input{
 width:100%;
-
+padding:14px;
+margin-bottom:12px;
 background:#071426;
-
 border:1px solid rgba(255,255,255,.08);
-
-border-radius:14px;
-
-padding:15px;
-
+border-radius:12px;
 color:#fff;
-
-margin-bottom:14px;
 }
 
 .input:focus{
@@ -397,77 +327,56 @@ outline:none;
 border-color:#38bdf8;
 }
 
-/* SUBMIT */
+/* ACTION BUTTONS */
 
 .submit-btn{
 width:100%;
-height:58px;
-
+height:52px;
 border:none;
-
-border-radius:15px;
-
-font-size:18px;
+border-radius:14px;
+font-size:16px;
 font-weight:800;
-
 background:
 linear-gradient(
 135deg,
 #00ffb3,
 #38bdf8
 );
-
 color:#000;
-
 cursor:pointer;
 }
 
-/* CLOSE */
-
 .close-btn{
 width:100%;
-height:52px;
-
-margin-top:12px;
-
+height:48px;
+margin-top:10px;
 border:none;
 border-radius:14px;
-
 background:rgba(255,255,255,.08);
-
-color:white;
+color:#fff;
+cursor:pointer;
 }
 
-/* NOTIFICATION */
+/* NOTICE */
 
 .notice{
 position:fixed;
 top:20px;
 left:50%;
-
 transform:translateX(-50%);
-
 background:
 linear-gradient(
 135deg,
 #00ffb3,
 #38bdf8
 );
-
 color:#000;
-
-padding:15px 22px;
-
-border-radius:14px;
-
+padding:12px 18px;
+border-radius:12px;
 font-weight:700;
-
-z-index:10000;
-
 display:none;
-
-box-shadow:
-0 0 30px rgba(0,255,170,.35);
+z-index:10000;
+box-shadow:0 0 25px rgba(0,255,170,.30);
 }
 
 /* ORDER BOX */
@@ -475,10 +384,10 @@ box-shadow:
 .order-box{
 background:#071426;
 border:1px solid rgba(255,255,255,.08);
-padding:15px;
-border-radius:16px;
+padding:14px;
+border-radius:14px;
 margin-bottom:14px;
-line-height:1.9;
+line-height:1.8;
 }
 
 .copy-btn{
@@ -488,28 +397,24 @@ linear-gradient(
 #00ffb3,
 #38bdf8
 );
-
 border:none;
-
-padding:12px 18px;
-
-border-radius:12px;
-
+padding:10px 16px;
+border-radius:10px;
 font-weight:700;
-
 color:#000;
+cursor:pointer;
 }
 
 /* LOADER */
 
 .loading{
 text-align:center;
-padding:50px;
+padding:40px;
+font-size:14px;
 color:#94a3b8;
-font-size:15px;
 }
 
-</style>
+                      </style>
 </head>
 
 <body>
