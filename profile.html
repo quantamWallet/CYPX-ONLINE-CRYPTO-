@@ -443,15 +443,20 @@ auth.onAuthStateChanged(user => {
 
 /* LOGOUT */
 
-function logout() {
+function logout(event) {
+    if (event) event.preventDefault();
+
     document.getElementById("logoutModal").style.display = "flex";
-}
+    }
 
-document.getElementById("cancelLogout").onclick = function () {
+document.getElementById("cancelLogout").addEventListener("click", function (e) {
+    e.stopPropagation();
     document.getElementById("logoutModal").style.display = "none";
-};
+});
 
-document.getElementById("confirmLogout").onclick = function () {
+document.getElementById("confirmLogout").addEventListener("click", function (e) {
+
+    e.stopPropagation();
 
     auth.signOut()
     .then(() => {
@@ -459,18 +464,14 @@ document.getElementById("confirmLogout").onclick = function () {
         localStorage.clear();
         sessionStorage.clear();
 
-        document.getElementById("logoutModal").style.display = "none";
-
         window.location.href = "signin.html";
 
     })
     .catch(error => {
-
         console.error("Logout error:", error);
-
         document.getElementById("logoutModal").style.display = "none";
     });
-};
+});
 
 /* SAFETY */
 setTimeout(()=>{
