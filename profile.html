@@ -365,7 +365,7 @@ auth.onAuthStateChanged(user => {
   if (!user) {
 
   if (!window.location.pathname.includes("signin.html")) {
-    window.location.replace("signin.html");
+    window.location.href = "signin.html";
   }
 
   return;
@@ -473,7 +473,7 @@ document.getElementById("confirmLogout").onclick = function () {
       document.getElementById("logoutModal").style.display = "none";
 
       /* Prevent returning to dashboard */
-      window.location.replace("signin.html");
+      window.location.href = "signin.html";
 
     })
     .catch(error => {
