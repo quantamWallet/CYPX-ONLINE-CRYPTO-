@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS Dashboard</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+}
+
+/* Logout Button */
+.logout-btn{
+    padding:12px 20px;
+    background:#d9534f;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:700;
+}
+
+.logout-btn:hover{
+    opacity:0.9;
+}
+
+/* Confirmation Modal */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.modal-box{
+    width:300px;
+    max-width:90%;
+    background:#0b1f38;
+    color:#fff;
+    padding:25px;
+    border-radius:18px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.modal-box p{
+    margin:0;
+    font-size:18px;
+    font-weight:600;
+}
+
+.modal-actions{
+    margin-top:25px;
+    display:flex;
+    gap:12px;
+}
+
+.modal-actions button{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+#cancelLogout{
+    background:#555;
+    color:#fff;
+}
+
+#confirmLogout{
+    background:#ffd400;
+    color:#111;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Welcome to CYPX HOLDINGS</h2>
+
+<button id="logoutBtn" class="logout-btn">
+    Logout
+</button>
+
+<!-- Confirmation Popup -->
+<div id="logoutModal" class="modal">
+    <div class="modal-box">
+
+        <p>Are you sure you want to exit?</p>
+
+        <div class="modal-actions">
+            <button id="cancelLogout">
+                Cancel
+            </button>
+
+            <button id="confirmLogout">
+                Exit
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+
+import {
+    getAuth,
+    signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const logoutBtn = document.getElementById("logoutBtn");
+const logoutModal = document.getElementById("logoutModal");
+
+logoutBtn.addEventListener("click", () => {
+    logoutModal.style.display = "flex";
+});
+
+document.getElementById("cancelLogout")
+.addEventListener("click", () => {
+    logoutModal.style.display = "none";
+});
+
+document.getElementById("confirmLogout")
+.addEventListener("click", async () => {
+
+    try {
+
+        await signOut(auth);
+
+        localStorage.removeItem("loginExpiry");
+        sessionStorage.clear();
+
+        window.location.replace("index.html");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Failed to logout. Please try again.");
+    }
+
+});
+</script>
+
+</body>
+  </html>
