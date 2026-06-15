@@ -385,7 +385,7 @@ auth.onAuthStateChanged(user => {
 function logout(){
   auth.signOut().then(()=>{
     localStorage.clear();
-    window.location.href="signin.html";
+    window.location.href="logout.html";
   });
 }
 
