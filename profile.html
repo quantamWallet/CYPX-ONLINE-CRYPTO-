@@ -385,7 +385,7 @@ auth.onAuthStateChanged(user => {
 function logout(){
 
   const confirmExit = confirm(
-    "Are you sure you want to exit?"
+    "Are you sure you want to logout?"
   );
 
   if(!confirmExit){
@@ -401,12 +401,11 @@ function logout(){
 
   }).catch((error)=>{
 
-    console.error(error);
-
-    alert("Failed to logout. Please try again.");
+    console.error("Logout error:", error);
 
   });
-      }
+
+  }
 
 /* SAFETY */
 setTimeout(()=>{
