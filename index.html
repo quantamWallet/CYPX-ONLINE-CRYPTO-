@@ -219,6 +219,11 @@ footer a:hover{
     width:100%;
 }
 }
+    <style>
+body{
+    display:none;
+}
+</style>
 </style>
 </head>
 <body>
@@ -413,17 +418,30 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 /* AUTO LOGIN CHECK */
-onAuthStateChanged(auth, (user) => {
+<script>
+const auth = firebase.auth();
 
-  if (user) {
-    window.location.replace("dashboard.html");
-  } else {
-    window.location.replace("signin.html");
-  }
-
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // User already signed in
+        window.location.replace("dashboard.html");
+    } else {
+        // No session found
+        window.location.replace("signin.html");
+    }
 });
-</script>
+    
+auth.onAuthStateChanged(user => {
 
+    if (user) {
+        window.location.replace("dashboard.html");
+    } else {
+        window.location.replace("signin.html");
+    }
+
+    document.body.style.display = "block";
+});
+    
 <!-- Service Worker -->
 <script>
 if ('serviceWorker' in navigator) {
