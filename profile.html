@@ -363,8 +363,12 @@ function render(){
 auth.onAuthStateChanged(user => {
 
   if (!user) {
-    window.location.href = "signin.html";
-    return;
+
+  if (!window.location.pathname.includes("signin.html")) {
+    window.location.replace("signin.html");
+  }
+
+  return;
   }
 
   const uid = user.uid;
