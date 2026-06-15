@@ -360,16 +360,22 @@ function render(){
 }
 
 /* 🔐 AUTH */
-auth.onAuthStateChanged(user => {
+auth.signOut().then(() => {
 
-  if (!user) {
+    localStorage.clear();
+    sessionStorage.clear();
 
-  if (!window.location.pathname.includes("signin.html")) {
+    document.getElementById("logoutModal").style.display = "none";
+
     window.location.href = "signin.html";
-  }
 
-  return;
-  }
+}).catch(error => {
+
+    console.error("Logout error:", error);
+
+    document.getElementById("logoutModal").style.display = "none";
+
+});
 
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
