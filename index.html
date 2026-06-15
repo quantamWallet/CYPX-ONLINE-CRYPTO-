@@ -220,7 +220,6 @@ footer a:hover{
 }
 }
     <style>
-...
 body{
     display:none;
 }
@@ -419,12 +418,15 @@ const auth = getAuth(app);
 onAuthStateChanged(auth, (user) => {
 
     if (user) {
+        // User remembered by Firebase
         window.location.replace("dashboard.html");
     } else {
-        window.location.replace("signin.html");
+        // Show landing page normally
+        document.body.style.display = "block";
     }
 
 });
+    
 </script>
 
 <script>
