@@ -220,13 +220,47 @@ footer a:hover{
 }
 }
     <style>
-body{
-    display:none;
+body {
+    display: none;
+}
+
+#auth-loader {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at top,#004d33,#001f3f);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+#auth-loader img {
+    width: 100px;
+    margin-bottom: 20px;
+}
+
+.spinner {
+    width: 45px;
+    height: 45px;
+    border: 4px solid rgba(255,255,255,0.2);
+    border-top: 4px solid #00ffcc;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>
 </head>
 <body>
-
+<div id="auth-loader">
+    <img src="cypx_icon_192x192.png" alt="CYPX Logo">
+    <div class="spinner"></div>
+</div>
 <header>
     <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo">
     <h1>CYPX HOLDINGS</h1>
@@ -417,11 +451,12 @@ const auth = getAuth(app);
 
 onAuthStateChanged(auth, (user) => {
 
+    const loader = document.getElementById("auth-loader");
+
     if (user) {
-        // User remembered by Firebase
         window.location.replace("dashboard.html");
     } else {
-        // Show landing page normally
+        loader.style.display = "none";
         document.body.style.display = "block";
     }
 
