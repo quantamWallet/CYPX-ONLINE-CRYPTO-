@@ -381,31 +381,68 @@ auth.onAuthStateChanged(user => {
 
 });
 
-/* LOGOUT */
-function logout(){
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+z-index:10000;
+justify-content:center;
+align-items:center;
+">
 
-  const confirmExit = confirm(
-    "Are you sure you want to logout?"
-  );
+  <div style="
+  width:300px;
+  max-width:90%;
+  background:#001d3d;
+  border-radius:18px;
+  padding:25px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(0,0,0,.5);
+  ">
 
-  if(!confirmExit){
-    return;
-  }
+    <h3 style="margin:0 0 15px;color:#fff;">
+      Logout
+    </h3>
 
-  auth.signOut().then(()=>{
+    <p style="color:#ddd;margin-bottom:25px;">
+      Are you sure you want to logout?
+    </p>
 
-    localStorage.clear();
-    sessionStorage.clear();
+    <div style="
+    display:flex;
+    gap:12px;
+    ">
 
-    window.location("signin.html");
+      <button id="cancelLogout" style="
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#444;
+      color:#fff;
+      font-weight:bold;
+      ">
+        Cancel
+      </button>
 
-  }).catch((error)=>{
+      <button id="confirmLogout" style="
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#ff3b30;
+      color:#fff;
+      font-weight:bold;
+      ">
+        Exit
+      </button>
 
-    console.error("Logout error:", error);
+    </div>
 
-  });
-
-  }
+  </div>
+</div>
 
 /* SAFETY */
 setTimeout(()=>{
