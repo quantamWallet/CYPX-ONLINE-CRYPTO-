@@ -360,20 +360,42 @@ function render(){
 }
 
 /* 🔐 AUTH */
-auth.signOut().then(() => {
+auth.onAuthStateChanged(user => {
 
-    localStorage.clear();
-    sessionStorage.clear();
-
-    document.getElementById("logoutModal").style.display = "none";
-
+  if (!user) {
     window.location.href = "signin.html";
+    return;
+  }
 
-}).catch(error => {
+  const uid = user.uid;
+  document.getElementById("user-email").textContent = user.email;
 
-    console.error("Logout error:", error);
+  /* KEEP ALL YOUR EXISTING CODE BELOW */
 
-    document.getElementById("logoutModal").style.display = "none";
+  function loadEarnings() {
+      ...
+  }
+
+  loadEarnings();
+
+  db.ref("referralPurchases/" + uid).on("value", loadEarnings);
+  db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
+  db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
+
+  db.ref("users/" + uid).on("value", snap => {
+      userData = snap.val() || {};
+      render();
+  });
+
+  db.ref("deposits/" + uid).on("value", snap => {
+      depositUser = sumSnapshot(snap);
+      render();
+  });
+
+  db.ref("deposits").on("value", snap => {
+      depositGlobal = sumSnapshot(snap);
+      render();
+  });
 
 });
 
