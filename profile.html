@@ -370,35 +370,6 @@ auth.onAuthStateChanged(user => {
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
 
-  /* KEEP ALL YOUR EXISTING CODE BELOW */
-
-  function loadEarnings() {
-      ...
-  }
-
-  loadEarnings();
-
-  db.ref("referralPurchases/" + uid).on("value", loadEarnings);
-  db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
-  db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
-
-  db.ref("users/" + uid).on("value", snap => {
-      userData = snap.val() || {};
-      render();
-  });
-
-  db.ref("deposits/" + uid).on("value", snap => {
-      depositUser = sumSnapshot(snap);
-      render();
-  });
-
-  db.ref("deposits").on("value", snap => {
-      depositGlobal = sumSnapshot(snap);
-      render();
-  });
-
-});
-
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
 
