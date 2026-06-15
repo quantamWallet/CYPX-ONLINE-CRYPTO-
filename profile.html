@@ -366,10 +366,6 @@ auth.onAuthStateChanged(user => {
     window.location.href = "signin.html";
     return;
   }
-
-  const uid = user.uid;
-  document.getElementById("user-email").textContent = user.email;
-
   const uid = user.uid;
   document.getElementById("user-email").textContent = user.email;
 
@@ -448,42 +444,32 @@ auth.onAuthStateChanged(user => {
 /* LOGOUT */
 
 function logout() {
-
-  document.getElementById("logoutModal").style.display = "flex";
-
+    document.getElementById("logoutModal").style.display = "flex";
 }
 
-/* Cancel */
 document.getElementById("cancelLogout").onclick = function () {
-
-  document.getElementById("logoutModal").style.display = "none";
-
+    document.getElementById("logoutModal").style.display = "none";
 };
 
-/* Confirm Logout */
 document.getElementById("confirmLogout").onclick = function () {
 
-  auth.signOut()
+    auth.signOut()
     .then(() => {
 
-      localStorage.clear();
-      sessionStorage.clear();
+        localStorage.clear();
+        sessionStorage.clear();
 
-      document.getElementById("logoutModal").style.display = "none";
+        document.getElementById("logoutModal").style.display = "none";
 
-      /* Prevent returning to dashboard */
-      window.location.href = "signin.html";
+        window.location.href = "signin.html";
 
     })
     .catch(error => {
 
-      console.error("Logout error:", error);
+        console.error("Logout error:", error);
 
-      /* No alerts, no notifications */
-      document.getElementById("logoutModal").style.display = "none";
-
+        document.getElementById("logoutModal").style.display = "none";
     });
-
 };
 
 /* SAFETY */
