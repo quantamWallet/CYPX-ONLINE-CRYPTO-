@@ -41,8 +41,13 @@ try {
 
   const token = await getFCMToken();
 
-  alert('Token generated');
+alert('TOKEN START');
+alert(token);
+alert('TOKEN END');
 
+console.log('FCM Token:', token);
+
+alert('FCM Token generated');
   console.log(token);
 
 } catch (e) {
