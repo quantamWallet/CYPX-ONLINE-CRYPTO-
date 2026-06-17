@@ -43,32 +43,27 @@ if ('serviceWorker' in navigator) {
         alert(token);
 
         const auth = getAuth();
+const db = getDatabase();
 
-        alert('STEP 4');
+onAuthStateChanged(auth, async (user) => {
 
-        const db = getDatabase();
+  if (!user) {
+    alert('User still not loaded');
+    return;
+  }
 
-        alert('STEP 5');
+  alert('UID FOUND');
 
-        if (auth.currentUser) {
+  await update(
+    ref(db, 'users/' + user.uid),
+    {
+      fcmToken: token
+    }
+  );
 
-          alert('STEP 6');
+  alert('Token saved to database');
 
-          await update(
-            ref(db, 'users/' + auth.currentUser.uid),
-            {
-              fcmToken: token
-            }
-          );
-
-          alert('STEP 7');
-          alert('Token saved to database');
-
-        } else {
-
-          alert('No authenticated user found');
-
-        }
+});
 
       } catch (e) {
 
