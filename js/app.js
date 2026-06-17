@@ -15,7 +15,7 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-alert('APP VERSION 17');
+alert('APP.JS RUNNING ON DASHBOARD');
 
 console.log('Firebase initialized');
 alert('App loaded');
