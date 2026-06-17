@@ -1,5 +1,5 @@
 import { app } from './firebase-config.js';
-alert('APP VERSION 17');
+
 import {
   requestNotificationPermission,
   getFCMToken
@@ -15,6 +15,8 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
+alert('APP VERSION 17');
+
 console.log('Firebase initialized');
 alert('App loaded');
 
@@ -28,44 +30,65 @@ if ('serviceWorker' in navigator) {
 
       try {
 
-  alert('STEP 1');
+        alert('STEP 1');
 
-  await requestNotificationPermission();
+        await requestNotificationPermission();
 
-  alert('STEP 2');
+        alert('STEP 2');
 
-  const token = await getFCMToken();
+        const token = await getFCMToken();
 
-  alert('STEP 3');
+        alert('STEP 3');
 
-  alert(token);
+        alert(token);
 
-  const auth = getAuth();
+        const auth = getAuth();
 
-  alert('STEP 4');
+        alert('STEP 4');
 
-  const db = getDatabase();
+        const db = getDatabase();
 
-  alert('STEP 5');
+        alert('STEP 5');
 
-  if (auth.currentUser) {
+        if (auth.currentUser) {
 
-    alert('STEP 6');
+          alert('STEP 6');
 
-    await update(
-      ref(db, 'users/' + auth.currentUser.uid),
-      {
-        fcmToken: token
+          await update(
+            ref(db, 'users/' + auth.currentUser.uid),
+            {
+              fcmToken: token
+            }
+          );
+
+          alert('STEP 7');
+          alert('Token saved to database');
+
+        } else {
+
+          alert('No authenticated user found');
+
+        }
+
+      } catch (e) {
+
+        alert('ERROR');
+
+        if (e.message) {
+          alert(e.message);
+        }
+
+        console.error(e);
+
       }
-    );
 
-    alert('STEP 7');
-  }
+    })
+    .catch(error => {
 
-} catch (e) {
+      console.error('Service Worker Error', error);
 
-  alert('ERROR');
-  alert(e.message);
-  alert(JSON.stringify(e));
+      alert('Service Worker Error: ' + error);
 
-      }
+    });
+
+}
