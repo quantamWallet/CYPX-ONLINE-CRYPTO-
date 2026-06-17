@@ -22,7 +22,7 @@ from "https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging.js";
 export async function getFCMToken() {
 
   const token = await getToken(messaging, {
-    vapidKey: "YOUR_VAPID_KEY"
+    vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
   });
 
   console.log(token);
