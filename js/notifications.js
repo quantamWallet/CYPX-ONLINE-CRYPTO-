@@ -24,7 +24,7 @@ export async function getFCMToken() {
     await navigator.serviceWorker.ready;
 
   const token = await getToken(messaging, {
-    vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+    vapidKey: "BA5WTygmBXbFaID-siEqdgUsIE9a9NbSA2I3Pd0gQBLU4KFaI0IcaNdpUaJA-ry9-gDGrCi5AP8foATgGgO-CUQ",
     serviceWorkerRegistration: registration
   });
 
