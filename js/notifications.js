@@ -29,3 +29,26 @@ export async function getFCMToken() {
 
   return token;
 }
+const notifications = [
+  {
+    title: "New Message",
+    message: "John sent you a message"
+  },
+  {
+    title: "Order Received",
+    message: "You have a new order"
+  }
+];
+
+const container =
+  document.getElementById("notifications-list");
+
+notifications.forEach(notification => {
+
+  container.innerHTML += `
+    <div class="notification-card">
+      <h3>${notification.title}</h3>
+      <p>${notification.message}</p>
+    </div>
+  `;
+});
