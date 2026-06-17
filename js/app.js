@@ -5,6 +5,16 @@ import {
   getFCMToken
 } from './notifications.js';
 
+import {
+  getAuth
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  update
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
 console.log('Firebase initialized');
 alert('App loaded');
 
@@ -14,73 +24,39 @@ if ('serviceWorker' in navigator) {
     .register('/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js')
     .then(async (registration) => {
 
-      console.log(
-        'Service Worker Registered',
-        registration
-      );
-
       alert('Service Worker Registered');
 
       try {
 
-  alert('Before permission');
+        await requestNotificationPermission();
 
-  await requestNotificationPermission();
+        const token = await getFCMToken();
 
-  alert('Permission completed');
+        const auth = getAuth();
+        const db = getDatabase();
 
-} catch (e) {
+        if (auth.currentUser) {
 
-  alert('Permission error: ' + e);
+          await update(
+            ref(db, 'users/' + auth.currentUser.uid),
+            {
+              fcmToken: token
+            }
+          );
 
-}
+          alert('Token saved to database');
+        }
 
-try {
+        alert(token);
 
-  alert('Before token');
+      } catch (e) {
 
-  const token = await getFCMToken();
-const auth = getAuth();
-const db = getDatabase();
+        alert('Error: ' + e);
 
-if (auth.currentUser) {
-
-  await update(
-    ref(db, 'users/' + auth.currentUser.uid),
-    {
-      fcmToken: token
-    }
-  );
-
-  console.log('FCM token saved');
-}
-alert('TOKEN START');
-alert(token);
-alert('TOKEN END');
-
-alert('AFTER TOKEN');
-
-console.log('FCM Token:', token);
-
-alert('FCM Token generated');
-  console.log(token);
-
-} catch (e) {
-
-  alert('Token error: ' + e);
-
-}
-      console.log('FCM Token:', token);
-
-      alert('FCM Token generated');
+      }
 
     })
     .catch(error => {
-
-      console.error(
-        'Service Worker Error',
-        error
-      );
 
       alert('Service Worker Error: ' + error);
 
