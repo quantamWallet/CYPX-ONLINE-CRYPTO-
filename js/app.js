@@ -1,5 +1,5 @@
 import { app } from './firebase-config.js';
-
+alert('APP VERSION 17');
 import {
   requestNotificationPermission,
   getFCMToken
