@@ -1,14 +1,11 @@
 import { app } from './firebase-config.js';
 
-console.log('Firebase initialized');
-import { requestNotificationPermission }
-from './notifications.js';
-
-requestNotificationPermission();
 import {
   requestNotificationPermission,
   getFCMToken
 } from './notifications.js';
+
+console.log('Firebase initialized');
 
 requestNotificationPermission();
 
@@ -23,7 +20,7 @@ getFCMToken()
 if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker
-    .register('/firebase-messaging-sw.js')
+    .register('./firebase-messaging-sw.js')
     .then(registration => {
       console.log(
         'Service Worker Registered',
