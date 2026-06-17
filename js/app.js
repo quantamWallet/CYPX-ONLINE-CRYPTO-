@@ -6,7 +6,8 @@ import {
 } from './notifications.js';
 
 import {
-  getAuth
+  getAuth,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
 import {
@@ -24,7 +25,7 @@ if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker
     .register('/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js')
-    .then(async (registration) => {
+    .then(async () => {
 
       alert('Service Worker Registered');
 
@@ -39,31 +40,39 @@ if ('serviceWorker' in navigator) {
         const token = await getFCMToken();
 
         alert('STEP 3');
-
         alert(token);
 
         const auth = getAuth();
-const db = getDatabase();
+        const db = getDatabase();
 
-onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, async (user) => {
 
-  if (!user) {
-    alert('User still not loaded');
-    return;
-  }
+          if (!user) {
+            alert('User still not loaded');
+            return;
+          }
 
-  alert('UID FOUND');
+          alert('UID FOUND');
 
-  await update(
-    ref(db, 'users/' + user.uid),
-    {
-      fcmToken: token
-    }
-  );
+          try {
 
-  alert('Token saved to database');
+            await update(
+              ref(db, 'users/' + user.uid),
+              {
+                fcmToken: token
+              }
+            );
 
-});
+            alert('Token saved to database');
+
+          } catch (err) {
+
+            alert('Database save error');
+            alert(err.message);
+
+          }
+
+        });
 
       } catch (e) {
 
