@@ -6,10 +6,20 @@ from './notifications.js';
 
 requestNotificationPermission();
 import {
+  requestNotificationPermission,
   getFCMToken
 } from './notifications.js';
 
-getFCMToken();
+requestNotificationPermission();
+
+getFCMToken()
+  .then(token => {
+    console.log('FCM Token:', token);
+  })
+  .catch(error => {
+    console.error('FCM Error:', error);
+  });
+
 if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker
@@ -19,5 +29,12 @@ if ('serviceWorker' in navigator) {
         'Service Worker Registered',
         registration
       );
+    })
+    .catch(error => {
+      console.error(
+        'Service Worker Error',
+        error
+      );
     });
+
 }
