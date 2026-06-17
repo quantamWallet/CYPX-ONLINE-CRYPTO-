@@ -7,15 +7,17 @@ import {
 
 console.log('Firebase initialized');
 alert('App loaded');
+
 requestNotificationPermission();
 
 getFCMToken()
   .then(token => {
     console.log('FCM Token:', token);
+    alert('FCM Token generated');
   })
-  alert('FCM Token generated');
   .catch(error => {
     console.error('FCM Error:', error);
+    alert('FCM Error: ' + error);
   });
 
 if ('serviceWorker' in navigator) {
@@ -26,14 +28,17 @@ if ('serviceWorker' in navigator) {
       console.log(
         'Service Worker Registered',
         registration
-        alert('Service Worker Registered');
       );
+
+      alert('Service Worker Registered');
     })
     .catch(error => {
       console.error(
         'Service Worker Error',
         error
       );
+
+      alert('Service Worker Error: ' + error);
     });
 
 }
