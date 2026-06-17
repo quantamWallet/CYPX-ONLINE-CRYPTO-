@@ -28,7 +28,5 @@ export async function getFCMToken() {
     serviceWorkerRegistration: registration
   });
 
-  console.log(token);
-
   return token;
 }
