@@ -5,3 +5,8 @@ import { requestNotificationPermission }
 from './notifications.js';
 
 requestNotificationPermission();
+import {
+  getFCMToken
+} from './notifications.js';
+
+getFCMToken();
