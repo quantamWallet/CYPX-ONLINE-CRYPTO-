@@ -40,7 +40,20 @@ try {
   alert('Before token');
 
   const token = await getFCMToken();
+const auth = getAuth();
+const db = getDatabase();
 
+if (auth.currentUser) {
+
+  await update(
+    ref(db, 'users/' + auth.currentUser.uid),
+    {
+      fcmToken: token
+    }
+  );
+
+  console.log('FCM token saved');
+}
 alert('TOKEN START');
 alert(token);
 alert('TOKEN END');
