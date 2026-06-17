@@ -45,6 +45,8 @@ alert('TOKEN START');
 alert(token);
 alert('TOKEN END');
 
+alert('AFTER TOKEN');
+
 console.log('FCM Token:', token);
 
 alert('FCM Token generated');
