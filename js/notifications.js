@@ -29,26 +29,40 @@ export async function getFCMToken() {
 
   return token;
 }
-const notifications = [
-  {
-    title: "New Message",
-    message: "John sent you a message"
-  },
-  {
-    title: "Order Received",
-    message: "You have a new order"
-  }
-];
+document.addEventListener("DOMContentLoaded", () => {
 
-const container =
-  document.getElementById("notifications-list");
+  const container =
+    document.getElementById("notifications-list");
 
-notifications.forEach(notification => {
+  if (!container) return;
 
-  container.innerHTML += `
-    <div class="notification-card">
+  const notifications = [
+    {
+      title: "New Message",
+      message: "John sent you a message",
+      time: "Just now"
+    },
+    {
+      title: "Order Received",
+      message: "You have a new order",
+      time: "5 min ago"
+    }
+  ];
+
+  notifications.forEach(notification => {
+
+    const card = document.createElement("div");
+
+    card.className = "notification-card";
+
+    card.innerHTML = `
       <h3>${notification.title}</h3>
       <p>${notification.message}</p>
-    </div>
-  `;
+      <small>${notification.time}</small>
+    `;
+
+    container.appendChild(card);
+
+  });
+
 });
