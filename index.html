@@ -254,9 +254,26 @@ body {
         transform: rotate(360deg);
     }
 }
+    #toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast {
+  width: 320px;
+  padding: 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  background: rgba(30,30,30,.8);
+  color: white;
+  margin-bottom: 10px;
+    }
 </style>
 </head>
 <body>
+    <div id="toast-container"></div>
 <div id="auth-loader">
     <img src="cypx_icon_192x192.png" alt="CYPX Logo">
     <div class="spinner"></div>
@@ -461,7 +478,22 @@ onAuthStateChanged(auth, (user) => {
     }
 
 });
-    
+   function showToast(title, message) {
+  const toast = document.createElement("div");
+
+  toast.className = "toast";
+
+  toast.innerHTML = `
+    <h4>${title}</h4>
+    <p>${message}</p>
+  `;
+
+  document
+    .getElementById("toast-container")
+    .appendChild(toast);
+
+  setTimeout(() => toast.remove(), 5000);
+    } 
 </script>
 
 <script>
