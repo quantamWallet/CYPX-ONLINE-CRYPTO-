@@ -20,12 +20,14 @@ export async function requestNotificationPermission() {
 
 export async function getFCMToken() {
 
-  const registration = await navigator.serviceWorker.ready;
+  const registration =
+    await navigator.serviceWorker.ready;
 
-const token = await getToken(messaging, {
-  vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
-  serviceWorkerRegistration: registration
-});
+  const token = await getToken(messaging, {
+    vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+    serviceWorkerRegistration: registration
+  });
+
   console.log(token);
 
   return token;
