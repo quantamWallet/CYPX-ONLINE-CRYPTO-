@@ -28,38 +28,44 @@ if ('serviceWorker' in navigator) {
 
       try {
 
-        await requestNotificationPermission();
+  alert('STEP 1');
 
-        const token = await getFCMToken();
+  await requestNotificationPermission();
 
-        const auth = getAuth();
-        const db = getDatabase();
+  alert('STEP 2');
 
-        if (auth.currentUser) {
+  const token = await getFCMToken();
 
-          await update(
-            ref(db, 'users/' + auth.currentUser.uid),
-            {
-              fcmToken: token
-            }
-          );
+  alert('STEP 3');
 
-          alert('Token saved to database');
-        }
+  alert(token);
 
-        alert(token);
+  const auth = getAuth();
 
-      } catch (e) {
+  alert('STEP 4');
 
-        alert('Error: ' + e);
+  const db = getDatabase();
+
+  alert('STEP 5');
+
+  if (auth.currentUser) {
+
+    alert('STEP 6');
+
+    await update(
+      ref(db, 'users/' + auth.currentUser.uid),
+      {
+        fcmToken: token
+      }
+    );
+
+    alert('STEP 7');
+  }
+
+} catch (e) {
+
+  alert('ERROR');
+  alert(e.message);
+  alert(JSON.stringify(e));
 
       }
-
-    })
-    .catch(error => {
-
-      alert('Service Worker Error: ' + error);
-
-    });
-
-}
