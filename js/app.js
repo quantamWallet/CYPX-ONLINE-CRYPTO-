@@ -21,10 +21,35 @@ if ('serviceWorker' in navigator) {
 
       alert('Service Worker Registered');
 
-      await requestNotificationPermission();
+      try {
 
-      const token = await getFCMToken();
+  alert('Before permission');
 
+  await requestNotificationPermission();
+
+  alert('Permission completed');
+
+} catch (e) {
+
+  alert('Permission error: ' + e);
+
+}
+
+try {
+
+  alert('Before token');
+
+  const token = await getFCMToken();
+
+  alert('Token generated');
+
+  console.log(token);
+
+} catch (e) {
+
+  alert('Token error: ' + e);
+
+}
       console.log('FCM Token:', token);
 
       alert('FCM Token generated');
