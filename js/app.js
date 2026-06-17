@@ -20,7 +20,7 @@ getFCMToken()
 if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker
-    .register('./firebase-messaging-sw.js')
+    .register('/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js')
     .then(registration => {
       console.log(
         'Service Worker Registered',
