@@ -16,7 +16,6 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-
 console.log('Firebase initialized');
 
 if ('serviceWorker' in navigator) {
@@ -30,7 +29,6 @@ if ('serviceWorker' in navigator) {
         await requestNotificationPermission();
 
         const token = await getFCMToken();
-        alert(token);
 
         const auth = getAuth();
         const db = getDatabase();
@@ -38,9 +36,9 @@ if ('serviceWorker' in navigator) {
         onAuthStateChanged(auth, async (user) => {
 
           if (!user) {
-            alert('User still not loaded');
             return;
           }
+
           try {
 
             await update(
@@ -52,8 +50,7 @@ if ('serviceWorker' in navigator) {
 
           } catch (err) {
 
-            alert('Database save error');
-            alert(err.message);
+            console.error('Database save error', err);
 
           }
 
@@ -61,13 +58,7 @@ if ('serviceWorker' in navigator) {
 
       } catch (e) {
 
-        alert('ERROR');
-
-        if (e.message) {
-          alert(e.message);
-        }
-
-        console.error(e);
+        console.error('FCM Error', e);
 
       }
 
@@ -76,8 +67,6 @@ if ('serviceWorker' in navigator) {
 
       console.error('Service Worker Error', error);
 
-      alert('Service Worker Error: ' + error);
-
     });
 
-}
+              }
