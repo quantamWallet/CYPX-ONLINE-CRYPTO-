@@ -16,10 +16,8 @@ import {
   update
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
-alert('APP.JS RUNNING ON DASHBOARD');
 
 console.log('Firebase initialized');
-alert('App loaded');
 
 if ('serviceWorker' in navigator) {
 
@@ -27,19 +25,11 @@ if ('serviceWorker' in navigator) {
     .register('/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js')
     .then(async () => {
 
-      alert('Service Worker Registered');
-
       try {
-
-        alert('STEP 1');
 
         await requestNotificationPermission();
 
-        alert('STEP 2');
-
         const token = await getFCMToken();
-
-        alert('STEP 3');
         alert(token);
 
         const auth = getAuth();
@@ -51,9 +41,6 @@ if ('serviceWorker' in navigator) {
             alert('User still not loaded');
             return;
           }
-
-          alert('UID FOUND');
-
           try {
 
             await update(
@@ -62,8 +49,6 @@ if ('serviceWorker' in navigator) {
                 fcmToken: token
               }
             );
-
-            alert('Token saved to database');
 
           } catch (err) {
 
