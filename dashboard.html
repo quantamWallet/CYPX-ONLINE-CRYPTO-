@@ -823,14 +823,14 @@ window.addEventListener("appinstalled", () => {
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register(
-  '/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'
-);
-    .then(reg => {
-      console.log("SW registered:", reg.scope);
-    })
-    .catch(err => {
-      console.error("SW failed:", err);
-    });
+'/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'
+)
+.then(reg => {
+  console.log("SW registered:", reg.scope);
+})
+.catch(err => {
+  console.error("SW failed:", err);
+});
 }
 <!-- Firebase Messaging -->
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
