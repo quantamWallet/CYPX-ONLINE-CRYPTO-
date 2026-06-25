@@ -809,3 +809,256 @@ auth.onAuthStateChanged(function(user) {
       list.innerHTML = "";  
   
       const vipData = [1000,5000,10000,15000,25000,35000,50000,80000,120000,190000,250000,350000,450000,600000,700000,1000000];
+      vipData.forEach((amt, i) => {  
+        const lvl = i + 1;  
+        const unlocked = data[lvl] && data[lvl].unlocked === true;  
+  
+        const div = document.createElement("div");  
+        div.className = "vip-box";  
+  
+        div.innerHTML = `  
+          <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">  
+          <div class="info">  
+            <p>Unlock amount: <span class="amount">KSh ${amt.toLocaleString()}</span></p>  
+            <p>${unlocked ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>  
+          </div>  
+          <div class="arrow">»</div>  
+        `;  
+  
+        div.querySelector(".arrow").onclick = () => {  
+          if (unlocked) {  
+            showPopup("VIP " + lvl + " unlocked");  
+          } else {  
+            showPopup("Unlock VIP first", true);  
+          }  
+        };  
+  
+        list.appendChild(div);  
+      });  
+    });  
+  
+    /* =========================  
+       COUNTDOWN  
+    ========================= */  
+    function startCountdown() {  
+      const countdown = document.getElementById("countdown");  
+      let start = localStorage.getItem("countdownStart");  
+  
+      if (!start) {  
+        start = Date.now();  
+        localStorage.setItem("countdownStart", start);  
+      }  
+  
+      setInterval(() => {  
+        let diff = 86400000 - (Date.now() - start);  
+  
+        if (diff <= 0) {  
+          start = Date.now();  
+          localStorage.setItem("countdownStart", start);  
+          diff = 86400000;  
+        }  
+  
+        const h = Math.floor(diff / 3600000);  
+        const m = Math.floor((diff % 3600000) / 60000);  
+        const s = Math.floor((diff % 60000) / 1000);  
+  
+        countdown.textContent =  
+          `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;  
+      }, 1000);  
+    }  
+  
+    startCountdown();  
+  });  
+  
+  function showPopup(msg, red = false) {  
+    const popup = document.createElement("div");  
+    popup.className = "popup" + (red ? " red" : "");  
+    popup.textContent = msg;  
+    document.body.appendChild(popup);  
+    setTimeout(() => popup.remove(), 3000);  
+  }  
+};  
+    
+        </script>  
+    <!-- Telegram Floating Button -->  
+<a href="https://t.me/cypxholdings" target="_blank" class="telegram-float">  
+    <i class="fab fa-telegram-plane"></i>  
+</a>   
+  <!-- Install App Button -->  
+<button id="installBtn" style="  
+display:none;  
+position:fixed;  
+top:90px;  
+right:15px;  
+z-index:9999;  
+padding:12px 18px;  
+border:none;  
+border-radius:14px;  
+background:linear-gradient(135deg,#00e0ff,#00ffaa);  
+color:#001f3f;  
+font-weight:700;  
+font-size:15px;  
+box-shadow:0 8px 20px rgba(0,0,0,.35);  
+cursor:pointer;  
+">  
+📲 Install App  
+</button>  
+  
+<script>  
+let deferredPrompt;  
+const installBtn = document.getElementById("installBtn");  
+  
+/* Detect install prompt */  
+window.addEventListener("beforeinstallprompt", (e) => {  
+  e.preventDefault();  
+  
+  deferredPrompt = e;  
+  installBtn.style.display = "block";  
+});  
+  
+/* Install click */  
+installBtn.addEventListener("click", async () => {  
+  if (!deferredPrompt) return;  
+  
+  deferredPrompt.prompt();  
+  
+  const { outcome } = await deferredPrompt.userChoice;  
+  
+  if (outcome === "accepted") {  
+    console.log("App installed");  
+  }  
+  
+  deferredPrompt = null;  
+  installBtn.style.display = "none";  
+});  
+  
+/* Hide if already installed */  
+window.addEventListener("appinstalled", () => {  
+  installBtn.style.display = "none";  
+});  
+  </script>    
+<script>  
+if ("serviceWorker" in navigator) {  
+  navigator.serviceWorker.register(  
+  '/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'  
+);  
+    .then(reg => {  
+      console.log("SW registered:", reg.scope);  
+    })  
+    .catch(err => {  
+      console.error("SW failed:", err);  
+    });  
+}  
+<!-- Firebase Messaging -->  
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>  
+  
+<script>  
+const messaging = firebase.messaging();  
+  
+async function enableNotifications() {  
+  try {  
+  
+    // Ask permission FIRST  
+    const permission =  
+      await Notification.requestPermission();  
+  
+    if (permission !== "granted") {  
+      console.log("Notification denied");  
+      return;  
+    }  
+  
+    // Register service worker  
+    const registration =  
+      await navigator.serviceWorker.register(  
+        "./firebase-messaging-sw.js"  
+      );  
+  
+    console.log("SW REGISTERED");  
+  
+    // Wait until active  
+    await navigator.serviceWorker.ready;  
+  
+    // Get token  
+    const token =  
+      await messaging.getToken({  
+        vapidKey:  
+        "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",  
+  
+        serviceWorkerRegistration:  
+        registration  
+      });  
+  
+    console.log("TOKEN:", token);  
+  
+    if (!token) {  
+      console.log("No token generated");  
+      return;  
+    }  
+  
+    const user =  
+      firebase.auth().currentUser;  
+  
+    if (user) {  
+  
+      await firebase.database()  
+      .ref(  
+        "users/" +  
+        user.uid +  
+        "/fcmToken"  
+      )  
+      .set(token);  
+  
+      console.log(  
+        "Token saved to Firebase"  
+      );  
+    }  
+  
+  } catch (err) {  
+    console.error(  
+      "FCM ERROR:",  
+      err  
+    );  
+  }  
+}  
+  
+/* Run after login */  
+firebase.auth()  
+.onAuthStateChanged(user => {  
+  
+  if (user) {  
+    enableNotifications();  
+  }  
+  
+});  
+  
+/* Direct notifications */  
+messaging.onMessage(payload => {  
+  
+  navigator.serviceWorker  
+  .getRegistration()  
+  .then(registration => {  
+  
+    if (registration) {  
+      registration.showNotification(  
+        payload.notification.title,  
+        {  
+          body:  
+          payload.notification.body,  
+  
+          icon:  
+          "cypx_icon_192x192.png",  
+  
+          badge:  
+          "cypx_icon_192x192.png"  
+        }  
+      );  
+    }  
+  
+  });  
+  
+});  
+</script>  
+    <script>  
+    </script>  
+  <script type="module" src="./js/app.js"></script>  
+  </body>
