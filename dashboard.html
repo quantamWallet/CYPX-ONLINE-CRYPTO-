@@ -1,0 +1,717 @@
+<!DOCTYPE html>    
+<html lang="en">    
+  <head>    
+    <meta charset="UTF-8" />    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>    
+    <title>CYPX HOLDINGS - Dashboard</title>    
+    <link rel="manifest" href="/CYPX-ONLINE-CRYPTO-/manifest.json">  
+<meta name="theme-color" content="#007a54">  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />    
+    
+    <!-- Firebase SDK (compat version) -->    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>    
+    <script>    
+      const firebaseConfig = {    
+        apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",    
+        authDomain: "quantum-rio.firebaseapp.com",    
+        databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",    
+        projectId: "quantum-rio",    
+        storageBucket: "quantum-rio.firebasestorage.app",    
+        messagingSenderId: "805433999377",    
+        appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",    
+        measurementId: "G-4RSQXZJX44"    
+      };    
+      firebase.initializeApp(firebaseConfig);    
+      const database = firebase.database();    
+      const auth = firebase.auth();   
+        
+      function formatMoney(amount) {  
+  return new Intl.NumberFormat('en-KE', {  
+    minimumFractionDigits: 2,  
+    maximumFractionDigits: 2  
+  }).format(amount);  
+      }  
+    </script>    
+    
+    <style>    
+      body {    
+        margin: 0;    
+        font-family: Arial, sans-serif;    
+        background-color: #001f3f;    
+        color: white;    
+      }    
+      header {    
+        background-color: #002f6c;    
+        padding: 15px;    
+        display: flex;    
+        justify-content: space-between;    
+        align-items: center;    
+      }    
+      .announcement {    
+        background-color: #00274d;    
+        color: #fff700;    
+        padding: 10px;    
+        white-space: nowrap;    
+        overflow: hidden;    
+        box-sizing: border-box;    
+        border-top: 1px solid #003;    
+        border-bottom: 1px solid #003;    
+        cursor: pointer;    
+      }    
+      .announcement-content {    
+        display: inline-block;    
+        padding-left: 100%;    
+        animation: scroll-left 15s linear infinite;    
+      }    
+      @keyframes scroll-left {    
+        0% { transform: translateX(0); }    
+        100% { transform: translateX(-100%); }    
+      }    
+        
+      .extra-info {    
+        padding: 15px;    
+        text-align: center;    
+      }    
+      .extra-info img {    
+        max-width: 90%;    
+        border-radius: 8px;    
+        margin-bottom: 15px;    
+      }    
+      .extra-info p {    
+        font-size: 14px;    
+        margin: 10px 0;    
+      }    
+      .claim-btn {    
+        background-color: #ffcc00;    
+        color: black;    
+        padding: 8px 20px;    
+        font-weight: bold;    
+        border: none;    
+        border-radius: 8px;    
+        cursor: pointer;    
+      }    
+      .popup {    
+        position: fixed;    
+        top: 50%;    
+        left: 50%;    
+        transform: translate(-50%, -50%);    
+        background-color: #28a745;    
+        color: white;    
+        padding: 20px;    
+        border-radius: 10px;    
+        font-weight: bold;    
+        z-index: 9999;    
+        max-width: 80%;    
+        text-align: center;    
+      }    
+      .popup.red {    
+        background-color: #cc0000;    
+      }    
+      .task-countdown {    
+        background-color: #001a33;    
+        text-align: center;    
+        padding: 10px;    
+        font-weight: bold;    
+        color: #ffcc00;    
+      }    
+    
+        
+   .balance-section {  
+  padding: 20px;  
+  background: linear-gradient(180deg, #002b5c, #001f3f);  
+}  
+  
+/* Email */  
+.balance-section .email {  
+  font-size: 13px;  
+  color: #9fb0cf;  
+  margin-bottom: 10px;  
+}  
+  
+/* Card */  
+.balance-card {  
+  background: linear-gradient(145deg, #003f88, #002f6c);  
+  padding: 18px;  
+  border-radius: 16px;  
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);  
+  text-align: left;  
+  margin-bottom: 20px;  
+}  
+  
+/* Labels */  
+.balance-card .label {  
+  font-size: 13px;  
+  color: #9fb0cf;  
+  margin-bottom: 6px;  
+}  
+  
+/* Main balance */  
+.balance-card h1 {  
+  font-size: 28px;  
+  color: #ffd700;  
+  margin: 0 0 15px 0;  
+  letter-spacing: 1px;  
+}  
+  
+/* Stats row */  
+.balance-stats {  
+  display: flex;  
+  justify-content: space-between;  
+  gap: 10px;  
+}  
+  
+.balance-stats div {  
+  flex: 1;  
+  background: rgba(255,255,255,0.05);  
+  padding: 10px;  
+  border-radius: 10px;  
+  text-align: center;  
+}  
+  
+.balance-stats h3 {  
+  margin: 5px 0 0;  
+  color: #fff;  
+  font-size: 16px;  
+}  
+  
+/* Buttons */  
+.balance-buttons {  
+  display: flex;  
+  gap: 10px;  
+  margin-top: 10px;  
+}  
+  
+.balance-buttons button {  
+  flex: 1;  
+  background: linear-gradient(145deg, #ffcc00, #ffaa00);  
+  color: #000;  
+  padding: 12px;  
+  border: none;  
+  border-radius: 12px;  
+  font-weight: 600;  
+  font-size: 13px;  
+  display: flex;  
+  flex-direction: column;  
+  align-items: center;  
+  gap: 4px;  
+  cursor: pointer;  
+  transition: 0.2s;  
+}  
+  
+.balance-buttons button:hover {  
+  transform: translateY(-2px);  
+}  
+  
+.balance-buttons button i {  
+  font-size: 18px;  
+}   
+    
+      .vip-list {    
+        padding: 10px;    
+      }    
+      .vip-box {    
+        background-color: #003366;    
+        margin: 10px 0;    
+        padding: 10px;    
+        border-radius: 10px;    
+        display: flex;    
+        align-items: center;    
+        justify-content: space-between;    
+      }    
+      .vip-box img {    
+        height: 50px;    
+        margin-right: 10px;    
+      }    
+      .vip-box .info {    
+        flex-grow: 1;    
+      }    
+      .vip-box .info p {    
+        margin: 0;    
+      }    
+      .vip-box .info .amount {    
+        font-weight: bold;    
+        color: yellow;    
+      }    
+      .vip-box .arrow {    
+        font-size: 24px;    
+        color: white;    
+        cursor: pointer;    
+      }    
+      .vip-images {    
+        display: flex;    
+        justify-content: center;    
+        gap: 10px;    
+        padding: 20px 10px 80px;    
+      }    
+      .vip-images img {    
+        width: 48%;    
+        border-radius: 10px;    
+      }    
+      nav {    
+        position: fixed;    
+        bottom: 0;    
+        left: 0;    
+        right: 0;    
+        background-color: #002244;    
+        display: flex;    
+        justify-content: space-around;    
+        padding: 10px 0;    
+      }    
+      nav a {    
+        color: white;    
+        text-align: center;    
+        text-decoration: none;    
+      }    
+      nav i {    
+        font-size: 20px;    
+      }    
+      #announcementModal {    
+        display: none;    
+        position: fixed;    
+        z-index: 9999;    
+        left: 0;    
+        top: 0;    
+        width: 100%;    
+        height: 100%;    
+        background-color: white;    
+        color: #002f6c;    
+        padding: 20px;    
+        overflow-y: scroll;    
+      }    
+      #announcementModal button {    
+        margin-top: 20px;    
+        margin-bottom: 40px;    
+        padding: 10px 20px;    
+        background-color: #ffcc00;    
+        border: none;    
+        font-weight: bold;    
+        cursor: pointer;    
+        border-radius: 5px;    
+      }    
+    
+      /* small helper for style */    
+      .small-muted { color: #9fb0cf; font-size:13px; }    
+      /* TELEGRAM FLOAT BUTTON */  
+.telegram-float {  
+    position: fixed;  
+    bottom: 85px; /* above bottom nav */  
+    right: 18px;  
+    width: 62px;  
+    height: 62px;  
+    background: linear-gradient(145deg, #27A5E7, #0088cc);  
+    border-radius: 50%;  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    text-decoration: none;  
+    z-index: 9999;  
+  
+    /* Premium shadow */  
+    box-shadow:  
+        0 6px 18px rgba(0, 136, 204, 0.45),  
+        inset 0 2px 6px rgba(255,255,255,0.25);  
+  
+    transition: all 0.25s ease;  
+    animation: telegramPulse 2s infinite;  
+}  
+  
+/* Telegram Icon */  
+.telegram-float i {  
+    color: white;  
+    font-size: 30px;  
+    transform: translateX(-2px);  
+}  
+  
+/* Hover / tap effect */  
+.telegram-float:hover {  
+    transform: scale(1.08);  
+}  
+  
+/* Mobile tap effect */  
+.telegram-float:active {  
+    transform: scale(0.95);  
+}  
+  
+/* Soft pulse animation */  
+@keyframes telegramPulse {  
+    0% {  
+        box-shadow:  
+        0 0 0 0 rgba(0,136,204,0.5);  
+    }  
+  
+    70% {  
+        box-shadow:  
+        0 0 0 14px rgba(0,136,204,0);  
+    }  
+  
+    100% {  
+        box-shadow:  
+        0 0 0 0 rgba(0,136,204,0);  
+    }  
+      }  
+      background:#071c35;
+card:#0d2a4a;
+accent:#ffd84d;
+text:#ffffff;
+muted:#9fb0cf;
+      border-radius:20px;
+    </style>    
+  </head>    
+  <body>    
+    <header>    
+      <div style="display: flex; align-items: center; gap: 10px;">    
+        <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />    
+        <h2 style="margin: 0;">CYPX HOLDINGS</h2>    
+      </div>    
+    </header>    
+    <div class="announcement" id="ann-btn">    
+      <div class="announcement-content">🛒Welcome to CYPX HOLDINGS 🛒 Recruiting investors and agents worldwide!</div>    
+    </div>    
+  
+      
+    <div class="balance-section">  
+  
+  <div class="email" id="user-email"></div>  
+  
+  <div class="balance-card">  
+    <p class="label">Total Balance</p>  
+    <h1 id="user-balance">KSh 0.00</h1>  
+  
+    <div class="balance-stats">  
+      <div>  
+        <p class="small-muted">Total Deposit</p>  
+        <h3 id="total-deposit">KSh 0.00</h3>  
+      </div>  
+      <div>  
+        <p class="small-muted">Total Earnings</p>  
+        <h3 id="total-earnings">KSh 0.00</h3>  
+      </div>  
+    </div>  
+  </div>  
+  
+  <div class="balance-buttons">  
+    <button onclick="location.href='deposit.html'">  
+      <i class="fas fa-wallet"></i>  
+      Deposit  
+    </button>  
+    <button onclick="location.href='withdraw.html'">  
+      <i class="fas fa-hand-holding-usd"></i>  
+      Withdraw  
+    </button>  
+    <div class="balance-stats">
+  <div>
+    <p class="small-muted">Active VIP</p>
+    <h3 id="active-vip">VIP 1</h3>
+  </div>
+
+  <div>
+    <p class="small-muted">Referral Income</p>
+    <h3 id="ref-income">KSh 0.00</h3>
+  </div>
+    </div>
+    <div class="activity-card">
+   <h3>Recent Activity</h3>
+   <div id="recent-activity"></div>
+    </div>
+    <button onclick="location.href='company.html'">  
+      <i class="fas fa-building"></i>  
+      Company  
+    </button>  
+      
+  </div>  
+  
+    </div>    
+    
+    <div class="extra-info">    
+      <div class="hero-banner">
+  <h2>Welcome Back</h2>
+  <p>Manage investments, track earnings and grow your portfolio.</p>
+      </div> 
+      <p>    
+        Improve VIP task rules on the same day. Upgrading the VIP level on the same day allows you to complete multiple tasks without restrict. Listed as: You are now VIP1 and have completed today's task. You can upgrade to VIP2 to continue completing VIP2 tasks. If you continue to upgrade to VIP3, you can continue to complete the tasks of VIP3. 【Similar to this, the highest level of VIP is VIP10】    
+      </p>    
+      <button class="claim-btn" id="claim-btn">Claim 100.00 KSH</button>    
+    </div>    
+    
+    <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>    
+    <div class="vip-list" id="vip-list"></div>    
+    <div class="vip-images">    
+      <img src="https://media.istockphoto.com/id/178447404/photo/modern-business-buildings.jpg?s=612x612&w=0&k=20&c=MOG9lvRz7WjsVyW3IiQ0srEzpaBPDcc7qxYsBCvAUJs=" alt="VIP Banner 1">    
+      <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueXxlbnwwfHwwfHx8MA%3D%3D" alt="VIP Banner 2">    
+    </div>    
+    
+    <nav>    
+      <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>    
+      <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>    
+      <a href="team.html"><i class="fas fa-users"></i><br>Team</a>    
+      <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>    
+      <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>    
+    </nav>    
+    
+    <div id="announcementModal">  
+  <h3>📢 Platform Update – CYPX HOLDINGS</h3>  
+  
+  <div style="font-size: 14px; line-height: 1.6;">  
+  
+    <p><strong>Welcome to CYPX HOLDINGS</strong></p>  
+  
+    <p>  
+      CYPX provides users with access to automated tools, account management features, and structured participation in digital asset markets.  
+    </p>  
+  
+    <hr style="margin:15px 0; opacity:0.2;">  
+  
+    <p><strong>🔹 Account & Transactions</strong></p>  
+    <ul>  
+      <li>Minimum deposit: <strong>2,000 KES</strong></li>  
+      <li>Minimum withdrawal: <strong>1,000 KES</strong></li>  
+      <li>Withdrawals are processed within <strong>24 hours</strong></li>  
+    </ul>  
+  
+    <p><strong>🔹 Activity Cycle</strong></p>  
+    <ul>  
+      <li>Tasks and account activity reset every 24 hours</li>  
+      <li>Users can participate daily based on account status</li>  
+    </ul>  
+  
+    <hr style="margin:15px 0; opacity:0.2;">  
+  
+    <p><strong>🔹 VIP Access Levels</strong></p>  
+    <p>  
+      VIP levels unlock additional platform features, higher activity limits, and enhanced account capabilities.  
+      Progression is based on cumulative account activity and participation.  
+    </p>  
+  
+    <hr style="margin:15px 0; opacity:0.2;">  
+  
+    <p><strong>🔹 Referral Program</strong></p>  
+    <p>  
+      Users can invite others to join the platform and receive structured rewards based on network activity.  
+      Rewards are distributed across multiple levels according to platform rules.  
+    </p>  
+  
+    <hr style="margin:15px 0; opacity:0.2;">  
+  
+    <p style="font-size:13px; opacity:0.7;">  
+      ⚠️ <strong>Risk Notice:</strong> Digital asset trading and participation involve risk.  
+      Returns are not guaranteed and may vary based on market conditions and user activity.  
+    </p>  
+  
+  </div>  
+  
+  <button onclick="closeAnnouncement()">Close</button>  
+    </div>  
+    
+    <script>  
+window.onload = function () {  
+  
+  /* =========================  
+     ANNOUNCEMENT FIX (100% WORKING)  
+  ========================= */  
+  const annBtn = document.getElementById("ann-btn");  
+  const modal = document.getElementById("announcementModal");  
+  
+  annBtn.addEventListener("click", () => {  
+    modal.style.display = "block";  
+  });  
+  
+  window.closeAnnouncement = function () {  
+    modal.style.display = "none";  
+  };  
+  
+  /* =========================  
+     AUTH  
+  ========================= */  
+  auth.onAuthStateChanged(function(user) {  
+    if (!user) {  
+      window.location.href = "landing.html";  
+      return;  
+    }  
+  
+    const uid = user.uid;  
+    document.getElementById("user-email").textContent = user.email;  
+  
+    const balanceRef = database.ref("users/" + uid + "/balance");  
+    const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");  
+  
+    /* =========================  
+       BALANCE (REALTIME)  
+    ========================= */  
+    balanceRef.on("value", snap => {  
+      const balance = Number(snap.val() || 0);  
+      document.getElementById("user-balance").textContent =  
+        "KSh " + formatMoney(balance);  
+    });  
+  
+    /* =========================  
+       TOTAL DEPOSITS (FIXED PROPERLY)  
+    ========================= */  
+    database.ref("deposits/" + uid).on("value", snap => {  
+      let totalDeposit = 0;  
+  
+      if (snap.exists()) {  
+        snap.forEach(child => {  
+          const d = child.val();  
+  
+          if (  
+            d.status &&  
+            d.status.toLowerCase().trim() === "approved"  
+          ) {  
+            totalDeposit += Number(d.amount || 0);  
+          }  
+        });  
+      }  
+  
+      document.getElementById("total-deposit").textContent =  
+        "KSh " + formatMoney(totalDeposit);  
+    });  
+  
+    /* =========================  
+       TOTAL EARNINGS (REAL FIX 🔥)  
+       ✔ referrals (ONLY approved)  
+       ✔ bonus  
+       ✔ vip earnings (if exists)  
+    ========================= */  
+    function loadTotalEarnings() {  
+  let total = 0;  
+  
+  // REFERRALS  
+  database.ref("referralPurchases/" + uid).once("value")  
+  .then(refSnap => {  
+  
+    if (refSnap.exists()) {  
+      refSnap.forEach(child => {  
+        const e = child.val();  
+  
+        if (e.status && e.status.toLowerCase() === "approved") {  
+          total += Number(e.price || e.amount || 0);  
+        }  
+      });  
+    }  
+  
+    // BONUS  
+    return database.ref("users/" + uid + "/hasClaimedBonus").once("value");  
+  })  
+  .then(bonusSnap => {  
+  
+    if (bonusSnap.val() === true) {  
+      total += 100;  
+    }  
+  
+    // ✅ FIXED: removed wrong semicolon + chained properly  
+    return database.ref("users/" + uid + "/vipEarnings").once("value");  
+  })  
+  .then(vipSnap => {  
+  
+    if (vipSnap.exists()) {  
+      vipSnap.forEach(child => {  
+        const v = child.val();  
+        total += Number(v.totalEarned || 0);  
+      });  
+    }  
+  
+    document.getElementById("total-earnings").textContent =  
+      "KSh " + formatMoney(total);  
+  })  
+  .catch(err => {  
+    console.error("Earnings error:", err);  
+  });  
+      }  
+  
+    // RUN + LIVE  
+    loadTotalEarnings();  
+    database.ref("referralPurchases/" + uid).on("value", loadTotalEarnings);  
+    database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);  
+    database.ref("users/" + uid + "/vipEarnings").on("value", loadTotalEarnings);  
+    /* =========================  
+   CLAIM BONUS (SAFE FIX 🔥)  
+========================= */  
+  
+const claimBtn = document.getElementById("claim-btn");  
+  
+auth.onAuthStateChanged(function(user) {  
+  
+  if (!user) return;  
+  
+  const uid = user.uid;  
+  
+  const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");  
+  const userRef = database.ref("users/" + uid);  
+  
+  // ✅ Keep button state synced  
+  claimedRef.on("value", snap => {  
+    if (snap.val() === true) {  
+      claimBtn.textContent = "Completed";  
+      claimBtn.disabled = true;  
+    } else {  
+      claimBtn.textContent = "Claim 100.00 KSH";  
+      claimBtn.disabled = false;  
+    }  
+  });  
+  
+  // ✅ Click handler  
+  claimBtn.onclick = function () {  
+  
+    if (claimBtn.disabled) return;  
+  
+    claimBtn.disabled = true;  
+    claimBtn.textContent = "Processing...";  
+  
+    userRef.transaction(userData => {  
+  
+      if (!userData) return userData;  
+  
+      // ❌ already claimed  
+      if (userData.hasClaimedBonus === true) {  
+        return userData;  
+      }  
+  
+      // ✅ apply bonus  
+      userData.balance = Number(userData.balance || 0) + 100;  
+      userData.hasClaimedBonus = true;  
+  
+      return userData;  
+  
+    }, (error, committed) => {  
+  
+      if (error) {  
+        console.error("Transaction failed:", error);  
+        claimBtn.disabled = false;  
+        claimBtn.textContent = "Claim 100.00 KSH";  
+        showPopup("Error, try again", true);  
+        return;  
+      }  
+  
+      if (!committed) {  
+        showPopup("Already claimed", true);  
+        return;  
+      }  
+  
+      // ✅ success  
+      claimBtn.textContent = "Completed";  
+      claimBtn.disabled = true;  
+  
+      showPopup("100 KSh successfully claimed");  
+  
+      // 🔁 refresh earnings safely (only if function exists)  
+      if (typeof loadTotalEarnings === "function") {  
+        loadTotalEarnings();  
+      }  
+  
+    });  
+  
+  };  
+  
+});  
+  
+    /* =========================  
+       VIP LIST (FIXED BOOLEAN CHECK)  
+    ========================= */  
+    const vipRef = database.ref("users/" + uid + "/vipLevels");  
+  
+    vipRef.on("value", snap => {  
+      const data = snap.val() || {};  
+      const list = document.getElementById("vip-list");  
+      list.innerHTML = "";  
+  
+      const vipData = [1000,5000,10000,15000,25000,35000,50000,80000,120000,190000,250000,350000,450000,600000,700000,1000000];
