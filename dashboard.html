@@ -407,8 +407,41 @@ nav i{
   color:#fff;
   font-size:28px;
 }
+      .popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:#16a34a;
+  color:white;
+  padding:15px 25px;
+  border-radius:12px;
+  z-index:99999;
+  font-weight:600;
+}
 
-  <body>
+.popup.red{
+  background:#dc2626;
+}
+      .hero-banner{
+  background:linear-gradient(135deg,#0f3f77,#154b8d);
+  padding:25px;
+  border-radius:20px;
+  margin-bottom:15px;
+  text-align:center;
+}
+
+.hero-banner h2{
+  margin-bottom:10px;
+}
+
+.hero-banner p{
+  color:#d6e2ff;
+}
+</style>
+</head>
+
+<body>
 
 <header>
   <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -432,14 +465,6 @@ nav i{
 
   </div>
 </header>
-
-  <div>
-    <h2 style="margin:0;font-size:20px;">CYPX HOLDINGS</h2>
-    <small style="color:#9fb0cf;">
-      Smart Investment Platform
-    </small>
-  </div>
-</div>
 
   </div>
 </header><div class="announcement" id="ann-btn">
@@ -936,21 +961,21 @@ window.addEventListener("appinstalled", () => {
   installBtn.style.display = "none";  
 });  
   </script>    
-<script>  
-if ("serviceWorker" in navigator) {  
-  navigator.serviceWorker.register(  
-  '/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'  
-);  
-    .then(reg => {  
-      console.log("SW registered:", reg.scope);  
-    })  
-    .catch(err => {  
-      console.error("SW failed:", err);  
-    });  
-}  
-<!-- Firebase Messaging -->  
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>  
-  
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register(
+'/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'
+)
+.then(reg => {
+  console.log("SW registered:", reg.scope);
+})
+.catch(err => {
+  console.error("SW failed:", err);
+});
+}
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
 <script>  
 const messaging = firebase.messaging();  
   
