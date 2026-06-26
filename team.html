@@ -561,10 +561,10 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const database=firebase.database();
-const auth=firebase.auth();
+const database = firebase.database();
+const auth = firebase.auth();
 
-const TEAM_TARGET=100;
+const TEAM_TARGET = 100;
 
 function animateValue(id,end){
 
@@ -622,25 +622,30 @@ auth.onAuthStateChanged(async(user)=>{
 if(!user){
 
 location.href="landing.html";
-
 return;
 
 }
 
 const uid=user.uid;
-let currentUsername = "";
+
+let currentUsername="";
+
 let purchasedReferralCount=0;
 
 let purchasedReferralDeposits=0;
 
-const usernameSnap=await database.ref("users/"+uid+"/username").once("value");
+const usernameSnap=await database
+.ref("users/"+uid+"/username")
+.once("value");
 
-currentUsername = usernameSnap.exists()
-? usernameSnap.val()
-: (user.email ? user.email.split("@")[0] : "user");
-const referralLink =
-"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=" +
+currentUsername=usernameSnap.exists()
+?usernameSnap.val()
+:(user.email?user.email.split("@")[0]:"user");
+
+const referralLink=
+"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref="+
 encodeURIComponent(currentUsername);
+
 const refInput=document.getElementById("ref-link");
 
 refInput.value=referralLink;
@@ -654,7 +659,6 @@ await navigator.clipboard.writeText(referralLink);
 }catch(e){
 
 refInput.select();
-
 document.execCommand("copy");
 
 }
@@ -705,57 +709,37 @@ encodeURIComponent(referralLink),
 
 };
 
-document.getElementById("xShare").onclick=()=>{
-
-window.open(
-"https://twitter.com/intent/tweet?text="+
-encodeURIComponent(
-"Join CYPX HOLDINGS using my referral link\n"+referralLink
-),
-"_blank"
-);
-
-};
-
 database.ref("referralPurchases/"+uid)
 .on("value",snap=>{
 
 const data=snap.val()||{};
 
 purchasedReferralCount=0;
-
 purchasedReferralDeposits=0;
 
 Object.values(data).forEach(item=>{
 
-if((item.status||"").toLowerCase()!=="approved")return;
+if((item.status||"").toLowerCase()!=="approved") return;
 
 let refs=0;
 
 switch(item.group){
 
-case"Group 1":
-
+case "Group 1":
 refs=2;
-
 break;
 
-case"Group 2":
-
+case "Group 2":
 refs=4;
-
 break;
 
-case"Group 3":
-
+case "Group 3":
 refs=8;
-
 break;
 
 }
 
 purchasedReferralCount+=refs;
-
 purchasedReferralDeposits+=refs*3000;
 
 });
@@ -763,99 +747,123 @@ purchasedReferralDeposits+=refs*3000;
 animateValue("refCount",purchasedReferralCount);
 
 });
-  database.ref("users").on("value",snap=>{
 
-const users=snap.val()||{};
+database.ref("referrals/"+uid)
+.on("value",async snap=>{
 
-let lev1=[];
-let lev2=[];
-let lev3=[];
+const referralTree=snap.val()||{};
 
-let totalDeposit=purchasedReferralDeposits;
-let firstDeposit=purchasedReferralCount;
+const level1=[];
 
-Object.entries(users).forEach(([id,u])=>{
+const level2=[];
 
-if(!u.referredBy) return;
+const level3=[];
 
-// Level 1
-if(u.referredBy===currentUsername){
-    lev1.push(u);
-      }
+Object.keys(referralTree).forEach(id=>{
 
-// Level 2
-const level1User = Object.values(users).find(
-x => x.username === u.referredBy
-);
-
-if(level1User && level1User.referredBy === currentUsername){
-    lev2.push(u);
-}
-
-// Level 3
-const level1 = Object.values(users).find(
-x => x.username === u.referredBy
-);
-
-if(level1){
-
-const level2 = Object.values(users).find(
-x => x.username === level1.referredBy
-);
-
-if(level2 && level2.referredBy === currentUsername){
-    lev3.push(u);
-}
-
-}
+level1.push(id);
 
 });
 
-// Correct Team Size
-const realTeamSize=
-lev1.length+
-lev2.length+
-lev3.length+
-purchasedReferralCount;
+for(const level1Uid of level1){
 
-animateValue("team-size",realTeamSize);
+const level2Snap=await database
+.ref("referrals/"+level1Uid)
+.once("value");
 
-updateProgress(realTeamSize);
+const level2Data=level2Snap.val()||{};
 
-function render(list,container,percent){
+Object.keys(level2Data).forEach(id=>{
+
+level2.push(id);
+
+});
+
+}
+
+for(const level2Uid of level2){
+
+const level3Snap=await database
+.ref("referrals/"+level2Uid)
+.once("value");
+
+const level3Data=level3Snap.val()||{};
+
+Object.keys(level3Data).forEach(id=>{
+
+level3.push(id);
+
+});
+
+}
+
+const allIds=[
+...level1,
+...level2,
+...level3
+];
+
+const users={};
+
+await Promise.all(
+
+allIds.map(async(id)=>{
+
+const s=await database
+.ref("users/"+id)
+.once("value");
+
+users[id]=s.val()||{};
+
+})
+
+);
+
+let totalDeposit=purchasedReferralDeposits;
+
+let firstDeposit=purchasedReferralCount;
+
+let level1Bonus=0;
+
+let level2Bonus=0;
+
+let level3Bonus=0;
+  function renderLevel(uidList, containerId, totalId, percent){
 
 let commission=0;
 
-const box=document.getElementById(container);
+const box=document.getElementById(containerId);
 
 box.innerHTML="";
 
-if(list.length===0){
+if(uidList.length===0){
 
 box.innerHTML=`
 <div class="empty">
-
 <i class="fas fa-user-plus fa-2x"></i>
-
 <br><br>
-
 No referrals yet.
-
 </div>
 `;
+
+document.getElementById(totalId).innerText="Total: KSh 0.00";
 
 return 0;
 
 }
 
-list.forEach(user=>{
+uidList.forEach(uid=>{
 
-const deposit=parseFloat(user.totalDeposit||0);
+const u=users[uid]||{};
+
+const deposit=parseFloat(u.totalDeposit||0);
 
 if(deposit>0){
 
 commission+=deposit*percent;
+
 totalDeposit+=deposit;
+
 firstDeposit++;
 
 }
@@ -870,7 +878,7 @@ item.innerHTML=`
 
 <i class="fas fa-user-circle"></i>
 
-${user.email||"User"}
+${u.username||u.email||"User"}
 
 </div>
 
@@ -886,39 +894,45 @@ box.appendChild(item);
 
 });
 
+document.getElementById(totalId).innerText=
+"Total: KSh "+commission.toFixed(2);
+
 return commission;
 
 }
 
-const level1Bonus=render(
-lev1,
+level1Bonus=renderLevel(
+level1,
 "lev1-list",
+"lev1-total",
 0.17
 );
 
-const level2Bonus=render(
-lev2,
+level2Bonus=renderLevel(
+level2,
 "lev2-list",
+"lev2-total",
 0.02
 );
 
-const level3Bonus=render(
-lev3,
+level3Bonus=renderLevel(
+level3,
 "lev3-list",
+"lev3-total",
 0.01
 );
+  const realTeamSize=
+level1.length+
+level2.length+
+level3.length+
+purchasedReferralCount;
 
-document.getElementById("lev1-total").innerText=
-"Total: KSh "+
-level1Bonus.toFixed(2);
+animateValue(
+"team-size",
+realTeamSize
+);
 
-document.getElementById("lev2-total").innerText=
-"Total: KSh "+
-level2Bonus.toFixed(2);
-
-document.getElementById("lev3-total").innerText=
-"Total: KSh "+
-level3Bonus.toFixed(2);
+updateProgress(realTeamSize);
 
 const totalBonus=
 level1Bonus+
@@ -942,8 +956,7 @@ totalBonus
 );
 
 });
-
-});
+  });
 
 </script>
 
