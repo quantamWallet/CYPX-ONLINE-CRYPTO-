@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>CYPX HOLDINGS Team</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(180deg,#000814,#001d3d,#000814);
+color:#fff;
+padding-bottom:90px;
+}
+
+header{
+display:flex;
+align-items:center;
+gap:12px;
+padding:18px;
+background:linear-gradient(90deg,#001d3d,#003566);
+box-shadow:0 2px 10px rgba(0,0,0,.35);
+}
+
+header img{
+height:34px;
+width:34px;
+border-radius:50%;
+}
+
+header h3{
+font-size:20px;
+font-weight:700;
+}
+
+.card{
+margin:15px;
+padding:16px;
+border-radius:18px;
+background:linear-gradient(145deg,#001f3f,#003566);
+box-shadow:0 0 18px rgba(0,229,255,.12);
+}
+
+.ref-box p{
+margin-bottom:10px;
+font-weight:bold;
+color:#8defff;
+}
+
+.ref-input{
+display:flex;
+gap:10px;
+margin-bottom:12px;
+}
+
+.ref-input input{
+flex:1;
+padding:13px;
+border:none;
+border-radius:12px;
+background:#0a2540;
+color:#fff;
+font-size:13px;
+outline:none;
+}
+
+.copy-btn{
+padding:13px 18px;
+border:none;
+border-radius:12px;
+background:#00b4d8;
+color:#fff;
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+.copy-btn:hover{
+background:#0096c7;
+transform:scale(1.03);
+}
+
+.copy-msg{
+display:none;
+margin-top:8px;
+color:#66ff99;
+font-size:13px;
+font-weight:bold;
+}
+
+.share-title{
+margin-top:12px;
+margin-bottom:10px;
+color:#8defff;
+font-size:14px;
+font-weight:bold;
+}
+
+.share-buttons{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+}
+
+.share-btn{
+padding:12px;
+border:none;
+border-radius:12px;
+background:#012a4a;
+color:white;
+cursor:pointer;
+font-size:18px;
+transition:.25s;
+}
+
+.share-btn:hover{
+background:#00b4d8;
+transform:translateY(-3px);
+}
+
+.progress-card{
+margin:15px;
+padding:15px;
+border-radius:16px;
+background:linear-gradient(145deg,#001f3f,#002b5c);
+}
+
+.progress-text{
+display:flex;
+justify-content:space-between;
+font-size:13px;
+margin-bottom:8px;
+}
+
+.progress{
+height:12px;
+background:#143b63;
+border-radius:50px;
+overflow:hidden;
+}
+
+.progress-fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#00e5ff,#00ff88);
+transition:1s;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+margin:15px;
+}
+
+.stat{
+background:rgba(255,255,255,.06);
+padding:16px;
+border-radius:14px;
+text-align:center;
+box-shadow:0 0 12px rgba(0,229,255,.08);
+}
+
+.stat i{
+font-size:22px;
+color:#00e5ff;
+margin-bottom:8px;
+}
+
+.stat div{
+font-size:13px;
+opacity:.9;
+}
+
+.stat span{
+display:block;
+margin-top:6px;
+font-size:22px;
+font-weight:bold;
+color:#00e5ff;
+}
+
+.level-title{
+margin:18px 15px 8px;
+text-align:center;
+font-weight:bold;
+font-size:17px;
+color:#00e5ff;
+}
+
+.level-box{
+margin:0 15px 15px;
+padding:15px;
+border-radius:15px;
+background:linear-gradient(145deg,#002b5c,#001f3f);
+}
+
+.ref-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+margin:8px 0;
+background:rgba(255,255,255,.06);
+border-radius:12px;
+}
+
+.ref-item i{
+margin-right:10px;
+color:#00e5ff;
+}
+
+.empty{
+padding:18px;
+text-align:center;
+color:#b8dfff;
+opacity:.8;
+}
+
+.info-box{
+margin:15px;
+padding:16px;
+border-radius:15px;
+background:#002b5c;
+color:#dbefff;
+line-height:1.6;
+}
+
+.info-box strong{
+display:block;
+font-size:17px;
+margin-bottom:8px;
+color:#00e5ff;
+}
+
+nav{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+display:flex;
+justify-content:space-around;
+background:#002244;
+padding:12px 0;
+box-shadow:0 -2px 12px rgba(0,0,0,.4);
+}
+
+nav a{
+color:white;
+text-decoration:none;
+font-size:12px;
+text-align:center;
+}
+
+nav i{
+display:block;
+font-size:22px;
+margin-bottom:4px;
+color:#00e5ff;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<img src="file_0000000060cc71f5ae523b84facdb23d.png">
+
+<h3>Team & Referral Center</h3>
+
+</header>
+
+<div class="card ref-box">
+
+<p>Your Referral Link</p>
+
+<div class="ref-input">
+
+<input
+type="text"
+id="ref-link"
+readonly>
+
+<button
+class="copy-btn"
+id="copyBtn">
+
+Copy
+
+</button>
+
+</div>
+
+<div
+class="copy-msg"
+id="copy-msg">
+
+✅ Referral link copied successfully!
+
+</div>
+
+<div class="share-title">
+
+Share with Friends
+
+</div>
+
+<div class="share-buttons">
+
+<button
+class="share-btn"
+id="waShare">
+
+<i class="fab fa-whatsapp"></i>
+
+</button>
+
+<button
+class="share-btn"
+id="tgShare">
+
+<i class="fab fa-telegram"></i>
+
+</button>
+
+<button
+class="share-btn"
+id="fbShare">
+
+<i class="fab fa-facebook-f"></i>
+
+</button>
+
+<button
+class="share-btn"
+id="xShare">
+
+<i class="fab fa-x-twitter"></i>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="progress-card">
+
+<div class="progress-text">
+
+<span>Team Progress</span>
+
+<span id="progressLabel">
+
+0 / 100 Members
+
+</span>
+
+</div>
+
+<div class="progress">
+
+<div
+class="progress-fill"
+id="progressFill">
+
+</div>
+
+</div>
+
+  </div>
+  <!-- Statistics -->
+
+<div class="stats">
+
+  <div class="stat">
+    <i class="fas fa-users"></i>
+    <div>Team Size</div>
+    <span id="team-size">0</span>
+  </div>
+
+  <div class="stat">
+    <i class="fas fa-user-plus"></i>
+    <div>Referrals</div>
+    <span id="refCount">0</span>
+  </div>
+
+  <div class="stat">
+    <i class="fas fa-wallet"></i>
+    <div>Team Deposit</div>
+    <span id="team-deposit">0</span>
+  </div>
+
+  <div class="stat">
+    <i class="fas fa-coins"></i>
+    <div>First Deposits</div>
+    <span id="first-deposit">0</span>
+  </div>
+
+  <div class="stat" style="grid-column:1 / span 2;">
+    <i class="fas fa-gift"></i>
+    <div>Total Referral Bonus</div>
+    <span id="team-bonus">0</span>
+  </div>
+
+</div>
+
+<!-- LEVEL 1 -->
+
+<div class="level-title">
+⭐ LEVEL 1 — 17% Commission
+</div>
+
+<div class="level-box">
+
+<h4 id="lev1-total">
+Total: KSh 0.00
+</h4>
+
+<div id="lev1-list">
+
+<div class="empty">
+
+<i class="fas fa-user-plus fa-2x"></i>
+
+<br><br>
+
+No Level 1 referrals yet.
+
+<br>
+
+Invite friends to start earning.
+
+</div>
+
+</div>
+
+</div>
+
+<!-- LEVEL 2 -->
+
+<div class="level-title">
+⭐⭐ LEVEL 2 — 2% Commission
+</div>
+
+<div class="level-box">
+
+<h4 id="lev2-total">
+Total: KSh 0.00
+</h4>
+
+<div id="lev2-list">
+
+<div class="empty">
+
+<i class="fas fa-users fa-2x"></i>
+
+<br><br>
+
+No Level 2 referrals yet.
+
+</div>
+
+</div>
+
+</div>
+
+<!-- LEVEL 3 -->
+
+<div class="level-title">
+⭐⭐⭐ LEVEL 3 — 1% Commission
+</div>
+
+<div class="level-box">
+
+<h4 id="lev3-total">
+Total: KSh 0.00
+</h4>
+
+<div id="lev3-list">
+
+<div class="empty">
+
+<i class="fas fa-network-wired fa-2x"></i>
+
+<br><br>
+
+No Level 3 referrals yet.
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Information -->
+
+<div class="info-box">
+
+<strong>Earn More With Your Team 🚀</strong>
+
+<p>
+Invite friends using your referral link and earn commissions whenever they make qualifying deposits.
+</p>
+
+<br>
+
+<b>Commission Structure</b>
+
+<ul style="margin-top:8px;margin-left:20px;line-height:1.8;">
+<li>Level 1 — <b>17%</b></li>
+<li>Level 2 — <b>2%</b></li>
+<li>Level 3 — <b>1%</b></li>
+</ul>
+
+<br>
+
+<p style="color:#8defff;">
+The larger your team grows, the higher your passive referral earnings.
+</p>
+
+</div>
+
+<!-- Bottom Navigation -->
+
+<nav>
+
+<a href="dashboard.html">
+<i class="fas fa-home"></i>
+Home
+</a>
+
+<a href="task.html">
+<i class="fas fa-tasks"></i>
+Task
+</a>
+
+<a href="team.html">
+<i class="fas fa-users"></i>
+Team
+</a>
+
+<a href="vip.html">
+<i class="fas fa-crown"></i>
+VIP
+</a>
+
+<a href="profile.html">
+<i class="fas fa-user"></i>
+Me
+</a>
+
+</nav>
+</nav>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const database=firebase.database();
+const auth=firebase.auth();
+
+const TEAM_TARGET=100;
+
+function animateValue(id,end){
+
+const el=document.getElementById(id);
+
+const start=parseFloat(el.innerText)||0;
+
+const duration=700;
+
+let startTime=null;
+
+function step(time){
+
+if(!startTime)startTime=time;
+
+const progress=Math.min((time-startTime)/duration,1);
+
+const value=start+(end-start)*progress;
+
+if(id==="team-deposit"||id==="team-bonus"){
+
+el.innerText=value.toFixed(2);
+
+}else{
+
+el.innerText=Math.floor(value);
+
+}
+
+if(progress<1){
+
+requestAnimationFrame(step);
+
+}
+
+}
+
+requestAnimationFrame(step);
+
+}
+
+function updateProgress(team){
+
+const percent=Math.min((team/TEAM_TARGET)*100,100);
+
+document.getElementById("progressFill").style.width=percent+"%";
+
+document.getElementById("progressLabel").innerText=
+team+" / "+TEAM_TARGET+" Members";
+
+}
+
+auth.onAuthStateChanged(async(user)=>{
+
+if(!user){
+
+location.href="landing.html";
+
+return;
+
+}
+
+const uid=user.uid;
+
+let purchasedReferralCount=0;
+
+let purchasedReferralDeposits=0;
+
+const usernameSnap=await database.ref("users/"+uid+"/username").once("value");
+
+const username=usernameSnap.exists()
+?usernameSnap.val()
+:(user.email?user.email.split("@")[0]:"user");
+
+const referralLink=
+"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref="+
+encodeURIComponent(username);
+
+const refInput=document.getElementById("ref-link");
+
+refInput.value=referralLink;
+
+document.getElementById("copyBtn").onclick=async()=>{
+
+try{
+
+await navigator.clipboard.writeText(referralLink);
+
+}catch(e){
+
+refInput.select();
+
+document.execCommand("copy");
+
+}
+
+const msg=document.getElementById("copy-msg");
+
+msg.style.display="block";
+
+setTimeout(()=>{
+
+msg.style.display="none";
+
+},2000);
+
+};
+
+document.getElementById("waShare").onclick=()=>{
+
+window.open(
+"https://wa.me/?text="+
+encodeURIComponent(
+"Join CYPX HOLDINGS using my referral link:\n"+referralLink
+),
+"_blank"
+);
+
+};
+
+document.getElementById("tgShare").onclick=()=>{
+
+window.open(
+"https://t.me/share/url?url="+
+encodeURIComponent(referralLink)+
+"&text="+
+encodeURIComponent("Join my CYPX team"),
+"_blank"
+);
+
+};
+
+document.getElementById("fbShare").onclick=()=>{
+
+window.open(
+"https://www.facebook.com/sharer/sharer.php?u="+
+encodeURIComponent(referralLink),
+"_blank"
+);
+
+};
+
+document.getElementById("xShare").onclick=()=>{
+
+window.open(
+"https://twitter.com/intent/tweet?text="+
+encodeURIComponent(
+"Join CYPX HOLDINGS using my referral link\n"+referralLink
+),
+"_blank"
+);
+
+};
+
+database.ref("referralPurchases/"+uid)
+.on("value",snap=>{
+
+const data=snap.val()||{};
+
+purchasedReferralCount=0;
+
+purchasedReferralDeposits=0;
+
+Object.values(data).forEach(item=>{
+
+if((item.status||"").toLowerCase()!=="approved")return;
+
+let refs=0;
+
+switch(item.group){
+
+case"Group 1":
+
+refs=2;
+
+break;
+
+case"Group 2":
+
+refs=4;
+
+break;
+
+case"Group 3":
+
+refs=8;
+
+break;
+
+}
+
+purchasedReferralCount+=refs;
+
+purchasedReferralDeposits+=refs*3000;
+
+});
+
+animateValue("refCount",purchasedReferralCount);
+
+});
+  database.ref("users").on("value",snap=>{
+
+const users=snap.val()||{};
+
+let lev1=[];
+let lev2=[];
+let lev3=[];
+
+let totalDeposit=purchasedReferralDeposits;
+let firstDeposit=purchasedReferralCount;
+
+Object.entries(users).forEach(([id,u])=>{
+
+if(!u.referredBy) return;
+
+// Level 1
+if(u.referredBy===uid){
+lev1.push(u);
+}
+
+// Level 2
+if(
+users[u.referredBy] &&
+users[u.referredBy].referredBy===uid
+){
+lev2.push(u);
+}
+
+// Level 3
+if(
+users[u.referredBy] &&
+users[users[u.referredBy].referredBy] &&
+users[users[u.referredBy].referredBy].referredBy===uid
+){
+lev3.push(u);
+}
+
+});
+
+// Correct Team Size
+const realTeamSize=
+lev1.length+
+lev2.length+
+lev3.length+
+purchasedReferralCount;
+
+animateValue("team-size",realTeamSize);
+
+updateProgress(realTeamSize);
+
+function render(list,container,percent){
+
+let commission=0;
+
+const box=document.getElementById(container);
+
+box.innerHTML="";
+
+if(list.length===0){
+
+box.innerHTML=`
+<div class="empty">
+
+<i class="fas fa-user-plus fa-2x"></i>
+
+<br><br>
+
+No referrals yet.
+
+</div>
+`;
+
+return 0;
+
+}
+
+list.forEach(user=>{
+
+const deposit=parseFloat(user.totalDeposit||0);
+
+if(deposit>0){
+
+commission+=deposit*percent;
+totalDeposit+=deposit;
+firstDeposit++;
+
+}
+
+const item=document.createElement("div");
+
+item.className="ref-item";
+
+item.innerHTML=`
+
+<div>
+
+<i class="fas fa-user-circle"></i>
+
+${user.email||"User"}
+
+</div>
+
+<div>
+
+KSh ${deposit.toFixed(2)}
+
+</div>
+
+`;
+
+box.appendChild(item);
+
+});
+
+return commission;
+
+}
+
+const level1Bonus=render(
+lev1,
+"lev1-list",
+0.17
+);
+
+const level2Bonus=render(
+lev2,
+"lev2-list",
+0.02
+);
+
+const level3Bonus=render(
+lev3,
+"lev3-list",
+0.01
+);
+
+document.getElementById("lev1-total").innerText=
+"Total: KSh "+
+level1Bonus.toFixed(2);
+
+document.getElementById("lev2-total").innerText=
+"Total: KSh "+
+level2Bonus.toFixed(2);
+
+document.getElementById("lev3-total").innerText=
+"Total: KSh "+
+level3Bonus.toFixed(2);
+
+const totalBonus=
+level1Bonus+
+level2Bonus+
+level3Bonus+
+(purchasedReferralDeposits*0.17);
+
+animateValue(
+"team-deposit",
+totalDeposit
+);
+
+animateValue(
+"first-deposit",
+firstDeposit
+);
+
+animateValue(
+"team-bonus",
+totalBonus
+);
+
+});
+
+});
+
+</script>
+
+<script src="js/app-back.js"></script>
+
+</body>
+</html>
