@@ -779,25 +779,34 @@ Object.entries(users).forEach(([id,u])=>{
 if(!u.referredBy) return;
 
 // Level 1
-if(u.referredBy===uid){
-lev1.push(u);
-}
+if(u.referredBy===currentUsername){
+    lev1.push(u);
+      }
 
 // Level 2
-if(
-users[u.referredBy] &&
-users[u.referredBy].referredBy===uid
-){
-lev2.push(u);
+const level1User = Object.values(users).find(
+x => x.username === u.referredBy
+);
+
+if(level1User && level1User.referredBy === currentUsername){
+    lev2.push(u);
 }
 
 // Level 3
-if(
-users[u.referredBy] &&
-users[users[u.referredBy].referredBy] &&
-users[users[u.referredBy].referredBy].referredBy===uid
-){
-lev3.push(u);
+const level1 = Object.values(users).find(
+x => x.username === u.referredBy
+);
+
+if(level1){
+
+const level2 = Object.values(users).find(
+x => x.username === level1.referredBy
+);
+
+if(level2 && level2.referredBy === currentUsername){
+    lev3.push(u);
+}
+
 }
 
 });
