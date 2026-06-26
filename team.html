@@ -628,21 +628,19 @@ return;
 }
 
 const uid=user.uid;
-
+let currentUsername = "";
 let purchasedReferralCount=0;
 
 let purchasedReferralDeposits=0;
 
 const usernameSnap=await database.ref("users/"+uid+"/username").once("value");
 
-const username=usernameSnap.exists()
-?usernameSnap.val()
-:(user.email?user.email.split("@")[0]:"user");
-
-const referralLink=
-"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref="+
-encodeURIComponent(username);
-
+currentUsername = usernameSnap.exists()
+? usernameSnap.val()
+: (user.email ? user.email.split("@")[0] : "user");
+const referralLink =
+"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref=" +
+encodeURIComponent(currentUsername);
 const refInput=document.getElementById("ref-link");
 
 refInput.value=referralLink;
