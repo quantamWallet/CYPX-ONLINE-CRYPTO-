@@ -346,9 +346,9 @@ import {
   getAuth,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail
+  fetchSignInMethodsForEmail,
+  updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-
 import {
   getDatabase,
   ref,
@@ -452,7 +452,6 @@ password
 );
 
 const user = credential.user;
-import { updateProfile } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 await updateProfile(user,{
     displayName: username
 });
@@ -519,7 +518,7 @@ showToast("Account created successfully!",true);
 
 setTimeout(()=>{
 window.location.href="dashboard.html";
-},700);
+},1200);
 
 }catch(err){
 
