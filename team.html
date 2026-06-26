@@ -708,7 +708,17 @@ encodeURIComponent(referralLink),
 );
 
 };
+document.getElementById("xShare").onclick=()=>{
 
+window.open(
+"https://twitter.com/intent/tweet?text="+
+encodeURIComponent(
+"Join CYPX HOLDINGS using my referral link\n"+referralLink
+),
+"_blank"
+);
+
+};
 database.ref("referralPurchases/"+uid)
 .on("value",snap=>{
 
