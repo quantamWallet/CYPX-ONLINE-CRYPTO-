@@ -155,14 +155,6 @@
       </div>  
   
       <div class="field">  
-        <label for="phone">Phone Number</label>  
-        <div class="phone-row">  
-          <div class="phone-prefix">🇰🇪 +254</div>  
-          <input id="phone" class="input" type="tel" inputmode="tel" placeholder="7XXXXXXXX" />  
-        </div>  
-      </div>  
-  
-      <div class="field">  
         <label for="email">Email</label>  
         <input id="email" class="input" type="email" placeholder="Enter your email" required />  
       </div>  
@@ -186,11 +178,6 @@
   </div> 
     
 <script type="module">
-  if(!/^[a-z0-9_]{3,20}$/.test(username)){
-    return showToast(
-        "Username must be 3-20 characters using letters, numbers or underscores."
-    );
-  }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 
 import {
@@ -251,9 +238,6 @@ const emailInput =
 const usernameInput =
   document.getElementById("username");
 
-const phoneInput =
-  document.getElementById("phone");
-
 const passInput =
   document.getElementById("password");
 
@@ -263,17 +247,19 @@ const confirmInput =
 document
   .getElementById("signupForm")
   .addEventListener("submit", async (e) => {
+const btn = document.querySelector(".btn");
 
+btn.disabled = true;
+btn.textContent = "Creating Account...";
     e.preventDefault();
-
+btn.disabled = false;
+btn.textContent = "Create Secure Account";
     const username =
       usernameInput.value.trim();
 
     const email =
       emailInput.value.trim();
 
-    const phone =
-      phoneInput.value.trim();
 
     const password =
       passInput.value.trim();
@@ -284,7 +270,6 @@ document
     if (
       !username ||
       !email ||
-      !phone ||
       !password ||
       !confirm
     ) {
@@ -302,12 +287,6 @@ document
     if (password !== confirm) {
       return showToast(
         "Passwords do not match."
-      );
-    }
-
-    if (!/^[7][0-9]{8}$/.test(phone)) {
-      return showToast(
-        "Enter a valid Kenyan number."
       );
     }
 
@@ -337,7 +316,15 @@ document
           "Username already taken."
         );
       }
+const username = usernameInput.value
+    .trim()
+    .toLowerCase();
 
+if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+    return showToast(
+        "Username must be 3-20 characters using letters, numbers or underscores."
+    );
+}
       const cred =
         await createUserWithEmailAndPassword(
           auth,
@@ -375,10 +362,6 @@ document
 
       /* REFERRAL LOGIC
          UNCHANGED */
-      const username =
-usernameInput.value
-.trim()
-.toLowerCase();
       if (refUsername) {
 
         const sponsorSnap =
@@ -403,12 +386,10 @@ usernameInput.value
               "/" +
               user.uid
             ),
-            {
-              username,
-              email,
-              timestamp:
-                Date.now()
-            }
+            await set(
+    ref(db, "referrals/" + sponsorUid + "/" + user.uid),
+    true
+);
           );
         }
       }
