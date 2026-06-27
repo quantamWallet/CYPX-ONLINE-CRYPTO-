@@ -411,18 +411,10 @@ referrals:{}
      console.log("Referral username:", refUsername);
       /* REFERRAL LOGIC
          UNCHANGED */
-      if (refUsername) {
+      
+      console.log("Referral username:", refUsername);
 
-        const sponsorSnap =
-          await get(
-            child(
-              ref(db),
-              "usernames/" +
-              refUsername
-            )
-          );
-
-        if (refUsername) {
+if (refUsername) {
 
   console.log("Looking for sponsor:", refUsername);
 
@@ -454,8 +446,7 @@ referrals:{}
     console.log("Sponsor username not found.");
 
   }
-
-        }
+    }
 
       showToast(
         "Account created successfully!",
