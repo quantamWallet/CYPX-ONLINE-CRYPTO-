@@ -868,14 +868,13 @@ const u=users[uid]||{};
 
 const deposit=parseFloat(u.totalDeposit||0);
 
-if(deposit>0){
+if (deposit > 0) {
+    commission += deposit * percent;
+    totalDeposit += deposit;
+}
 
-commission+=deposit*percent;
-
-totalDeposit+=deposit;
-
-firstDeposit++;
-
+if (u.firstDeposit === true) {
+    firstDeposit++;
 }
 
 const item=document.createElement("div");
