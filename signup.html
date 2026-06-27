@@ -236,16 +236,23 @@ function showToast(msg, success = false) {
   }, 2000);
 }
 
-const refUsername =
-  (new URLSearchParams(window.location.search)
-    .get("ref") || "")
-    .trim();
+const refUsername = (new URLSearchParams(window.location.search)
+  .get("ref") || "")
+  .trim()
+  .toLowerCase()
+  .replace(/\s+/g, "_");
 
 const emailInput =
   document.getElementById("email");
 
 const usernameInput =
   document.getElementById("username");
+  
+  usernameInput.addEventListener("input", () => {
+  usernameInput.value = usernameInput.value
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+});
 
 const phoneInput =
   document.getElementById("phone");
@@ -262,8 +269,10 @@ document
 
     e.preventDefault();
 
-    const username =
-      usernameInput.value.trim();
+    const username = usernameInput.value
+  .trim()
+  .toLowerCase()
+  .replace(/\s+/g, "_");
 
     const email =
       emailInput.value.trim();
@@ -276,6 +285,11 @@ document
 
     const confirm =
       confirmInput.value.trim();
+if (!/^[a-z0-9_]+$/.test(username)) {
+  return showToast(
+    "Username can only contain lowercase letters, numbers and underscores."
+  );
+}
 
     if (
       !username ||
