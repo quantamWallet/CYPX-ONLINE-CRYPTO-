@@ -237,8 +237,9 @@ function showToast(msg, success = false) {
 }
 
 const refUsername =
-  new URLSearchParams(window.location.search)
-  .get("ref") || null;
+  (new URLSearchParams(window.location.search)
+    .get("ref") || "")
+    .trim();
 
 const emailInput =
   document.getElementById("email");
@@ -407,7 +408,7 @@ referrals:{}
         ),
         user.uid
       );
-
+     console.log("Referral username:", refUsername);
       /* REFERRAL LOGIC
          UNCHANGED */
       if (refUsername) {
@@ -421,28 +422,40 @@ referrals:{}
             )
           );
 
-        if (sponsorSnap.exists()) {
+        if (refUsername) {
 
-          const sponsorUid =
-            sponsorSnap.val();
+  console.log("Looking for sponsor:", refUsername);
 
-          await set(
-            ref(
-              db,
-              "referrals/" +
-              sponsorUid +
-              "/" +
-              user.uid
-            ),
-            {
-              username,
-              email,
-              timestamp:
-                Date.now()
-            }
-          );
-        }
+  const sponsorSnap = await get(
+    child(ref(db), "usernames/" + refUsername)
+  );
+
+  console.log("Sponsor exists?", sponsorSnap.exists());
+
+  if (sponsorSnap.exists()) {
+
+    const sponsorUid = sponsorSnap.val();
+
+    console.log("Sponsor UID:", sponsorUid);
+
+    await set(
+      ref(db, "referrals/" + sponsorUid + "/" + user.uid),
+      {
+        username,
+        email,
+        timestamp: Date.now()
       }
+    );
+
+    console.log("Referral saved successfully.");
+
+  } else {
+
+    console.log("Sponsor username not found.");
+
+  }
+
+        }
 
       showToast(
         "Account created successfully!",
