@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>CYPX Secure Gateway</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+background:
+linear-gradient(
+rgba(10,18,35,.72),
+rgba(10,18,35,.72)
+),
+url("forex-bg.jpg");
+
+background-size:cover;
+
+background-position:center;
+
+background-repeat:no-repeat;
+
+background-attachment:fixed;
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
+overflow-x:hidden;
+
+}
+.form-box{
+
+background:rgba(255,255,255,.95);
+
+backdrop-filter:blur(12px);
+
+-webkit-backdrop-filter:blur(12px);
+
+border-radius:22px;
+
+padding:30px;
+
+box-shadow:0 15px 45px rgba(0,0,0,.45);
+
+}
+@keyframes float{
+
+0%{
+transform:translateY(0);
+}
+
+50%{
+transform:translateY(-6px);
+}
+
+100%{
+transform:translateY(0);
+}
+
+}
+
+.form-box{
+
+animation:float 6s ease-in-out infinite;
+
+}
+.container{
+
+width:100%;
+
+max-width:460px;
+
+}
+.form-box::before{
+
+content:"";
+
+position:absolute;
+
+top:-100px;
+
+left:-100px;
+
+width:220px;
+
+height:220px;
+
+background:rgba(37,99,235,.18);
+
+filter:blur(80px);
+
+pointer-events:none;
+
+}
+
+.form-box::after{
+
+content:"";
+
+position:absolute;
+
+bottom:-100px;
+
+right:-100px;
+
+width:220px;
+
+height:220px;
+
+background:rgba(0,255,170,.15);
+
+filter:blur(80px);
+
+pointer-events:none;
+
+}
+
+.branding{
+
+text-align:center;
+
+margin-bottom:25px;
+
+}
+
+.branding h1{
+
+color:#ffffff;
+
+text-shadow:0 3px 12px rgba(0,0,0,.45);
+
+}
+
+.branding p{
+
+color:#dbeafe;
+
+}
+
+.button-box{
+
+display:flex;
+
+background:#e2e8f0;
+
+border-radius:12px;
+
+overflow:hidden;
+
+margin-bottom:28px;
+
+}
+
+.toggle-btn{
+
+flex:1;
+
+padding:13px;
+
+border:none;
+
+background:transparent;
+
+cursor:pointer;
+
+font-size:15px;
+
+font-weight:600;
+
+transition:.30s;
+
+}
+
+.toggle-btn.active{
+
+background:#2563eb;
+
+color:#fff;
+
+}
+
+.input-group{
+
+display:none;
+
+animation:fade .35s ease;
+
+}
+
+.input-group.active{
+
+display:block;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+
+transform:translateY(15px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+.input-field{
+
+position:relative;
+
+margin-bottom:18px;
+
+}
+
+.input-field i{
+
+position:absolute;
+
+left:15px;
+
+top:50%;
+
+transform:translateY(-50%);
+
+color:#64748b;
+
+font-size:15px;
+
+}
+
+.input-field input{
+
+width:100%;
+
+padding:14px 15px 14px 45px;
+
+border:1px solid #cbd5e1;
+
+border-radius:12px;
+
+font-size:14px;
+
+outline:none;
+
+transition:.25s;
+
+}
+
+.input-field input:focus{
+
+border-color:#2563eb;
+
+box-shadow:
+
+0 0 0 3px
+
+rgba(37,99,235,.15);
+
+}
+
+.error{
+
+display:none;
+
+margin-top:-10px;
+
+margin-bottom:14px;
+
+font-size:12px;
+
+color:#ef4444;
+
+}
+
+.success{
+
+display:none;
+
+margin-bottom:16px;
+
+padding:12px;
+
+background:#dcfce7;
+
+color:#15803d;
+
+border-radius:10px;
+
+font-size:13px;
+
+}
+
+.failed{
+
+display:none;
+
+margin-bottom:16px;
+
+padding:12px;
+
+background:#fee2e2;
+
+color:#b91c1c;
+
+border-radius:10px;
+
+font-size:13px;
+
+}
+
+.options{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:20px;
+
+font-size:13px;
+
+}
+
+.options a{
+
+text-decoration:none;
+
+color:#2563eb;
+
+font-weight:500;
+
+}
+
+.options label{
+
+display:flex;
+
+align-items:center;
+
+gap:6px;
+
+cursor:pointer;
+
+}
+
+.submit-btn{
+
+width:100%;
+
+padding:14px;
+
+border:none;
+
+border-radius:12px;
+
+background:#2563eb;
+
+color:#fff;
+
+font-size:15px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.30s;
+
+}
+
+.submit-btn:hover{
+
+background:#1d4ed8;
+
+}
+
+.submit-btn:disabled{
+
+opacity:.7;
+
+cursor:not-allowed;
+
+}
+
+.loading{
+
+position:absolute;
+
+inset:0;
+
+background:
+
+rgba(255,255,255,.85);
+
+display:none;
+
+justify-content:center;
+
+align-items:center;
+
+flex-direction:column;
+
+z-index:999;
+
+}
+
+.spinner{
+
+width:45px;
+
+height:45px;
+
+border:4px solid #dbeafe;
+
+border-top:4px solid #2563eb;
+
+border-radius:50%;
+
+animation:spin .8s linear infinite;
+
+margin-bottom:12px;
+
+}
+
+@keyframes spin{
+
+100%{
+
+transform:rotate(360deg);
+
+}
+
+}
+
+.loading p{
+
+font-size:14px;
+
+font-weight:600;
+
+color:#1e293b;
+
+}
+
+.hidden{
+
+display:none;
+
+}
+
+@media(max-width:480px){
+
+.form-box{
+
+padding:22px;
+
+}
+
+.branding h1{
+
+font-size:25px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="form-box">
+
+<div class="loading"
+id="loadingBox">
+
+<div class="spinner"></div>
+
+<p>Please wait...</p>
+
+</div>
+
+<div class="branding">
+
+<h1>CYPX Secure Gateway</h1>
+
+<p>Your Trusted Investment Access Point</p>
+
+</div>
+
+<div class="button-box">
+
+<button
+type="button"
+id="loginBtn"
+class="toggle-btn active">
+
+Login
+
+</button>
+
+<button
+type="button"
+id="registerBtn"
+class="toggle-btn">
+
+Register
+
+</button>
+
+</div>
+
+<div
+class="success"
+id="successBox"></div>
+
+<div
+class="failed"
+id="errorBox"></div>
+<!-- ========================= -->
+<!-- LOGIN FORM -->
+<!-- ========================= -->
+
+<form id="loginForm"
+class="input-group active"
+autocomplete="on">
+
+<div class="input-field">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input
+type="email"
+id="loginEmail"
+placeholder="Email Address"
+autocomplete="email"
+required>
+
+</div>
+
+<div class="error"
+id="loginEmailError"></div>
+
+<div class="input-field">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="loginPassword"
+placeholder="Password"
+autocomplete="current-password"
+required>
+
+</div>
+
+<div class="error"
+id="loginPasswordError"></div>
+
+<div class="options">
+
+<label>
+
+<input
+type="checkbox"
+id="rememberMe">
+
+Remember Me
+
+</label>
+
+<a href="#"
+id="forgotPassword">
+
+Forgot Password?
+
+</a>
+
+</div>
+
+<button
+type="submit"
+class="submit-btn"
+id="loginSubmit">
+
+Access Dashboard
+
+</button>
+
+</form>
+
+<!-- ========================= -->
+<!-- REGISTER FORM -->
+<!-- ========================= -->
+
+<form id="registerForm"
+class="input-group"
+autocomplete="off">
+
+<input
+type="hidden"
+id="referralCode">
+
+<div class="input-field">
+
+<i class="fa-solid fa-user"></i>
+
+<input
+type="text"
+id="username"
+placeholder="Username (minimum 5 characters)"
+maxlength="20"
+autocomplete="off"
+required>
+
+</div>
+
+<div class="error"
+id="usernameError"></div>
+
+<div class="input-field">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input
+type="email"
+id="registerEmail"
+placeholder="Email Address"
+autocomplete="email"
+required>
+
+</div>
+
+<div class="error"
+id="registerEmailError"></div>
+
+<div class="input-field">
+
+<i class="fa-solid fa-phone"></i>
+
+<input
+type="tel"
+id="phoneNumber"
+placeholder="Phone Number"
+autocomplete="tel"
+required>
+
+</div>
+
+<div class="error"
+id="phoneError"></div>
+
+<div class="input-field">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="registerPassword"
+placeholder="Create Password"
+required>
+
+</div>
+
+<div class="error"
+id="registerPasswordError"></div>
+
+<div class="input-field">
+
+<i class="fa-solid fa-shield-halved"></i>
+
+<input
+type="password"
+id="confirmPassword"
+placeholder="Confirm Password"
+required>
+
+</div>
+
+<div class="error"
+id="confirmPasswordError"></div>
+
+<button
+type="submit"
+class="submit-btn"
+id="registerSubmit">
+
+Create Account
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+<script type="module">
+
+/* ===========================
+   FIREBASE IMPORTS
+=========================== */
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+setPersistence,
+browserLocalPersistence,
+browserSessionPersistence,
+sendPasswordResetEmail,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getDatabase,
+ref,
+get,
+child,
+update,
+serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ===========================
+   FIREBASE CONFIG
+=========================== */
+
+const firebaseConfig = {
+
+apiKey: "YOUR_API_KEY",
+
+authDomain: "YOUR_PROJECT.firebaseapp.com",
+
+databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+
+projectId: "YOUR_PROJECT",
+
+storageBucket: "YOUR_PROJECT.appspot.com",
+
+messagingSenderId: "YOUR_SENDER_ID",
+
+appId: "YOUR_APP_ID"
+
+};
+
+/* ===========================
+   INITIALIZE FIREBASE
+=========================== */
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getDatabase(app);
+
+/* ===========================
+   DOM REFERENCES
+=========================== */
+
+const loginForm =
+document.getElementById("loginForm");
+
+const registerForm =
+document.getElementById("registerForm");
+
+const loginBtn =
+document.getElementById("loginBtn");
+
+const registerBtn =
+document.getElementById("registerBtn");
+
+const loadingBox =
+document.getElementById("loadingBox");
+
+const successBox =
+document.getElementById("successBox");
+
+const errorBox =
+document.getElementById("errorBox");
+
+/* LOGIN */
+
+const loginEmail =
+document.getElementById("loginEmail");
+
+const loginPassword =
+document.getElementById("loginPassword");
+
+const rememberMe =
+document.getElementById("rememberMe");
+
+/* REGISTER */
+
+const username =
+document.getElementById("username");
+
+const registerEmail =
+document.getElementById("registerEmail");
+
+const phoneNumber =
+document.getElementById("phoneNumber");
+
+const registerPassword =
+document.getElementById("registerPassword");
+
+const confirmPassword =
+document.getElementById("confirmPassword");
+
+const referralCode =
+document.getElementById("referralCode");
+
+
+/* ===========================
+   REFERRAL CODE
+=========================== */
+
+const params =
+new URLSearchParams(window.location.search);
+
+const referralParam =
+params.get("ref");
+
+if(referralParam){
+
+referralCode.value =
+referralParam.trim().toLowerCase();
+
+}
+
+/* ===========================
+   HELPER FUNCTIONS
+=========================== */
+
+function showLoading(){
+
+loadingBox.style.display="flex";
+
+}
+
+function hideLoading(){
+
+loadingBox.style.display="none";
+
+}
+
+function showError(message){
+
+errorBox.style.display="block";
+
+successBox.style.display="none";
+
+errorBox.textContent=message;
+
+}
+
+function showSuccess(message){
+
+successBox.style.display="block";
+
+errorBox.style.display="none";
+
+successBox.textContent=message;
+
+}
+
+function clearMessages(){
+
+successBox.style.display="none";
+
+errorBox.style.display="none";
+
+}
+/* ===========================
+   TAB SWITCHING
+=========================== */
+
+function showLogin(){
+
+loginForm.classList.add("active");
+registerForm.classList.remove("active");
+
+loginBtn.classList.add("active");
+registerBtn.classList.remove("active");
+
+clearMessages();
+
+}
+
+function showRegister(){
+
+registerForm.classList.add("active");
+loginForm.classList.remove("active");
+
+registerBtn.classList.add("active");
+loginBtn.classList.remove("active");
+
+clearMessages();
+
+}
+
+loginBtn.addEventListener("click",showLogin);
+registerBtn.addEventListener("click",showRegister);
+
+/* ===========================
+   USERNAME VALIDATION
+=========================== */
+
+const USERNAME_REGEX =
+/^[a-z0-9_]{5,20}$/;
+
+function validateUsername(){
+
+const value =
+username.value
+.trim()
+.toLowerCase();
+
+username.value=value;
+
+if(value.length<5){
+
+showError(
+"Username must contain at least 5 characters."
+);
+
+return false;
+
+}
+
+if(!USERNAME_REGEX.test(value)){
+
+showError(
+"Username can only contain lowercase letters, numbers and underscores (_)."
+);
+
+return false;
+
+}
+
+return true;
+
+}
+
+/* ===========================
+   EMAIL VALIDATION
+=========================== */
+
+function validateEmail(){
+
+const email =
+registerEmail.value.trim();
+
+const regex =
+/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if(!regex.test(email)){
+
+showError(
+"Please enter a valid email address."
+);
+
+return false;
+
+}
+
+return true;
+
+}
+
+/* ===========================
+   PHONE VALIDATION
+=========================== */
+
+function validatePhone(){
+
+const phone =
+phoneNumber.value.trim();
+
+if(phone.length<8){
+
+showError(
+"Enter a valid phone number."
+);
+
+return false;
+
+}
+
+return true;
+
+}
+
+/* ===========================
+   PASSWORD VALIDATION
+=========================== */
+
+function validatePassword(){
+
+if(registerPassword.value.length<6){
+
+showError(
+"Password must be at least 6 characters."
+);
+
+return false;
+
+}
+
+if(registerPassword.value
+!==confirmPassword.value){
+
+showError(
+"Passwords do not match."
+);
+
+return false;
+
+}
+
+return true;
+
+}
+
+/* ===========================
+   CHECK USERNAME EXISTS
+=========================== */
+
+async function usernameExists(){
+
+const usernameRef =
+ref(
+db,
+"usernames/"+username.value
+.trim()
+.toLowerCase()
+);
+
+const snapshot =
+await get(usernameRef);
+
+return snapshot.exists();
+
+}
+
+/* ===========================
+   LOGIN PERSISTENCE
+=========================== */
+
+async function configurePersistence(){
+
+if(rememberMe.checked){
+
+await setPersistence(
+
+auth,
+
+browserLocalPersistence
+
+);
+
+}else{
+
+await setPersistence(
+
+auth,
+
+browserSessionPersistence
+
+);
+
+}
+
+}
+/* ===========================
+   REGISTER ACCOUNT
+=========================== */
+
+registerForm.addEventListener("submit", async (e)=>{
+
+e.preventDefault();
+
+clearMessages();
+
+if(!validateUsername()) return;
+if(!validateEmail()) return;
+if(!validatePhone()) return;
+if(!validatePassword()) return;
+
+showLoading();
+
+try{
+
+const userName =
+username.value.trim().toLowerCase();
+
+const email =
+registerEmail.value.trim().toLowerCase();
+
+const phone =
+phoneNumber.value.trim();
+
+const password =
+registerPassword.value;
+
+/* ---------------------------
+   CHECK USERNAME
+---------------------------- */
+
+if(await usernameExists()){
+
+hideLoading();
+
+showError(
+"Username already exists."
+);
+
+return;
+
+}
+
+/* ---------------------------
+   CREATE AUTH ACCOUNT
+---------------------------- */
+
+const credential =
+await createUserWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+const uid =
+credential.user.uid;
+
+/* ---------------------------
+   FIND REFERRER
+---------------------------- */
+
+let referredBy = null;
+
+let referredByUsername = null;
+
+if(referralCode.value){
+
+const referralUsername =
+referralCode.value
+.trim()
+.toLowerCase();
+
+const referralSnap =
+await get(
+child(
+ref(db),
+"usernames/"+referralUsername
+)
+);
+
+if(referralSnap.exists()){
+
+referredBy =
+referralSnap.val();
+
+referredByUsername =
+referralUsername;
+
+}
+
+}
+
+/* ---------------------------
+   PREPARE DATABASE WRITES
+---------------------------- */
+
+const updates = {};
+
+updates["users/"+uid] = {
+
+uid:uid,
+
+username:userName,
+
+email:email,
+
+phone:phone,
+
+currency:"USD",
+
+balance:0,
+
+totalDeposit:0,
+
+totalWithdrawn:0,
+
+totalReferralBonus:0,
+
+totalTaskIncome:0,
+
+vipLevel:0,
+
+firstDeposit:false,
+
+status:"active",
+
+referredBy:referredBy,
+
+referredByUsername:referredByUsername,
+
+joinedAt:serverTimestamp()
+
+};
+
+updates["usernames/"+userName] = uid;
+
+updates["userStats/"+uid] = {
+
+teamSize:0,
+
+teamDeposit:0,
+
+teamBonus:0,
+
+firstDeposits:0,
+
+referrals:0
+
+};
+
+if(
+
+referredBy &&
+
+referredBy !== uid
+
+){
+
+updates[
+"referrals/"
++ referredBy +
+"/" + uid
+] = {
+
+uid:uid,
+
+username:userName,
+
+email:email,
+
+phone:phone,
+
+level:1,
+
+status:"active",
+
+joinedAt:serverTimestamp()
+
+};
+
+}
+
+/* ---------------------------
+   WRITE EVERYTHING
+---------------------------- */
+
+await update(
+
+ref(db),
+
+updates
+
+);
+
+/* ---------------------------
+   SUCCESS
+---------------------------- */
+
+hideLoading();
+
+showSuccess(
+
+"Account created successfully."
+
+);
+
+setTimeout(()=>{
+
+window.location.href="dashboard.html";
+
+},1500);
+
+}catch(error){
+
+hideLoading();
+
+switch(error.code){
+
+case "auth/email-already-in-use":
+
+showError(
+
+"This email is already registered."
+
+);
+
+break;
+
+case "auth/weak-password":
+
+showError(
+
+"Choose a stronger password."
+
+);
+
+break;
+
+case "auth/invalid-email":
+
+showError(
+
+"Invalid email address."
+
+);
+
+break;
+
+default:
+
+showError(
+
+error.message
+
+);
+
+}
+
+}
+
+});
+
+/* ===========================
+   LOGIN
+=========================== */
+
+loginForm.addEventListener(
+
+"submit",
+
+async(e)=>{
+
+e.preventDefault();
+
+clearMessages();
+
+showLoading();
+
+try{
+
+await configurePersistence();
+
+await signInWithEmailAndPassword(
+
+auth,
+
+loginEmail.value.trim(),
+
+loginPassword.value
+
+);
+
+hideLoading();
+
+showSuccess(
+
+"Login successful."
+
+);
+
+setTimeout(()=>{
+
+window.location.href="dashboard.html";
+
+},1000);
+
+}catch(error){
+
+hideLoading();
+
+switch(error.code){
+
+case "auth/user-not-found":
+
+case "auth/invalid-credential":
+
+showError(
+
+"Incorrect email or password."
+
+);
+
+break;
+
+case "auth/invalid-email":
+
+showError(
+
+"Invalid email address."
+
+);
+
+break;
+
+default:
+
+showError(
+
+error.message
+
+);
+
+}
+
+}
+
+});
+/* ===========================
+   FORGOT PASSWORD
+=========================== */
+
+document
+.getElementById("forgotPassword")
+.addEventListener("click",async(e)=>{
+
+e.preventDefault();
+
+const email =
+loginEmail.value.trim();
+
+if(email===""){
+
+showError(
+"Enter your email address first."
+);
+
+return;
+
+}
+
+try{
+
+await sendPasswordResetEmail(
+auth,
+email
+);
+
+showSuccess(
+"Password reset email sent."
+);
+
+}catch(error){
+
+showError(error.message);
+
+}
+
+});
+
+/* ===========================
+   USERNAME INPUT FILTER
+=========================== */
+
+username.addEventListener("input",()=>{
+
+username.value =
+username.value
+.toLowerCase()
+.replace(/[^a-z0-9_]/g,"");
+
+});
+
+/* ===========================
+   AUTO REDIRECT
+=========================== */
+
+onAuthStateChanged(auth,(user)=>{
+
+if(user){
+
+window.location.replace(
+"dashboard.html"
+);
+
+}
+
+});
+
+/* ===========================
+   PAGE READY
+=========================== */
+
+hideLoading();
+
+</script>
+
+</body>
+
+  </html>
