@@ -56,12 +56,16 @@ justify-content:center;
 
 align-items:center;
 
-padding:20px;
+padding:0;
 
-overflow-x:hidden;
+overflow:hidden;
 
 }
 .form-box{
+
+position:relative;
+
+overflow:hidden;
 
 background:rgba(255,255,255,.95);
 
@@ -75,22 +79,9 @@ padding:30px;
 
 box-shadow:0 15px 45px rgba(0,0,0,.45);
 
-}
-@keyframes float{
+animation:float 6s ease-in-out infinite;
 
-0%{
-transform:translateY(0);
-}
-
-50%{
-transform:translateY(-6px);
-}
-
-100%{
-transform:translateY(0);
-}
-
-}
+   }
 
 .form-box{
 
@@ -148,25 +139,23 @@ pointer-events:none;
 
 }
 
-.branding{
-
-text-align:center;
-
-margin-bottom:25px;
-
-}
-
 .branding h1{
 
-color:#ffffff;
+color:#0f172a;
 
-text-shadow:0 3px 12px rgba(0,0,0,.45);
+font-size:30px;
+
+font-weight:700;
+
+text-shadow:none;
 
 }
 
 .branding p{
 
-color:#dbeafe;
+color:#475569;
+
+font-size:14px;
 
 }
 
