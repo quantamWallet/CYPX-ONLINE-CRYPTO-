@@ -56,16 +56,12 @@ justify-content:center;
 
 align-items:center;
 
-padding:0;
+padding:20px;
 
-overflow:hidden;
+overflow-x:hidden;
 
 }
 .form-box{
-
-position:relative;
-
-overflow:hidden;
 
 background:rgba(255,255,255,.95);
 
@@ -79,9 +75,22 @@ padding:30px;
 
 box-shadow:0 15px 45px rgba(0,0,0,.45);
 
-animation:float 6s ease-in-out infinite;
+}
+@keyframes float{
 
-   }
+0%{
+transform:translateY(0);
+}
+
+50%{
+transform:translateY(-6px);
+}
+
+100%{
+transform:translateY(0);
+}
+
+}
 
 .form-box{
 
@@ -139,23 +148,25 @@ pointer-events:none;
 
 }
 
+.branding{
+
+text-align:center;
+
+margin-bottom:25px;
+
+}
+
 .branding h1{
 
-color:#0f172a;
+color:#ffffff;
 
-font-size:30px;
-
-font-weight:700;
-
-text-shadow:none;
+text-shadow:0 3px 12px rgba(0,0,0,.45);
 
 }
 
 .branding p{
 
-color:#475569;
-
-font-size:14px;
+color:#dbeafe;
 
 }
 
@@ -1357,9 +1368,9 @@ break;
 
 default:
 
-console.error(error);
+showError(
 
-showError(error.code + " : " + error.message);
+error.message
 
 );
 
@@ -1488,39 +1499,9 @@ showSuccess(
 "Password reset email sent."
 );
 
-   }catch(error){
+}catch(error){
 
-hideLoading();
-
-switch(error.code){
-
-case "auth/email-already-in-use":
-
-showError("This email is already registered.");
-
-break;
-
-case "auth/weak-password":
-
-showError("Choose a stronger password.");
-
-break;
-
-case "auth/invalid-email":
-
-showError("Invalid email address.");
-
-break;
-
-default:
-
-console.error(error);
-
-showError(error.code + " : " + error.message);
-
-}
-
-   }
+showError(error.message);
 
 }
 
@@ -1565,4 +1546,4 @@ hideLoading();
 
 </body>
 
-  </html>
+   </html>
