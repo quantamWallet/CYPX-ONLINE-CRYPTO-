@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS</title>
+
+<meta name="description"
+content="Modern Digital Asset Management Platform">
+
+<meta name="theme-color"
+content="#08111f">
+
+<link rel="manifest"
+href="manifest.json">
+
+<link rel="icon"
+href="cypx_icon_192x192.png">
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#1B4332;
+    color:#fff;
+    overflow-x:hidden;
+    line-height:1.7;
+}
+
+html{
+    background:#1B4332;
+}
+
+}
+
+a{
+
+text-decoration:none;
+
+}
+
+img{
+
+max-width:100%;
+display:block;
+
+}
+
+.container{
+
+width:92%;
+max-width:1200px;
+margin:auto;
+
+}
+
+/* ===========================
+   HEADER
+=========================== */
+
+header{
+
+position:fixed;
+top:0;
+left:0;
+right:0;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:18px 8%;
+
+background:rgba(8,17,31,.92);
+
+backdrop-filter:blur(18px);
+
+border-bottom:1px solid rgba(255,255,255,.06);
+
+z-index:999;
+
+}
+
+.logo{
+
+display:flex;
+align-items:center;
+gap:12px;
+
+}
+
+.logo img{
+
+width:46px;
+
+}
+
+.logo h2{
+
+font-size:26px;
+font-weight:700;
+
+}
+
+.logo span{
+
+color:#16ffd3;
+
+}
+
+nav{
+
+display:flex;
+gap:35px;
+
+}
+
+nav a{
+
+color:#c7d3e3;
+font-size:15px;
+transition:.3s;
+
+}
+
+nav a:hover{
+
+color:#16ffd3;
+
+}
+
+/* ===========================
+   HERO
+=========================== */
+
+.hero{
+
+min-height:100vh;
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+padding:140px 8% 80px;
+
+gap:60px;
+
+}
+
+.hero-left{
+
+flex:1;
+
+}
+
+.hero-left h1{
+
+font-size:68px;
+line-height:1.1;
+font-weight:800;
+margin-bottom:25px;
+
+}
+
+.hero-left span{
+
+color:#16ffd3;
+
+}
+
+.hero-left p{
+
+font-size:18px;
+color:#9fb0c5;
+max-width:620px;
+margin-bottom:40px;
+
+}
+
+.hero-buttons{
+
+display:flex;
+gap:18px;
+flex-wrap:wrap;
+
+}
+
+.btn{
+
+display:inline-flex;
+align-items:center;
+justify-content:center;
+
+padding:16px 34px;
+
+border-radius:12px;
+
+font-weight:600;
+
+transition:.3s;
+
+}
+
+.btn-primary{
+
+background:#16ffd3;
+color:#06101b;
+
+}
+
+.btn-primary:hover{
+
+transform:translateY(-4px);
+
+}
+
+.btn-outline{
+
+border:2px solid #16ffd3;
+color:#16ffd3;
+
+}
+
+.btn-outline:hover{
+
+background:#16ffd3;
+color:#06101b;
+
+}
+
+.hero-right{
+
+flex:1;
+display:flex;
+justify-content:center;
+
+}
+
+.chart-box{
+
+width:100%;
+max-width:620px;
+
+background:#101b2d;
+
+padding:15px;
+
+border-radius:22px;
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:0 20px 60px rgba(0,0,0,.35);
+
+}
+
+.chart-box img{
+
+border-radius:15px;
+
+}
+@media(max-width:980px){
+
+.hero{
+    flex-direction:column;
+    text-align:center;
+}
+
+.hero-left h1{
+    font-size:46px;
+}
+
+.hero-buttons{
+    justify-content:center;
+}
+
+nav{
+    display:none;
+}
+
+}
+/* ===========================
+   COMMON SECTIONS
+=========================== */
+
+.section,
+.stats-section{
+    padding:90px 0;
+}
+
+.section-title{
+    text-align:center;
+    margin-bottom:60px;
+}
+
+.section-title h2{
+    font-size:42px;
+    font-weight:700;
+    margin-bottom:15px;
+}
+
+.section-title p{
+    font-size:17px;
+    color:#9fb0c5;
+    max-width:700px;
+    margin:auto;
+    line-height:1.7;
+}
+
+/* ===========================
+   PLATFORM STATS
+=========================== */
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:25px;
+}
+
+.stat-card{
+    background:#101b2d;
+    padding:35px 25px;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,.08);
+    text-align:center;
+    transition:.3s;
+}
+
+.stat-card:hover{
+    transform:translateY(-8px);
+}
+
+.stat-card h3{
+    font-size:38px;
+    color:#16ffd3;
+    margin-bottom:10px;
+}
+
+.stat-card span{
+    color:#b8c4d4;
+}
+
+/* ===========================
+   FEATURES
+=========================== */
+
+.features-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:30px;
+}
+
+.feature-card{
+    background:#101b2d;
+    padding:35px;
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,.08);
+    transition:.3s;
+}
+
+.feature-card:hover{
+    transform:translateY(-8px);
+}
+
+.feature-card i{
+    font-size:42px;
+    color:#16ffd3;
+    margin-bottom:20px;
+}
+
+.feature-card h3{
+    margin-bottom:15px;
+    font-size:23px;
+}
+
+.feature-card p{
+    color:#9fb0c5;
+    line-height:1.8;
+}
+
+/* ===========================
+   HOW IT WORKS
+=========================== */
+
+.steps-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:30px;
+}
+
+.step-card{
+    background:#101b2d;
+    padding:35px;
+    border-radius:22px;
+    border:1px solid rgba(255,255,255,.08);
+    text-align:center;
+    transition:.3s;
+}
+
+.step-card:hover{
+    transform:translateY(-8px);
+}
+
+.step-number{
+    width:65px;
+    height:65px;
+    margin:0 auto 20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:#16ffd3;
+    color:#06101b;
+    font-size:22px;
+    font-weight:700;
+}
+
+.step-card h3{
+    margin-bottom:15px;
+}
+
+.step-card p{
+    color:#9fb0c5;
+    line-height:1.8;
+}
+/* ===========================
+   DASHBOARD
+=========================== */
+
+.dashboard-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:60px;
+    align-items:center;
+}
+
+.dashboard-image img{
+    width:100%;
+    display:block;
+    border-radius:18px;
+}
+
+.dashboard-list{
+    list-style:none;
+    margin:30px 0;
+}
+
+.dashboard-list li{
+    margin-bottom:18px;
+    color:#cbd5e1;
+}
+
+.dashboard-list i{
+    color:#16ffd3;
+    margin-right:10px;
+}
+
+/* ===========================
+   VIP PLANS
+=========================== */
+
+.plans-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:30px;
+}
+
+.plan-card{
+    background:#101b2d;
+    padding:35px;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,.08);
+    text-align:center;
+    position:relative;
+    transition:.3s;
+}
+
+.plan-card:hover{
+    transform:translateY(-8px);
+}
+
+.plan-card h2{
+    font-size:42px;
+    color:#16ffd3;
+    margin:15px 0;
+}
+
+.plan-card p{
+    color:#9fb0c5;
+}
+
+.plan-card ul{
+    list-style:none;
+    margin:25px 0;
+}
+
+.plan-card li{
+    margin:12px 0;
+    color:#aab6c8;
+}
+
+.featured{
+    border:2px solid #16ffd3;
+}
+
+.popular{
+    position:absolute;
+    top:-14px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#16ffd3;
+    color:#06101b;
+    padding:6px 18px;
+    border-radius:30px;
+    font-size:13px;
+    font-weight:700;
+}
+
+/* ===========================
+   FAQ
+=========================== */
+
+.faq-box{
+    max-width:900px;
+    margin:auto;
+}
+
+.faq-item{
+    margin-bottom:18px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:15px;
+    overflow:hidden;
+    background:#101b2d;
+}
+
+.faq-question{
+    width:100%;
+    padding:22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:17px;
+    cursor:pointer;
+}
+
+.faq-answer{
+    display:none;
+    padding:0 22px 22px;
+    color:#9fb0c5;
+    line-height:1.8;
+}
+
+.faq-item.active .faq-answer{
+    display:block;
+}
+
+/* ===========================
+   FOOTER
+=========================== */
+
+footer{
+    background:#050d19;
+    padding:70px 0 30px;
+    margin-top:80px;
+}
+
+/* ===========================
+   AUTH LOADER
+=========================== */
+
+#auth-loader{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background:#08111f;
+    z-index:99999;
+}
+
+#auth-loader img{
+    width:90px;
+    margin-bottom:25px;
+}
+
+.spinner{
+    width:45px;
+    height:45px;
+    border:4px solid rgba(255,255,255,.15);
+    border-top:4px solid #16ffd3;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+    .dashboard-layout{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .section-title h2{
+        font-size:32px;
+    }
+
+    .section,
+    .stats-section{
+        padding:70px 0;
+    }
+
+}
+</style>
+</head>
+
+<body>
+  <header>
+
+    <div class="logo">
+        <img src="cypx_icon_192x192.png" alt="Logo">
+        <h2>CYPX <span>HOLDINGS</span></h2>
+    </div>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#features">Features</a>
+        <a href="#plans">Plans</a>
+        <a href="#faq">FAQ</a>
+    </nav>
+
+</header>
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="hero-left">
+
+        <h1>
+            Digital Asset
+            <br>
+            <span>Management</span>
+            Platform
+        </h1>
+
+        <p>
+            Securely manage your investments, monitor your portfolio,
+            track transactions and access your account from one modern
+            dashboard built for today's digital investor.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="auth.html" class="btn btn-primary">
+                Create Account
+            </a>
+
+            <a href="auth.html" class="btn btn-outline">
+                Login
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="hero-right">
+
+        <div class="chart-box">
+            <img src="forex-chart.png" alt="Forex Market Chart">
+        </div>
+
+    </div>
+
+</section>
+
+<!-- PLATFORM STATISTICS -->
+
+<section class="stats-section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Platform Statistics</h2>
+
+            <p>
+                Trusted by investors across multiple regions.
+            </p>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h3>1,200+</h3>
+                <span>Registered Users</span>
+            </div>
+
+            <div class="stat-card">
+                <h3>$5M+</h3>
+                <span>Total Transactions</span>
+            </div>
+
+            <div class="stat-card">
+                <h3>99.9%</h3>
+                <span>Platform Uptime</span>
+            </div>
+
+            <div class="stat-card">
+                <h3>24/7</h3>
+                <span>Customer Support</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FEATURES -->
+
+<section class="section" id="features">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Why Choose CYPX?</h2>
+
+            <p>
+                Everything you need to securely manage your investments.
+            </p>
+
+        </div>
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+
+                <i class="fas fa-shield-halved"></i>
+
+                <h3>Secure Platform</h3>
+
+                <p>
+                    Advanced account protection with encrypted authentication
+                    and secure transactions.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <i class="fas fa-chart-line"></i>
+
+                <h3>Investment Tracking</h3>
+
+                <p>
+                    Monitor your deposits, earnings and portfolio
+                    directly from your dashboard.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <i class="fas fa-wallet"></i>
+
+                <h3>Fast Withdrawals</h3>
+
+                <p>
+                    Submit withdrawal requests quickly with
+                    real-time status updates.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <i class="fas fa-users"></i>
+
+                <h3>Referral Rewards</h3>
+
+                <p>
+                    Invite new members and receive referral
+                    commissions automatically.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- HOW IT WORKS -->
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>How It Works</h2>
+
+            <p>
+                Start investing in four simple steps.
+            </p>
+
+        </div>
+
+        <div class="steps-grid">
+
+            <div class="step-card">
+
+                <div class="step-number">01</div>
+
+                <h3>Create Account</h3>
+
+                <p>
+                    Register using your email and create
+                    your secure CYPX account.
+                </p>
+
+            </div>
+
+            <div class="step-card">
+
+                <div class="step-number">02</div>
+
+                <h3>Fund Wallet</h3>
+
+                <p>
+                    Deposit funds into your account
+                    to activate your investment.
+                </p>
+
+            </div>
+
+            <div class="step-card">
+
+                <div class="step-number">03</div>
+
+                <h3>Select VIP Plan</h3>
+
+                <p>
+                    Choose an investment package
+                    that matches your financial goals.
+                </p>
+
+            </div>
+
+            <div class="step-card">
+
+                <div class="step-number">04</div>
+
+                <h3>Earn & Withdraw</h3>
+
+                <p>
+                    Track your profits and withdraw
+                    earnings anytime.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- DASHBOARD -->
+
+<section class="section">
+
+    <div class="container dashboard-layout">
+
+        <div class="dashboard-content">
+
+            <div class="section-title" style="text-align:left;margin-bottom:25px;">
+
+                <h2>Everything In One Dashboard</h2>
+
+                <p style="margin:0;max-width:100%;">
+
+                    Manage your balance, investments,
+                    deposits, withdrawals, referral earnings
+                    and account activity from one clean
+                    and modern dashboard.
+
+                </p>
+
+            </div>
+
+            <ul class="dashboard-list">
+
+                <li><i class="fas fa-check-circle"></i> Live Account Balance</li>
+
+                <li><i class="fas fa-check-circle"></i> Deposit History</li>
+
+                <li><i class="fas fa-check-circle"></i> Withdrawal Records</li>
+
+                <li><i class="fas fa-check-circle"></i> Referral Dashboard</li>
+
+                <li><i class="fas fa-check-circle"></i> VIP Investment Plans</li>
+
+                <li><i class="fas fa-check-circle"></i> Transaction Notifications</li>
+
+            </ul>
+
+            <a href="auth.html" class="btn btn-primary">
+                Open Account
+            </a>
+
+        </div>
+
+        <div class="dashboard-image">
+
+            <img src="dashboard-preview.png"
+                 alt="Dashboard Preview">
+
+        </div>
+
+    </div>
+
+</section>
+<!-- VIP PLANS -->
+
+<section class="section" id="plans">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>VIP Investment Plans</h2>
+
+            <p>
+                Choose the investment package that best fits
+                your financial goals.
+            </p>
+
+        </div>
+
+            <div class="plan-card">
+    <h3>VIP 1</h3>
+    <h2>$50</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 2</h3>
+    <h2>$100</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 3</h3>
+    <h2>$300</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 4</h3>
+    <h2>$500</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 5</h3>
+    <h2>$700</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 6</h3>
+    <h2>$1,000</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 7</h3>
+    <h2>$2,500</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 8</h3>
+    <h2>$5,000</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 9</h3>
+    <h2>$7,000</h2>
+    <p>Minimum Deposit</p>
+</div>
+
+<div class="plan-card">
+    <h3>VIP 10</h3>
+    <h2>$10,000</h2>
+    <p>Minimum Deposit</p>
+</div>
+                <ul>
+                    <li>Maximum Daily Income</li>
+                    <li>VIP Account Status</li>
+                    <li>Fast Withdrawals</li>
+                    <li>Exclusive Benefits</li>
+                </ul>
+
+                <a href="auth.html" class="btn btn-primary">
+                    Invest
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- WHY CHOOSE CYPX -->
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Why Investors Choose CYPX</h2>
+
+            <p>
+                Built around trust, speed and enterprise-grade
+                security for modern investors.
+            </p>
+
+        </div>
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+
+                <i class="fas fa-lock"></i>
+
+                <h3>Enterprise Security</h3>
+
+                <p>
+                    Protected accounts using secure authentication
+                    and encrypted connections.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <i class="fas fa-coins"></i>
+
+                <h3>Investment Plans</h3>
+
+                <p>
+                    Multiple VIP packages suitable for beginners
+                    and experienced investors.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <i class="fas fa-headset"></i>
+
+                <h3>24/7 Support</h3>
+
+                <p>
+                    Friendly customer support available whenever
+                    you need assistance.
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <i class="fas fa-globe"></i>
+
+                <h3>Global Platform</h3>
+
+                <p>
+                    Access your account securely from anywhere
+                    in the world.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- TESTIMONIALS -->
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Trusted By Investors</h2>
+
+            <p>
+                Thousands of users rely on CYPX to manage
+                their investments every day.
+            </p>
+
+        </div>
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+
+                <div style="color:#16ffd3;font-size:22px;margin-bottom:15px;">
+                    ★★★★★
+                </div>
+
+                <p>
+                    "The platform is easy to use and my dashboard
+                    keeps everything organized."
+                </p>
+
+                <br>
+
+                <strong>Platform Member</strong>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div style="color:#16ffd3;font-size:22px;margin-bottom:15px;">
+                    ★★★★★
+                </div>
+
+                <p>
+                    "Deposits and withdrawals are simple and
+                    customer support responds quickly."
+                </p>
+
+                <br>
+
+                <strong>Verified Investor</strong>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div style="color:#16ffd3;font-size:22px;margin-bottom:15px;">
+                    ★★★★★
+                </div>
+
+               <p>
+                    "I like the referral dashboard because I can
+                    track my team's performance easily."
+                </p>
+
+                <br>
+
+                <strong>VIP Member</strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FAQ -->
+
+<section class="section" id="faq">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Frequently Asked Questions</h2>
+
+            <p>
+                Everything you need before getting started.
+            </p>
+
+        </div>
+
+        <div class="faq-box">
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    How do I create an account?
+                    <i class="fas fa-plus"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Register by clicking
+                    <strong>Create Account</strong>
+                    and complete the registration form.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Is my account secure?
+                    <i class="fas fa-plus"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Yes. CYPX uses secure authentication and encrypted
+                    connections to protect user accounts.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Can I use CYPX on mobile?
+                    <i class="fas fa-plus"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Yes. The platform is fully responsive and can also
+                    be installed as a Progressive Web App (PWA).
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    Does CYPX have referrals?
+                    <i class="fas fa-plus"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Yes. Invite friends using your referral link and
+                    earn referral commissions automatically.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- CALL TO ACTION -->
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="feature-card" style="text-align:center;padding:70px 40px;">
+
+            <h2 style="font-size:42px;margin-bottom:20px;">
+                Ready To Start Investing?
+            </h2>
+
+            <p style="max-width:700px;margin:auto auto 35px;">
+                Create your CYPX account today and begin managing your
+                investments through one professional dashboard.
+            </p>
+
+            <div class="hero-buttons" style="justify-content:center;">
+
+                <a href="auth.html" class="btn btn-primary">
+                    Create Account
+                </a>
+
+                <a href="auth.html" class="btn btn-outline">
+                    Login
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+    <div class="container">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px;">
+
+            <div>
+
+                <h2 style="margin-bottom:15px;">
+                    CYPX <span style="color:#16ffd3;">HOLDINGS</span>
+                </h2>
+
+                <p style="color:#9fb0c5;">
+                    Modern digital asset management platform built
+                    for secure investing.
+                </p>
+
+            </div>
+
+            <div>
+
+                <h3 style="margin-bottom:15px;">Quick Links</h3>
+
+                <p><a href="#">Home</a></p>
+                <p><a href="#features">Features</a></p>
+                <p><a href="#plans">VIP Plans</a></p>
+                <p><a href="#faq">FAQ</a></p>
+
+            </div>
+
+            <div>
+
+                <h3 style="margin-bottom:15px;">Support</h3>
+
+                <p style="color:#9fb0c5;">
+                    cypxonlinecryptoinfo@gmail.com
+                </p>
+
+                <br>
+
+                <p style="color:#9fb0c5;">
+                    Telegram: @Cypxonlinecrypto
+                </p>
+
+            </div>
+
+        </div>
+
+        <hr style="margin:50px 0;border-color:rgba(255,255,255,.08);">
+
+        <p style="text-align:center;color:#8ea1b8;">
+            © 2026 CYPX HOLDINGS. All Rights Reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+<!-- AUTH LOADER -->
+
+<div id="auth-loader">
+
+    <img src="cypx_icon_192x192.png" alt="Loading">
+
+    <div class="spinner"></div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const loader = document.getElementById("auth-loader");
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        window.location.replace("dashboard.html");
+    } else {
+        loader.style.display = "none";
+    }
+});
+
+document.querySelectorAll(".faq-question").forEach(button => {
+    button.addEventListener("click", () => {
+        button.parentElement.classList.toggle("active");
+    });
+});
+
+</script>
+
+</body>
+</html>
