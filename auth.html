@@ -1357,9 +1357,9 @@ break;
 
 default:
 
-showError(
+console.error(error);
 
-error.message
+showError(error.code + " : " + error.message);
 
 );
 
