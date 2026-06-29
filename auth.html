@@ -1488,9 +1488,39 @@ showSuccess(
 "Password reset email sent."
 );
 
-}catch(error){
+   }catch(error){
 
-showError(error.message);
+hideLoading();
+
+switch(error.code){
+
+case "auth/email-already-in-use":
+
+showError("This email is already registered.");
+
+break;
+
+case "auth/weak-password":
+
+showError("Choose a stronger password.");
+
+break;
+
+case "auth/invalid-email":
+
+showError("Invalid email address.");
+
+break;
+
+default:
+
+console.error(error);
+
+showError(error.code + " : " + error.message);
+
+}
+
+   }
 
 }
 
