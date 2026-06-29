@@ -1303,7 +1303,12 @@ joinedAt:serverTimestamp()
 /* ---------------------------
    WRITE EVERYTHING
 ---------------------------- */
+console.log("Writing updates:", updates);
 
+await update(ref(db), updates);
+
+console.log("Database write successful!");
+   
 await update(
 
 ref(db),
@@ -1311,6 +1316,8 @@ ref(db),
 updates
 
 );
+   const testSnap = await get(ref(db, "users/" + uid));
+console.log("User data:", testSnap.val());
 
 /* ---------------------------
    SUCCESS
