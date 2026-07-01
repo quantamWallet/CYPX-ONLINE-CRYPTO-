@@ -353,17 +353,16 @@ auth.onAuthStateChanged(user => {
       item.className = "earning-item";
 
       item.innerHTML = `
-        <div class="vip-tag">VIP ${level}</div>
-        <div>${days}d</div>
-        <div class="amount">${formatMoney(earned)}</div>
+<div class="vip-tag">VIP ${level}</div>
+<div>${days}d</div>
+<div class="amount">${formatMoney(earned)}</div>
+`;
 
-      list.appendChild(item);
-    });
+list.appendChild(item);
 
     document.getElementById("total-earnings").textContent =
   "Total Earnings: " + formatMoney(total);
-
-});
+            }
 setTimeout(() => {
     const loader = document.getElementById("loader");
     if (loader) loader.style.display = "none";
