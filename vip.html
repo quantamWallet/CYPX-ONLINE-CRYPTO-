@@ -444,9 +444,6 @@ onAuthStateChanged(auth, user => {
 
   await update(userRef, {
     balance: newBalance,
-    [`vipLevels/${level}/claims`]: claims,
-    [`vipLevels/${level}/lastClaim`]: now,
-
     // Store total VIP earnings
     [`vipEarnings/${level}/totalEarned`]: claims * profit,
     [`vipEarnings/${level}/lastClaim`]: now
