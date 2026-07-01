@@ -1070,26 +1070,15 @@ return true;
 
 async function usernameExists() {
 
-    const snapshot = await get(ref(db, "users"));
-
-    if (!snapshot.exists()) return false;
-
-    const users = snapshot.val();
-
     const newUsername = username.value.trim().toLowerCase();
 
-    for (const uid in users) {
+    const snapshot = await get(
+        ref(db, "usernames/" + newUsername)
+    );
 
-        if (users[uid].username === newUsername) {
-            return true;
-        }
+    return snapshot.exists();
 
-    }
-
-    return false;
-
-}
-
+   }
 /* ===========================
    LOGIN PERSISTENCE
 =========================== */
@@ -1214,12 +1203,13 @@ referralUsername;
 }
 
 }
-updates["usernames/" + userName] = uid;
+
 /* ---------------------------
    PREPARE DATABASE WRITES
 ---------------------------- */
 const updates = {};
-
+updates["usernames/" + userName] = uid;
+   
 updates["users/"+uid] = {
 
 uid:uid,
