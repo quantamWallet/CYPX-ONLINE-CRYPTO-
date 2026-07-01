@@ -306,11 +306,14 @@ auth.onAuthStateChanged(user => {
   // OLD CLAIMS DATA
   oldClaimsRef.on("value", snap => {
     oldClaims = snap.val() || {};
+  
     renderEarnings();
+
+document.getElementById("loader").style.display = "none";
   });
 
-  document.getElementById("loader").style.display = "none";
-  
+
+
   // 🔥 MAIN RENDER FUNCTION
   function renderEarnings(){
     const list = document.getElementById("earnings-list");
