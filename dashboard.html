@@ -34,12 +34,29 @@
     </script>  
   
     <style>  
-      body {  
-        margin: 0;  
-        font-family: Arial, sans-serif;  
-        background-color: #001f3f;  
-        color: white;  
-      }  
+      body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+
+    background: url("1000018953.jpg") no-repeat center center fixed;
+    background-size: cover;
+      }
+      body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(0, 20, 45, 0.65);
+    z-index:-1;
+      }
+      .balance-card,
+.vip-box,
+header,
+nav{
+    background:rgba(0,31,63,0.75);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+}
       header {  
         background-color: #002f6c;  
         padding: 15px;  
