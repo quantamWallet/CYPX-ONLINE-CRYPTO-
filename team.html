@@ -825,8 +825,7 @@ try {
     await Promise.all(
         allIds.map(async (id) => {
             try {
-                const s = await database.ref("users/" + id).once("value");
-                users[id] = s.val() || {};
+                const s = await database.ref("teamStats/" + id).once("value");
             } catch (e) {
                 console.error("User Load Error:", id, e);
                 users[id] = {};
