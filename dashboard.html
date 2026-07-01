@@ -459,7 +459,7 @@ Claim 0.80 USD
     <p><strong>🔹 Account & Transactions</strong></p>
     <ul>
       <li>Minimum deposit: <strong>$50</strong></li>
-      <li>Minimum withdrawal: <strong>$10 KES</strong></li>
+      <li>Minimum withdrawal: <strong>$10</strong></li>
       <li>Withdrawals are processed within <strong>24 hours</strong></li>
     </ul>
 
@@ -535,8 +535,7 @@ window.onload = function () {
     balanceRef.on("value", snap => {
   const balance = Number(snap.val() || 0);
   document.getElementById("user-balance").textContent =
-    "USD " + formatMoney(balance);
-});
+  "USD " + formatMoney(balance);
     /* =========================
        TOTAL DEPOSITS (FIXED PROPERLY)
     ========================= */
@@ -557,7 +556,8 @@ window.onload = function () {
       }
 
       document.getElementById("total-deposit").textContent =
-  "USD " + formatMoney(totalDeposit); });
+  "USD " + formatMoney(totalDeposit);
+});
 
     /* =========================
        TOTAL EARNINGS (REAL FIX 🔥)
@@ -588,7 +588,7 @@ window.onload = function () {
   .then(bonusSnap => {
 
     if (bonusSnap.val() === true) {
-      total += 0.8;
+      total += 0.80;
     }
 
     // ✅ FIXED: removed wrong semicolon + chained properly
@@ -684,7 +684,7 @@ auth.onAuthStateChanged(function(user) {
       claimBtn.textContent = "Completed";
       claimBtn.disabled = true;
 
-      showPopup("0.8 USD successfully claimed");
+      showPopup("0.80 USD successfully claimed");
 
       // 🔁 refresh earnings safely (only if function exists)
       if (typeof loadTotalEarnings === "function") {
@@ -707,18 +707,7 @@ auth.onAuthStateChanged(function(user) {
       const list = document.getElementById("vip-list");
       list.innerHTML = "";
 
-      const vipData = [
-  50,
-  100,
-  200,
-  500,
-  1000,
-  2500,
-  5000,
-  10000,
-  25000,
-  50000
-];
+      const vipData = [50, 100, 200, 500,1000, 2500,5000,10000, 25000, 50000];
 
       vipData.forEach((amt, i) => {
         const lvl = i + 1;
