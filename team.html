@@ -823,9 +823,6 @@ const users = {};
 try {
 
     await Promise.all(
-        allIds.map(async (id) => {
-            try {
-                await Promise.all(
     allIds.map(async (id) => {
         try {
             const s = await database.ref("teamStats/" + id).once("value");
