@@ -758,10 +758,11 @@ animateValue("refCount",purchasedReferralCount);
 
 });
 
-database.ref("referrals/"+uid)
-.on("value",async snap=>{
+database.ref("referrals/"+uid).on("value", async (snap) => {
 
-const referralTree=snap.val()||{};
+try {
+
+const referralTree = snap.val() || {};
 
 const level1=[];
 
@@ -775,59 +776,73 @@ level1.push(id);
 
 });
 
-for(const level1Uid of level1){
+await Promise.all(level1.map(async(level1Uid)=>{
 
-const level2Snap=await database
-.ref("referrals/"+level1Uid)
-.once("value");
+try{
 
-const level2Data=level2Snap.val()||{};
+const s = await database.ref("referrals/"+level1Uid).once("value");
 
-Object.keys(level2Data).forEach(id=>{
+const data = s.val() || {};
 
-level2.push(id);
+level2.push(...Object.keys(data));
 
-});
+}catch(e){
 
-}
-
-for(const level2Uid of level2){
-
-const level3Snap=await database
-.ref("referrals/"+level2Uid)
-.once("value");
-
-const level3Data=level3Snap.val()||{};
-
-Object.keys(level3Data).forEach(id=>{
-
-level3.push(id);
-
-});
+console.error("Level 2 Error:",e);
 
 }
 
-const allIds=[
+}));
+
+await Promise.all(level2.map(async(level2Uid)=>{
+
+try{
+
+const s = await database.ref("referrals/"+level2Uid).once("value");
+
+const data = s.val() || {};
+
+level3.push(...Object.keys(data));
+
+}catch(e){
+
+console.error("Level 3 Error:",e);
+
+}
+
+}));
+
+const allIds = [...new Set([
 ...level1,
 ...level2,
 ...level3
-];
-
+])];
+  
 const users={};
 
-await Promise.all(
+await Promise.all(allIds.map(async(id)=>{
 
-allIds.map(async(id)=>{
+try{
 
-const s=await database
-.ref("users/"+id)
-.once("value");
+const s = await database.ref("users/"+id).once("value");
 
-users[id]=s.val()||{};
+users[id] = s.val() || {};
 
-})
+}catch(e){
 
-);
+console.error("User Load Error:",id,e);
+
+users[id] = {};
+
+}catch(err){
+
+console.error("Team Page Error:",err);
+
+alert("Failed to load your team. Please refresh.");
+
+}
+
+});
 
 let totalDeposit=purchasedReferralDeposits;
 
@@ -866,14 +881,14 @@ uidList.forEach(uid=>{
 
 const u=users[uid]||{};
 
-const deposit=parseFloat(u.totalDeposit||0);
+  const deposit = Number(u.totalDeposit || 0);
 
 if (deposit > 0) {
     commission += deposit * percent;
     totalDeposit += deposit;
 }
 
-if (u.firstDeposit === true) {
+if (deposit > 0) {
     firstDeposit++;
 }
 
@@ -930,10 +945,8 @@ level3,
 "lev3-total",
 0.01
 );
-  const realTeamSize=
-level1.length+
-level2.length+
-level3.length+
+  const realTeamSize =
+allIds.length +
 purchasedReferralCount;
 
 animateValue(
