@@ -973,13 +973,19 @@ animateValue(
 firstDeposit
 );
 
-animateValue(
-"team-bonus",
-totalBonus
-);
 
-});
-  });
+animateValue("team-bonus", totalBonus);
+
+} catch (err) {
+
+    console.error("Referral Tree Error:", err);
+    alert("Unable to load your team data.");
+
+}
+
+}); // end referrals listener
+
+}); // end auth listener
 
 </script>
 
