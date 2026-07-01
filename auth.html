@@ -1207,56 +1207,44 @@ referralUsername;
 /* ---------------------------
    PREPARE DATABASE WRITES
 ---------------------------- */
+
 const updates = {};
+
 updates["usernames/" + userName] = uid;
-   
-updates["users/"+uid] = {
 
-uid:uid,
+updates["users/" + uid] = {
 
-username:userName,
+    uid: uid,
 
-email:email,
+    username: userName,
 
-phone:phone,
+    email: email,
 
-currency:"USD",
+    phone: phone,
 
-balance:0,
+    currency: "USD",
 
-totalDeposit:0,
+    balance: 0,
 
-totalWithdrawn:0,
+    totalDeposit: 0,
 
-totalReferralBonus:0,
+    totalWithdrawn: 0,
 
-totalTaskIncome:0,
+    totalReferralBonus: 0,
 
-vipLevel:0,
+    totalTaskIncome: 0,
 
-firstDeposit:false,
+    vipLevel: 0,
 
-status:"active",
+    firstDeposit: false,
 
-referredBy:referredBy,
+    status: "active",
 
-referredByUsername:referredByUsername,
+    referredBy: referredBy || "",
 
-joinedAt:serverTimestamp()
+    referredByUsername: referredByUsername || "",
 
-};
-
-updates["userStats/"+uid] = {
-
-teamSize:0,
-
-teamDeposit:0,
-
-teamBonus:0,
-
-firstDeposits:0,
-
-referrals:0
+    joinedAt: serverTimestamp()
 
 };
 
