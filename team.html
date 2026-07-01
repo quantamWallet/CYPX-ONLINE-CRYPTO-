@@ -621,7 +621,7 @@ auth.onAuthStateChanged(async(user)=>{
 
 if(!user){
 
-location.href="landing.html";
+location.href="index.html";
 return;
 
 }
@@ -643,7 +643,7 @@ currentUsername=usernameSnap.exists()
 :(user.email?user.email.split("@")[0]:"user");
 
 const referralLink=
-"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/signup.html?ref="+
+"https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/auth.html?ref="+
 encodeURIComponent(currentUsername);
 
 const refInput=document.getElementById("ref-link");
