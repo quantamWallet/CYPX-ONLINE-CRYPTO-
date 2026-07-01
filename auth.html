@@ -1068,20 +1068,25 @@ return true;
    CHECK USERNAME EXISTS
 =========================== */
 
-async function usernameExists(){
+async function usernameExists() {
 
-const usernameRef =
-ref(
-db,
-"usernames/"+username.value
-.trim()
-.toLowerCase()
-);
+    const snapshot = await get(ref(db, "users"));
 
-const snapshot =
-await get(usernameRef);
+    if (!snapshot.exists()) return false;
 
-return snapshot.exists();
+    const users = snapshot.val();
+
+    const newUsername = username.value.trim().toLowerCase();
+
+    for (const uid in users) {
+
+        if (users[uid].username === newUsername) {
+            return true;
+        }
+
+    }
+
+    return false;
 
 }
 
@@ -1209,11 +1214,10 @@ referralUsername;
 }
 
 }
-
+updates["usernames/" + userName] = uid;
 /* ---------------------------
    PREPARE DATABASE WRITES
 ---------------------------- */
-
 const updates = {};
 
 updates["users/"+uid] = {
@@ -1251,8 +1255,6 @@ referredByUsername:referredByUsername,
 joinedAt:serverTimestamp()
 
 };
-
-updates["usernames/"+userName] = uid;
 
 updates["userStats/"+uid] = {
 
@@ -1305,17 +1307,21 @@ joinedAt:serverTimestamp()
 ---------------------------- */
 console.log("Writing updates:", updates);
 
-await update(ref(db), updates);
+try {
 
-console.log("Database write successful!");
+    await update(ref(db), updates);
+
+    console.log("Database saved successfully!");
+
+} catch (err) {
+
+    console.error("Database write failed:", err);
+
+    throw err;
+
+}
+
    
-await update(
-
-ref(db),
-
-updates
-
-);
    const testSnap = await get(ref(db, "users/" + uid));
 console.log("User data:", testSnap.val());
 
@@ -1528,22 +1534,6 @@ username.value
 });
 
 /* ===========================
-   AUTO REDIRECT
-=========================== */
-
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-window.location.replace(
-"dashboard.html"
-);
-
-}
-
-});
-
-/* ===========================
    PAGE READY
 =========================== */
 
@@ -1553,4 +1543,4 @@ hideLoading();
 
 </body>
 
-   </html>
+</html>
