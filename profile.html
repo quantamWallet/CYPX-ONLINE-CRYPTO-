@@ -244,9 +244,7 @@ align-items:center;
   <i class="fas fa-user-circle" style="font-size:50px;"></i>
 </div>
 
-<div class="balance-card">
-  <div class="balance-main">KSh <span id="balance">0.00</span></div>
-
+<div class="balance-main"><span id="balance">$0.00</span></div>
   <div class="balance-grid">
     <div>
       <small>Total Deposit</small>
@@ -296,7 +294,7 @@ const db = firebase.database();
 
 /* FORMAT */
 function formatMoney(num){
-  return Number(num || 0).toLocaleString('en-KE', {
+  return "$" + Number(num || 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
