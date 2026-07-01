@@ -399,10 +399,12 @@ onAuthStateChanged(auth, user => {
     };
 
     await update(userRef, {
-      balance: newBalance,
-      [`vipLevels/${level}`]: vipData,
-      [`dashboard/unlockedVIPs/${level}`]: true
-    });
+  balance: newBalance,
+  [`vipLevels/${level}/claims`]: claims,
+  [`vipLevels/${level}/lastClaim`]: now,
+  [`vipEarnings/${level}/totalEarned`]: claims * profit,
+  [`vipEarnings/${level}/lastClaim`]: now
+});
 
     showToast(
       `VIP${level} unlocked successfully! ${formatCurrency(cost)} deducted.`
