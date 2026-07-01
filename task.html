@@ -215,7 +215,7 @@ auth.onAuthStateChanged(user => {
     11:31500,12:42750,13:60000,14:73500,15:110000
   };
 
-  const totalVipLevels = 15;
+  const totalVipLevels = 10;
   let unlockedLevels = [];
   let vipData = {};
   let dashboardData = {};
@@ -323,14 +323,14 @@ auth.onAuthStateChanged(user => {
       item.innerHTML = `
         <div class="vip-tag">VIP ${level}</div>
         <div>${days}d</div>
-        <div class="amount">USD ${formatMoney(earned)}</div>
+        <div class="amount">$ ${formatMoney(earned)}</div>
       `;
 
       list.appendChild(item);
     });
 
     document.getElementById("total-earnings").textContent =
-      "Total Earnings: USD " + formatMoney(total);
+      "Total Earnings: $ " + formatMoney(total);
   }
 
 });
