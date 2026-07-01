@@ -273,9 +273,9 @@ nav i { font-size:20px; }
           <div class="vip-content">  
             <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png"/>  
             <div class="vip-details">  
-              <div><strong>Cost:</strong> ${v.cost} KSH</div>  
-              <div class="profit"><strong>Daily Profit:</strong> ${v.profit} KSH</div>  
-              <div><strong>Total (12 days):</strong> ${v.profit*12} KSH</div>  
+              <div><strong>Cost:</strong> ${v.cost} $</div>  
+              <div class="profit"><strong>Daily Profit:</strong> ${v.profit} $</div>  
+              <div><strong>Total (12 days):</strong> ${v.profit*12} $</div>  
               <div class="countdown" id="countdown-${v.level}">Next claim: --:--:--</div>  
               <button class="${btnClass}" id="action-${v.level}" ${disabled}>${btnLabel}</button>  
             </div>  
@@ -311,7 +311,7 @@ nav i { font-size:20px; }
   
         if (balance < cost) {  
           const needed = (cost - balance).toFixed(2);  
-          showPopup(`Insufficient balance. You need ${needed} KSH to unlock this VIP level.`);  
+          showPopup(`Insufficient balance. You need ${needed} $ to unlock this VIP level.`);  
           return;  
         }  
   
@@ -324,7 +324,7 @@ nav i { font-size:20px; }
           [`dashboard/unlockedVIPs/${level}`]: true  
         });  
   
-        showToast(`VIP${level} unlocked successfully! ${cost} KSH deducted.`);  
+        showToast(`VIP${level} unlocked successfully! ${cost} $ deducted.`);  
       } catch (error) {  
         console.error("Unlock error:", error);  
         showToast("Something went wrong. Please try again.");  
@@ -366,7 +366,7 @@ nav i { font-size:20px; }
   [`vipEarnings/${level}/lastClaim`]: now
 });
   
-      showToast(`Daily profit of ${profit} KSH claimed for VIP${level}`);  
+      showToast(`Daily profit of ${profit} $ claimed for VIP${level}`);  
     }  
   
     function startCountdown(level,lastClaim){  
