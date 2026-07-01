@@ -642,7 +642,7 @@ auth.onAuthStateChanged(function(user) {
       }
 
       // ✅ apply bonus
-      userData.balance = Number(userData.balance || 0) + 100;
+      userData.balance = Number(userData.balance || 0) + 0.8;
       userData.hasClaimedBonus = true;
 
       return userData;
@@ -690,7 +690,7 @@ auth.onAuthStateChanged(function(user) {
       list.innerHTML = "";
 
       const vipData = [
-  50,100,200,500,1000,2500,5000,10000,25000,5000],
+  [  50,100,200,500,1000,2500,5000,10000,25000,5000  ];
 
       vipData.forEach((amt, i) => {
         const lvl = i + 1;
