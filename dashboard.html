@@ -26,10 +26,10 @@
       const auth = firebase.auth(); 
       
       function formatMoney(amount) {
-  return new Intl.NumberFormat('en-US', {
+  return "$" + Number(amount || 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }).format(amount);
+  });
       }
     </script>  
   
@@ -386,16 +386,16 @@ nav{
 
   <div class="balance-card">
     <p class="label">Total Balance</p>
-    <h1 id="user-balance">USD 0.00</h1>
+    <h1 id="user-balance">$ 0.00</h1>
 
     <div class="balance-stats">
       <div>
         <p class="small-muted">Total Deposit</p>
-        <h3 id="total-deposit">USD 0.00</h3>
+        <h3 id="total-deposit">$ 0.00</h3>
       </div>
       <div>
         <p class="small-muted">Total Earnings</p>
-        <h3 id="total-earnings">USD 0.00</h3>
+        <h3 id="total-earnings">$ 0.00</h3>
       </div>
     </div>
   </div>
@@ -424,7 +424,7 @@ nav{
         Improve VIP task rules on the same day. Upgrading the VIP level on the same day allows you to complete multiple tasks without restrict. Listed as: You are now VIP1 and have completed today's task. You can upgrade to VIP2 to continue completing VIP2 tasks. If you continue to upgrade to VIP3, you can continue to complete the tasks of VIP3. 【Similar to this, the highest level of VIP is VIP10】  
       </p>  
       <button class="claim-btn" id="claim-btn">
-Claim 0.80 USD
+Claim $ 0.80
       </button> 
     </div>  
   
@@ -535,7 +535,8 @@ window.onload = function () {
     balanceRef.on("value", snap => {
   const balance = Number(snap.val() || 0);
   document.getElementById("user-balance").textContent =
-  "USD " + formatMoney(balance);
+formatMoney(balance);
+      })
     /* =========================
        TOTAL DEPOSITS (FIXED PROPERLY)
     ========================= */
@@ -556,8 +557,8 @@ window.onload = function () {
       }
 
       document.getElementById("total-deposit").textContent =
-  "USD " + formatMoney(totalDeposit);
-});
+formatMoney(totalDeposit);
+      })
 
     /* =========================
        TOTAL EARNINGS (REAL FIX 🔥)
@@ -604,7 +605,7 @@ window.onload = function () {
     }
 
     document.getElementById("total-earnings").textContent =
-  "USD " + formatMoney(total);
+formatMoney(total);
 })
 .catch(err => {
     console.error("Earnings error:", err);
@@ -637,7 +638,7 @@ auth.onAuthStateChanged(function(user) {
       claimBtn.textContent = "Completed";
       claimBtn.disabled = true;
     } else {
-      claimBtn.textContent = "Claim 0.80 USD";
+      claimBtn.textContent = "Claim $0.80";
       claimBtn.disabled = false;
     }
   });
@@ -670,7 +671,7 @@ auth.onAuthStateChanged(function(user) {
       if (error) {
         console.error("Transaction failed:", error);
         claimBtn.disabled = false;
-        claimBtn.textContent = "Claim 0.80 USD";
+        claimBtn.textContent = "Claim $0.80";
         showPopup("Error, try again", true);
         return;
       }
@@ -684,8 +685,7 @@ auth.onAuthStateChanged(function(user) {
       claimBtn.textContent = "Completed";
       claimBtn.disabled = true;
 
-      showPopup("0.80 USD successfully claimed");
-
+      showPopup("$0.80 successfully claimed");
       // 🔁 refresh earnings safely (only if function exists)
       if (typeof loadTotalEarnings === "function") {
         loadTotalEarnings();
@@ -719,7 +719,7 @@ auth.onAuthStateChanged(function(user) {
         div.innerHTML = `
           <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
           <div class="info">
-            <p>Unlock amount: <span class="amount">USD ${amt.toLocaleString()}</span></p>
+            <p>Unlock amount: <span class="amount">$${amt.toLocaleString()}</span></p>
             <p>${unlocked ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
           </div>
           <div class="arrow">»</div>
