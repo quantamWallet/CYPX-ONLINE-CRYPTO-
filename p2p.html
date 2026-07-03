@@ -285,13 +285,13 @@ Airtel Money Trader
 </div>
 
 <div class="minimum">
-Minimum Deposit: KSh 2,000
+Minimum Deposit: $50
 </div>
 
 <ul class="steps">
 <li>Open M-PESA or Airtel Money</li>
 <li>Send payment to one trader above</li>
-<li>Enter amount above KSh 2,000</li>
+<li>Enter amount above $50</li>
 <li>Upload payment screenshot</li>
 <li>Submit deposit request</li>
 </ul>
@@ -308,7 +308,7 @@ Minimum Deposit: KSh 2,000
 type="number"
 id="amount"
 class="input"
-placeholder="Enter amount (Min 2000 KSH)"
+placeholder="Enter amount (Min $50)"
 required
 />
 
@@ -403,7 +403,7 @@ auth.onAuthStateChanged((user) => {
     showPopup("Please login first", "error");
 
     setTimeout(() => {
-      window.location.href = "signin.html";
+      window.location.href = "auth.html";
     }, 1500);
   }
 });
@@ -458,9 +458,9 @@ document.getElementById("phone").value.trim();
 const receipt =
 document.getElementById("receipt").files[0];
 
-if (amount < 2000) {
+if (amount < 50) {
   showPopup(
-    "Minimum deposit is KSh 2,000",
+    "Minimum deposit is $50",
     "error"
   );
 
