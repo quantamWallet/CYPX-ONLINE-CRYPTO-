@@ -303,16 +303,14 @@ auth.onAuthStateChanged(user => {
     renderEarnings();
     });
   
-  // OLD CLAIMS DATA
-  oldClaimsRef.on("value", snap => {
+// OLD CLAIMS DATA
+oldClaimsRef.on("value", snap => {
     oldClaims = snap.val() || {};
-  
     renderEarnings();
+});
 
-
-
-  // 🔥 MAIN RENDER FUNCTION
-  function renderEarnings(){
+// 🔥 MAIN RENDER FUNCTION
+function renderEarnings() {
     const list = document.getElementById("earnings-list");
 
     list.innerHTML = "";
@@ -357,9 +355,8 @@ auth.onAuthStateChanged(user => {
 document.getElementById("total-earnings").textContent =
     "Total Earnings: " + formatMoney(total);
 
-} // closes renderEarnings()
-
+} 
 </script>
 <script src="js/app-back.js"></script>
 </body>
-  </html>
+</html>
