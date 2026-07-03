@@ -280,14 +280,14 @@ onclick="copyWallet()"
 <small>Tap to copy wallet</small>
 </div>
 <div class="minimum">
-Minimum Deposit: KSh 5,000
+Minimum Deposit: $50
 </div>
 
 <ul class="steps">
 <li>Select the crypto network carefully</li>
 <li>Copy the wallet address</li>
 <li>Send crypto to selected wallet</li>
-<li>Enter amount above KSh 5,000</li>
+<li>Enter amount of at least $50</li>
 <li>Upload payment screenshot</li>
 <li>Submit deposit request</li>
 </ul>
@@ -306,7 +306,7 @@ Minimum Deposit: KSh 5,000
 type="number"
 id="amount"
 class="input"
-placeholder="Enter amount (Min 5000 KSH)"
+placeholder="Enter amount (Min $50)"
 required
 />
 
@@ -420,7 +420,7 @@ auth.onAuthStateChanged((user)=>{
 
     setTimeout(()=>{
       window.location.href =
-      "signin.html";
+      "auth.html";
     },1500);
   }
 });
@@ -565,10 +565,10 @@ cryptoSelect.value;
 const walletAddress =
 wallets[selectedCrypto];
 
-if(amount < 5000){
+if(amount < 50){
 
 showPopup(
-"Minimum deposit is KSh 5,000",
+"Minimum deposit is $50",
 "error"
 );
 
