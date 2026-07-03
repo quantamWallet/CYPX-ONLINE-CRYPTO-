@@ -273,7 +273,7 @@ auth.onAuthStateChanged(user => {
       if ((d.claims || 0) >= 12) completed++;
       else inProgress++;
     });
-
+    document.getElementById("loader").style.display = "none";
     document.getElementById("total-tasks").textContent = totalVipLevels;
     document.getElementById("remaining-tasks").textContent = totalVipLevels - unlockedLevels.length;
     document.getElementById("completed").textContent = completed;
@@ -309,9 +309,6 @@ auth.onAuthStateChanged(user => {
   
     renderEarnings();
 
-document.getElementById("loader").style.display = "none";
-  });
-
 
 
   // 🔥 MAIN RENDER FUNCTION
@@ -329,48 +326,38 @@ document.getElementById("loader").style.display = "none";
 
     unlockedLevels.forEach(level => {
 
-      // ✅ PRIORITY SYSTEM
-      let days = 0;
+    let days = 0;
 
-      // 1. New system (vipLevels)
-      if (vipData[level]?.claims) {
+    if (vipData[level]?.claims) {
         days = Number(vipData[level].claims);
-      }
-
-      // 2. Dashboard fallback
-      else if (dashboardData[level]?.daysClaimed) {
+    } else if (dashboardData[level]?.daysClaimed) {
         days = Number(dashboardData[level].daysClaimed);
-      }
-
-      // 3. Old system fallback
-      else if (oldClaims[level]?.daysClaimed) {
+    } else if (oldClaims[level]?.daysClaimed) {
         days = Number(oldClaims[level].daysClaimed);
-      }
+    }
 
-      const perDay = vipRates[level] || 0;
-      const earned = days * perDay;
+    const perDay = vipRates[level] || 0;
+    const earned = days * perDay;
 
-      total += earned;
+    total += earned;
 
-      const item = document.createElement("div");
-      item.className = "earning-item";
+    const item = document.createElement("div");
+    item.className = "earning-item";
 
-      item.innerHTML = `
-<div class="vip-tag">VIP ${level}</div>
-<div>${days}d</div>
-<div class="amount">${formatMoney(earned)}</div>
-`;
+    item.innerHTML = `
+        <div class="vip-tag">VIP ${level}</div>
+        <div>${days}d</div>
+        <div class="amount">${formatMoney(earned)}</div>
+    `;
 
-list.appendChild(item);
+    list.appendChild(item);
 
-    document.getElementById("total-earnings").textContent =
-  "Total Earnings: " + formatMoney(total);
-            }
-    });
-setTimeout(() => {
-    const loader = document.getElementById("loader");
-    if (loader) loader.style.display = "none";
-}, 5000);
+}); // closes forEach
+
+document.getElementById("total-earnings").textContent =
+    "Total Earnings: " + formatMoney(total);
+
+} // closes renderEarnings()
 
 </script>
 <script src="js/app-back.js"></script>
