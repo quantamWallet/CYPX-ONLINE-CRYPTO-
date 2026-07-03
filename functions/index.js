@@ -3,49 +3,59 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-exports.onDepositApproved = functions.database
-.ref("/deposits/{uid}/{depositId}")
+exports.approveDeposit = functions.database
+.ref("/deposits/{uid}/{depositId}/status")
 .onUpdate(async (change, context) => {
 
-    const before = change.before.val();
-    const after = change.after.val();
+    const before = String(change.before.val()).toLowerCase();
+    const after = String(change.after.val()).toLowerCase();
 
-    // Ignore if already processed
-    if (after.balanceCredited === true) {
+    // Only trigger when changing to approved
+    if (before === "approved" || after !== "approved") {
         return null;
     }
 
-    // Only trigger when status changes to approved
-    if (
-        before.status !== "approved" &&
-        after.status === "approved"
-    ) {
+    const uid = context.params.uid;
+    const depositId = context.params.depositId;
 
-        const uid = context.params.uid;
-        const amount = Number(after.amount || 0);
+    const depositRef = admin.database().ref(
+        `deposits/${uid}/${depositId}`
+    );
 
-        const userRef = admin.database().ref("users/" + uid);
+    const userRef = admin.database().ref(
+        `users/${uid}`
+    );
 
-        // Credit balance safely
-        await userRef.transaction(user => {
+    const depositSnap = await depositRef.once("value");
 
-            if (!user) return user;
+    if (!depositSnap.exists()) return null;
 
-            user.balance = Number(user.balance || 0) + amount;
+    const deposit = depositSnap.val();
 
-            return user;
-
-        });
-
-        // Mark this deposit as already credited
-        await change.after.ref.update({
-            balanceCredited: true
-        });
-
-        console.log(
-            `Credited ${amount} to ${uid}`
-        );
+    // Prevent duplicate credits
+    if (deposit.balanceCredited === true) {
+        return null;
     }
+
+    const amount = Number(deposit.amount || 0);
+
+    await userRef.transaction(user => {
+
+        if (!user) return user;
+
+        user.balance = Number(user.balance || 0) + amount;
+
+        return user;
+
+    });
+
+    await depositRef.update({
+        balanceCredited: true
+    });
+
+    console.log(
+        `Credited ${amount} to ${uid}`
+    );
 
     return null;
 });
