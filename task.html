@@ -317,45 +317,50 @@ function renderEarnings() {
     let total = 0;
 
     if (unlockedLevels.length === 0) {
-      list.innerHTML = `<div class="empty">No VIP unlocked yet</div>`;
-      document.getElementById("total-earnings").textContent = "";
-      return;
+        list.innerHTML = `<div class="empty">No VIP unlocked yet</div>`;
+        document.getElementById("total-earnings").textContent = "";
+        return;
     }
 
     unlockedLevels.forEach(level => {
 
-    let days = 0;
+        let days = 0;
 
-    if (vipData[level]?.claims) {
-        days = Number(vipData[level].claims);
-    } else if (dashboardData[level]?.daysClaimed) {
-        days = Number(dashboardData[level].daysClaimed);
-    } else if (oldClaims[level]?.daysClaimed) {
-        days = Number(oldClaims[level].daysClaimed);
-    }
+        if (vipData[level]?.claims) {
+            days = Number(vipData[level].claims);
+        } else if (dashboardData[level]?.daysClaimed) {
+            days = Number(dashboardData[level].daysClaimed);
+        } else if (oldClaims[level]?.daysClaimed) {
+            days = Number(oldClaims[level].daysClaimed);
+        }
 
-    const perDay = vipRates[level] || 0;
-    const earned = days * perDay;
+        const perDay = vipRates[level] || 0;
+        const earned = days * perDay;
 
-    total += earned;
+        total += earned;
 
-    const item = document.createElement("div");
-    item.className = "earning-item";
+        const item = document.createElement("div");
+        item.className = "earning-item";
 
-    item.innerHTML = `
-        <div class="vip-tag">VIP ${level}</div>
-        <div>${days}d</div>
-        <div class="amount">${formatMoney(earned)}</div>
-    `;
+        item.innerHTML = `
+            <div class="vip-tag">VIP ${level}</div>
+            <div>${days}d</div>
+            <div class="amount">${formatMoney(earned)}</div>
+        `;
 
-    list.appendChild(item);
+        list.appendChild(item);
+    });
 
-}); // closes forEach
+    document.getElementById("total-earnings").textContent =
+        "Total Earnings: " + formatMoney(total);
+}
 
-document.getElementById("total-earnings").textContent =
-    "Total Earnings: " + formatMoney(total);
+// Hide loader after page data loads
+setTimeout(() => {
+    document.getElementById("loader").style.display = "none";
+}, 1000);
 
-} 
+}); // ✅ CLOSES auth.onAuthStateChanged
 </script>
 <script src="js/app-back.js"></script>
 </body>
