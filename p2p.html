@@ -441,10 +441,6 @@ async function addMyOffers() {
     }
   ];
 
-  for (const offer of offers) {
-    await push(ref(db, "offers"), offer);
-  }
-
   toast("Offers uploaded successfully!", "success");
     }
     addMyOffers();
