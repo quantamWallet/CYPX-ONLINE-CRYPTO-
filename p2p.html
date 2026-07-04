@@ -427,6 +427,24 @@ async function addMyOffers() {
   document.getElementById('depositBtn').onclick=()=>toast('M-Pesa STK Push requires backend','info');
   document.getElementById('chatBtn').onclick=()=>toast('Support chat opened.','info');
   document.addEventListener('click',e=>{if(e.target.classList.contains('copy')){navigator.clipboard.writeText(e.target.dataset.copy);toast('Copied','success');}});
+    import { get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+async function addMyOffers() {
+  const snapshot = await get(ref(db, "offers"));
+
+  if (snapshot.exists()) {
+    toast("Offers already exist", "info");
+    return;
+  }
+
+  // your offers array...
+
+  for (const offer of offers) {
+    await push(ref(db, "offers"), offer);
+  }
+
+  toast("Offers uploaded successfully!", "success");
+}
 </script>
 </body>
                                                              </html>
