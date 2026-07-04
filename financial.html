@@ -218,7 +218,10 @@ function renderRecords(filter = "all") {
 
     div.innerHTML = `
       <p class="record-type">${r.type}</p>
-      <p>Amount: KSh ${parseFloat(r.amount || 0).toFixed(2)}</p>
+      <p>Amount: $${parseFloat(r.amount || 0).toLocaleString("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})}</p>
       <p>Method: ${r.method}</p>
       <p>Date: ${new Date(r.createdAt).toLocaleString()}</p>
       <span class="badge ${(r.status || "pending").toLowerCase()}">
@@ -252,7 +255,7 @@ auth.onAuthStateChanged(user => {
       deposits.push({
         type: "Deposit",
         amount: d.amount || 0,
-        method: d.method || "Mpesa",
+        method: d.method || "-",
         status: d.status || "pending",
         createdAt: Number(d.timestamp || d.createdAt || 0)
       });
