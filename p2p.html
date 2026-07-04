@@ -168,9 +168,18 @@
 
   function toast(msg, type){type=type||'info';const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;toastWrap.appendChild(el);setTimeout(()=>el.remove(),3000);}
 
-  signInAnonymously(auth).catch(e=>toast(e.message,'error'));
-  onAuthStateChanged(auth, user=>{if(user){state.uid=user.uid;authStatus.textContent=user.uid.slice(0,6);listenOrders();listenWallet();}});
+  
+  onAuthStateChanged(auth, user => {
+  if (!user) {
+    window.location.href = "auth.html"; // replace with your actual login page
+    return;
+  }
 
+  state.uid = user.uid;
+  authStatus.textContent = user.uid.slice(0,6);
+  listenOrders();
+  listenWallet();
+});
   document.querySelectorAll('nav a').forEach(a=>{a.onclick=()=>{document.querySelectorAll('nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));document.getElementById(a.dataset.tab).classList.remove('hidden');}});
   document.getElementById('sellNav').onclick=()=>{state.mode='sell';sellBtn.click();}
 
@@ -232,4 +241,4 @@
   document.addEventListener('click',e=>{if(e.target.classList.contains('copy')){navigator.clipboard.writeText(e.target.dataset.copy);toast('Copied','success');}});
 </script>
 </body>
-  </html>
+                                                             </html>
