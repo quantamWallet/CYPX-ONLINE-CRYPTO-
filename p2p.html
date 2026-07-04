@@ -434,16 +434,13 @@ async function addMyOffers() {
   ];
 
   for (const offer of offers) {
-    await push(ref(db, "offers"), offer);
-  }
+  await push(ref(db, "offers"), offer);
+}
 
-  toast("Offers uploaded successfully!", "success");
-    }
-  ];
+toast("Offers uploaded successfully!", "success");
+}
 
-  toast("Offers uploaded successfully!", "success");
-    }
-    addMyOffers();
+addMyOffers();
 </script>
 </body>
-                                                             </html>
+</html>
