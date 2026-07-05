@@ -243,11 +243,125 @@ async function addMyOffers() {
   document.addEventListener('click',e=>{if(e.target.classList.contains('copy')){navigator.clipboard.writeText(e.target.dataset.copy);toast('Copied','success');}});
     import { get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-      for (const offer of offers) {
-  await push(ref(db, "offers"), offer);
-}
+      import { get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-toast("Offers uploaded successfully!", "success");
+async function addMyOffers() {
+
+  const snap = await get(ref(db, "offers"));
+
+  if (snap.exists()) return;
+
+  const offers = [
+
+    {
+      name:"LANGAT Trader",
+      trades:235,
+      rate:100,
+      price:129,
+      min:1000,
+      max:100000,
+      pay:["M-Pesa"],
+      speed:"2m",
+      online:true,
+      verified:true,
+      asset:"USD",
+      type:"buy",
+      sellerId:"demo",
+      active:true
+    },
+
+    {
+      name:"LANGAT Trader",
+      trades:235,
+      rate:100,
+      price:131,
+      min:1000,
+      max:100000,
+      pay:["M-Pesa"],
+      speed:"2m",
+      online:true,
+      verified:true,
+      asset:"USD",
+      type:"sell",
+      sellerId:"demo",
+      active:true
+    },
+
+    {
+      name:"Pro Trader",
+      trades:520,
+      rate:99.9,
+      price:130,
+      min:5000,
+      max:250000,
+      pay:["Equity Bank"],
+      speed:"1m",
+      online:true,
+      verified:true,
+      asset:"USD",
+      type:"buy",
+      sellerId:"demo",
+      active:true
+    },
+
+    {
+      name:"Pro Trader",
+      trades:520,
+      rate:99.9,
+      price:132,
+      min:5000,
+      max:250000,
+      pay:["Equity Bank"],
+      speed:"1m",
+      online:true,
+      verified:true,
+      asset:"USD",
+      type:"sell",
+      sellerId:"demo",
+      active:true
+    },
+
+    {
+      name:"Nicel Trader",
+      trades:140,
+      rate:100,
+      price:128,
+      min:1000,
+      max:50000,
+      pay:["Airtel Money"],
+      speed:"3m",
+      online:true,
+      verified:true,
+      asset:"USD",
+      type:"buy",
+      sellerId:"demo",
+      active:true
+    },
+
+    {
+      name:"Nicel Trader",
+      trades:140,
+      rate:100,
+      price:130,
+      min:1000,
+      max:50000,
+      pay:["Airtel Money"],
+      speed:"3m",
+      online:true,
+      verified:true,
+      asset:"USD",
+      type:"sell",
+      sellerId:"demo",
+      active:true
+    }
+
+  ];
+
+  for (const offer of offers) {
+    await push(ref(db, "offers"), offer);
+  }
+
+  toast("Demo offers added!", "success");
 }
 
 addMyOffers();
