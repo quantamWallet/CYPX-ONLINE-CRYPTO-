@@ -65,10 +65,11 @@ margin-right:5px;
 
 <script type="module">
 
-/* ================= FIREBASE ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
 apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -84,32 +85,29 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-/* ================= OFFERS (YOUR DATA) ================= */
+/* ================= OFFERS ================= */
 
 const offers = [
-
-{ name:"LANGAT Trader", trades:235, rate:100, price:129, min:1000, max:100000, pay:["M-Pesa"], speed:"2m", online:true, verified:true, asset:"USD", type:"buy", sellerId:"demo", active:true },
-
-{ name:"LANGAT Trader", trades:235, rate:100, price:131, min:1000, max:100000, pay:["M-Pesa"], speed:"2m", online:true, verified:true, asset:"USD", type:"sell", sellerId:"demo", active:true },
-
-{ name:"Pro Trader", trades:520, rate:99.9, price:130, min:5000, max:250000, pay:["Equity Bank"], speed:"1m", online:true, verified:true, asset:"USD", type:"buy", sellerId:"demo", active:true },
-
-{ name:"Pro Trader", trades:520, rate:99.9, price:132, min:5000, max:250000, pay:["Equity Bank"], speed:"1m", online:true, verified:true, asset:"USD", type:"sell", sellerId:"demo", active:true },
-
-{ name:"Nicel Trader", trades:140, rate:100, price:128, min:1000, max:50000, pay:["Airtel Money"], speed:"3m", online:true, verified:true, asset:"USD", type:"buy", sellerId:"demo", active:true },
-
-{ name:"Nicel Trader", trades:140, rate:100, price:130, min:1000, max:50000, pay:["Airtel Money"], speed:"3m", online:true, verified:true, asset:"USD", type:"sell", sellerId:"demo", active:true }
-
+{ id:"1", name:"LANGAT Trader", trades:235, price:129, min:1000, max:100000, pay:["M-Pesa"], speed:"2m", asset:"USD", type:"buy", active:true },
+{ id:"2", name:"LANGAT Trader", trades:235, price:131, min:1000, max:100000, pay:["M-Pesa"], speed:"2m", asset:"USD", type:"sell", active:true },
+{ id:"3", name:"Pro Trader", trades:520, price:130, min:5000, max:250000, pay:["Equity Bank"], speed:"1m", asset:"USD", type:"buy", active:true },
+{ id:"4", name:"Pro Trader", trades:520, price:132, min:5000, max:250000, pay:["Equity Bank"], speed:"1m", asset:"USD", type:"sell", active:true },
+{ id:"5", name:"Nicel Trader", trades:140, price:128, min:1000, max:50000, pay:["Airtel Money"], speed:"3m", asset:"USD", type:"buy", active:true },
+{ id:"6", name:"Nicel Trader", trades:140, price:130, min:1000, max:50000, pay:["Airtel Money"], speed:"3m", asset:"USD", type:"sell", active:true }
 ];
 
 /* ================= STATE ================= */
 
 let mode = "buy";
 let user = null;
+let authReady = false;
 
-/* ================= AUTH ================= */
+/* ================= AUTH FIX ================= */
 
-onAuthStateChanged(auth, u => user = u);
+onAuthStateChanged(auth, u => {
+user = u;
+authReady = true;
+});
 
 /* ================= UI ================= */
 
@@ -164,7 +162,7 @@ card.innerHTML = `
 
 <div class="row">
 <button class="${mode==="buy"?"buy":"sell"}"
-onclick="trade('${o.name}')">
+onclick="trade('${o.id}')">
 ${mode==="buy"?"Buy":"Sell"} USD
 </button>
 </div>
@@ -175,12 +173,24 @@ el.appendChild(card);
 
 }
 
-/* ================= TRADE (SAFE DEMO) ================= */
+/* ================= FIXED TRADE ================= */
 
-window.trade = async (name)=>{
+window.trade = async (id) => {
+
+if(!authReady){
+alert("Loading session...");
+return;
+}
 
 if(!user){
-alert("Login required");
+alert("Please login first");
+return;
+}
+
+const offer = offers.find(o => o.id === id);
+
+if(!offer){
+alert("Offer not found");
 return;
 }
 
@@ -189,10 +199,11 @@ const usd = kes / 130;
 
 const tradeId = push(ref(db,"trades")).key;
 
-await set(ref(db,"trades/"+tradeId),{
+await set(ref(db,"trades/"+tradeId), {
 id: tradeId,
 buyer: user.uid,
-seller: name,
+seller: offer.name,
+offerId: offer.id,
 amountKES: kes,
 amountUSD: usd,
 status: "PENDING",
