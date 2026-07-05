@@ -1,365 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trade P2P | KES M-Pesa</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>P2P Market Kenya</title>
+
 <style>
-  :root{
-    --bg:#0f172a; --card:#1e293b; --muted:#334155; --text:#e2e8f0; --green:#22c55e; --blue:#3b82f6; --yellow:#facc15; --red:#ef4444;
-    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.25);
-  }
-  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  body{margin:0;background:var(--bg);color:var(--text)}
-  .container{max-width:1100px;margin:0 auto;padding:16px}
-  header{display:flex;align-items:center;justify-content:space-between;padding:12px 0;position:sticky;top:0;background:var(--bg);z-index:20}
-  .logo{font-weight:800;font-size:18px}
-  nav{display:flex;gap:14px;font-size:14px;overflow-x:auto}
-  nav a{color:var(--text);text-decoration:none;opacity:.8;cursor:pointer}
-  nav a.active{opacity:1;border-bottom:2px solid var(--blue)}
-  .hero{background:linear-gradient(180deg,#1e293b 0%, #0f172a 100%);border-radius:var(--radius);padding:20px;margin:12px 0;box-shadow:var(--shadow)}
-  .hero h1{margin:0 0 6px;font-size:22px}
-  .hero p{margin:0 0 14px;opacity:.8;font-size:14px}
-  .search{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .search select,.search input,.search button{width:100%;padding:12px;border-radius:12px;border:1px solid var(--muted);background:var(--card);color:var(--text);font-size:14px}
-  .search button{grid-column:1/-1;background:var(--blue);border:0;font-weight:700;cursor:pointer}
-  .toggle{display:flex;gap:8px;margin-bottom:10px}
-  .toggle button{flex:1;padding:10px;border-radius:12px;border:1px solid var(--muted);background:var(--card);color:var(--text);font-weight:600;cursor:pointer}
-  .toggle button.active{background:var(--blue);border-color:var(--blue)}
-  .trust{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:12px;opacity:.9}
-  .badge{display:flex;align-items:center;gap:6px;background:var(--card);padding:8px 10px;border-radius:999px;border:1px solid var(--muted)}
-  .filters{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
-  .chip{white-space:nowrap;padding:8px 12px;border:1px solid var(--muted);border-radius:999px;background:var(--card);font-size:13px;cursor:pointer}
-  .chip.active{background:var(--blue);border-color:var(--blue)}
-  .grid{display:grid;grid-template-columns:1fr;gap:12px}
-  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
-  .card{background:var(--card);border:1px solid var(--muted);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
-  .card-head{display:flex;align-items:center;gap:10px}
-  .avatar{width:40px;height:40px;border-radius:50%;background:var(--muted);display:grid;place-items:center;font-weight:700}
-  .name{font-weight:700;font-size:14px}
-  .meta{font-size:12px;opacity:.8}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px}
-  .row{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
-  .price{font-size:18px;font-weight:800}
-  .sub{font-size:12px;opacity:.8}
-  .tags{display:flex;gap:6px;flex-wrap:wrap}
-  .tag{font-size:11px;padding:6px 8px;border-radius:999px;background:var(--muted)}
-  .btn{width:100%;padding:12px;border-radius:12px;border:0;background:var(--blue);color:white;font-weight:700;cursor:pointer;margin-top:8px}
-  .btn.sell{background:var(--green)}
-  .btn.ghost{background:var(--muted)}
-  .btn.red{background:var(--red)}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
-  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
-  .step{background:var(--card);border:1px solid var(--muted);border-radius:14px;padding:12px;text-align:center;font-size:13px}
-  .warn{background:#3f1f1f;border:1px solid #7f1d1d;color:#fecaca;border-radius:14px;padding:12px;margin:16px 0;font-size:13px}
-  footer{opacity:.7;font-size:12px;padding:24px 0;text-align:center}
-  .toast-wrap{position:fixed;bottom:20px;right:16px;left:16px;display:flex;flex-direction:column;gap:8px;z-index:50}
-  .toast{background:var(--card);border:1px solid var(--muted);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);animation:slide .3s ease}
-  .toast.success{border-left:4px solid var(--green)}
-  .toast.error{border-left:4px solid var(--red)}
-  .toast.info{border-left:4px solid var(--blue)}
-  @keyframes slide{from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1}}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:40;padding:16px}
-  .modal.open{display:flex}
-  .modal-box{background:var(--card);border:1px solid var(--muted);border-radius:var(--radius);padding:16px;width:100%;max-width:420px}
-  .modal h3{margin:0 0 8px}
-  .modal .sub{opacity:.8;margin-bottom:12px}
-  .timer{font-weight:800;font-size:18px;color:var(--yellow)}
-  .hidden{display:none}
-  .loading{text-align:center;padding:20px;opacity:.7}
-</style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <div class="logo">P2P KE</div>
-      <nav>
-        <a class="active" data-tab="market">Buy</a>
-        <a data-tab="market" id="sellNav">Sell</a>
-        <a data-tab="orders">Orders</a>
-        <a data-tab="wallet">Wallet</a>
-        <a data-tab="support">Support</a>
-      </nav>
-      <div class="sub" id="authStatus">Anon</div>
-    </header>
-    <section id="market" class="tab">
-      <section class="hero">
-        <h1>Trade P2P. Protected. In KES.</h1>
-        <p>Escrow-secured trades with M-Pesa. ID-verified traders only. Avg release: 2min.</p>
-        <div class="toggle">
-          <button class="active" id="buyBtn">Buy</button>
-          <button id="sellBtn">Sell</button>
-        </div>
-        <div class="search">
-          <select id="asset"><option>USD</option><option>BTC</option><option>USDT</option></select>
-          <input id="amount" type="number" placeholder="Amount KES" />
-          <select id="payment"><option>All Payments</option><option>M-Pesa</option><option>Equity Bank</option><option>KCB</option></select>
-          <button id="searchBtn">Search Offers</button>
-        </div>
-        <div class="trust">
-          <div class="badge">🔒 Escrow Protected</div>
-          <div class="badge">✅ ID Verified</div>
-          <div class="badge">🛡️ 24/7 Dispute</div>
-          <div class="badge">⚡ Avg 2min Release</div>
-        </div>
-      </section>
-      <div class="filters" id="filters">
-        <div class="chip active" data-filter="all">All</div>
-        <div class="chip" data-filter="mpesa">M-Pesa Only</div>
-        <div class="chip" data-filter="verified">ID Verified</div>
-        <div class="chip" data-filter="online">Online Now</div>
-      </div>
-      <div class="grid" id="listings"><div class="loading">Loading offers...</div></div>
-      <section class="how">
-        <div class="step">1. Funds Locked<br><span class="sub">In Escrow</span></div>
-        <div class="step">2. You Pay<br><span class="sub">M-Pesa Direct</span></div>
-        <div class="step">3. Release<br><span class="sub">To Your Wallet</span></div>
-      </section>
-      <div class="warn">⚠️ Rule #1: Only trade in escrow on this platform. M-Pesa payments cannot be reversed. Never pay outside.</div>
-    </section>
-    <section id="orders" class="tab hidden"><h2>Your Orders</h2><div id="ordersList" class="grid"><div class="loading">Loading...</div></div></section>
-    <section id="wallet" class="tab hidden"><h2>Wallet</h2><div class="card"><div class="row"><div>KES Balance</div><div class="price" id="kesBal">KES 0</div></div><div class="row"><div>USD Balance</div><div class="price" id="usdBal">$0.00</div></div><button class="btn ghost" id="depositBtn">Deposit KES</button></div></section>
-    <section id="support" class="tab hidden"><h2>Support</h2><div class="card"><p class="sub">24/7 Live Chat + Dispute Center</p><button class="btn ghost" id="chatBtn">Open Support Chat</button></div></section>
-    <footer>Buyer Fee: 0% | Seller Fee: 0.4% | 24/7 Support | Avg Dispute: 12min</footer>
-  </div>
-  <div class="modal" id="tradeModal">
-    <div class="modal-box">
-      <h3 id="tradeTitle">Trade</h3><p class="sub" id="tradeSub"></p>
-      <div class="card" style="margin:12px 0">
-        <div class="row"><div>Amount KES</div><div id="tradeAmount">-</div></div>
-        <div class="row"><div>Rate</div><div id="tradeRate">-</div></div>
-        <div class="row"><div>Total $</div><div id="tradeTotal">-</div></div>
-        <div class="row"><div>Payment</div><div id="tradePay">-</div></div>
-      </div>
-      <div id="tradeStep1"><button class="btn" id="markPaidBtn">I Have Paid via M-Pesa</button><button class="btn ghost" id="cancelTradeBtn">Cancel</button></div>
-      <div id="tradeStep2" class="hidden"><p class="sub">Waiting for seller to release... <span class="timer" id="timer">14:59</span></p><button class="btn red" id="disputeBtn">Open Dispute</button><button class="btn ghost" id="closeTradeBtn">Close</button></div>
-      <div id="tradeStepSeller" class="hidden"><p class="sub">Buyer marked paid. Confirm you received M-Pesa.</p><button class="btn sell" id="releaseBtn">Release from Escrow</button><button class="btn red" id="disputeBtn2">Open Dispute</button></div>
-    </div>
-  </div>
-  <div class="toast-wrap" id="toastWrap"></div><script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const auth = getAuth(app);
-
-  const state = {mode: 'buy',filters: new Set(['all']),asset: 'USD',payment: 'All Payments',amount: '',uid: null,offers: [],currentTrade: null,currentOffer: null,timerInt: null};
-
-  const listings = document.getElementById('listings');
-  const buyBtn = document.getElementById('buyBtn');
-  const sellBtn = document.getElementById('sellBtn');
-  const searchBtn = document.getElementById('searchBtn');
-  const toastWrap = document.getElementById('toastWrap');
-  const modal = document.getElementById('tradeModal');
-  const authStatus = document.getElementById('authStatus');
-
-  function toast(msg, type){type=type||'info';const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;toastWrap.appendChild(el);setTimeout(()=>el.remove(),3000);}
-
-  
-  onAuthStateChanged(auth, user => {
-  if (!user) {
-    window.location.href = "auth.html"; // replace with your actual login page
-    return;
-  }
-
-  state.uid = user.uid;
-  authStatus.textContent = user.uid.slice(0,6);
-  listenOrders();
-  listenWallet();
-});
-  document.querySelectorAll('nav a').forEach(a=>{a.onclick=()=>{document.querySelectorAll('nav a').forEach(x=>x.classList.remove('active'));a.classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));document.getElementById(a.dataset.tab).classList.remove('hidden');}});
-  document.getElementById('sellNav').onclick=()=>{state.mode='sell';sellBtn.click();}
-
-  buyBtn.onclick=()=>{state.mode='buy';buyBtn.classList.add('active');sellBtn.classList.remove('active');render();}
-  sellBtn.onclick=()=>{state.mode='sell';sellBtn.classList.add('active');buyBtn.classList.remove('active');render();}
-
-  document.querySelectorAll('.chip').forEach(chip=>{chip.onclick=()=>{if(chip.dataset.filter==='all'){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');state.filters=new Set(['all']);}else{document.querySelector('.chip[data-filter="all"]').classList.remove('active');chip.classList.toggle('active');if(chip.classList.contains('active'))state.filters.add(chip.dataset.filter);else state.filters.delete(chip.dataset.filter);if(state.filters.size===0)state.filters.add('all');}render();}});
-
-  searchBtn.onclick=()=>{state.asset=document.getElementById('asset').value;state.payment=document.getElementById('payment').value;state.amount=Number(document.getElementById('amount').value);toast('Searching '+state.mode+' '+state.asset,'info');render();}
-
-  const offersRef=ref(db,'offers');
-  onValue(offersRef,snap=>{const data=snap.val()||{};state.offers=Object.entries(data).map(([id,v])=>({id:id,...v})).filter(o=>o.active&&o.asset===state.asset&&o.type===state.mode);render();});
-
-  function render(){
-    let filtered=[...state.offers];
-    if(state.filters.has('mpesa'))filtered=filtered.filter(u=>u.pay.includes('M-Pesa'));
-    if(state.filters.has('verified'))filtered=filtered.filter(u=>u.verified);
-    if(state.filters.has('online'))filtered=filtered.filter(u=>u.online);
-    if(state.payment!=='All Payments')filtered=filtered.filter(u=>u.pay.includes(state.payment));
-    if(state.amount)filtered=filtered.filter(u=>state.amount>=u.min&&state.amount<=u.max);
-    listings.innerHTML='';
-    if(filtered.length===0){listings.innerHTML='<div class="card"><p class="sub">No offers. <button class="btn ghost" id="postOfferBtn">Post an Offer</button></p></div>';document.getElementById('postOfferBtn')&&document.getElementById('postOfferBtn').addEventListener('click',postDemoOffer);return;}
-    filtered.forEach(u=>{
-      const card=document.createElement('div');card.className='card';
-      const verified=u.verified?' • Level 2 Verified':'';
-      const onlineColor=u.online?'var(--green)':'var(--muted)';
-      const onlineText=u.online?'Online now':'Offline';
-      const btnClass=state.mode==='buy'?'':' sell';
-      const tags=u.pay.map(p=>'<span class="tag">'+p+'</span>').join('');
-      card.innerHTML='<div class="card-head"><div class="avatar">'+u.name[0]+'</div><div><div class="name">@'+u.name+verified+'</div><div class="meta">'+u.rate+'% • '+u.trades.toLocaleString()+' trades</div></div></div><div class="row"><div><div class="price">KES '+u.price.toFixed(2)+' / $'+u.asset+'</div><div class="sub">Min: '+u.min.toLocaleString()+' | Max: '+u.max.toLocaleString()+' KES</div></div><div class="sub"><span class="dot" style="background:'+onlineColor+'"></span>'+onlineText+'</div></div><div class="tags">'+tags+'</div><div class="sub" style="margin:8px 0">Avg release: '+u.speed+'</div><button class="btn'+btnClass+'" data-trade="'+u.id+'">'+(state.mode==='buy'?'Buy':'Sell')+' '+u.asset+'</button>';
-      listings.appendChild(card);
-    });
-    document.querySelectorAll('[data-trade]').forEach(btn=>{btn.onclick=e=>openTrade(filtered.find(x=>x.id===e.target.dataset.trade));});
-  }
-
-  async function postDemoOffer(){if(!state.uid)return toast('Not signed in','error');const newOffer={name:'You',trades:1,rate:100,price:152.90,min:1000,max:50000,pay:['M-Pesa'],speed:'2m',online:true,verified:false,asset:state.asset,type:state.mode,sellerId:state.uid,active:true,createdAt:serverTimestamp()};await push(ref(db,'offers'),newOffer);toast('Demo offer posted','success');}
-
-  function openTrade(u){state.currentOffer=u;const amt=state.amount||u.min;const total=(amt/u.price).toFixed(2);document.getElementById('tradeTitle').textContent=(state.mode==='buy'?'Buy':'Sell')+' '+u.asset+' from @'+u.name;document.getElementById('tradeAmount').textContent='KES '+amt;document.getElementById('tradeRate').textContent='KES '+u.price.toFixed(2);document.getElementById('tradeTotal').textContent='$'+total;document.getElementById('tradePay').innerHTML='M-Pesa Till: 123456 <span class="copy" data-copy="123456" style="color:var(--blue);cursor:pointer">Copy</span>';if(state.uid===u.sellerId){document.getElementById('tradeStep1').classList.add('hidden');document.getElementById('tradeStep2').classList.add('hidden');document.getElementById('tradeStepSeller').classList.remove('hidden');}else{document.getElementById('tradeStep1').classList.remove('hidden');document.getElementById('tradeStep2').classList.add('hidden');document.getElementById('tradeStepSeller').classList.add('hidden');}modal.classList.add('open');clearInterval(state.timerInt);}
-
-  document.getElementById('cancelTradeBtn').onclick=()=>modal.classList.remove('open');
-  document.getElementById('closeTradeBtn').onclick=()=>modal.classList.remove('open');
-
-  document.getElementById('markPaidBtn').onclick=async()=>{if(!state.uid||!state.currentOffer)return;const tradeId=push(ref(db,'trades')).key;const amt=Number(document.getElementById('tradeAmount').textContent.replace('KES ',''));const trade={id:tradeId,buyerId:state.uid,sellerId:state.currentOffer.sellerId,asset:state.asset,amountKes:amt,status:'paid',createdAt:serverTimestamp(),expiresAt:Date.now()+15*60*1000};await set(ref(db,'trades/'+tradeId),trade);state.currentTrade=tradeId;document.getElementById('tradeStep1').classList.add('hidden');document.getElementById('tradeStep2').classList.remove('hidden');toast('Marked as paid. Waiting for seller.','success');listenTrade(tradeId);}
-
-  document.getElementById('releaseBtn').onclick=async()=>{if(!state.currentTrade)return;await update(ref(db,'trades/'+state.currentTrade),{status:'released',releasedAt:serverTimestamp()});toast('Funds released to buyer','success');modal.classList.remove('open');}
-
-  function listenTrade(tradeId){onValue(ref(db,'trades/'+tradeId),snap=>{const t=snap.val();if(!t)return;if(t.status==='released'){clearInterval(state.timerInt);toast('Seller released funds!','success');modal.classList.remove('open');}if(t.status==='dispute'){clearInterval(state.timerInt);toast('Dispute active','error');modal.classList.remove('open');}});let sec=899;state.timerInt=setInterval(()=>{sec--;const m=String(Math.floor(sec/60)).padStart(2,'0');const s=String(sec%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s;if(sec<=0){clearInterval(state.timerInt);toast('Escrow expired.','error');modal.classList.remove('open');}},1000);}
-
-  document.getElementById('disputeBtn').onclick=dispute;
-  document.getElementById('disputeBtn2').onclick=dispute;
-  async function dispute(){if(!state.currentTrade)return toast('No active trade','error');await update(ref(db,'trades/'+state.currentTrade),{status:'dispute'});const order={id:state.currentTrade,status:'Dispute',asset:state.asset,amount:document.getElementById('tradeAmount').textContent,uid:state.uid};await set(ref(db,'orders/'+state.uid+'/'+state.currentTrade),order);toast('Dispute opened. Support <15min','error');modal.classList.remove('open');}
-
-  function listenOrders(){onValue(ref(db,'orders/'+state.uid),snap=>{const data=snap.val()||{};const wrap=document.getElementById('ordersList');const arr=Object.values(data);if(arr.length===0){wrap.innerHTML='<div class="card"><p class="sub">No orders yet.</p></div>';return;}wrap.innerHTML=arr.map(o=>'<div class="card"><div class="row"><div>Order #'+o.id.slice(0,6)+'</div><div class="tag">'+o.status+'</div></div><div class="sub">'+o.asset+' • '+o.amount+'</div></div>').join('');});}
-
-  function listenWallet(){onValue(ref(db,'wallets/'+state.uid),snap=>{const w=snap.val()||{kes:0,usd:0};document.getElementById('kesBal').textContent='KES '+w.kes.toLocaleString();document.getElementById('usdBal').textContent='$'+w.usd.toFixed(2);});}
-  document.getElementById('depositBtn').onclick=()=>toast('M-Pesa STK Push requires backend','info');
-  document.getElementById('chatBtn').onclick=()=>toast('Support chat opened.','info');
-  document.addEventListener('click',e=>{if(e.target.classList.contains('copy')){navigator.clipboard.writeText(e.target.dataset.copy);toast('Copied','success');}});
-    
-      import { get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-async function addMyOffers() {
-
-  const snap = await get(ref(db, "offers"));
-
-  if (snap.exists()) return;
-
-  const offers = [
-
-    {
-      name:"LANGAT Trader",
-      trades:235,
-      rate:100,
-      price:129,
-      min:1000,
-      max:100000,
-      pay:["M-Pesa"],
-      speed:"2m",
-      online:true,
-      verified:true,
-      asset:"USD",
-      type:"buy",
-      sellerId:"demo",
-      active:true
-    },
-
-    {
-      name:"LANGAT Trader",
-      trades:235,
-      rate:100,
-      price:131,
-      min:1000,
-      max:100000,
-      pay:["M-Pesa"],
-      speed:"2m",
-      online:true,
-      verified:true,
-      asset:"USD",
-      type:"sell",
-      sellerId:"demo",
-      active:true
-    },
-
-    {
-      name:"Pro Trader",
-      trades:520,
-      rate:99.9,
-      price:130,
-      min:5000,
-      max:250000,
-      pay:["Equity Bank"],
-      speed:"1m",
-      online:true,
-      verified:true,
-      asset:"USD",
-      type:"buy",
-      sellerId:"demo",
-      active:true
-    },
-
-    {
-      name:"Pro Trader",
-      trades:520,
-      rate:99.9,
-      price:132,
-      min:5000,
-      max:250000,
-      pay:["Equity Bank"],
-      speed:"1m",
-      online:true,
-      verified:true,
-      asset:"USD",
-      type:"sell",
-      sellerId:"demo",
-      active:true
-    },
-
-    {
-      name:"Nicel Trader",
-      trades:140,
-      rate:100,
-      price:128,
-      min:1000,
-      max:50000,
-      pay:["Airtel Money"],
-      speed:"3m",
-      online:true,
-      verified:true,
-      asset:"USD",
-      type:"buy",
-      sellerId:"demo",
-      active:true
-    },
-
-    {
-      name:"Nicel Trader",
-      trades:140,
-      rate:100,
-      price:130,
-      min:1000,
-      max:50000,
-      pay:["Airtel Money"],
-      speed:"3m",
-      online:true,
-      verified:true,
-      asset:"USD",
-      type:"sell",
-      sellerId:"demo",
-      active:true
-    }
-
-  ];
-
-  for (const offer of offers) {
-    await push(ref(db, "offers"), offer);
-  }
-
-  toast("Demo offers added!", "success");
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:#e2e8f0;
 }
 
-addMyOffers();
+.container{max-width:1100px;margin:auto;padding:20px;}
+.header{font-size:22px;font-weight:bold;margin-bottom:10px;}
+.rate{color:#94a3b8;margin-bottom:20px;}
+
+.tabs{display:flex;gap:10px;margin-bottom:15px;}
+.tab{flex:1;padding:10px;border:none;border-radius:8px;cursor:pointer;background:#1e293b;color:white;}
+.tab.active{background:#3b82f6;}
+
+.market{display:grid;gap:10px;}
+
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:10px;
+}
+
+.row{display:flex;justify-content:space-between;margin:5px 0;}
+
+.badge{
+font-size:12px;
+padding:3px 8px;
+border-radius:6px;
+background:#273549;
+margin-right:5px;
+}
+
+.mpesa{color:#22c55e;}
+.airtel{color:#facc15;}
+
+.buy{background:#22c55e;color:white;border:none;padding:8px 12px;border-radius:8px;}
+.sell{background:#ef4444;color:white;border:none;padding:8px 12px;border-radius:8px;}
+
+.small{color:#94a3b8;font-size:12px;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<div class="header">P2P Market Kenya</div>
+<div class="rate">USD Rate: 1 = 130 KES</div>
+
+<div class="tabs">
+<button class="tab active" id="buyTab">Buy USD</button>
+<button class="tab" id="sellTab">Sell USD</button>
+</div>
+
+<div id="market" class="market"></div>
+</div>
+
+<script type="module">
+
+/* ================= FIREBASE ================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+authDomain: "quantum-rio.firebaseapp.com",
+databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+projectId: "quantum-rio",
+storageBucket: "quantum-rio.appspot.com",
+messagingSenderId: "805433999377",
+appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+/* ================= OFFERS (YOUR DATA) ================= */
+
+const offers = [
+
+{ name:"LANGAT Trader", trades:235, rate:100, price:129, min:1000, max:100000, pay:["M-Pesa"], speed:"2m", online:true, verified:true, asset:"USD", type:"buy", sellerId:"demo", active:true },
+
+{ name:"LANGAT Trader", trades:235, rate:100, price:131, min:1000, max:100000, pay:["M-Pesa"], speed:"2m", online:true, verified:true, asset:"USD", type:"sell", sellerId:"demo", active:true },
+
+{ name:"Pro Trader", trades:520, rate:99.9, price:130, min:5000, max:250000, pay:["Equity Bank"], speed:"1m", online:true, verified:true, asset:"USD", type:"buy", sellerId:"demo", active:true },
+
+{ name:"Pro Trader", trades:520, rate:99.9, price:132, min:5000, max:250000, pay:["Equity Bank"], speed:"1m", online:true, verified:true, asset:"USD", type:"sell", sellerId:"demo", active:true },
+
+{ name:"Nicel Trader", trades:140, rate:100, price:128, min:1000, max:50000, pay:["Airtel Money"], speed:"3m", online:true, verified:true, asset:"USD", type:"buy", sellerId:"demo", active:true },
+
+{ name:"Nicel Trader", trades:140, rate:100, price:130, min:1000, max:50000, pay:["Airtel Money"], speed:"3m", online:true, verified:true, asset:"USD", type:"sell", sellerId:"demo", active:true }
+
+];
+
+/* ================= STATE ================= */
+
+let mode = "buy";
+let user = null;
+
+/* ================= AUTH ================= */
+
+onAuthStateChanged(auth, u => user = u);
+
+/* ================= UI ================= */
+
+const buyTab = document.getElementById("buyTab");
+const sellTab = document.getElementById("sellTab");
+
+buyTab.onclick = () => setMode("buy");
+sellTab.onclick = () => setMode("sell");
+
+function setMode(m){
+mode = m;
+buyTab.classList.toggle("active", m==="buy");
+sellTab.classList.toggle("active", m==="sell");
+render();
+}
+
+/* ================= RENDER ================= */
+
+function render(){
+
+const el = document.getElementById("market");
+el.innerHTML = "";
+
+offers
+.filter(o => o.active && o.type === mode)
+.forEach(o => {
+
+const pay = (o.pay || []).map(p => {
+const cls = p.toLowerCase().includes("mpesa") ? "mpesa" :
+p.toLowerCase().includes("airtel") ? "airtel" : "";
+return `<span class="badge ${cls}">${p}</span>`;
+}).join("");
+
+const card = document.createElement("div");
+card.className = "card";
+
+card.innerHTML = `
+<div class="row">
+<strong>${o.name}</strong>
+<span class="small">${o.asset}</span>
+</div>
+
+<div class="row">
+<div><b>${o.price}</b> KES</div>
+<div>${pay}</div>
+</div>
+
+<div class="row small">
+<span>${o.speed}</span>
+<span>${o.trades} trades</span>
+</div>
+
+<div class="row">
+<button class="${mode==="buy"?"buy":"sell"}"
+onclick="trade('${o.name}')">
+${mode==="buy"?"Buy":"Sell"} USD
+</button>
+</div>
+`;
+
+el.appendChild(card);
+});
+
+}
+
+/* ================= TRADE (SAFE DEMO) ================= */
+
+window.trade = async (name)=>{
+
+if(!user){
+alert("Login required");
+return;
+}
+
+const kes = 1000;
+const usd = kes / 130;
+
+const tradeId = push(ref(db,"trades")).key;
+
+await set(ref(db,"trades/"+tradeId),{
+id: tradeId,
+buyer: user.uid,
+seller: name,
+amountKES: kes,
+amountUSD: usd,
+status: "PENDING",
+createdAt: Date.now()
+});
+
+alert("Trade created successfully");
+};
+
+render();
+
 </script>
+
 </body>
 </html>
