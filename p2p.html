@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"/>
+<title>P2P Deposit • CYPX HOLDINGS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<!-- Firebase v9 Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+<style>
+:root{
+  --bg-1:#071426;
+  --bg-2:#0d1b2a;
+  --card:#10233d;
+  --card-2:#0b1b2d;
+  --accent:#ffcc00;
+  --accent-2:#f2b600;
+  --success:#25d366;
+  --success-2:#128c7e;
+  --telegram:#229ED9;
+  --danger:#ef4444;
+  --text:#fff;
+  --muted:#aaa;
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 6px 20px rgba(0,0,0,0.35);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:linear-gradient(180deg,var(--bg-1),var(--bg-2));
+  color:var(--text);
+  padding-bottom:96px;
+  min-height:100dvh;
+}
+
+.header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(16,35,61,0.9);
+  backdrop-filter:blur(10px);
+  padding:16px 18px;
+  text-align:center;
+  font-size:20px;
+  font-weight:800;
+  color:var(--accent);
+  box-shadow:0 2px 10px rgba(0,0,0,0.3);
+}
+
+.container{max-width:480px;margin:18px auto;padding:0 16px;display:grid;gap:16px}
+
+.hero,.card,.info-box,.delay-box{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.verified-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(90deg,var(--success),var(--success-2));
+  padding:7px 14px;border-radius:999px;
+  font-size:12px;font-weight:800;margin-bottom:12px;
+}
+
+.hero h2{color:var(--accent);margin-bottom:10px;font-size:18px}
+.hero p{color:#ddd;font-size:14px;line-height:1.6}
+
+.trader-grid{display:grid;gap:12px;margin-top:14px}
+.trader-card{
+  background:var(--card-2);border-radius:14px;padding:14px;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.trader-title{color:var(--accent);font-weight:800;margin-bottom:10px;font-size:14px}
+
+.copy-box{
+  background:var(--bg-1);border:1.5px dashed var(--success);
+  padding:14px;border-radius:var(--radius-sm);text-align:center;
+  cursor:pointer;font-size:18px;font-weight:800;user-select:all;
+  transition:transform.08s ease,border-color.2s;
+}
+.copy-box:active{transform:scale(.98)}
+.copy-box:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.copy-box small{display:block;color:var(--muted);font-size:12px;font-weight:600;margin-top:4px}
+
+.agent-name{font-size:14px;margin:8px 0;color:#eee}
+.minimum{color:var(--accent);font-weight:800;margin-top:10px}
+
+.steps{margin-top:14px;padding-left:20px;color:#d4d4d4;line-height:1.8;font-size:14px}
+
+label{display:block;font-size:13px;color:#ccc;margin:0 0 6px 2px;font-weight:600}
+.input,select.input{
+  width:100%;padding:14px;border:none;border-radius:var(--radius-sm);
+  background:var(--bg-1);color:var(--text);font-size:15px;
+  border:1px solid transparent;transition:border.2s;
+}
+.input:focus{outline:none;border-color:var(--accent)}
+.input::placeholder{color:var(--muted)}
+.input[type=file]{padding:12px}
+
+.field{display:grid;gap:10px}
+.error-text{color:var(--danger);font-size:12px;margin-top:-4px;display:none}
+.error-text.show{display:block}
+
+.submit-btn{
+  width:100%;padding:15px;border:none;border-radius:var(--radius-sm);
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#071426;font-size:16px;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity.2s;
+}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed}
+.spinner{
+  width:16px;height:16px;border:2px solid #071426;border-top-color:transparent;
+  border-radius:50%;animation:spin.7s linear infinite;display:none;
+}
+.submit-btn.loading.spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.info-box{border-left:4px solid var(--accent);color:#ddd;line-height:1.8;font-size:14px}
+.delay-box{border-left:4px solid var(--success)}
+.delay-box h3{color:var(--success);margin-bottom:8px;font-size:16px}
+.telegram-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;background:linear-gradient(90deg,var(--telegram),#1b87bb);
+  color:#fff;text-decoration:none;padding:14px;border-radius:var(--radius-sm);
+  margin-top:12px;font-weight:800;
+}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;z-index:999}
+.popup{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--card);padding:14px 18px;border-radius:12px;font-weight:800;
+  display:none;z-index:1000;min-width:220px;text-align:center;box-shadow:var(--shadow)
+}
+.success{border-left:4px solid var(--success)}
+.error{border-left:4px solid var(--danger)}
+[aria-live]{position:absolute;left:-9999px}
+</style>
+</head>
+
+<body>
+<header class="header">P2P Deposit</header>
+
+<main class="container">
+  <section class="hero">
+    <span class="verified-badge"><i class="fas fa-check-circle"></i> Verified CYPX Traders</span>
+    <h2>Official P2P Traders</h2>
+    <p>Send money only to the verified traders below. Deposits are reviewed manually for security.</p>
+
+    <div class="trader-grid">
+      <!-- MPESA -->
+      <div class="trader-card">
+        <div class="trader-title">M-PESA Trader</div>
+        <div class="copy-box" role="button" tabindex="0" data-copy="0741766606" aria-label="Copy M-PESA number 0741766606">
+          📱 0741766606 <small>Tap to copy</small>
+        </div>
+        <div class="agent-name"><strong>Name:</strong> PRUDENCE CHEPKOECH</div>
+      </div>
+
+      <!-- AIRTEL -->
+      <div class="trader-card">
+        <div class="trader-title">Airtel Money Trader</div>
+        <div class="copy-box" role="button" tabindex="0" data-copy="0750858351" aria-label="Copy Airtel number 0750858351">
+          📱 0750858351 <small>Tap to copy</small>
+        </div>
+        <div class="agent-name"><strong>Name:</strong> Hassan Abdi</div>
+      </div>
+    </div>
+
+    <div class="minimum">Minimum Deposit: $50</div>
+    <ul class="steps">
+      <li>Select trader below in the form</li>
+      <li>Send payment to that exact trader</li>
+      <li>Enter amount $50 or more</li>
+      <li>Upload clear payment screenshot < 5MB</li>
+      <li>Submit deposit request</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Submit Deposit</h2>
+    <form id="depositForm" novalidate>
+      <div class="field">
+        <label for="trader">Trader you paid</label>
+        <select id="trader" class="input" required>
+          <option value="" disabled selected>Select trader</option>
+          <option value="mpesa|0741766606|PRUDENCE CHEPKOECH">M-PESA - 0741766606</option>
+          <option value="airtel|0750858351|Hassan Abdi">Airtel Money - 0750858351</option>
+        </select>
+        <div class="error-text" id="traderErr">Please select the trader you paid</div>
+      </div>
+
+      <div class="field">
+        <label for="amount">Amount USD</label>
+        <input type="number" id="amount" class="input" inputmode="decimal" min="50" step="0.01" placeholder="Min $50" required />
+        <div class="error-text" id="amountErr">Minimum deposit is $50</div>
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone number used to pay</label>
+        <input type="tel" id="phone" class="input" inputmode="tel" placeholder="07xx xxx xxx" required />
+        <div class="error-text" id="phoneErr">Enter a valid KE number, e.g. 07XXXXXXXX</div>
+      </div>
+
+      <div class="field">
+        <label for="receipt">Payment Screenshot</label>
+        <input type="file" id="receipt" class="input" accept="image/*" required />
+        <div class="error-text" id="fileErr">Upload JPG/PNG under 5MB</div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="spinner"></span>
+        <span class="btn-text">Submit Deposit</span>
+      </button>
+    </form>
+  </section>
+
+  <section class="info-box">
+    <strong>Processing Time:</strong> 5–30 minutes.<br>
+    <strong>Status:</strong> Deposits appear as <strong>Pending</strong> before approval.<br>
+    <strong>Security:</strong> Only send to the trader you select above.<br>
+    <strong>Important:</strong> Wrong transfers or blurry screenshots delay approval.
+  </section>
+
+  <section class="delay-box">
+    <h3>Deposit Delayed?</h3>
+    <p>If your deposit takes longer than expected, contact CYPX support with your payment screenshot for manual verification.</p>
+    <a href="https://t.me/cypxholdings" target="_blank" rel="noopener" class="telegram-btn">
+      <i class="fab fa-telegram-plane"></i> Contact Support @cypxholdings
+    </a>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" aria-hidden="true"></div>
+<div class="popup" id="popup" role="alert" aria-live="polite"></div>
+<span aria-live="polite" id="a11y"></span>
+
+<script>
+/* ===== CONFIG ===== */
+const MIN_DEPOSIT = 50;
+const MAX_FILE_MB = 5;
+const REDIRECT_URL = "financial.html";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+let uid = null;
+let userReady = false;
+
+/* ===== AUTH ===== */
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    uid = user.uid;
+    userReady = true;
+  } else {
+    showPopup("Please login first", "error");
+    setTimeout(() => window.location.href = "auth.html", 1200);
+  }
+});
+
+/* ===== COPY ===== */
+document.querySelectorAll('.copy-box').forEach(box=>{
+  const doCopy = ()=>{
+    const val = box.dataset.copy;
+    navigator.clipboard.writeText(val).then(()=>{
+      showPopup("Copied: " + val, "success");
+    }).catch(()=>showPopup("Copy failed", "error"));
+  };
+  box.addEventListener('click', doCopy);
+  box.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' ') {e.preventDefault();doCopy();}});
+});
+
+/* ===== POPUP ===== */
+let popupTimer=null;
+function showPopup(message, type="success"){
+  const popup = document.getElementById("popup");
+  const overlay = document.getElementById("overlay");
+  const a11y = document.getElementById("a11y");
+
+  popup.textContent = message;
+  popup.className = "popup " + type;
+  popup.style.display = "block";
+  overlay.style.display = "block";
+  a11y.textContent = message;
+
+  clearTimeout(popupTimer);
+  popupTimer = setTimeout(() => {
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  }, 2200);
+}
+
+/* ===== VALIDATION ===== */
+const $ = id=>document.getElementById(id);
+const kePhone = /^07\d{8}$/; // 07XXXXXXXX
+
+function setError(id, show){
+  $(id).classList.toggle('show', show);
+}
+
+/* ===== FORM SUBMIT ===== */
+document.addEventListener("DOMContentLoaded", () => {
+  const form = $("depositForm");
+  const btn = $("submitBtn");
+  const btnText = btn.querySelector('.btn-text');
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!userReady ||!uid) return showPopup("Please wait...", "error");
+
+    // Reset errors
+    ['traderErr','amountErr','phoneErr','fileErr'].forEach(id=>setError(id,false));
+
+    const traderVal = $("trader").value;
+    const amount = Number($("amount").value);
+    const phone = $("phone").value.trim();
+    const receipt = $("receipt").files[0];
+
+    let hasError=false;
+    if(!traderVal){ setError('traderErr',true); hasError=true; }
+    if(!amount || amount < MIN_DEPOSIT){ setError('amountErr',true); hasError=true; }
+    if(!kePhone.test(phone)){ setError('phoneErr',true); hasError=true; }
+    if(!receipt || receipt.size > MAX_FILE_MB*1024*1024 ||!receipt.type.startsWith('image/')){
+      setError('fileErr',true); hasError=true;
+    }
+    if(hasError) return;
+
+    const [method][traderNumber][traderName] = traderVal.split('|');
+
+    btn.disabled=true; btn.classList.add('loading');
+    btnText.textContent="Submitting...";
+
+    try{
+      const depositId = db.ref().push().key;
+      const depositData = {
+        id: depositId,
+        amount,
+        phone,
+        method,
+        traderNumber,
+        traderName,
+        status: "pending",
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        type: "deposit",
+        device: navigator.userAgent.slice(0,120)
+      };
+
+      // Save first so user gets instant feedback even if upload is slow
+      await db.ref(`deposits/${uid}/${depositId}`).set(depositData);
+      await db.ref(`financial/${uid}/${depositId}`).set(depositData);
+
+      // Upload receipt in background
+      storage.ref(`receipts/${uid}/${depositId}`).put(receipt)
+       .then(async snap=>{
+          const url = await snap.ref.getDownloadURL();
+          await db.ref(`deposits/${uid}/${depositId}`).update({receiptUrl:url});
+        })
+       .catch(err=>console.warn("Receipt upload failed:",err));
+
+      showPopup("Deposit submitted ✔ Pending approval", "success");
+      form.reset();
+      setTimeout(()=>window.location.href=REDIRECT_URL, 1200);
+
+    }catch(err){
+      console.error(err);
+      showPopup(err.message || "Submission failed", "error");
+    }finally{
+      btn.disabled=false; btn.classList.remove('loading');
+      btnText.textContent="Submit Deposit";
+    }
+  });
+});
+</script>
+</body>
+          </html>
