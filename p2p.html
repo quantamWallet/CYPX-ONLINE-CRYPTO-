@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>P2P Market Kenya</title>
+<title>P2P Market Kenya v3</title>
 
 <style>
 body{
@@ -41,6 +41,7 @@ margin-right:5px;
 
 .mpesa{color:#22c55e;}
 .airtel{color:#facc15;}
+.bank{color:#60a5fa;}
 
 .buy{background:#22c55e;color:white;border:none;padding:8px 12px;border-radius:8px;}
 .sell{background:#ef4444;color:white;border:none;padding:8px 12px;border-radius:8px;}
@@ -52,7 +53,7 @@ margin-right:5px;
 <body>
 
 <div class="container">
-<div class="header">P2P Market Kenya</div>
+<div class="header">P2P Market Kenya v3</div>
 <div class="rate">USD Rate: 1 = 130 KES</div>
 
 <div class="tabs">
@@ -70,7 +71,6 @@ import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 /* ================= FIREBASE ================= */
-
 const firebaseConfig = {
 apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
 authDomain: "quantum-rio.firebaseapp.com",
@@ -104,7 +104,7 @@ let authReady = false;
 
 /* ================= AUTH FIX ================= */
 
-onAuthStateChanged(auth, u => {
+onAuthStateChanged(auth, (u) => {
 user = u;
 authReady = true;
 });
@@ -136,8 +136,11 @@ offers
 .forEach(o => {
 
 const pay = (o.pay || []).map(p => {
-const cls = p.toLowerCase().includes("mpesa") ? "mpesa" :
-p.toLowerCase().includes("airtel") ? "airtel" : "";
+let cls = "";
+if(p.toLowerCase().includes("mpesa")) cls="mpesa";
+else if(p.toLowerCase().includes("airtel")) cls="airtel";
+else cls="bank";
+
 return `<span class="badge ${cls}">${p}</span>`;
 }).join("");
 
@@ -178,17 +181,16 @@ el.appendChild(card);
 window.trade = async (id) => {
 
 if(!authReady){
-alert("Loading session...");
+alert("Loading session, try again...");
 return;
 }
 
 if(!user){
-alert("Please login first");
+alert("You are not logged in");
 return;
 }
 
 const offer = offers.find(o => o.id === id);
-
 if(!offer){
 alert("Offer not found");
 return;
@@ -199,7 +201,7 @@ const usd = kes / 130;
 
 const tradeId = push(ref(db,"trades")).key;
 
-await set(ref(db,"trades/"+tradeId), {
+await set(ref(db,"trades/"+tradeId),{
 id: tradeId,
 buyer: user.uid,
 seller: offer.name,
