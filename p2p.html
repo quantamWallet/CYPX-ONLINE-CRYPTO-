@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>P2P Deposit - CYPX HOLDINGS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+
+<style>
+body{font-family:Arial;background:linear-gradient(to bottom,#071426,#0d1b2a);color:white;margin:0;padding-bottom:90px}
+.header{background:#10233d;padding:18px;text-align:center;font-size:22px;font-weight:bold;color:#ffcc00}
+.container{max-width:430px;margin:20px auto;padding:0 15px}
+.hero,.card{background:#10233d;border-radius:18px;padding:20px;margin-bottom:20px}
+.input{width:100%;padding:15px;border:none;border-radius:12px;background:#071426;color:white;margin-bottom:15px}
+.submit-btn{width:100%;padding:15px;border:none;border-radius:12px;background:#ffcc00;font-weight:bold;cursor:pointer}
+.popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#10233d;padding:16px 22px;border-radius:12px;display:none;z-index:1000}
+.success{border-left:4px solid #25d366}
+.error{border-left:4px solid red}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none}
+</style>
+</head>
+
+<body>
+
+<div class="header">P2P Deposit</div>
+
+<div class="container">
+
+<div class="hero">
+<h2>Official P2P Traders</h2>
+
+<div onclick="copyNumber('0741766606')" style="cursor:pointer;margin:10px 0">
+M-PESA: 0741766606 (Tap to copy)
+</div>
+
+<div onclick="copyNumber('0750858351')" style="cursor:pointer;margin:10px 0">
+Airtel: 0750858351 (Tap to copy)
+</div>
+
+<p>Minimum Deposit: $50</p>
+</div>
+
+<div class="card">
+<h2>Submit Deposit</h2>
+
+<form id="depositForm">
+
+<input type="number" id="amount" class="input" placeholder="Amount (Min $50)" required>
+<input type="tel" id="phone" class="input" placeholder="Phone number" required>
+<input type="file" id="receipt" class="input" accept="image/*" required>
+
+<button class="submit-btn" id="submitBtn">Submit Deposit</button>
+
+</form>
+</div>
+
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+let uid = null;
+let isReady = false;
+
+/* AUTH FIXED */
+auth.onAuthStateChanged(user => {
+  if (user) {
+    uid = user.uid;
+    isReady = true;
+  } else {
+    showPopup("Please login first", "error");
+    setTimeout(() => location.href = "auth.html", 1500);
+  }
+});
+
+/* COPY */
+function copyNumber(num){
+  navigator.clipboard.writeText(num);
+  showPopup("Copied", "success");
+}
+
+/* POPUP */
+function showPopup(msg,type){
+  const p=document.getElementById("popup");
+  const o=document.getElementById("overlay");
+
+  p.textContent=msg;
+  p.className="popup "+type;
+  p.style.display="block";
+  o.style.display="block";
+
+  setTimeout(()=>{
+    p.style.display="none";
+    o.style.display="none";
+  },2000);
+}
+
+/* FORM */
+document.getElementById("depositForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+
+  if(!isReady || !uid){
+    showPopup("Please wait for login", "error");
+    return;
+  }
+
+  const amount = Number(document.getElementById("amount").value);
+  const phone = document.getElementById("phone").value.trim();
+  const receipt = document.getElementById("receipt").files[0];
+
+  if(amount < 50){
+    showPopup("Minimum is $50","error");
+    return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
+
+  try{
+
+    const newRef = db.ref("deposits").child(uid).push();
+    const depositId = newRef.key;
+
+    const data = {
+      id: depositId,
+      amount,
+      phone,
+      status: "pending",
+      createdAt: Date.now()
+    };
+
+    await newRef.set(data);
+
+    /* STORAGE */
+    if(receipt){
+      const uploadRef = storage.ref(`receipts/${uid}/${depositId}`);
+      const snap = await uploadRef.put(receipt);
+      const url = await snap.ref.getDownloadURL();
+
+      await newRef.update({receiptUrl:url});
+    }
+
+    showPopup("Deposit submitted ✔", "success");
+
+    setTimeout(()=>{
+      location.href="financial.html";
+    },1200);
+
+  }catch(err){
+    console.error(err);
+    showPopup(err.message || "Failed","error");
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Submit Deposit";
+});
+
+</script>
+
+</body>
+</html>
