@@ -234,15 +234,10 @@
   function listenOrders(){onValue(ref(db,'orders/'+state.uid),snap=>{const data=snap.val()||{};const wrap=document.getElementById('ordersList');const arr=Object.values(data);if(arr.length===0){wrap.innerHTML='<div class="card"><p class="sub">No orders yet.</p></div>';return;}wrap.innerHTML=arr.map(o=>'<div class="card"><div class="row"><div>Order #'+o.id.slice(0,6)+'</div><div class="tag">'+o.status+'</div></div><div class="sub">'+o.asset+' • '+o.amount+'</div></div>').join('');});}
 
   function listenWallet(){onValue(ref(db,'wallets/'+state.uid),snap=>{const w=snap.val()||{kes:0,usd:0};document.getElementById('kesBal').textContent='KES '+w.kes.toLocaleString();document.getElementById('usdBal').textContent='$'+w.usd.toFixed(2);});}
-async function addMyOffers() {
-
-  toast("Offers uploaded successfully!", "success");
-    }
   document.getElementById('depositBtn').onclick=()=>toast('M-Pesa STK Push requires backend','info');
   document.getElementById('chatBtn').onclick=()=>toast('Support chat opened.','info');
   document.addEventListener('click',e=>{if(e.target.classList.contains('copy')){navigator.clipboard.writeText(e.target.dataset.copy);toast('Copied','success');}});
-    import { get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
+    
       import { get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 async function addMyOffers() {
