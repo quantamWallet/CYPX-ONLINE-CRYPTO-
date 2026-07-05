@@ -76,110 +76,132 @@ const firebaseConfig = {
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 const auth = firebase.auth();
 const db = firebase.database();
 const storage = firebase.storage();
 
 let uid = null;
-let isReady = false;
+let userReady = false;
 
-/* AUTH FIXED */
-auth.onAuthStateChanged(user => {
+/* AUTH */
+auth.onAuthStateChanged((user) => {
   if (user) {
     uid = user.uid;
-    isReady = true;
+    userReady = true;
   } else {
     showPopup("Please login first", "error");
-    setTimeout(() => location.href = "auth.html", 1500);
+    setTimeout(() => {
+      window.location.href = "auth.html";
+    }, 1500);
   }
 });
 
 /* COPY */
-function copyNumber(num){
-  navigator.clipboard.writeText(num);
-  showPopup("Copied", "success");
+function copyNumber(number) {
+  navigator.clipboard.writeText(number);
+  showPopup("Trader number copied", "success");
 }
 
 /* POPUP */
-function showPopup(msg,type){
-  const p=document.getElementById("popup");
-  const o=document.getElementById("overlay");
+function showPopup(message, type) {
+  const popup = document.getElementById("popup");
+  const overlay = document.getElementById("overlay");
 
-  p.textContent=msg;
-  p.className="popup "+type;
-  p.style.display="block";
-  o.style.display="block";
+  popup.textContent = message;
+  popup.className = "popup " + type;
 
-  setTimeout(()=>{
-    p.style.display="none";
-    o.style.display="none";
-  },2000);
+  popup.style.display = "block";
+  overlay.style.display = "block";
+
+  setTimeout(() => {
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  }, 2000);
 }
 
 /* FORM */
-document.getElementById("depositForm").addEventListener("submit", async (e)=>{
-  e.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
 
-  if(!isReady || !uid){
-    showPopup("Please wait for login", "error");
-    return;
-  }
+  const form = document.getElementById("depositForm");
+  const submitBtn = document.getElementById("submitBtn");
 
-  const amount = Number(document.getElementById("amount").value);
-  const phone = document.getElementById("phone").value.trim();
-  const receipt = document.getElementById("receipt").files[0];
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-  if(amount < 50){
-    showPopup("Minimum is $50","error");
-    return;
-  }
-
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.textContent = "Submitting...";
-
-  try{
-
-    const newRef = db.ref("deposits").child(uid).push();
-    const depositId = newRef.key;
-
-    const data = {
-      id: depositId,
-      amount,
-      phone,
-      status: "pending",
-      createdAt: Date.now()
-    };
-
-    await newRef.set(data);
-
-    /* STORAGE */
-    if(receipt){
-      const uploadRef = storage.ref(`receipts/${uid}/${depositId}`);
-      const snap = await uploadRef.put(receipt);
-      const url = await snap.ref.getDownloadURL();
-
-      await newRef.update({receiptUrl:url});
+    if (!userReady || !uid) {
+      showPopup("Please wait for login", "error");
+      return;
     }
 
-    showPopup("Deposit submitted ✔", "success");
+    const amount = Number(document.getElementById("amount").value);
+    const phone = document.getElementById("phone").value.trim();
+    const receipt = document.getElementById("receipt").files[0];
 
-    setTimeout(()=>{
-      location.href="financial.html";
-    },1200);
+    if (amount < 50) {
+      showPopup("Minimum deposit is $50", "error");
+      return;
+    }
 
-  }catch(err){
-    console.error(err);
-    showPopup(err.message || "Failed","error");
-  }
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Submitting...";
 
-  btn.disabled = false;
-  btn.textContent = "Submit Deposit";
+    try {
+
+      /* FIXED KEY GENERATION */
+      const depositRef = db.ref("deposits/" + uid).push();
+      const depositId = depositRef.key;
+
+      const depositData = {
+        id: depositId,
+        amount,
+        phone,
+        method: "P2P",
+        status: "pending",
+        timestamp: Date.now(),
+        type: "deposit"
+      };
+
+      /* SAVE DEPOSIT */
+      await depositRef.set(depositData);
+
+      /* SAVE FINANCIAL */
+      await db.ref("financial/" + uid + "/" + depositId)
+        .set(depositData);
+
+      /* UPLOAD RECEIPT */
+      if (receipt) {
+        const uploadRef = storage.ref(`receipts/${uid}/${depositId}`);
+
+        const snap = await uploadRef.put(receipt);
+        const url = await snap.ref.getDownloadURL();
+
+        await depositRef.update({ receiptUrl: url });
+      }
+
+      /* SINGLE SUCCESS FLOW ONLY */
+      showPopup("Deposit submitted ✔ Pending approval", "success");
+
+      form.reset();
+
+      setTimeout(() => {
+        window.location.href = "financial.html";
+      }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      showPopup(err.message || "Submission failed", "error");
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Deposit";
+  });
+
 });
-
-</script>
+        </script>
 
 </body>
 </html>
