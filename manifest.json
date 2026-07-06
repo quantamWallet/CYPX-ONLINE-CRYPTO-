@@ -1,23 +1,23 @@
-{
-  "id": "/CYPX-ONLINE-CRYPTO-/",
-  "name": "CYPX HOLDINGS",
-  "short_name": "CYPX",
-  "description": "Modern digital asset management platform with secure account management and real-time dashboard access.",
-  "start_url": "/CYPX-ONLINE-CRYPTO-/index.html"
-  "scope": "/CYPX-ONLINE-CRYPTO-/",
-  "display": "standalone",
-  "theme_color": "#007a54",
-  "background_color": "#001f3f",
-  "icons": [
-    {
-      "src": "cypx_icon_192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "cypx_icon_512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+{  
+  "id": "/CYPX-ONLINE-CRYPTO-/",  
+  "name": "CYPX HOLDINGS",  
+  "short_name": "CYPX",  
+  "description": "Modern digital asset management platform with secure account management and real-time dashboard access.",  
+  "start_url": "/CYPX-ONLINE-CRYPTO-/auth.html",  
+  "scope": "/CYPX-ONLINE-CRYPTO-/",  
+  "theme_color": "#007a54",  
+  "background_color": "#001f3f",  
+  "display": "standalone",  
+  "icons": [  
+    {  
+      "src": "cypx_icon_192x192.png",  
+      "sizes": "192x192",  
+      "type": "image/png"  
+    },  
+    {  
+      "src": "cypx_icon_512x512.png",  
+      "sizes": "512x512",  
+      "type": "image/png"  
+    }  
+  ]  
 }
