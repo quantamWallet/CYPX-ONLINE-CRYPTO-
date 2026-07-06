@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS - KYC Verification</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("forex-bg.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:520px;
+}
+
+.card{
+    position:relative;
+    background:rgba(255,255,255,.95);
+    border-radius:22px;
+    padding:30px;
+    box-shadow:0 15px 45px rgba(0,0,0,.45);
+}
+
+.header{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.header i{
+    font-size:55px;
+    color:#2563eb;
+    margin-bottom:10px;
+}
+
+.header h1{
+    font-size:28px;
+    color:#0f172a;
+}
+
+.header p{
+    font-size:14px;
+    color:#475569;
+}
+
+.toast{
+    display:none;
+    position:fixed;
+    top:20px;
+    right:20px;
+    padding:12px 16px;
+    border-radius:10px;
+    color:#fff;
+    font-size:14px;
+    z-index:9999;
+}
+
+.toast.success{background:#16a34a;}
+.toast.error{background:#dc2626;}
+
+.status-card{
+    display:none;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.status-badge{
+    padding:6px 14px;
+    border-radius:20px;
+    color:#fff;
+    font-size:13px;
+    display:inline-block;
+}
+
+.pending{background:#f59e0b;}
+.verified{background:#16a34a;}
+.rejected{background:#dc2626;}
+
+.input-field{
+    margin-bottom:15px;
+}
+
+.input-field input,
+.input-field select{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    outline:none;
+}
+
+.upload-group{
+    margin-bottom:15px;
+}
+
+.upload-group label{
+    font-size:13px;
+    font-weight:600;
+}
+
+.submit-btn{
+    width:100%;
+    padding:12px;
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.back-btn{
+    display:block;
+    text-align:center;
+    margin-top:12px;
+    color:#2563eb;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="container">
+<div class="card">
+
+<div class="header">
+<i class="fa-solid fa-id-card"></i>
+<h1>KYC Verification</h1>
+<p>Verify your identity to continue.</p>
+</div>
+
+<div id="kycStatusCard" class="status-card">
+    <span id="statusBadge" class="status-badge pending">Pending</span>
+    <p id="statusMessage"></p>
+</div>
+<form id="kycForm">
+
+    <div class="input-field">
+        <input type="text" id="fullName" placeholder="Full Name" required>
+    </div>
+
+    <div class="input-field">
+        <input type="date" id="dob" required>
+    </div>
+
+    <div class="input-field">
+        <input type="text" id="country" placeholder="Country" required>
+    </div>
+
+    <div class="input-field">
+        <select id="idType" required>
+            <option value="">Select ID Type</option>
+            <option>National ID</option>
+            <option>Passport</option>
+            <option>Driving Licence</option>
+        </select>
+    </div>
+
+    <div class="input-field">
+        <input type="text" id="idNumber" placeholder="ID Number" required>
+    </div>
+
+    <div class="upload-group">
+        <label>Front ID</label>
+        <input type="file" id="frontImage" accept="image/*" required>
+    </div>
+
+    <div class="upload-group">
+        <label>Back ID</label>
+        <input type="file" id="backImage" accept="image/*">
+    </div>
+
+    <div class="upload-group">
+        <label>Selfie</label>
+        <input type="file" id="selfieImage" accept="image/*" required>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" type="submit">
+        Submit Verification
+    </button>
+
+    <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
+
+</form>
+
+</div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, get, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+/* DOM */
+const toast = document.getElementById("toast");
+const form = document.getElementById("kycForm");
+const statusCard = document.getElementById("kycStatusCard");
+const statusBadge = document.getElementById("statusBadge");
+const statusMessage = document.getElementById("statusMessage");
+
+const fullName = document.getElementById("fullName");
+const dob = document.getElementById("dob");
+const country = document.getElementById("country");
+const idType = document.getElementById("idType");
+const idNumber = document.getElementById("idNumber");
+
+const frontImage = document.getElementById("frontImage");
+const backImage = document.getElementById("backImage");
+const selfieImage = document.getElementById("selfieImage");
+
+const submitBtn = document.getElementById("submitBtn");
+
+/* Toast */
+function showToast(msg,type){
+    toast.textContent = msg;
+    toast.className = "toast " + type;
+    toast.style.display = "block";
+    setTimeout(()=>toast.style.display="none",3000);
+}
+
+/* Load Status */
+async function loadStatus(user){
+    const snap = await get(ref(db,"kyc/"+user.uid));
+    if(!snap.exists()) return;
+
+    const data = snap.val();
+    statusCard.style.display = "block";
+
+    if(data.status==="verified"){
+        statusBadge.className="status-badge verified";
+        statusBadge.textContent="Verified";
+        statusMessage.textContent="Approved";
+        form.style.display="none";
+    } else if(data.status==="rejected"){
+        statusBadge.className="status-badge rejected";
+        statusBadge.textContent="Rejected";
+        statusMessage.textContent=data.reason || "Rejected";
+    } else {
+        statusBadge.className="status-badge pending";
+        statusMessage.textContent="Pending review";
+        form.style.display="none";
+    }
+}
+
+/* Auth */
+onAuthStateChanged(auth,(user)=>{
+    if(!user){
+        window.location.href="auth.html";
+        return;
+    }
+    loadStatus(user);
+});
+
+/* Submit */
+form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+
+    try{
+        const user = auth.currentUser;
+        if(!user) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Uploading...";
+
+        const uid = user.uid;
+
+        const frontRef = storageRef(storage,`kyc/${uid}/front`);
+        await uploadBytes(frontRef,frontImage.files[0]);
+        const frontURL = await getDownloadURL(frontRef);
+
+        let backURL="";
+        if(backImage.files.length){
+            const backRef = storageRef(storage,`kyc/${uid}/back`);
+            await uploadBytes(backRef,backImage.files[0]);
+            backURL = await getDownloadURL(backRef);
+        }
+
+        const selfieRef = storageRef(storage,`kyc/${uid}/selfie`);
+        await uploadBytes(selfieRef,selfieImage.files[0]);
+        const selfieURL = await getDownloadURL(selfieRef);
+
+        await set(ref(db,"kyc/"+uid),{
+            uid,
+            fullName: fullName.value.trim(),
+            dob: dob.value,
+            country: country.value,
+            idType: idType.value,
+            idNumber: idNumber.value,
+            frontImage: frontURL,
+            backImage: backURL,
+            selfieImage: selfieURL,
+            status:"pending",
+            submittedAt:serverTimestamp()
+        });
+
+        showToast("Submitted successfully","success");
+        form.reset();
+
+    }catch(err){
+        showToast(err.message,"error");
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Verification";
+});
+
+</script>
+
+</body>
+          </html>
