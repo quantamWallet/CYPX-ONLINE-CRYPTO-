@@ -276,60 +276,43 @@ function showToast(msg,type){
 }
 
 /* Load Status */
-async function loadStatus(user){
+async function loadStatus(user) {
+
     onValue(ref(db, "kyc/" + user.uid), (snap) => {
 
-    if (!snap.exists()) {
-        statusCard.style.display = "none";
-        form.style.display = "block";
-        return;
-    }
+        if (!snap.exists()) {
+            statusCard.style.display = "none";
+            form.style.display = "block";
+            return;
+        }
 
-    const data = snap.val();
+        const data = snap.val();
 
-    statusCard.style.display = "block";
+        statusCard.style.display = "block";
 
-    if (data.status === "verified") {
+        if (data.status === "verified") {
+            statusBadge.className = "status-badge verified";
+            statusBadge.textContent = "Verified";
+            statusMessage.textContent = "Your KYC has been approved.";
+            form.style.display = "none";
 
-        statusBadge.className = "status-badge verified";
-        statusBadge.textContent = "Verified";
-        statusMessage.textContent = "Your KYC has been approved.";
-        form.style.display = "none";
+        } else if (data.status === "rejected") {
+            statusBadge.className = "status-badge rejected";
+            statusBadge.textContent = "Rejected";
+            statusMessage.textContent = data.reason || "Please submit new documents.";
+            form.style.display = "block";
 
-    } else if (data.status === "rejected") {
+        } else {
+            statusBadge.className = "status-badge pending";
+            statusBadge.textContent = "Pending";
+            statusMessage.textContent = "Your documents are under review.";
+            form.style.display = "none";
+        }
 
-        statusBadge.className = "status-badge rejected";
-        statusBadge.textContent = "Rejected";
-        statusMessage.textContent = data.reason || "Please submit new documents.";
-        form.style.display = "block";
+    });
 
-    } else {
+                }
 
-        statusBadge.className = "status-badge pending";
-        statusBadge.textContent = "Pending";
-        statusMessage.textContent = "Your documents are under review.";
-        form.style.display = "none";
-
-    }
-
-});
-    statusCard.style.display = "block";
-
-    if(data.status==="verified"){
-        statusBadge.className="status-badge verified";
-        statusBadge.textContent="Verified";
-        statusMessage.textContent="Approved";
-        form.style.display="none";
-    } else if(data.status==="rejected"){
-        statusBadge.className="status-badge rejected";
-        statusBadge.textContent="Rejected";
-        statusMessage.textContent=data.reason || "Rejected";
-    } else {
-        statusBadge.className="status-badge pending";
-        statusMessage.textContent="Pending review";
-        form.style.display="none";
-    }
-}
 
 /* Auth */
 onAuthStateChanged(auth,(user)=>{
@@ -390,8 +373,12 @@ form.addEventListener("submit", async (e)=>{
         showToast("Submitted successfully","success");
         form.reset();
 
-    }catch(err){
-        showToast(err.message,"error");
+    catch(err){
+    console.error(err);
+    showToast(err.message, "error");
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Verification";
     }
 
     submitBtn.disabled = false;
