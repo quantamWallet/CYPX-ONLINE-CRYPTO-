@@ -500,7 +500,35 @@ font-size:25px;
 }
 
 }
+.terms-box{
+    margin:15px 0 20px;
+    font-size:13px;
+    color:#334155;
+}
 
+.terms-box label{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    line-height:1.5;
+    cursor:pointer;
+}
+
+.terms-box input[type="checkbox"]{
+    margin-top:3px;
+    transform:scale(1.15);
+    accent-color:#2563eb;
+}
+
+.terms-box a{
+    color:#2563eb;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.terms-box a:hover{
+    text-decoration:underline;
+}
 </style>
 
 </head>
@@ -719,7 +747,15 @@ required>
 
 <div class="error"
 id="confirmPasswordError"></div>
-
+<div class="terms-box">
+    <label>
+        <input type="checkbox" id="agreeTerms" required>
+        I agree to the
+        <a href="terms.html" target="_blank">
+            Terms & Conditions
+        </a>
+    </label>
+</div>
 <button
 type="submit"
 class="submit-btn"
@@ -815,7 +851,9 @@ document.getElementById("successBox");
 
 const errorBox =
 document.getElementById("errorBox");
-
+    
+const agreeTerms =
+document.getElementById("agreeTerms");
 /* LOGIN */
 
 const loginEmail =
@@ -1117,7 +1155,10 @@ if(!validateUsername()) return;
 if(!validateEmail()) return;
 if(!validatePhone()) return;
 if(!validatePassword()) return;
-
+if(!agreeTerms.checked){
+    showError("You must agree to the Terms & Conditions before creating an account.");
+    return;
+    }
 showLoading();
 
 try{
