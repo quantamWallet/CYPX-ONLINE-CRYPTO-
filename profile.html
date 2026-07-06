@@ -245,6 +245,21 @@ align-items:center;
 
 <div class="profile-card">
   <div>
+    <div>
+    <div>
+    <div id="kycBadge" style="
+        display:none;
+        margin-bottom:8px;
+        padding:5px 12px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:bold;
+        width:max-content;
+    "></div>
+
+    <div id="user-email">user@email.com</div>
+    <div id="user-vip" class="vip">VIP0</div>
+    </div>
     <div id="user-email">user@email.com</div>
     <div id="user-vip" class="vip">VIP0</div>
   </div>
@@ -265,6 +280,11 @@ align-items:center;
 </div>
 
 <div class="menu">
+
+<a href="kyc.html" id="kycBtn" class="menu-item" style="display:none;">
+    <i class="fas fa-id-card"></i>
+    Verify Identity (KYC)
+</a>
   <a href="deposit.html" class="menu-item"><i class="fas fa-wallet"></i>Deposit</a>
   <a href="withdraw.html" class="menu-item"><i class="fas fa-money-bill"></i>Withdraw</a>
   <a href="financial.html" class="menu-item"><i class="fas fa-file"></i>Transaction History</a>
@@ -430,9 +450,42 @@ auth.onAuthStateChanged(user => {
 
   /* USER DATA */
   db.ref("users/" + uid).on("value", snap => {
+
     userData = snap.val() || {};
+
+    const badge = document.getElementById("kycBadge");
+    const kycBtn = document.getElementById("kycBtn");
+
+    switch (userData.kycStatus) {
+
+        case "verified":
+            badge.style.display = "inline-block";
+            badge.style.background = "#16a34a";
+            badge.textContent = "✓ KYC VERIFIED";
+            kycBtn.style.display = "none";
+            break;
+
+        case "pending":
+            badge.style.display = "inline-block";
+            badge.style.background = "#f59e0b";
+            badge.textContent = "⏳ KYC PENDING";
+            kycBtn.style.display = "none";
+            break;
+
+        case "rejected":
+            badge.style.display = "inline-block";
+            badge.style.background = "#dc2626";
+            badge.textContent = "✖ KYC REJECTED";
+            kycBtn.style.display = "flex";
+            break;
+
+        default:
+            badge.style.display = "none";
+            kycBtn.style.display = "flex";
+    }
+
     render();
-  });
+});
 
   /* DEPOSITS */
   db.ref("deposits/" + uid).on("value", snap => {
