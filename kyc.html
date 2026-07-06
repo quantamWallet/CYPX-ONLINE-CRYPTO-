@@ -376,6 +376,13 @@ setTimeout(() => {
     window.location.href = "profile.html";
 }, 1500);
 
+} catch (err) {
+    console.error(err);
+    showToast(err.message, "error");
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Verification";
+            }
     catch(err){
     console.error(err);
     showToast(err.message, "error");
