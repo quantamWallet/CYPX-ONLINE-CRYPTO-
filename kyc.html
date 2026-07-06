@@ -370,8 +370,11 @@ form.addEventListener("submit", async (e)=>{
     lastKycSubmission: serverTimestamp()
 });
 
-        showToast("Submitted successfully","success");
-        form.reset();
+        showToast("Submitted successfully", "success");
+
+setTimeout(() => {
+    window.location.href = "profile.html";
+}, 1500);
 
     catch(err){
     console.error(err);
