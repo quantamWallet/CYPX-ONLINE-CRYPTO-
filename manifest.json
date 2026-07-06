@@ -1,13 +1,13 @@
 {
-  "id": "/CYPX-ONLINE-CRYPTO-/",
+  "id": "/CYPX-ONLINE-CRYPTO-/auth.html",
   "name": "CYPX HOLDINGS",
   "short_name": "CYPX",
   "description": "Modern digital asset management platform with secure account management and real-time dashboard access.",
   "start_url": "/CYPX-ONLINE-CRYPTO-/auth.html",
   "scope": "/CYPX-ONLINE-CRYPTO-/",
+  "display": "standalone",
   "theme_color": "#007a54",
   "background_color": "#001f3f",
-  "display": "standalone",
   "icons": [
     {
       "src": "cypx_icon_192x192.png",
