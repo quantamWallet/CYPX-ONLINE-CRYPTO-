@@ -400,17 +400,14 @@ onAuthStateChanged(auth, user => {
     }
 
     const newBalance = balance - cost;
-    const vipData = {
-      unlocked: true,
-      claims: 0,
-      lastClaim: 0
-    };
+    const now = Date.now();
 
-    await update(userRef, {
+await update(userRef, {
   balance: newBalance,
-  [`vipLevels/${level}/claims`]: claims,
-  [`vipLevels/${level}/lastClaim`]: now,
-  [`vipEarnings/${level}/totalEarned`]: claims * profit,
+  [`vipLevels/${level}/unlocked`]: true,
+  [`vipLevels/${level}/claims`]: 0,
+  [`vipLevels/${level}/lastClaim`]: 0,
+  [`vipEarnings/${level}/totalEarned`]: 0,
   [`vipEarnings/${level}/lastClaim`]: now
 });
 
@@ -453,11 +450,12 @@ onAuthStateChanged(auth, user => {
   const newBalance = (data.balance || 0) + profit;
 
   await update(userRef, {
-    balance: newBalance,
-    // Store total VIP earnings
-    [`vipEarnings/${level}/totalEarned`]: claims * profit,
-    [`vipEarnings/${level}/lastClaim`]: now
-  });
+  balance: newBalance,
+  [`vipLevels/${level}/claims`]: claims,
+  [`vipLevels/${level}/lastClaim`]: now,
+  [`vipEarnings/${level}/totalEarned`]: claims * profit,
+  [`vipEarnings/${level}/lastClaim`]: now
+});
 
   showToast(
     `Daily profit of ${formatCurrency(profit)} claimed for VIP${level}`
