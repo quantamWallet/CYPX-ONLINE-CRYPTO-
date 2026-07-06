@@ -221,7 +221,15 @@ body{
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, get, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import {
+    getDatabase,
+    ref,
+    get,
+    set,
+    update,
+    onValue,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {  
@@ -269,10 +277,42 @@ function showToast(msg,type){
 
 /* Load Status */
 async function loadStatus(user){
-    const snap = await get(ref(db,"kyc/"+user.uid));
-    if(!snap.exists()) return;
+    onValue(ref(db, "kyc/" + user.uid), (snap) => {
+
+    if (!snap.exists()) {
+        statusCard.style.display = "none";
+        form.style.display = "block";
+        return;
+    }
 
     const data = snap.val();
+
+    statusCard.style.display = "block";
+
+    if (data.status === "verified") {
+
+        statusBadge.className = "status-badge verified";
+        statusBadge.textContent = "Verified";
+        statusMessage.textContent = "Your KYC has been approved.";
+        form.style.display = "none";
+
+    } else if (data.status === "rejected") {
+
+        statusBadge.className = "status-badge rejected";
+        statusBadge.textContent = "Rejected";
+        statusMessage.textContent = data.reason || "Please submit new documents.";
+        form.style.display = "block";
+
+    } else {
+
+        statusBadge.className = "status-badge pending";
+        statusBadge.textContent = "Pending";
+        statusMessage.textContent = "Your documents are under review.";
+        form.style.display = "none";
+
+    }
+
+});
     statusCard.style.display = "block";
 
     if(data.status==="verified"){
@@ -341,6 +381,11 @@ form.addEventListener("submit", async (e)=>{
             status:"pending",
             submittedAt:serverTimestamp()
         });
+        await update(ref(db, "users/" + uid), {
+    kycSubmitted: true,
+    kycStatus: "pending",
+    lastKycSubmission: serverTimestamp()
+});
 
         showToast("Submitted successfully","success");
         form.reset();
