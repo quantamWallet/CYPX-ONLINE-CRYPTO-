@@ -187,7 +187,8 @@ const auth=firebase.auth();
 
 const db=firebase.database();
 
-
+let adminEmail = "";
+let adminUID = "";
 
 
 
@@ -205,9 +206,14 @@ return;
 }
 
 
+adminEmail = user.email;
+adminUID = user.uid;
+
+
 
 db.ref("admins/"+user.uid)
 .once("value")
+
 .then(admin=>{
 
 
@@ -220,6 +226,7 @@ window.location.href="auth.html";
 return;
 
 }
+
 
 
 loadDeposits();
@@ -389,15 +396,13 @@ html || "No deposits found";
 function updateDeposit(uid,id,status){
 
 
-
 const depositRef =
-db.ref(
-"deposits/"+uid+"/"+id
-);
+db.ref("deposits/"+uid+"/"+id);
 
 
 
 depositRef.once("value")
+
 .then(snapshot=>{
 
 
@@ -409,46 +414,42 @@ if(!deposit) return;
 
 
 
-// UPDATE STATUS
-
 depositRef.update({
 
-status:status
+status:status,
+
+processedAt:
+firebase.database.ServerValue.TIMESTAMP,
+
+processedBy:
+adminEmail
+
 
 });
+
 
 
 
 
 // ADD BALANCE ONLY WHEN APPROVED
 
-
 if(status==="approved"){
 
 
-
-let amount=Number(
+let amount = Number(
 deposit.amount ||
 deposit.depositAmount ||
+deposit.price ||
 0
 );
 
 
 
 db.ref("users/"+uid+"/balance")
+
 .transaction(current=>{
 
-
-return Number(current || 0)+amount;
-
-
-});
-
-
-
-}
-
-
+return Number(current || 0) + amount;
 
 
 });
@@ -456,6 +457,59 @@ return Number(current || 0)+amount;
 
 
 }
+
+
+
+
+
+// CREATE ADMIN LOG
+
+
+db.ref("adminLogs").push({
+
+
+action:
+"Deposit "+status,
+
+
+user:
+uid,
+
+
+amount:
+Number(
+deposit.amount ||
+deposit.depositAmount ||
+0
+),
+
+
+admin:
+adminEmail,
+
+
+adminUID:
+adminUID,
+
+
+time:
+Date.now()
+
+
+});
+
+
+
+alert(
+"Deposit "+status
+);
+
+
+
+});
+
+
+  }
 
 
 
