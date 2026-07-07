@@ -270,44 +270,38 @@ let adminEmail="";
 
 auth.onAuthStateChanged(user=>{
 
+    if(!user){
 
-if(!user){
-
-window.location.href="auth.html";
-
-return;
-
-}
-
-
-
-adminUID=user.uid;
-
-adminEmail=user.email;
-
-
-
-db.ref("admins/"+adminUID)
-.once("value")
-
-.then(admin=>{
-
-    if(!admin.exists()){
-
-        showNotification("Access denied. Admins only.","error");
-
-        setTimeout(()=>{
-            window.location.href="auth.html";
-        },1500);
-
+        window.location.href="auth.html";
         return;
 
     }
 
-    loadLogs();
-    loadSettings();
+    adminUID = user.uid;
+    adminEmail = user.email;
 
-});
+    db.ref("admins/"+adminUID)
+    .once("value")
+    .then(admin=>{
+
+        if(!admin.exists()){
+
+            showNotification("Access denied. Admins only.","error");
+
+            setTimeout(()=>{
+                window.location.href="auth.html";
+            },1500);
+
+            return;
+
+        }
+
+        loadLogs();
+        loadSettings();
+
+    });
+
+});   // <-- This closes auth.onAuthStateChanged()
 
 
 function showNotification(message,type="success"){
@@ -496,24 +490,27 @@ time:Date.now()
 
         const settings = snap.val();
 
-const status = settings.platformStatus || "online";
+        const status = settings.platformStatus || "online";
 
-document.getElementById("platformStatus").value = status;
+        document.getElementById("platformStatus").value = status;
 
-document.getElementById("maintenanceMessage").value =
-settings.maintenanceMessage || "";
+        document.getElementById("maintenanceMessage").value =
+        settings.maintenanceMessage || "";
 
-const statusText = document.getElementById("systemStatus");
+        const statusText = document.getElementById("systemStatus");
 
-statusText.textContent = status.toUpperCase();
+        statusText.textContent = status.toUpperCase();
 
-statusText.style.color =
-status === "online"
-? "#16a34a"
-: status === "maintenance"
-? "#f59e0b"
-: "#dc2626";
+        statusText.style.color =
+        status === "online"
+        ? "#16a34a"
+        : status === "maintenance"
+        ? "#f59e0b"
+        : "#dc2626";
 
+    });
+
+    }
 
 </script>
 
