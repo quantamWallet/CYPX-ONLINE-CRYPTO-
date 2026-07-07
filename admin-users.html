@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS - User Management</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<style>
+
+body{
+
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#000814;
+color:white;
+
+}
+
+
+.header{
+
+padding:18px;
+background:linear-gradient(90deg,#001d3d,#003566);
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+
+.header a{
+
+color:white;
+text-decoration:none;
+
+}
+
+
+.container{
+
+padding:15px;
+
+}
+
+
+
+.search{
+
+width:100%;
+padding:14px;
+border-radius:12px;
+border:none;
+margin-bottom:15px;
+font-size:16px;
+
+}
+
+
+
+.user-card{
+
+background:#001a33;
+padding:15px;
+border-radius:15px;
+margin-bottom:12px;
+
+box-shadow:0 0 15px rgba(0,200,255,.1);
+
+}
+
+
+
+.user-card p{
+
+margin:7px 0;
+
+}
+
+
+
+button{
+
+padding:10px 15px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+color:white;
+
+}
+
+
+.suspend{
+
+background:#dc2626;
+
+}
+
+
+.activate{
+
+background:#16a34a;
+
+}
+
+
+.badge{
+
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+<a href="admin.html">
+
+<i class="fas fa-arrow-left"></i>
+
+</a>
+
+
+<b>
+<i class="fas fa-users"></i>
+Users
+</b>
+
+
+</div>
+
+
+
+<div class="container">
+
+
+<input 
+class="search"
+id="search"
+placeholder="Search username or email..."
+>
+
+
+<div id="usersList">
+
+Loading users...
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+
+
+<script>
+
+
+const firebaseConfig = {
+
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+authDomain:"quantum-rio.firebaseapp.com",
+
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+
+projectId:"quantum-rio",
+
+storageBucket:"quantum-rio.firebasestorage.app",
+
+messagingSenderId:"805433999377",
+
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+
+};
+
+
+
+firebase.initializeApp(firebaseConfig);
+
+
+const auth=firebase.auth();
+
+const db=firebase.database();
+
+
+
+let users=[];
+
+
+
+
+// ADMIN SECURITY
+
+
+auth.onAuthStateChanged(user=>{
+
+
+if(!user){
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+db.ref("admins/"+user.uid)
+.once("value")
+.then(admin=>{
+
+
+if(!admin.exists()){
+
+alert("Admin access required");
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+loadUsers();
+
+
+});
+
+
+});
+
+
+
+
+
+
+
+function loadUsers(){
+
+
+db.ref("users")
+.on("value",snap=>{
+
+
+users=[];
+
+
+snap.forEach(child=>{
+
+
+let data=child.val();
+
+
+data.uid=child.key;
+
+
+users.push(data);
+
+
+
+});
+
+
+displayUsers(users);
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+function displayUsers(list){
+
+
+const box=document.getElementById("usersList");
+
+
+box.innerHTML="";
+
+
+
+if(list.length===0){
+
+box.innerHTML="No users found";
+
+return;
+
+}
+
+
+
+
+list.forEach(user=>{
+
+
+let status=user.status || "active";
+
+
+
+box.innerHTML += `
+
+
+<div class="user-card">
+
+
+<p>
+<b>Email:</b>
+${user.email || "N/A"}
+</p>
+
+
+<p>
+<b>Username:</b>
+${user.username || "N/A"}
+</p>
+
+
+
+<p>
+<b>UID:</b>
+${user.uid}
+</p>
+
+
+
+<p>
+<b>Balance:</b>
+$${Number(user.balance || 0).toFixed(2)}
+</p>
+
+
+
+<p>
+<b>VIP:</b>
+${user.vipLevel || 0}
+</p>
+
+
+
+<p>
+<b>KYC:</b>
+${user.kycStatus || "none"}
+</p>
+
+
+
+<p>
+<b>Status:</b>
+
+<span class="badge" style="
+background:${status=="active"?"#16a34a":"#dc2626"};
+">
+
+${status}
+
+</span>
+
+</p>
+
+
+
+<button 
+class="${status=="active"?"suspend":"activate"}"
+
+onclick="changeStatus(
+'${user.uid}',
+'${status}'
+)"
+>
+
+
+${status=="active"?"Suspend":"Activate"}
+
+
+</button>
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+function changeStatus(uid,status){
+
+
+let newStatus =
+status=="active"
+?
+"suspended"
+:
+"active";
+
+
+
+db.ref("users/"+uid+"/status")
+
+.set(newStatus);
+
+
+
+}
+
+
+
+
+
+
+
+
+document
+.getElementById("search")
+.addEventListener("input",function(){
+
+
+
+let value=this.value.toLowerCase();
+
+
+
+let filtered=users.filter(u=>{
+
+
+return (
+
+(u.email||"")
+.toLowerCase()
+.includes(value)
+
+
+||
+
+(u.username||"")
+.toLowerCase()
+.includes(value)
+
+
+);
+
+
+});
+
+
+
+displayUsers(filtered);
+
+
+
+});
+
+
+
+</script>
+
+
+</body>
+
+</html>
