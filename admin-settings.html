@@ -103,10 +103,10 @@ background:#f59e0b;
 
 </head>
 
-<div id="notification"></div>
 <body>
 
-
+<div id="notification"></div>
+    
 <div class="header">
 
 <a href="admin.html">
@@ -164,7 +164,32 @@ ONLINE
 </div>
 
 
+<div class="card">
 
+<h3>Platform Controls</h3>
+
+<label>Platform Status</label>
+
+<select id="platformStatus">
+
+<option value="online">🟢 Online</option>
+
+<option value="maintenance">🟠 Maintenance</option>
+
+<option value="offline">🔴 Offline</option>
+
+</select>
+
+<input
+id="maintenanceMessage"
+type="text"
+placeholder="Maintenance message for users">
+
+<button onclick="saveSettings()">
+Save Settings
+</button>
+
+</div>
 
 
 <div class="card">
@@ -188,10 +213,6 @@ Loading logs...
 
 
 </div>
-
-
-
-
 
 
 
@@ -229,19 +250,12 @@ appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 
 
 
-firebase.initializeApp(firebaseConfig);
-
-
-
-const auth=firebase.auth();
-
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-
-
-
+const auth = firebase.auth();
+const db = firebase.database();
 
 let adminUID="";
 
@@ -282,13 +296,9 @@ db.ref("admins/"+adminUID)
 if(!admin.exists()){
 
 
-showNotification("Access denied. Admins only.","error");
-
 setTimeout(()=>{
     window.location.href="auth.html";
 },1500);
-
-window.location.href="auth.html";
 
 return;
 
@@ -434,10 +444,6 @@ html || "No activity yet";
 
 
 
-
-
-
-
 // CREATE LOG FUNCTION
 // Use this function from other admin pages
 
@@ -463,8 +469,35 @@ time:Date.now()
 
 
 }
+  function saveSettings(){
 
+    db.ref("settings").update({
 
+        platformStatus: document.getElementById("platformStatus").value,
+
+        maintenanceMessage: document.getElementById("maintenanceMessage").value.trim(),
+
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+
+        updatedBy: adminEmail
+
+    })
+
+    .then(()=>{
+
+        createLog("Updated platform settings","SYSTEM");
+
+        showNotification("Platform settings updated.");
+
+    })
+
+    .catch(error=>{
+
+        showNotification(error.message,"error");
+
+    });
+
+        }
 
 </script>
 
