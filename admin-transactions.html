@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS - Transaction Audit</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<style>
+
+body{
+
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#000814;
+color:white;
+
+}
+
+
+.header{
+
+padding:18px;
+background:linear-gradient(90deg,#001d3d,#003566);
+display:flex;
+align-items:center;
+gap:15px;
+
+}
+
+
+.header a{
+
+color:white;
+text-decoration:none;
+
+}
+
+
+.container{
+
+padding:15px;
+
+}
+
+
+select{
+
+width:100%;
+padding:12px;
+border-radius:10px;
+margin-bottom:15px;
+
+}
+
+
+.card{
+
+background:#001a33;
+padding:15px;
+border-radius:15px;
+margin-bottom:10px;
+
+}
+
+
+.deposit{
+
+border-left:5px solid #16a34a;
+
+}
+
+
+.withdraw{
+
+border-left:5px solid #dc2626;
+
+}
+
+
+.admin{
+
+border-left:5px solid #00e5ff;
+
+}
+
+
+.amount{
+
+color:#ffd700;
+font-size:18px;
+font-weight:bold;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+
+<a href="admin.html">
+
+<i class="fas fa-arrow-left"></i>
+
+</a>
+
+
+<b>
+
+<i class="fas fa-file-invoice-dollar"></i>
+
+Transaction Audit
+
+</b>
+
+
+</div>
+
+
+
+
+<div class="container">
+
+
+<select id="filter"
+onchange="loadTransactions()">
+
+<option value="all">
+
+All Transactions
+
+</option>
+
+
+<option value="deposit">
+
+Deposits
+
+</option>
+
+
+<option value="withdraw">
+
+Withdrawals
+
+</option>
+
+
+<option value="admin">
+
+Admin Actions
+
+</option>
+
+
+</select>
+
+
+
+<div id="transactions">
+
+Loading...
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+
+
+<script>
+
+
+const firebaseConfig={
+
+
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+authDomain:"quantum-rio.firebaseapp.com",
+
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+
+projectId:"quantum-rio",
+
+storageBucket:"quantum-rio.firebasestorage.app",
+
+messagingSenderId:"805433999377",
+
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+
+};
+
+
+
+if(!firebase.apps.length){
+
+firebase.initializeApp(firebaseConfig);
+
+}
+
+
+
+const auth=firebase.auth();
+
+const db=firebase.database();
+
+
+
+
+
+let transactions=[];
+
+
+
+
+
+
+
+auth.onAuthStateChanged(user=>{
+
+
+if(!user){
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+db.ref("admins/"+user.uid)
+
+.once("value")
+
+.then(admin=>{
+
+
+if(!admin.exists()){
+
+
+alert("Admin only");
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+loadTransactions();
+
+
+});
+
+
+
+});
+
+
+
+
+
+
+
+
+
+function loadTransactions(){
+
+
+transactions=[];
+
+
+
+let filter=
+document.getElementById("filter").value;
+
+
+
+
+// ADMIN LOGS
+
+db.ref("adminLogs")
+
+.once("value")
+
+.then(snapshot=>{
+
+
+snapshot.forEach(child=>{
+
+
+let log=child.val();
+
+
+transactions.push({
+
+type:"admin",
+
+amount:log.amount || 0,
+
+user:log.user || "N/A",
+
+status:log.action,
+
+time:log.time
+
+});
+
+
+});
+
+
+
+return db.ref("deposits").once("value");
+
+
+})
+
+.then(snapshot=>{
+
+
+
+snapshot.forEach(user=>{
+
+
+user.forEach(item=>{
+
+
+let d=item.val();
+
+
+
+transactions.push({
+
+type:"deposit",
+
+amount:
+d.amount ||
+d.depositAmount ||
+0,
+
+user:user.key,
+
+status:d.status || "pending",
+
+time:d.createdAt || 0
+
+
+});
+
+
+
+});
+
+
+});
+
+
+
+return db.ref("withdrawals").once("value");
+
+
+})
+
+.then(snapshot=>{
+
+
+snapshot.forEach(user=>{
+
+
+user.forEach(item=>{
+
+
+let w=item.val();
+
+
+
+transactions.push({
+
+type:"withdraw",
+
+amount:w.amount || 0,
+
+user:user.key,
+
+status:w.status || "pending",
+
+time:w.createdAt || 0
+
+
+});
+
+
+
+});
+
+
+
+});
+
+
+
+displayTransactions(filter);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function displayTransactions(filter){
+
+
+let html="";
+
+
+
+let list =
+filter==="all"
+?
+transactions
+:
+transactions.filter(t=>t.type===filter);
+
+
+
+
+list.sort((a,b)=>b.time-a.time);
+
+
+
+
+
+list.forEach(t=>{
+
+
+
+html += `
+
+
+<div class="card ${t.type}">
+
+
+<p>
+
+<b>
+${t.type.toUpperCase()}
+</b>
+
+</p>
+
+
+
+<p>
+
+User:
+
+${t.user}
+
+</p>
+
+
+
+<p>
+
+Status:
+
+${t.status}
+
+</p>
+
+
+
+<p class="amount">
+
+$${Number(t.amount).toFixed(2)}
+
+</p>
+
+
+
+<p>
+
+${t.time ?
+
+new Date(t.time).toLocaleString()
+
+:
+
+"Unknown date"
+
+}
+
+</p>
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+document.getElementById("transactions").innerHTML =
+
+html || "No transactions found";
+
+
+}
+
+
+
+
+</script>
+
+
+</body>
+
+</html>
