@@ -187,7 +187,8 @@ const auth=firebase.auth();
 
 const db=firebase.database();
 
-
+let adminEmail = "";
+let adminUID = "";
 
 
 
@@ -207,8 +208,14 @@ return;
 
 
 
+adminEmail = user.email;
+adminUID = user.uid;
+
+
+
 db.ref("admins/"+user.uid)
 .once("value")
+
 .then(admin=>{
 
 
@@ -397,15 +404,15 @@ html || "No withdrawals found";
 function updateWithdrawal(uid,id,status){
 
 
-
-const ref =
+const withdrawRef =
 db.ref(
 "withdrawals/"+uid+"/"+id
 );
 
 
 
-ref.once("value")
+withdrawRef.once("value")
+
 .then(snapshot=>{
 
 
@@ -417,23 +424,67 @@ if(!withdrawal) return;
 
 
 
-ref.update({
+withdrawRef.update({
 
 status:status,
 
 processedAt:
-firebase.database.ServerValue.TIMESTAMP
+firebase.database.ServerValue.TIMESTAMP,
+
+processedBy:
+adminEmail
 
 
 });
 
 
 
+
+
+// CREATE ADMIN LOG
+
+
+db.ref("adminLogs").push({
+
+
+action:
+"Withdrawal "+status,
+
+
+user:
+uid,
+
+
+amount:
+Number(withdrawal.amount || 0),
+
+
+admin:
+adminEmail,
+
+
+adminUID:
+adminUID,
+
+
+time:
+Date.now()
+
+
 });
 
 
 
-}
+alert(
+"Withdrawal "+status
+);
+
+
+
+});
+
+
+  }
 
 
 
