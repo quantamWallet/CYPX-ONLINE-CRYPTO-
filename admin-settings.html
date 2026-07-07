@@ -72,12 +72,38 @@ font-size:14px;
 
 }
 
+#notification{
+position:fixed;
+top:20px;
+right:20px;
+background:#16a34a;
+color:#fff;
+padding:14px 20px;
+border-radius:10px;
+font-weight:bold;
+opacity:0;
+pointer-events:none;
+transition:.3s;
+z-index:9999;
+max-width:300px;
+}
 
+#notification.show{
+opacity:1;
+}
+
+#notification.error{
+background:#dc2626;
+}
+
+#notification.warning{
+background:#f59e0b;
+}
 </style>
 
 </head>
 
-
+<div id="notification"></div>
 <body>
 
 
@@ -209,7 +235,9 @@ firebase.initializeApp(firebaseConfig);
 
 const auth=firebase.auth();
 
-const db=firebase.database();
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
 
 
@@ -254,7 +282,11 @@ db.ref("admins/"+adminUID)
 if(!admin.exists()){
 
 
-alert("Admin only");
+showNotification("Access denied. Admins only.","error");
+
+setTimeout(()=>{
+    window.location.href="auth.html";
+},1500);
 
 window.location.href="auth.html";
 
@@ -278,7 +310,21 @@ loadLogs();
 
 
 
+function showNotification(message,type="success"){
 
+const box=document.getElementById("notification");
+
+box.textContent=message;
+
+box.className=type==="success"
+? "show"
+: "show "+type;
+
+setTimeout(()=>{
+box.className="";
+},3000);
+
+}
 
 
 // LOAD LOGS
