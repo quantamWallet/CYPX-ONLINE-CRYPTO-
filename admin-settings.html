@@ -155,8 +155,8 @@ Version:
 
 <p>
 Status:
-<b style="color:#16a34a;">
-ONLINE
+<b id="systemStatus" style="color:#16a34a;">
+Loading...
 </b>
 </p>
 
@@ -295,13 +295,13 @@ db.ref("admins/"+adminUID)
 
 if(!admin.exists()){
 
+showNotification("Access denied. Admins only.","error");
 
 setTimeout(()=>{
     window.location.href="auth.html";
 },1500);
 
 return;
-
 
 }
 
@@ -498,6 +498,38 @@ time:Date.now()
     });
 
         }
+    function loadSettings(){
+
+    db.ref("settings").once("value").then(snap=>{
+
+        if(!snap.exists()) return;
+
+        const settings = snap.val();
+
+        document.getElementById("platformStatus").value =
+            settings.platformStatus || "online";
+
+        document.getElementById("maintenanceMessage").value =
+            settings.maintenanceMessage || "";
+
+    });
+
+    }
+const status = settings.platformStatus || "online";
+
+const statusText = document.getElementById("systemStatus");
+
+statusText.textContent = status.toUpperCase();
+
+statusText.style.color =
+status === "online"
+? "#16a34a"
+: status === "maintenance"
+? "#f59e0b"
+: "#dc2626";
+    loadLogs();
+
+    loadSettings();
 
 </script>
 
