@@ -291,7 +291,6 @@ function loadUsers(){
 
                 let data = child.val() || {};
                 data.uid = child.key;
-
                 allUsers.push(data);
 
             });
@@ -304,15 +303,14 @@ function loadUsers(){
             console.error(error);
 
             document.getElementById("users").innerHTML =
-                "Firebase Error:<br>" + error.code + "<br>" + error.message;
+                "Firebase Error: " + error.message;
 
         }
     );
 
 }
 
-
-allUsers=[];
+function displayUsers(users){
 
 
 
