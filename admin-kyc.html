@@ -189,7 +189,8 @@ const auth=firebase.auth();
 
 const db=firebase.database();
 
-
+let adminEmail = "";
+let adminUID = "";
 
 
 
@@ -209,7 +210,13 @@ return;
 
 
 
+adminEmail = user.email;
+adminUID = user.uid;
+
+
+
 db.ref("admins/"+user.uid)
+
 .once("value")
 
 .then(admin=>{
@@ -393,7 +400,6 @@ html || "No pending KYC requests";
 function updateKyc(uid,status){
 
 
-
 db.ref("users/"+uid)
 
 .update({
@@ -401,7 +407,10 @@ db.ref("users/"+uid)
 kycStatus:status,
 
 kycUpdatedAt:
-firebase.database.ServerValue.TIMESTAMP
+firebase.database.ServerValue.TIMESTAMP,
+
+kycUpdatedBy:
+adminEmail
 
 
 })
@@ -409,16 +418,45 @@ firebase.database.ServerValue.TIMESTAMP
 .then(()=>{
 
 
-alert(
-"KYC updated: "+status
-);
+// CREATE ADMIN LOG
+
+db.ref("adminLogs").push({
+
+
+action:
+"KYC "+status,
+
+
+user:
+uid,
+
+
+admin:
+adminEmail,
+
+
+adminUID:
+adminUID,
+
+
+time:
+Date.now()
 
 
 });
 
 
 
-}
+alert(
+"KYC updated: "+status
+);
+
+
+
+});
+
+
+  }
 
 
 
