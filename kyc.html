@@ -33,7 +33,7 @@ body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("fore
 .row{display:flex;gap:10px}
 .progress{height:8px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden;display:none}
 .progress > span{display:block;height:100%;width:0;background:var(--brand);transition:width.2s}
-.toast{position:fixed;top:16px;right:16px;padding:12px 16px;border-radius:12px;color:#fff;font-size:14px;z-index:9999;display:none}
+.toast{position:fixed;top:16px;right:16px;padding:12px 16px;border-radius:12px;color:#fff;font-size:14px;z-index:9999;display:none;box-shadow:0 8px 20px rgba(0,0,0,.2)}
 .toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
 .badge{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;display:inline-block}
 .badge.pending{background:var(--warn)}.badge.ok{background:var(--ok)}.badge.bad{background:var(--bad)}
@@ -88,10 +88,10 @@ body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("fore
       <label class="upload-box" for="frontImage">
         <i class="fa-solid fa-id-card"></i>
         <p>Tap to capture Front ID</p>
-        <p class="size-hint">JPG only. Keep it under 1MB</p>
+        <p class="size-hint">JPG only. Auto-compressed if >3MB</p>
         <img id="frontPreview">
       </label>
-      <input type="file" id="frontImage" accept="image/jpeg" capture="environment" style="display:none">
+      <input type="file" id="frontImage" accept="image/jpeg,image/jpg" capture="environment" style="display:none">
       <div class="progress" id="p1"><span></span></div>
       <div class="row" style="margin-top:12px">
         <button class="btn ghost" type="button" id="back1">Back</button>
@@ -108,7 +108,7 @@ body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("fore
         <p class="size-hint">Optional</p>
         <img id="backPreview">
       </label>
-      <input type="file" id="backImage" accept="image/jpeg" capture="environment" style="display:none">
+      <input type="file" id="backImage" accept="image/jpeg,image/jpg" capture="environment" style="display:none">
       <div class="progress" id="p2"><span></span></div>
       <div class="row" style="margin-top:12px">
         <button class="btn ghost" type="button" id="back2">Back</button>
@@ -125,7 +125,7 @@ body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("fore
         <p class="size-hint">No sunglasses, good light</p>
         <img id="selfiePreview">
       </label>
-      <input type="file" id="selfieImage" accept="image/jpeg" capture="user" style="display:none">
+      <input type="file" id="selfieImage" accept="image/jpeg,image/jpg" capture="user" style="display:none">
       <div class="progress" id="p3"><span></span></div>
       <div class="row" style="margin-top:12px">
         <button class="btn ghost" type="button" id="back3">Back</button>
@@ -145,13 +145,13 @@ body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("fore
 
   </div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getDatabase, ref, update, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -202,7 +202,7 @@ const showToast = (msg,type="ok")=>{
   toast.textContent = msg;
   toast.className = "toast " + (type==="ok"?"ok":"bad");
   toast.style.display = "block";
-  setTimeout(()=>toast.style.display="none",3500);
+  setTimeout(()=>toast.style.display="none",4000);
 }
 const goStep = (n)=>{
   stepEls.forEach((el,i)=>el.classList.toggle("active", i===n));
@@ -214,103 +214,69 @@ const saveProgress = async (patch)=>{
   await update(ref(db, "kyc/"+uid), {...kycData, updatedAt: serverTimestamp()});
 }
 
-/* Compress only if image is larger than 3MB */
+/* Compress if >3MB or resize if >1920px */
 async function compressImage(file) {
-
-  // Keep original image if it's already under 3MB
-  if (file.size <= 3 * 1024 * 1024 && file.type === "image/jpeg") {
-    return file;
-  }
+  if (file.size <= 3 * 1024 * 1024 && file.type === "image/jpeg") return file;
 
   return new Promise((resolve, reject) => {
     const img = new Image();
-
     img.onerror = () => reject(new Error("Invalid image"));
-
     img.onload = () => {
       let { width, height } = img;
-
-      // Don't resize unless extremely large
       const max = 1920;
-
-      if (width > max) {
-        height *= max / width;
-        width = max;
-      }
+      if (width > max) { height *= max / width; width = max; }
 
       const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-
+      canvas.width = width; canvas.height = height;
       canvas.getContext("2d").drawImage(img, 0, 0, width, height);
 
       let quality = 0.92;
-
       const makeBlob = () => {
         canvas.toBlob(blob => {
-          if (!blob) {
-            reject(new Error("Compression failed"));
-            return;
-          }
-
+          if (!blob) return reject(new Error("Compression failed"));
           if (blob.size > 3 * 1024 * 1024 && quality > 0.5) {
-            quality -= 0.05;
-            return makeBlob();
+            quality -= 0.05; return makeBlob();
           }
-
-          resolve(new File([blob], "kyc.jpg", {
-            type: "image/jpeg"
-          }));
-
+          resolve(new File([blob], "kyc.jpg", {type: "image/jpeg"}));
         }, "image/jpeg", quality);
       };
-
       makeBlob();
     };
-
     img.src = URL.createObjectURL(file);
   });
 }
 
-/* Upload 1 file with 2min timeout for mobile data */
+/* Upload with progress + 2min timeout */
 function uploadOne(path, file, progressEl){
   return new Promise((resolve, reject)=>{
     const ref = storageRef(storage, path);
-    const task = uploadBytesResumable(ref, file);
+    const task = uploadBytesResumable(ref, file, {contentType: 'image/jpeg'});
 
-    console.log("Bucket:", storage.app.options.storageBucket);
-    console.log("File size:", file.size);
-    console.log("File type:", file.type);
-
-    const t = setTimeout(()=>{
-      task.cancel();
-      reject(new Error("Network error. Tap Retry."));
-    },120000);
-
+    const t = setTimeout(()=>{ task.cancel(); reject(new Error("Upload timed out. Check your internet and retry.")); },120000);
     progressEl.parentElement.style.display = "block";
 
-        task.on(
-      "state_changed",
+    task.on("state_changed",
       snapshot => {
-        console.log("Uploaded:", snapshot.bytesTransferred, "/", snapshot.totalBytes);
-
-        progressEl.style.width =
-          Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100) + "%";
+        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        progressEl.style.width = progress + "%";
       },
       error => {
         clearTimeout(t);
-        console.error("Upload Error:", error.code, error.message);
-        reject(error);
+        let msg = "Upload failed";
+        if(error.code === 'storage/unauthorized') msg = "Permission denied. Check Storage Rules.";
+        if(error.code === 'storage/canceled') msg = "Upload cancelled";
+        if(error.code === 'storage/unknown') msg = "Network error. Tap Retry.";
+        reject(new Error(msg));
       },
       async () => {
         clearTimeout(t);
-        console.log("Upload complete");
         resolve(await getDownloadURL(task.snapshot.ref));
       }
     );
   });
-  }
-/* File pick + preview + block HEIC */
+}
+
+/* File pick + preview */
 function bindFile(input, preview, btn){
   input.addEventListener("change", ()=>{
     const file = input.files[0];
@@ -381,26 +347,17 @@ document.getElementById("next1").addEventListener("click", async ()=>{
 document.getElementById("next2").addEventListener("click", async () => {
   const file = frontImage.files[0];
   if (!file) return;
-
   const btn = document.getElementById("next2");
-  btn.disabled = true;
-  btn.textContent = "Uploading...";
-
+  btn.disabled = true; btn.textContent = "Uploading...";
   try {
     const f = await compressImage(file);
     const url = await uploadOne(`kyc/${uid}/front.jpg`, f, p1);
-
     await saveProgress({ frontImage: url });
-
-    showToast("Front ID saved");
+    showToast("Front ID uploaded");
     goStep(2);
-
   } catch (e) {
-    console.error(e);
-    alert((e.code || "Error") + "\n" + e.message);
-
-    btn.disabled = false;
-    btn.textContent = "Retry Upload";
+    showToast(e.message, "bad");
+    btn.disabled = false; btn.textContent = "Retry Upload";
   }
 });
 
@@ -414,7 +371,7 @@ document.getElementById("next3").addEventListener("click", async ()=>{
       const f = await compressImage(file);
       const url = await uploadOne(`kyc/${uid}/back.jpg`, f, p2);
       await saveProgress({backImage: url});
-      showToast("Back ID saved");
+      showToast("Back ID uploaded");
     }catch(e){ showToast(e.message, "bad"); btn.disabled=false; btn.textContent="Retry Upload"; return; }
   }
   goStep(3);
@@ -444,4 +401,4 @@ document.getElementById("submitKyc").addEventListener("click", async ()=>{
 document.getElementById("back3").onclick = ()=>goStep(2);
 </script>
 </body>
-</html>
+        </html>
