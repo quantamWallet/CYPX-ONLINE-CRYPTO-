@@ -283,10 +283,9 @@ function uploadOne(path, file, progressEl){
         clearTimeout(t);
         console.log("Upload complete");
         resolve(await getDownloadURL(task.snapshot.ref));
-      }
-    );
+          );
   });
-}
+  }
 /* File pick + preview + block HEIC */
 function bindFile(input, preview, btn){
   input.addEventListener("change", ()=>{
