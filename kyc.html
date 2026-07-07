@@ -151,14 +151,16 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getDatabase, ref, update, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -246,45 +248,45 @@ async function compressImage(file){
     img.src = URL.createObjectURL(file);
   });
 }
-console.log(storage.app.options.storageBucket);
-console.log(file.size);
-console.log(file.type);
-  
+
 /* Upload 1 file with 2min timeout for mobile data */
 function uploadOne(path, file, progressEl){
   return new Promise((resolve, reject)=>{
     const ref = storageRef(storage, path);
     const task = uploadBytesResumable(ref, file);
-    const t = setTimeout(()=>{task.cancel(); reject(new Error("Network error. Tap Retry."));}, 120000);
-    progressEl.parentElement.style.display='block';
+
+    console.log("Bucket:", storage.app.options.storageBucket);
+    console.log("File size:", file.size);
+    console.log("File type:", file.type);
+
+    const t = setTimeout(()=>{
+      task.cancel();
+      reject(new Error("Network error. Tap Retry."));
+    },120000);
+
+    progressEl.parentElement.style.display = "block";
+
     task.on(
-  "state_changed",
-  snapshot => {
-    console.log("Uploaded:", snapshot.bytesTransferred, "/", snapshot.totalBytes);
+      "state_changed",
+      snapshot=>{
+        console.log("Uploaded:", snapshot.bytesTransferred, "/", snapshot.totalBytes);
 
-    progressEl.style.width =
-      Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100) + "%";
-  },
-      task.on(
-    "state_changed",
-    null,
-    error => {
-        console.error(error.code, error.message);
-    }
-);
-  error => {
-    clearTimeout(t);
-    console.error("Upload Error:", error.code, error.message);
-    reject(error);
-  },
-  async () => {
-    clearTimeout(t);
-    console.log("Upload complete");
-
-    resolve(await getDownloadURL(task.snapshot.ref));
-  }
-);
-
+        progressEl.style.width =
+          Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100) + "%";
+      },
+      error=>{
+        clearTimeout(t);
+        console.error("Upload Error:", error.code, error.message);
+        reject(error);
+      },
+      async ()=>{
+        clearTimeout(t);
+        console.log("Upload complete");
+        resolve(await getDownloadURL(task.snapshot.ref));
+      }
+    );
+  });
+}
 /* File pick + preview + block HEIC */
 function bindFile(input, preview, btn){
   input.addEventListener("change", ()=>{
@@ -410,4 +412,4 @@ document.getElementById("submitKyc").addEventListener("click", async ()=>{
 document.getElementById("back3").onclick = ()=>goStep(2);
 </script>
 </body>
-  </html>
+</html>
