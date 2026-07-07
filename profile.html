@@ -355,14 +355,13 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+const auth = firebase.auth();
+const db = firebase.database();
 document.getElementById("kycBtn").addEventListener("click", function(){
 
     document.getElementById("comingSoonModal").style.display="flex";
 
 });
-const auth = firebase.auth();
-const db = firebase.database();
-
 /* FORMAT */
 function formatMoney(num){
   return "$" + Number(num || 0).toLocaleString("en-US", {
