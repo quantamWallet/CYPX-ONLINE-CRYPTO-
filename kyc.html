@@ -9,74 +9,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
-}
-body{
-    background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("forex-bg.jpg");
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("forex-bg.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
 .container{width:100%;max-width:520px;}
-.card{
-    position:relative;
-    background:rgba(255,255,255,.95);
-    border-radius:22px;
-    padding:30px;
-    box-shadow:0 15px 45px rgba(0,0,0,.45);
-}
+.card{position:relative;background:rgba(255,255,255,.95);border-radius:22px;padding:30px;box-shadow:0 15px 45px rgba(0,0,0,.45);}
 .header{text-align:center;margin-bottom:20px;}
 .header i{font-size:55px;color:#2563eb;margin-bottom:10px;}
 .header h1{font-size:28px;color:#0f172a;}
 .header p{font-size:14px;color:#475569;}
-.toast{
-    display:none;position:fixed;top:20px;right:20px;padding:12px 16px;
-    border-radius:10px;color:#fff;font-size:14px;z-index:9999;
-}
+.toast{display:none;position:fixed;top:20px;right:20px;padding:12px 16px;border-radius:10px;color:#fff;font-size:14px;z-index:9999;}
 .toast.success{background:#16a34a;}
 .toast.error{background:#dc2626;}
-.status-card{
-    display:none;background:#f8fafc;border:1px solid #e2e8f0;
-    padding:15px;border-radius:12px;text-align:center;margin-bottom:15px;
-}
+.status-card{display:none;background:#f8fafc;border:1px solid #e2e8f0;padding:15px;border-radius:12px;text-align:center;margin-bottom:15px;}
 .status-badge{padding:6px 14px;border-radius:20px;color:#fff;font-size:13px;display:inline-block;}
 .pending{background:#f59e0b;}
 .verified{background:#16a34a;}
 .rejected{background:#dc2626;}
 .input-field{margin-bottom:15px;}
-.input-field input,.input-field select{
-    width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:none;
-}
+.input-field input,.input-field select{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:none;}
 .upload-group{margin-bottom:15px;}
 .upload-group label{font-size:13px;font-weight:600;}
-.submit-btn{
-    width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;
-}
+.submit-btn{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;}
 .submit-btn:disabled{opacity:.6;cursor:not-allowed;}
 .back-btn{display:block;text-align:center;margin-top:12px;color:#2563eb;text-decoration:none;}
-
-/* Success state */
+.progress{height:6px;background:#e2e8f0;border-radius:6px;margin:8px 0;overflow:hidden;display:none;}
+.progress > span{display:block;height:100%;width:0%;background:#2563eb;transition:width.2s;}
 .success-state{display:none;text-align:center;padding:20px 10px;}
-.success-state.tick{
-    width:90px;height:90px;border-radius:50%;background:#16a34a;display:grid;place-items:center;margin:0 auto 15px;
-    animation:scaleIn.3s ease;
-}
+.success-state.tick{width:90px;height:90px;border-radius:50%;background:#16a34a;display:grid;place-items:center;margin:0 auto 15px;animation:scaleIn.3s ease;}
 .success-state.tick i{color:#fff;font-size:42px;}
 .success-state h2{font-size:22px;color:#0f172a;margin-bottom:6px;}
 .success-state p{color:#475569;font-size:14px;margin-bottom:18px;}
-.btn-primary{
-    display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;
-}
+.btn-primary{display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;}
 @keyframes scaleIn{from{transform:scale(.6);opacity:0;} to{transform:scale(1);opacity:1;}}
 </style>
 </head>
@@ -86,7 +49,6 @@ body{
 
 <div class="container">
 <div class="card">
-
 <div class="header">
 <i class="fa-solid fa-id-card"></i>
 <h1>KYC Verification</h1>
@@ -115,21 +77,23 @@ body{
     <div class="upload-group">
         <label>Front ID</label>
         <input type="file" id="frontImage" accept="image/*" required>
+        <div class="progress" id="p1"><span></span></div>
     </div>
     <div class="upload-group">
         <label>Back ID</label>
         <input type="file" id="backImage" accept="image/*">
+        <div class="progress" id="p2"><span></span></div>
     </div>
     <div class="upload-group">
         <label>Selfie</label>
         <input type="file" id="selfieImage" accept="image/*" required>
+        <div class="progress" id="p3"><span></span></div>
     </div>
 
     <button class="submit-btn" id="submitBtn" type="submit">Submit Verification</button>
     <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
 </form>
 
-<!-- Success state instead of instant redirect -->
 <div id="successState" class="success-state">
     <div class="tick"><i class="fa-solid fa-check"></i></div>
     <h2>Submitted Successfully</h2>
@@ -144,14 +108,14 @@ body{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getDatabase, ref, set, update, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
     databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
     projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
+    storageBucket: "quantum-rio.appspot.com", // <-- changed.firebasestorage.app ->.appspot.com
     messagingSenderId: "805433999377",
     appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
     measurementId: "G-4RSQXZJX44"
@@ -162,7 +126,6 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-/* DOM */
 const toast = document.getElementById("toast");
 const form = document.getElementById("kycForm");
 const successState = document.getElementById("successState");
@@ -180,16 +143,61 @@ const frontImage = document.getElementById("frontImage");
 const backImage = document.getElementById("backImage");
 const selfieImage = document.getElementById("selfieImage");
 
-let isSubmitting = false; // prevents onValue from overriding success screen
+const p1 = document.querySelector("#p1 span");
+const p2 = document.querySelector("#p2 span");
+const p3 = document.querySelector("#p3 span");
+
+let isSubmitting = false;
 
 function showToast(msg,type){
     toast.textContent = msg;
     toast.className = "toast " + type;
     toast.style.display = "block";
-    setTimeout(()=>toast.style.display="none",3000);
+    setTimeout(()=>toast.style.display="none",4000);
 }
 
-/* Load Status */
+/* Compress image to <1MB, 1280px max */
+async function compressImage(file, maxSizeMB = 0.9, maxWidth = 1280){
+    return new Promise((resolve)=>{
+        const img = new Image();
+        img.onload = () => {
+            let {width, height} = img;
+            if(width > maxWidth){
+                height *= maxWidth/width;
+                width = maxWidth;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img,0,0,width,height);
+            canvas.toBlob((blob)=> resolve(new File([blob], file.name, {type:'image/jpeg'})), 'image/jpeg', 0.75);
+        };
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+/* Upload with progress + 20s timeout */
+function uploadWithProgress(path, file, progressEl){
+    return new Promise(async (resolve, reject) => {
+        const ref = storageRef(storage, path);
+        const task = uploadBytesResumable(ref, file);
+        const timeout = setTimeout(()=>{ task.cancel(); reject(new Error("Upload timed out. Check internet/storage rules.")); }, 20000);
+
+        task.on('state_changed',
+            (snap)=>{
+                const pct = Math.round((snap.bytesTransferred/snap.totalBytes)*100);
+                progressEl.parentElement.style.display='block';
+                progressEl.style.width = pct + '%';
+            },
+            (err)=>{ clearTimeout(timeout); reject(err); },
+            async ()=>{
+                clearTimeout(timeout);
+                const url = await getDownloadURL(task.snapshot.ref);
+                resolve(url);
+            }
+        );
+    });
+}
+
 function loadStatus(user) {
     onValue(ref(db, "kyc/" + user.uid), (snap) => {
         if (!snap.exists() &&!isSubmitting) {
@@ -198,53 +206,42 @@ function loadStatus(user) {
             successState.style.display = "none";
             return;
         }
-
         const data = snap.val();
         if(!data) return;
-
         statusCard.style.display = "block";
-
         if (data.status === "verified") {
             statusBadge.className = "status-badge verified";
             statusBadge.textContent = "Verified";
             statusMessage.textContent = "Your KYC has been approved.";
-            form.style.display = "none";
-            successState.style.display = "none";
+            form.style.display = "none"; successState.style.display = "none";
         } else if (data.status === "rejected") {
             statusBadge.className = "status-badge rejected";
             statusBadge.textContent = "Rejected";
             statusMessage.textContent = data.reason || "Please submit new documents.";
-            form.style.display = "block";
-            successState.style.display = "none";
-        } else { // pending
-            if(!isSubmitting){ // don’t override our success screen
+            form.style.display = "block"; successState.style.display = "none";
+        } else {
+            if(!isSubmitting){
                 statusBadge.className = "status-badge pending";
                 statusBadge.textContent = "Pending";
                 statusMessage.textContent = "Your documents are under review.";
-                form.style.display = "none";
-                successState.style.display = "none";
+                form.style.display = "none"; successState.style.display = "none";
             }
         }
     });
 }
 
-/* Auth */
 onAuthStateChanged(auth,(user)=>{
-    if(!user){
-        window.location.href="auth.html";
-        return;
-    }
+    if(!user){ window.location.href="auth.html"; return; }
     loadStatus(user);
 });
 
-/* Submit */
 form.addEventListener("submit", async (e)=>{
     e.preventDefault();
     if(isSubmitting) return;
 
     try{
         const user = auth.currentUser;
-        if(!user) return;
+        if(!user){ showToast("Not signed in", "error"); return; }
 
         if(!frontImage.files[0] ||!selfieImage.files[0]){
             showToast("Please upload Front ID and Selfie", "error");
@@ -253,46 +250,37 @@ form.addEventListener("submit", async (e)=>{
 
         isSubmitting = true;
         submitBtn.disabled = true;
-        submitBtn.textContent = "Uploading...";
+        submitBtn.textContent = "Compressing...";
 
         const uid = user.uid;
 
-        const frontRef = storageRef(storage,`kyc/${uid}/front`);
-        await uploadBytes(frontRef,frontImage.files[0]);
-        const frontURL = await getDownloadURL(frontRef);
+        // 1. Compress first so uploads are fast
+        const frontFile = await compressImage(frontImage.files[0]);
+        submitBtn.textContent = "Uploading 1/3...";
+        const frontURL = await uploadWithProgress(`kyc/${uid}/front.jpg`, frontFile, p1);
 
         let backURL="";
         if(backImage.files.length){
-            const backRef = storageRef(storage,`kyc/${uid}/back`);
-            await uploadBytes(backRef,backImage.files[0]);
-            backURL = await getDownloadURL(backRef);
+            submitBtn.textContent = "Uploading 2/3...";
+            const backFile = await compressImage(backImage.files[0]);
+            backURL = await uploadWithProgress(`kyc/${uid}/back.jpg`, backFile, p2);
         }
 
-        const selfieRef = storageRef(storage,`kyc/${uid}/selfie`);
-        await uploadBytes(selfieRef,selfieImage.files[0]);
-        const selfieURL = await getDownloadURL(selfieRef);
+        submitBtn.textContent = "Uploading 3/3...";
+        const selfieFile = await compressImage(selfieImage.files[0]);
+        const selfieURL = await uploadWithProgress(`kyc/${uid}/selfie.jpg`, selfieFile, p3);
 
         await set(ref(db,"kyc/"+uid),{
-            uid,
-            fullName: fullName.value.trim(),
-            dob: dob.value,
-            country: country.value,
-            idType: idType.value,
-            idNumber: idNumber.value,
-            frontImage: frontURL,
-            backImage: backURL,
-            selfieImage: selfieURL,
-            status:"pending",
-            submittedAt:serverTimestamp()
+            uid, fullName: fullName.value.trim(), dob: dob.value, country: country.value,
+            idType: idType.value, idNumber: idNumber.value,
+            frontImage: frontURL, backImage: backURL, selfieImage: selfieURL,
+            status:"pending", submittedAt:serverTimestamp()
         });
 
         await update(ref(db, "users/" + uid), {
-            kycSubmitted: true,
-            kycStatus: "pending",
-            lastKycSubmission: serverTimestamp()
+            kycSubmitted: true, kycStatus: "pending", lastKycSubmission: serverTimestamp()
         });
 
-        // Show success UI instead of redirecting
         form.style.display = "none";
         statusCard.style.display = "none";
         successState.style.display = "block";
@@ -300,7 +288,7 @@ form.addEventListener("submit", async (e)=>{
 
     } catch (err) {
         console.error(err);
-        showToast(err.message, "error");
+        showToast(err.code || err.message, "error");
         isSubmitting = false;
         submitBtn.disabled = false;
         submitBtn.textContent = "Submit Verification";
@@ -308,4 +296,4 @@ form.addEventListener("submit", async (e)=>{
 });
 </script>
 </body>
-        </html>
+    </html>
