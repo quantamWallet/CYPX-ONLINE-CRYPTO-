@@ -218,26 +218,35 @@ async function compressImage(file){
     img.onload = ()=>{
       clearTimeout(timer);
       let {width, height} = img;
-      const max = 1280;
+      const max = 900; // smaller = faster upload on mobile data
       if(width > max){ height *= max/width; width = max; }
       const c = document.createElement('canvas');
       c.width=width; c.height=height;
       c.getContext('2d').drawImage(img,0,0,width,height);
-      c.toBlob(b=>{
-        if(!b) return reject(new Error("Compression failed"));
-        resolve(new File([b], "kyc.jpg", {type:'image/jpeg'}));
-      }, 'image/jpeg', 0.7);
+
+      let quality = 0.5; // start at 50% quality
+      const tryBlob = ()=>{
+        c.toBlob(b=>{
+          if(!b) return reject(new Error("Compression failed"));
+          if(b.size > 120000 && quality > 0.3){ // if >120KB, compress more
+            quality -= 0.1;
+            return tryBlob();
+          }
+          resolve(new File([b], "kyc.jpg", {type:'image/jpeg'}));
+        }, 'image/jpeg', quality);
+      }
+      tryBlob();
     };
     img.src = URL.createObjectURL(file);
   });
-}
+  }
 
 /* Upload 1 file with 3min timeout */
 function uploadOne(path, file, progressEl){
   return new Promise((resolve, reject)=>{
     const ref = storageRef(storage, path);
     const task = uploadBytesResumable(ref, file);
-    const t = setTimeout(()=>{task.cancel(); reject(new Error("Upload too slow. Use WiFi."));}, 15000);
+    const t = setTimeout(()=>{task.cancel(); reject(new Error("Upload too slow. Use WiFi."));}, 60000);
     progressEl.parentElement.style.display='block';
     task.on('state_changed',
       s=>{ progressEl.style.width = Math.round(s.bytesTransferred/s.totalBytes*100)+'%'; },
