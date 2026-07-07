@@ -180,14 +180,12 @@ appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
 
-firebase.initializeApp(firebaseConfig);
-
-
-const auth=firebase.auth();
-
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+
+const auth = firebase.auth();
+const db = firebase.database();
 
 let adminEmail = "";
 let adminUID = "";
@@ -385,8 +383,6 @@ Reject
 });
 
 
-
-document.getElementById("withdrawList").innerHTML =
 document.getElementById("withdrawList").innerHTML =
     html || "No withdrawals found";
 
