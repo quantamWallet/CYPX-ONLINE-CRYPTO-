@@ -414,88 +414,61 @@ if (deposit.status === "approved") {
 depositRef.update({
 
     status: status,
-
     processedAt: firebase.database.ServerValue.TIMESTAMP,
-
     processedBy: adminEmail
 
 }).then(() => {
 
+    // ADD BALANCE ONLY WHEN APPROVED
+    if(status === "approved") {
 
-// ADD BALANCE ONLY WHEN APPROVED
+        let amount = Number(
+            deposit.amount ||
+            deposit.depositAmount ||
+            deposit.price ||
+            0
+        );
 
-if(status==="approved"){
+        db.ref("users/" + uid + "/balance").transaction(current => {
+            return Number(current || 0) + amount;
+        });
 
+    }
 
-let amount = Number(
-deposit.amount ||
-deposit.depositAmount ||
-deposit.price ||
-0
-);
+    // CREATE ADMIN LOG
+    db.ref("adminLogs").push({
 
-db.ref("users/"+uid+"/balance")
+        action: "Deposit " + status,
+        user: uid,
+        amount: Number(
+            deposit.amount ||
+            deposit.depositAmount ||
+            0
+        ),
+        admin: adminEmail,
+        adminUID: adminUID,
+        time: Date.now()
 
-.transaction(current=>{
+    });
 
-return Number(current || 0) + amount;
+    alert("Deposit " + status);
 
+}).catch(error => {
+
+    alert(error.message);
 
 });
+    
+    alert("Deposit " + status);
 
+}).catch(error => {
 
+    alert(error.message);
+
+});
 
 }
 
-
-
-
-
-// CREATE ADMIN LOG
-
-
-db.ref("adminLogs").push({
-
-
-action:
-"Deposit "+status,
-
-
-user:
-uid,
-
-
-amount:
-Number(
-deposit.amount ||
-deposit.depositAmount ||
-0
-),
-
-
-admin:
-adminEmail,
-
-
-adminUID:
-adminUID,
-
-
-time:
-Date.now()
-
-
-});
-
-
-
-alert(
-"Deposit "+status
-});
-
-});
-
-                 }
 
 </script>
 
