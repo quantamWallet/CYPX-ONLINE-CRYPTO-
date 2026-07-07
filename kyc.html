@@ -219,7 +219,7 @@ async function compressImage(file){
   }
   return new Promise((resolve, reject)=>{
     const img = new Image();
-    const timer = setTimeout(()=>reject(new Error("Image too large. Retake photo.")), 5000);
+    const timer = setTimeout(()=>reject(new Error("Image too large. Retake photo.")), 15000);
     img.onerror = ()=>{clearTimeout(timer); reject(new Error("Invalid image"));};
     img.onload = ()=>{
       clearTimeout(timer);
@@ -246,7 +246,10 @@ async function compressImage(file){
     img.src = URL.createObjectURL(file);
   });
 }
-
+console.log(storage.app.options.storageBucket);
+console.log(file.size);
+console.log(file.type);
+  
 /* Upload 1 file with 2min timeout for mobile data */
 function uploadOne(path, file, progressEl){
   return new Promise((resolve, reject)=>{
@@ -254,13 +257,33 @@ function uploadOne(path, file, progressEl){
     const task = uploadBytesResumable(ref, file);
     const t = setTimeout(()=>{task.cancel(); reject(new Error("Network error. Tap Retry."));}, 120000);
     progressEl.parentElement.style.display='block';
-    task.on('state_changed',
-      s=>{ progressEl.style.width = Math.round(s.bytesTransferred/s.totalBytes*100)+'%'; },
-      e=>{ clearTimeout(t); reject(e); },
-      async ()=>{ clearTimeout(t); resolve(await getDownloadURL(task.snapshot.ref)); }
-    );
-  });
-}
+    task.on(
+  "state_changed",
+  snapshot => {
+    console.log("Uploaded:", snapshot.bytesTransferred, "/", snapshot.totalBytes);
+
+    progressEl.style.width =
+      Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100) + "%";
+  },
+      task.on(
+    "state_changed",
+    null,
+    error => {
+        console.error(error.code, error.message);
+    }
+);
+  error => {
+    clearTimeout(t);
+    console.error("Upload Error:", error.code, error.message);
+    reject(error);
+  },
+  async () => {
+    clearTimeout(t);
+    console.log("Upload complete");
+
+    resolve(await getDownloadURL(task.snapshot.ref));
+  }
+);
 
 /* File pick + preview + block HEIC */
 function bindFile(input, preview, btn){
@@ -341,7 +364,10 @@ document.getElementById("next2").addEventListener("click", async ()=>{
     await saveProgress({frontImage: url});
     showToast("Front ID saved");
     goStep(2);
-  }catch(e){ showToast(e.message, "bad"); btn.disabled=false; btn.textContent="Retry Upload"; }
+  }catch(e){
+    console.error(e);
+    alert(e.code + "\n" + e.message);
+  } btn.disabled=false; btn.textContent="Retry Upload"; }
 });
 
 /* STEP 3: Upload Back or Skip */
