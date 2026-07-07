@@ -501,8 +501,10 @@ depositRef.update({
     showNotification(error.message,"error");
 
 });
-    
-    alert("Deposit " + status);
+    showNotification(
+    "Deposit " + status + " successfully.",
+    status === "approved" ? "success" : "warning"
+);
 
 }).catch(error => {
 
