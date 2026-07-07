@@ -283,10 +283,25 @@ loadUsers();
 function loadUsers(){
 
 
-db.ref("users")
+db.ref("users").on(
+    "value",
+    snap => {
+        allUsers = [];
 
-.on("value",snap=>{
+        snap.forEach(child => {
+            let data = child.val() || {};
+            data.uid = child.key;
+            allUsers.push(data);
+        });
 
+        displayUsers(allUsers);
+    },
+    error => {
+        console.error(error);
+        document.getElementById("users").innerHTML =
+            "Permission denied: " + error.message;
+    }
+);
 
 allUsers=[];
 
