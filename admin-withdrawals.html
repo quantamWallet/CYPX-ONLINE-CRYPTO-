@@ -185,7 +185,9 @@ firebase.initializeApp(firebaseConfig);
 
 const auth=firebase.auth();
 
-const db=firebase.database();
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
 let adminEmail = "";
 let adminUID = "";
@@ -385,108 +387,56 @@ Reject
 
 
 document.getElementById("withdrawList").innerHTML =
-html || "No withdrawals found";
+document.getElementById("withdrawList").innerHTML =
+    html || "No withdrawals found";
 
+}, error => {
+
+    console.error(error);
+
+    document.getElementById("withdrawList").innerHTML =
+        "Firebase Error: " + error.message;
 
 });
-
 
 }
 
-
-
-
-
-
-
-
-
 function updateWithdrawal(uid,id,status){
 
+    const withdrawRef = db.ref("withdrawals/"+uid+"/"+id);
 
-const withdrawRef =
-db.ref(
-"withdrawals/"+uid+"/"+id
-);
+    withdrawRef.once("value").then(snapshot=>{
 
+        let withdrawal = snapshot.val();
 
+        if(!withdrawal) return;
 
-withdrawRef.once("value")
+        withdrawRef.update({
 
-.then(snapshot=>{
+            status: status,
+            processedAt: firebase.database.ServerValue.TIMESTAMP,
+            processedBy: adminEmail
 
+        }).then(()=>{
 
-let withdrawal=snapshot.val();
+            db.ref("adminLogs").push({
 
+                action: "Withdrawal " + status,
+                user: uid,
+                amount: Number(withdrawal.amount || 0),
+                admin: adminEmail,
+                adminUID: adminUID,
+                time: Date.now()
 
+            });
 
-if(!withdrawal) return;
+            alert("Withdrawal " + status);
 
+        });
 
+    });
 
-withdrawRef.update({
-
-status:status,
-
-processedAt:
-firebase.database.ServerValue.TIMESTAMP,
-
-processedBy:
-adminEmail
-
-
-});
-
-
-
-
-
-// CREATE ADMIN LOG
-
-
-db.ref("adminLogs").push({
-
-
-action:
-"Withdrawal "+status,
-
-
-user:
-uid,
-
-
-amount:
-Number(withdrawal.amount || 0),
-
-
-admin:
-adminEmail,
-
-
-adminUID:
-adminUID,
-
-
-time:
-Date.now()
-
-
-});
-
-
-
-alert(
-"Withdrawal "+status
-);
-
-
-
-});
-
-
-  }
-
-
+}
 
 </script>
 
