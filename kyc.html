@@ -355,21 +355,30 @@ document.getElementById("next1").addEventListener("click", async ()=>{
 });
 
 /* STEP 2: Upload Front */
-document.getElementById("next2").addEventListener("click", async ()=>{
+document.getElementById("next2").addEventListener("click", async () => {
   const file = frontImage.files[0];
-  if(!file) return;
+  if (!file) return;
+
   const btn = document.getElementById("next2");
-  btn.disabled=true; btn.textContent="Uploading...";
-  try{
+  btn.disabled = true;
+  btn.textContent = "Uploading...";
+
+  try {
     const f = await compressImage(file);
     const url = await uploadOne(`kyc/${uid}/front.jpg`, f, p1);
-    await saveProgress({frontImage: url});
+
+    await saveProgress({ frontImage: url });
+
     showToast("Front ID saved");
     goStep(2);
-  }catch(e){
+
+  } catch (e) {
     console.error(e);
-    alert(e.code + "\n" + e.message);
-  } btn.disabled=false; btn.textContent="Retry Upload"; }
+    alert((e.code || "Error") + "\n" + e.message);
+
+    btn.disabled = false;
+    btn.textContent = "Retry Upload";
+  }
 });
 
 /* STEP 3: Upload Back or Skip */
