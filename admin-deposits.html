@@ -180,12 +180,12 @@ appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-
-const auth=firebase.auth();
-
-const db=firebase.database();
+const auth = firebase.auth();
+const db = firebase.database();
 
 let adminEmail = "";
 let adminUID = "";
@@ -239,17 +239,12 @@ loadDeposits();
 
 
 
-
-
-
-
-
 function loadDeposits(){
 
 
-db.ref("deposits")
-.on("value",snap=>{
-
+db.ref("deposits").on(
+    "value",
+    snap => {
 
 let html="";
 
@@ -374,24 +369,20 @@ Reject
 
 
 
-
 document.getElementById("depositList").innerHTML =
-html || "No deposits found";
+    html || "No deposits found";
 
+},
+error => {
 
+    console.error(error);
+
+    document.getElementById("depositList").innerHTML =
+        "Firebase Error: " + error.message;
 
 });
 
-
 }
-
-
-
-
-
-
-
-
 
 function updateDeposit(uid,id,status){
 
@@ -413,22 +404,15 @@ let deposit=snapshot.val();
 if(!deposit) return;
 
 
-
 depositRef.update({
 
-status:status,
+    status: status,
 
-processedAt:
-firebase.database.ServerValue.TIMESTAMP,
+    processedAt: firebase.database.ServerValue.TIMESTAMP,
 
-processedBy:
-adminEmail
+    processedBy: adminEmail
 
-
-});
-
-
-
+}).then(() => {
 
 
 // ADD BALANCE ONLY WHEN APPROVED
@@ -443,7 +427,13 @@ deposit.price ||
 0
 );
 
+if (deposit.status === "approved") {
 
+    alert("This deposit has already been approved.");
+
+    return;
+
+  }
 
 db.ref("users/"+uid+"/balance")
 
