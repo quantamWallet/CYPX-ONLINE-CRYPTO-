@@ -86,12 +86,41 @@ font-size:22px;
 color:#ffd700;
 
 }
+#notification{
+position:fixed;
+top:20px;
+right:20px;
+background:#16a34a;
+color:#fff;
+padding:14px 18px;
+border-radius:10px;
+font-weight:bold;
+box-shadow:0 5px 20px rgba(0,0,0,.35);
+opacity:0;
+transform:translateY(-20px);
+transition:.3s;
+z-index:9999;
+max-width:300px;
+}
 
+#notification.show{
+opacity:1;
+transform:translateY(0);
+}
+
+#notification.error{
+background:#dc2626;
+}
+
+#notification.warning{
+background:#f59e0b;
+color:#000;
+}
 </style>
 
 </head>
 
-
+<div id="notification"></div>
 <body>
 
 
@@ -241,7 +270,7 @@ db.ref("admins/"+user.uid)
 if(!admin.exists()){
 
 
-alert("Admin only");
+showNotification("Admin access required.","error");
 
 window.location.href="auth.html";
 
@@ -262,10 +291,21 @@ loadUsers();
 
 
 
+function showNotification(message,type="success"){
 
+const box=document.getElementById("notification");
 
+box.className="";
+box.classList.add(type);
+box.classList.add("show");
 
+box.textContent=message;
 
+setTimeout(()=>{
+box.classList.remove("show");
+},3000);
+
+}
 
 function loadUsers(){
 
@@ -307,9 +347,6 @@ select.appendChild(option);
 
 
 }
-
-
-
 
 
 
@@ -423,10 +460,6 @@ Submit Adjustment
 
 
 
-
-
-
-
 function updateBalance(uid){
 
 
@@ -444,7 +477,7 @@ document.getElementById("action").value;
 
 if(!amount || amount<=0){
 
-alert("Enter valid amount");
+showNotification("Enter a valid amount.","warning");
 
 return;
 
@@ -478,42 +511,30 @@ balance - amount
 
 .then(()=>{
 
+    db.ref("adminLogs").push({
 
+        action:"Balance "+action,
+        user:uid,
+        amount:amount,
+        admin:adminEmail,
+        adminUID:adminUID,
+        time:Date.now()
 
-db.ref("adminLogs").push({
+    });
 
+    showNotification("Balance updated successfully.");
 
-action:
-"Balance "+action,
+}).catch(error=>{
 
+    console.error(error);
 
-user:
-uid,
-
-
-amount:
-amount,
-
-
-admin:
-adminEmail,
-
-
-adminUID:
-adminUID,
-
-
-time:
-Date.now()
-
+    showNotification(error.message,"error");
 
 });
 
 
 
-alert(
-"Balance updated"
-);
+showNotification("Balance updated successfully.");
 
 
 
