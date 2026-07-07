@@ -4,110 +4,147 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CYPX HOLDINGS - KYC Verification</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("forex-bg.jpg");background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
-.container{width:100%;max-width:520px;}
-.card{position:relative;background:rgba(255,255,255,.95);border-radius:22px;padding:30px;box-shadow:0 15px 45px rgba(0,0,0,.45);}
-.header{text-align:center;margin-bottom:20px;}
-.header i{font-size:55px;color:#2563eb;margin-bottom:10px;}
-.header h1{font-size:28px;color:#0f172a;}
-.header p{font-size:14px;color:#475569;}
-.toast{display:none;position:fixed;top:20px;right:20px;padding:12px 16px;border-radius:10px;color:#fff;font-size:14px;z-index:9999;}
-.toast.success{background:#16a34a;}
-.toast.error{background:#dc2626;}
-.status-card{display:none;background:#f8fafc;border:1px solid #e2e8f0;padding:15px;border-radius:12px;text-align:center;margin-bottom:15px;}
-.status-badge{padding:6px 14px;border-radius:20px;color:#fff;font-size:13px;display:inline-block;}
-.pending{background:#f59e0b;}
-.verified{background:#16a34a;}
-.rejected{background:#dc2626;}
-.input-field{margin-bottom:15px;}
-.input-field input,.input-field select{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;outline:none;}
-.upload-group{margin-bottom:15px;}
-.upload-group label{font-size:13px;font-weight:600;}
-.submit-btn{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;}
-.submit-btn:disabled{opacity:.6;cursor:not-allowed;}
-.back-btn{display:block;text-align:center;margin-top:12px;color:#2563eb;text-decoration:none;}
-.progress{height:6px;background:#e2e8f0;border-radius:6px;margin:8px 0;overflow:hidden;display:none;}
-.progress > span{display:block;height:100%;width:0%;background:#2563eb;transition:width.2s;}
-.success-state{display:none;text-align:center;padding:20px 10px;}
-.success-state.tick{width:90px;height:90px;border-radius:50%;background:#16a34a;display:grid;place-items:center;margin:0 auto 15px;animation:scaleIn.3s ease;}
-.success-state.tick i{color:#fff;font-size:42px;}
-.success-state h2{font-size:22px;color:#0f172a;margin-bottom:6px;}
-.success-state p{color:#475569;font-size:14px;margin-bottom:18px;}
-.btn-primary{display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none;font-weight:600;}
-@keyframes scaleIn{from{transform:scale(.6);opacity:0;} to{transform:scale(1);opacity:1;}}
+:root{--brand:#2563eb;--ok:#16a34a;--warn:#f59e0b;--bad:#dc2626;--ink:#0f172a;--muted:#475569;--line:#e2e8f0;--bg:#f8fafc}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:linear-gradient(rgba(10,18,35,.72),rgba(10,18,35,.72)),url("forex-bg.jpg");background-size:cover;min-height:100vh;display:grid;place-items:center;padding:16px}
+.container{width:100%;max-width:560px}
+.card{background:rgba(255,255,255,.97);border-radius:22px;padding:24px;box-shadow:0 15px 45px rgba(0,0,0,.35)}
+.header{text-align:center;margin-bottom:16px}
+.header i{font-size:48px;color:var(--brand)}
+.header h1{font-size:24px;color:var(--ink);margin-top:8px}
+.steps{display:flex;gap:8px;margin:16px 0 20px}
+.step{flex:1;height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.step > span{display:block;height:100%;width:0;background:var(--brand);transition:width .3s}
+.stepper{display:none}
+.stepper.active{display:block}
+.input-field{margin-bottom:12px}
+.input-field input,.input-field select{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:16px;outline:none}
+.input-field input:focus{border-color:var(--brand)}
+.upload-box{border:2px dashed var(--line);border-radius:16px;padding:18px;text-align:center;cursor:pointer;transition:.2s}
+.upload-box:hover{border-color:var(--brand);background:#eff6ff}
+.upload-box img{max-width:100%;max-height:240px;border-radius:12px;margin-top:10px;display:none}
+.upload-box i{font-size:32px;color:var(--muted)}
+.btn{width:100%;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer;font-size:16px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--line)}
+.row{display:flex;gap:10px}
+.progress{height:8px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden;display:none}
+.progress > span{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
+.toast{position:fixed;top:16px;right:16px;padding:12px 16px;border-radius:12px;color:#fff;font-size:14px;z-index:9999;display:none}
+.toast.ok{background:var(--ok)}.toast.bad{background:var(--bad)}
+.badge{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;display:inline-block}
+.badge.pending{background:var(--warn)}.badge.ok{background:var(--ok)}.badge.bad{background:var(--bad)}
+.status-card{background:var(--bg);border:1px solid var(--line);padding:14px;border-radius:14px;text-align:center;margin-bottom:16px}
+.helper{font-size:13px;color:var(--muted);margin-top:6px}
+.success{text-align:center;padding:20px}
+.success i{font-size:64px;color:#fff;background:var(--ok);width:96px;height:96px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px}
 </style>
 </head>
 <body>
 
 <div class="toast" id="toast"></div>
-
 <div class="container">
-<div class="card">
-<div class="header">
-<i class="fa-solid fa-id-card"></i>
-<h1>KYC Verification</h1>
-<p>Verify your identity to continue.</p>
-</div>
+  <div class="card">
+    <div class="header">
+      <i class="fa-solid fa-shield-check"></i>
+      <h1>Identity Verification</h1>
+      <p class="helper">Secure KYC powered by CYPX Holdings</p>
+    </div>
 
-<div id="kycStatusCard" class="status-card">
-    <span id="statusBadge" class="status-badge pending">Pending</span>
-    <p id="statusMessage"></p>
-</div>
+    <div id="statusWrap" class="status-card" style="display:none">
+      <span id="statusBadge" class="badge pending">Pending</span>
+      <p id="statusMsg" class="helper" style="margin-top:6px"></p>
+    </div>
 
-<form id="kycForm">
-    <div class="input-field"><input type="text" id="fullName" placeholder="Full Name" required></div>
-    <div class="input-field"><input type="date" id="dob" required></div>
-    <div class="input-field"><input type="text" id="country" placeholder="Country" required></div>
-    <div class="input-field">
-        <select id="idType" required>
-            <option value="">Select ID Type</option>
-            <option>National ID</option>
-            <option>Passport</option>
-            <option>Driving Licence</option>
+    <div class="steps">
+      <div class="step"><span id="s1"></span></div>
+      <div class="step"><span id="s2"></span></div>
+      <div class="step"><span id="s3"></span></div>
+      <div class="step"><span id="s4"></span></div>
+    </div>
+
+    <!-- STEP 1: DETAILS -->
+    <div class="stepper active" id="step1">
+      <div class="input-field"><input id="fullName" placeholder="Full Name as on ID" autocomplete="name"></div>
+      <div class="input-field"><input id="dob" type="date"></div>
+      <div class="input-field"><input id="country" placeholder="Country"></div>
+      <div class="input-field">
+        <select id="idType">
+          <option value="">Select ID Type</option>
+          <option>National ID</option><option>Passport</option><option>Driving Licence</option>
         </select>
-    </div>
-    <div class="input-field"><input type="text" id="idNumber" placeholder="ID Number" required></div>
-
-    <div class="upload-group">
-        <label>Front ID</label>
-        <input type="file" id="frontImage" accept="image/*" required>
-        <div class="progress" id="p1"><span></span></div>
-    </div>
-    <div class="upload-group">
-        <label>Back ID</label>
-        <input type="file" id="backImage" accept="image/*">
-        <div class="progress" id="p2"><span></span></div>
-    </div>
-    <div class="upload-group">
-        <label>Selfie</label>
-        <input type="file" id="selfieImage" accept="image/*" required>
-        <div class="progress" id="p3"><span></span></div>
+      </div>
+      <div class="input-field"><input id="idNumber" placeholder="ID Number"></div>
+      <button class="btn" id="next1" type="button">Continue</button>
     </div>
 
-    <button class="submit-btn" id="submitBtn" type="submit">Submit Verification</button>
-    <a href="dashboard.html" class="back-btn">Back to Dashboard</a>
-</form>
+    <!-- STEP 2: FRONT ID -->
+    <div class="stepper" id="step2">
+      <h3 style="margin-bottom:8px">Step 2/4: Front of ID</h3>
+      <label class="upload-box" for="frontImage">
+        <i class="fa-solid fa-id-card"></i>
+        <p>Tap to capture or upload Front ID</p>
+        <img id="frontPreview">
+      </label>
+      <input type="file" id="frontImage" accept="image/*,image/heic" capture="environment" style="display:none">
+      <div class="progress" id="p1"><span></span></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" type="button" id="back1">Back</button>
+        <button class="btn" type="button" id="next2" disabled>Upload & Continue</button>
+      </div>
+    </div>
 
-<div id="successState" class="success-state">
-    <div class="tick"><i class="fa-solid fa-check"></i></div>
-    <h2>Submitted Successfully</h2>
-    <p>Your documents are under review. We’ll notify you once verified.</p>
-    <a href="profile.html" class="btn-primary">Go to Profile</a>
+    <!-- STEP 3: BACK ID -->
+    <div class="stepper" id="step3">
+      <h3 style="margin-bottom:8px">Step 3/4: Back of ID</h3>
+      <label class="upload-box" for="backImage">
+        <i class="fa-solid fa-id-card"></i>
+        <p>Tap to capture or upload Back ID</p>
+        <img id="backPreview">
+      </label>
+      <input type="file" id="backImage" accept="image/*,image/heic" capture="environment" style="display:none">
+      <div class="progress" id="p2"><span></span></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" type="button" id="back2">Back</button>
+        <button class="btn" type="button" id="next3">Skip & Continue</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: SELFIE -->
+    <div class="stepper" id="step4">
+      <h3 style="margin-bottom:8px">Step 4/4: Liveness Selfie</h3>
+      <label class="upload-box" for="selfieImage">
+        <i class="fa-solid fa-camera"></i>
+        <p>Tap to take a clear selfie</p>
+        <img id="selfiePreview">
+      </label>
+      <input type="file" id="selfieImage" accept="image/*,image/heic" capture="user" style="display:none">
+      <div class="progress" id="p3"><span></span></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" type="button" id="back3">Back</button>
+        <button class="btn" type="button" id="submitKyc">Submit for Review</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="stepper" id="done">
+      <div class="success">
+        <i class="fa-solid fa-check"></i>
+        <h2>Submitted Successfully</h2>
+        <p class="helper">Your documents are under review. We’ll notify you once verified.</p>
+        <a href="profile.html" class="btn" style="display:inline-block;margin-top:12px;text-decoration:none">Go to Profile</a>
+      </div>
+    </div>
+
+  </div>
 </div>
-
-</div>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, set, update, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, update, onValue, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
@@ -115,10 +152,9 @@ const firebaseConfig = {
     authDomain: "quantum-rio.firebaseapp.com",
     databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
     projectId: "quantum-rio",
-    storageBucket: "quantum-rio.appspot.com", // <-- changed.firebasestorage.app ->.appspot.com
+    storageBucket: "quantum-rio.appspot.com",
     messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -126,209 +162,203 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
+/* DOM */
 const toast = document.getElementById("toast");
-const form = document.getElementById("kycForm");
-const successState = document.getElementById("successState");
-const statusCard = document.getElementById("kycStatusCard");
+const statusWrap = document.getElementById("statusWrap");
 const statusBadge = document.getElementById("statusBadge");
-const statusMessage = document.getElementById("statusMessage");
-const submitBtn = document.getElementById("submitBtn");
+const statusMsg = document.getElementById("statusMsg");
+const steps = [document.getElementById("s1"),document.getElementById("s2"),document.getElementById("s3"),document.getElementById("s4")];
+
+const stepEls = [document.getElementById("step1"),document.getElementById("step2"),document.getElementById("step3"),document.getElementById("step4"),document.getElementById("done")];
 
 const fullName = document.getElementById("fullName");
 const dob = document.getElementById("dob");
 const country = document.getElementById("country");
 const idType = document.getElementById("idType");
 const idNumber = document.getElementById("idNumber");
+
 const frontImage = document.getElementById("frontImage");
 const backImage = document.getElementById("backImage");
 const selfieImage = document.getElementById("selfieImage");
+
+const frontPreview = document.getElementById("frontPreview");
+const backPreview = document.getElementById("backPreview");
+const selfiePreview = document.getElementById("selfiePreview");
 
 const p1 = document.querySelector("#p1 span");
 const p2 = document.querySelector("#p2 span");
 const p3 = document.querySelector("#p3 span");
 
-let isSubmitting = false;
+let uid = null;
+let kycData = {}; // holds URLs as we go
 
-function showToast(msg,type){
-    toast.textContent = msg;
-    toast.className = "toast " + type;
-    toast.style.display = "block";
-    setTimeout(()=>toast.style.display="none",4000);
+/* Utils */
+const showToast = (msg,type="ok")=>{
+  toast.textContent = msg;
+  toast.className = "toast " + (type==="ok"?"ok":"bad");
+  toast.style.display = "block";
+  setTimeout(()=>toast.style.display="none",3500);
+}
+const goStep = (n)=>{
+  stepEls.forEach((el,i)=>el.classList.toggle("active", i===n));
+  steps.forEach((el,i)=>el.style.width = i<n? "100%" : "0%");
+}
+const saveProgress = async (patch)=>{
+  if(!uid) return;
+  kycData = {...kycData,...patch};
+  await update(ref(db, "kyc/"+uid), {...kycData, updatedAt: serverTimestamp()});
 }
 
-/* Compress image to <1MB, 1280px max */
-async function compressImage(file, maxSizeMB = 0.9, maxWidth = 1280){
-    return new Promise((resolve)=>{
-        const img = new Image();
-        img.onload = () => {
-            let {width, height} = img;
-            if(width > maxWidth){
-                height *= maxWidth/width;
-                width = maxWidth;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = width; canvas.height = height;
-            canvas.getContext('2d').drawImage(img,0,0,width,height);
-            canvas.toBlob((blob)=> resolve(new File([blob], file.name, {type:'image/jpeg'})), 'image/jpeg', 0.75);
-        };
-        img.src = URL.createObjectURL(file);
-    });
+/* Image compress + HEIC safe */
+async function compressImage(file){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const timer = setTimeout(()=>reject(new Error("Image failed to load. Use JPG/PNG.")), 10000);
+    img.onerror = ()=>{clearTimeout(timer); reject(new Error("Invalid image"));};
+    img.onload = ()=>{
+      clearTimeout(timer);
+      let {width, height} = img;
+      const max = 1280;
+      if(width > max){ height *= max/width; width = max; }
+      const c = document.createElement('canvas');
+      c.width=width; c.height=height;
+      c.getContext('2d').drawImage(img,0,0,width,height);
+      c.toBlob(b=>{
+        if(!b) return reject(new Error("Compression failed"));
+        resolve(new File([b], "kyc.jpg", {type:'image/jpeg'}));
+      }, 'image/jpeg', 0.7);
+    };
+    img.src = URL.createObjectURL(file);
+  });
 }
-    async function compressImage(file, maxSizeMB = 0.9, maxWidth = 1280){
-    return new Promise((resolve, reject)=>{
-        const img = new Image();
-        const timer = setTimeout(()=>reject(new Error("Image failed to load. Try JPG/PNG.")), 10000);
 
-        img.onerror = () => { clearTimeout(timer); reject(new Error("Invalid image file")); };
-        img.onload = () => {
-            clearTimeout(timer);
-            let {width, height} = img;
-            if(width > maxWidth){
-                height *= maxWidth/width;
-                width = maxWidth;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = width; canvas.height = height;
-            canvas.getContext('2d').drawImage(img,0,0,width,height);
-            canvas.toBlob((blob)=> {
-                if(!blob) return reject(new Error("Compression failed"));
-                resolve(new File([blob], file.name.replace(/\..+$/, '.jpg'), {type:'image/jpeg'}))
-            }, 'image/jpeg', 0.7); // 0.7 = smaller file
-        };
-        img.src = URL.createObjectURL(file);
-    });
+/* Upload 1 file with 3min timeout */
+function uploadOne(path, file, progressEl){
+  return new Promise((resolve, reject)=>{
+    const ref = storageRef(storage, path);
+    const task = uploadBytesResumable(ref, file);
+    const t = setTimeout(()=>{task.cancel(); reject(new Error("Upload too slow. Use WiFi."));}, 180000);
+    progressEl.parentElement.style.display='block';
+    task.on('state_changed',
+      s=>{ progressEl.style.width = Math.round(s.bytesTransferred/s.totalBytes*100)+'%'; },
+      e=>{ clearTimeout(t); reject(e); },
+      async ()=>{ clearTimeout(t); resolve(await getDownloadURL(task.snapshot.ref)); }
+    );
+  });
+}
+
+/* File pick + preview */
+function bindFile(input, preview, btn){
+  input.addEventListener("change", ()=>{
+    const file = input.files[0];
+    if(!file) return;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display='block';
+    btn.disabled = false;
+  });
+}
+bindFile(frontImage, frontPreview, document.getElementById("next2"));
+bindFile(backImage, backPreview, document.getElementById("next3"));
+bindFile(selfieImage, selfiePreview, document.getElementById("submitKyc"));
+
+/* Auth + Resume logic */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){ window.location.href="auth.html"; return; }
+  uid = user.uid;
+  const snap = await get(ref(db, "kyc/"+uid));
+  if(snap.exists()){
+    kycData = snap.val();
+    if(kycData.status === "verified"){
+      statusWrap.style.display='block';
+      statusBadge.className='badge ok'; statusBadge.textContent='Verified';
+      statusMsg.textContent='Your KYC has been approved.';
+      goStep(4);
+      return;
     }
-
-/* Upload with progress + 20s timeout */
-function uploadWithProgress(path, file, progressEl){
-    return new Promise(async (resolve, reject) => {
-        const ref = storageRef(storage, path);
-        const task = uploadBytesResumable(ref, file);
-        const timeout = setTimeout(()=>{ task.cancel(); reject(new Error("Upload timed out. Check internet/storage rules.")); }, 20000);
-
-        task.on('state_changed',
-            (snap)=>{
-                const pct = Math.round((snap.bytesTransferred/snap.totalBytes)*100);
-                progressEl.parentElement.style.display='block';
-                progressEl.style.width = pct + '%';
-            },
-            (err)=>{ clearTimeout(timeout); reject(err); },
-            async ()=>{
-                clearTimeout(timeout);
-                const url = await getDownloadURL(task.snapshot.ref);
-                resolve(url);
-            }
-        );
-    });
-}
-
-function loadStatus(user) {
-    onValue(ref(db, "kyc/" + user.uid), (snap) => {
-        if (!snap.exists() &&!isSubmitting) {
-            statusCard.style.display = "none";
-            form.style.display = "block";
-            successState.style.display = "none";
-            return;
-        }
-        const data = snap.val();
-        if(!data) return;
-        statusCard.style.display = "block";
-        if (data.status === "verified") {
-            statusBadge.className = "status-badge verified";
-            statusBadge.textContent = "Verified";
-            statusMessage.textContent = "Your KYC has been approved.";
-            form.style.display = "none"; successState.style.display = "none";
-        } else if (data.status === "rejected") {
-            statusBadge.className = "status-badge rejected";
-            statusBadge.textContent = "Rejected";
-            statusMessage.textContent = data.reason || "Please submit new documents.";
-            form.style.display = "block"; successState.style.display = "none";
-        } else {
-            if(!isSubmitting){
-                statusBadge.className = "status-badge pending";
-                statusBadge.textContent = "Pending";
-                statusMessage.textContent = "Your documents are under review.";
-                form.style.display = "none"; successState.style.display = "none";
-            }
-        }
-    });
-}
-
-onAuthStateChanged(auth,(user)=>{
-    if(!user){ window.location.href="auth.html"; return; }
-    loadStatus(user);
-});
-
-form.addEventListener("submit", async (e)=>{
-    e.preventDefault();
-    if(isSubmitting) return;
-
-    try{
-        const user = auth.currentUser;
-        if(!user){ showToast("Auth not ready. Wait 1s and retry.", "error"); return; }
-
-        if(!frontImage.files[0] ||!selfieImage.files[0]){
-            showToast("Please upload Front ID and Selfie", "error");
-            return;
-        }
-
-        isSubmitting = true;
-        submitBtn.disabled = true; // lock until auth
-
-onAuthStateChanged(auth,(user)=>{
-    if(!user){ window.location.href="auth.html"; return; }
-    submitBtn.disabled = false;
-    loadStatus(user);
-});
-
-submitBtn.addEventListener("click", async ()=>{ // <-- click, not submit
-    if(isSubmitting) return;
-    isSubmitting = true;
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Compressing...";
-
-    try{
-        const user = auth.currentUser;
-        if(!user){ throw new Error("Auth not ready. Refresh page."); }
-
-        if(!fullName.value.trim() ||!dob.value ||!country.value.trim() ||!idType.value ||!idNumber.value.trim()){
-            throw new Error("Fill all fields first");
-        }
-        if(!frontImage.files[0] ||!selfieImage.files[0]){
-            throw new Error("Please upload Front ID and Selfie");
-        }
-
-        const uid = user.uid;
-        const frontFile = await compressImage(frontImage.files[0]);
-        submitBtn.textContent = "Uploading 1/3...";
-        const frontURL = await uploadWithProgress(`kyc/${uid}/front.jpg`, frontFile, p1);
-
-        let backURL="";
-        if(backImage.files.length){
-            const backFile = await compressImage(backImage.files[0]);
-            submitBtn.textContent = "Uploading 2/3...";
-            backURL = await uploadWithProgress(`kyc/${uid}/back.jpg`, backFile, p2);
-        }
-
-        const selfieFile = await compressImage(selfieImage.files[0]);
-        submitBtn.textContent = "Uploading 3/3...";
-        const selfieURL = await uploadWithProgress(`kyc/${uid}/selfie.jpg`, selfieFile, p3);
-
-        await set(ref(db,"kyc/"+uid),{ uid, fullName: fullName.value.trim(), dob: dob.value, country: country.value, idType: idType.value, idNumber: idNumber.value, frontImage: frontURL, backImage: backURL, selfieImage: selfieURL, status:"pending", submittedAt:serverTimestamp() });
-        await update(ref(db, "users/" + uid), { kycSubmitted: true, kycStatus: "pending", lastKycSubmission: serverTimestamp() });
-
-        form.style.display = "none";
-        successState.style.display = "block";
-        showToast("Submitted successfully", "success");
-
-    } catch (err) {
-        console.error("KYC ERROR:", err);
-        showToast(err.message, "error");
-        isSubmitting = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Submit Verification";
+    if(kycData.status === "rejected"){
+      statusWrap.style.display='block';
+      statusBadge.className='badge bad'; statusBadge.textContent='Rejected';
+      statusMsg.textContent=kycData.reason || 'Please resubmit.';
     }
+    if(kycData.status === "pending"){
+      statusWrap.style.display='block';
+      statusBadge.className='badge pending'; statusBadge.textContent='Pending';
+      statusMsg.textContent='Under review.';
+    }
+    // Resume: jump to first missing step
+    if(!kycData.fullName){ goStep(0); return; }
+    if(!kycData.frontImage){ goStep(1); return; }
+    if(!kycData.selfieImage){ goStep(3); return; } // back is optional
+    goStep(3); // all files uploaded, ready to submit
+  }
 });
+
+/* STEP 1: Save details */
+document.getElementById("next1").addEventListener("click", async ()=>{
+  if(!fullName.value.trim() ||!dob.value ||!country.value.trim() ||!idType.value ||!idNumber.value.trim()){
+    return showToast("Fill all fields", "bad");
+  }
+  await saveProgress({
+    fullName: fullName.value.trim(),
+    dob: dob.value,
+    country: country.value.trim(),
+    idType: idType.value,
+    idNumber: idNumber.value.trim(),
+    status: "draft"
+  });
+  goStep(1);
+});
+
+/* STEP 2: Upload Front */
+document.getElementById("next2").addEventListener("click", async ()=>{
+  const file = frontImage.files[0];
+  if(!file) return;
+  document.getElementById("next2").disabled=true;
+  try{
+    const f = await compressImage(file);
+    const url = await uploadOne(`kyc/${uid}/front.jpg`, f, p1);
+    await saveProgress({frontImage: url});
+    showToast("Front ID saved");
+    goStep(2);
+  }catch(e){ showToast(e.message, "bad"); document.getElementById("next2").disabled=false; }
+});
+
+/* STEP 3: Upload Back or Skip */
+document.getElementById("next3").addEventListener("click", async ()=>{
+  const file = backImage.files[0];
+  if(file){
+    document.getElementById("next3").disabled=true;
+    try{
+      const f = await compressImage(file);
+      const url = await uploadOne(`kyc/${uid}/back.jpg`, f, p2);
+      await saveProgress({backImage: url});
+      showToast("Back ID saved");
+    }catch(e){ return showToast(e.message, "bad"); }
+  }
+  goStep(3);
+});
+document.getElementById("back1").onclick = ()=>goStep(0);
+document.getElementById("back2").onclick = ()=>goStep(1);
+
+/* STEP 4: Upload Selfie + Final Submit */
+document.getElementById("submitKyc").addEventListener("click", async ()=>{
+  const file = selfieImage.files[0];
+  if(!file) return showToast("Selfie required", "bad");
+  document.getElementById("submitKyc").disabled=true;
+  try{
+    const f = await compressImage(file);
+    const url = await uploadOne(`kyc/${uid}/selfie.jpg`, f, p3);
+    await saveProgress({
+      selfieImage: url,
+      status: "pending",
+      submittedAt: serverTimestamp()
+    });
+    await update(ref(db, "users/"+uid), {kycStatus:"pending", kycSubmitted:true});
+    goStep(4);
+    showToast("Submitted successfully");
+  }catch(e){ showToast(e.message, "bad"); document.getElementById("submitKyc").disabled=false; }
+});
+document.getElementById("back3").onclick = ()=>goStep(2);
 </script>
 </body>
-    </html>
+</html>
