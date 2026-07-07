@@ -279,29 +279,38 @@ loadUsers();
 
 // LOAD USERS
 
-
 function loadUsers(){
 
+    db.ref("users").on(
+        "value",
+        snap => {
 
-db.ref("users").on(
-    "value",
-    snap => {
-        allUsers = [];
+            allUsers = [];
 
-        snap.forEach(child => {
-            let data = child.val() || {};
-            data.uid = child.key;
-            allUsers.push(data);
-        });
+            snap.forEach(child => {
 
-        displayUsers(allUsers);
-    },
-    error => {
-        console.error(error);
-        document.getElementById("users").innerHTML =
-            "Permission denied: " + error.message;
-    }
-);
+                let data = child.val() || {};
+                data.uid = child.key;
+
+                allUsers.push(data);
+
+            });
+
+            displayUsers(allUsers);
+
+        },
+        error => {
+
+            console.error(error);
+
+            document.getElementById("users").innerHTML =
+                "Firebase Error:<br>" + error.code + "<br>" + error.message;
+
+        }
+    );
+
+}
+
 
 allUsers=[];
 
