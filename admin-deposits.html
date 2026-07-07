@@ -403,7 +403,14 @@ let deposit=snapshot.val();
 
 if(!deposit) return;
 
+if (deposit.status === "approved") {
 
+    alert("This deposit has already been approved.");
+
+    return;
+
+    }
+    
 depositRef.update({
 
     status: status,
@@ -426,14 +433,6 @@ deposit.depositAmount ||
 deposit.price ||
 0
 );
-
-if (deposit.status === "approved") {
-
-    alert("This deposit has already been approved.");
-
-    return;
-
-  }
 
 db.ref("users/"+uid+"/balance")
 
@@ -492,17 +491,11 @@ Date.now()
 
 alert(
 "Deposit "+status
-);
-
-
+});
 
 });
 
-
-  }
-
-
-
+                 }
 
 </script>
 
