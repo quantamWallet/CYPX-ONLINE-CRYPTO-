@@ -430,8 +430,7 @@ function render(){
     formatMoney(userData.balance);
 
   document.getElementById("deposit").textContent =
-    formatMoney(depositUser + depositGlobal);
-
+    formatMoney(depositUser);
   document.getElementById("earnings").textContent =
     formatMoney(earningsUser);
 
@@ -543,14 +542,11 @@ auth.onAuthStateChanged(user => {
 
     render();
 });
-
-  /* DEPOSITS */
+  
+    /* DEPOSITS */
   db.ref("deposits/" + uid).on("value", snap => {
     depositUser = sumSnapshot(snap);
     render();
-  });
-
-  depositGlobal = 0;
   });
 
 });
