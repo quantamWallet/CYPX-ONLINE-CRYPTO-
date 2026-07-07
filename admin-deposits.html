@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS - Deposit Management</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<style>
+
+body{
+
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#000814;
+color:white;
+
+}
+
+
+.header{
+
+padding:18px;
+background:linear-gradient(90deg,#001d3d,#003566);
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+
+.header a{
+
+color:white;
+text-decoration:none;
+
+}
+
+
+.container{
+
+padding:15px;
+
+}
+
+
+.deposit-card{
+
+background:#001a33;
+padding:15px;
+border-radius:15px;
+margin-bottom:12px;
+
+}
+
+
+.deposit-card p{
+
+margin:7px 0;
+
+}
+
+
+button{
+
+padding:10px 15px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+color:white;
+margin-right:8px;
+
+}
+
+
+.approve{
+
+background:#16a34a;
+
+}
+
+
+.reject{
+
+background:#dc2626;
+
+}
+
+
+.status{
+
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+
+<a href="admin.html">
+
+<i class="fas fa-arrow-left"></i>
+
+</a>
+
+
+<b>
+
+<i class="fas fa-wallet"></i>
+
+Deposits
+
+</b>
+
+
+</div>
+
+
+
+
+<div class="container">
+
+
+<div id="depositList">
+
+Loading deposits...
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+
+
+<script>
+
+
+const firebaseConfig = {
+
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+authDomain:"quantum-rio.firebaseapp.com",
+
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+
+projectId:"quantum-rio",
+
+storageBucket:"quantum-rio.firebasestorage.app",
+
+messagingSenderId:"805433999377",
+
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+
+};
+
+
+firebase.initializeApp(firebaseConfig);
+
+
+const auth=firebase.auth();
+
+const db=firebase.database();
+
+
+
+
+
+// ADMIN CHECK
+
+auth.onAuthStateChanged(user=>{
+
+
+if(!user){
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+db.ref("admins/"+user.uid)
+.once("value")
+.then(admin=>{
+
+
+if(!admin.exists()){
+
+alert("Admin only");
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+loadDeposits();
+
+
+});
+
+
+});
+
+
+
+
+
+
+
+
+function loadDeposits(){
+
+
+db.ref("deposits")
+.on("value",snap=>{
+
+
+let html="";
+
+
+
+snap.forEach(userSnap=>{
+
+
+let uid=userSnap.key;
+
+
+
+userSnap.forEach(depositSnap=>{
+
+
+let d=depositSnap.val();
+
+
+let id=depositSnap.key;
+
+
+
+let status=d.status || "pending";
+
+
+
+html += `
+
+
+<div class="deposit-card">
+
+
+<p>
+<b>User UID:</b><br>
+${uid}
+</p>
+
+
+
+<p>
+<b>Deposit ID:</b><br>
+${id}
+</p>
+
+
+
+<p>
+<b>Amount:</b>
+
+$${Number(
+d.amount || d.depositAmount || 0
+).toFixed(2)}
+
+</p>
+
+
+
+
+<p>
+<b>Status:</b>
+
+<span class="status"
+
+style="
+background:
+${status=="approved"?
+"#16a34a":
+status=="rejected"?
+"#dc2626":
+"#f59e0b"};
+
+">
+
+${status}
+
+</span>
+
+</p>
+
+
+
+
+${status=="pending" ? `
+
+
+<button 
+class="approve"
+onclick="updateDeposit('${uid}','${id}','approved')">
+
+Approve
+
+</button>
+
+
+
+<button 
+class="reject"
+onclick="updateDeposit('${uid}','${id}','rejected')">
+
+Reject
+
+</button>
+
+
+`:""}
+
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+});
+
+
+
+
+document.getElementById("depositList").innerHTML =
+html || "No deposits found";
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+function updateDeposit(uid,id,status){
+
+
+
+const depositRef =
+db.ref(
+"deposits/"+uid+"/"+id
+);
+
+
+
+depositRef.once("value")
+.then(snapshot=>{
+
+
+let deposit=snapshot.val();
+
+
+
+if(!deposit) return;
+
+
+
+// UPDATE STATUS
+
+depositRef.update({
+
+status:status
+
+});
+
+
+
+
+// ADD BALANCE ONLY WHEN APPROVED
+
+
+if(status==="approved"){
+
+
+
+let amount=Number(
+deposit.amount ||
+deposit.depositAmount ||
+0
+);
+
+
+
+db.ref("users/"+uid+"/balance")
+.transaction(current=>{
+
+
+return Number(current || 0)+amount;
+
+
+});
+
+
+
+}
+
+
+
+
+});
+
+
+
+}
+
+
+
+
+</script>
+
+
+</body>
+
+</html>
