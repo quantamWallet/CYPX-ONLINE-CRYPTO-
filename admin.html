@@ -1,0 +1,762 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  
+<title>CYPX HOLDINGS - Admin Panel</title>  
+  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
+  
+<style>  
+  
+body{  
+    margin:0;  
+    font-family:'Segoe UI',sans-serif;  
+    background:  
+    linear-gradient(rgba(0,8,20,.85),rgba(0,29,61,.85)),  
+    url("Screenshot_20260701-191309.jpg");  
+  
+    background-size:cover;  
+    background-attachment:fixed;  
+    color:white;  
+}  
+  
+  
+/* LOADER */  
+  
+.loader{  
+    position:fixed;  
+    inset:0;  
+    background:#000814;  
+    display:flex;  
+    justify-content:center;  
+    align-items:center;  
+    z-index:9999;  
+}  
+  
+.spinner{  
+    width:50px;  
+    height:50px;  
+    border:4px solid rgba(255,255,255,.2);  
+    border-top:4px solid #00e5ff;  
+    border-radius:50%;  
+    animation:spin 1s linear infinite;  
+}  
+  
+@keyframes spin{  
+    to{  
+        transform:rotate(360deg);  
+    }  
+}  
+  
+  
+/* HEADER */  
+  
+.header{  
+  
+    padding:18px;  
+    background:linear-gradient(90deg,#001d3d,#003566);  
+    display:flex;  
+    justify-content:space-between;  
+    align-items:center;  
+    font-weight:bold;  
+  
+}  
+  
+  
+.logout{  
+  
+    background:#ff3b30;  
+    border:none;  
+    color:white;  
+    padding:10px 15px;  
+    border-radius:10px;  
+    font-weight:bold;  
+  
+}  
+  
+  
+/* CONTAINER */  
+  
+.container{  
+  
+    padding:15px;  
+  
+}  
+  
+  
+/* CARDS */  
+  
+.cards{  
+  
+    display:grid;  
+    grid-template-columns:repeat(2,1fr);  
+    gap:15px;  
+  
+}  
+  
+  
+.card{  
+  
+    background:#001a33;  
+    padding:20px;  
+    border-radius:16px;  
+    box-shadow:0 0 20px rgba(0,200,255,.15);  
+  
+}  
+  
+  
+.card i{  
+  
+    font-size:25px;  
+    color:#00e5ff;  
+  
+}  
+  
+  
+.card h2{  
+  
+    margin:10px 0 0;  
+    color:#ffd700;  
+  
+}  
+  
+  
+.card small{  
+  
+    color:#ccc;  
+  
+}  
+  
+  
+/* ADMIN MENU */  
+  
+.menu{  
+  
+    margin-top:20px;  
+  
+}  
+  
+  
+.menu a{  
+  
+    display:flex;  
+    align-items:center;  
+    gap:15px;  
+  
+    padding:15px;  
+  
+    margin-bottom:10px;  
+  
+    background:#001a33;  
+  
+    color:white;  
+  
+    text-decoration:none;  
+  
+    border-radius:12px;  
+  
+}  
+  
+  
+.menu a i{  
+  
+    color:#00e5ff;  
+  
+}  
+  
+  
+</style>  
+  
+</head>  
+  
+  
+<body>  
+  
+  
+<!-- LOADER -->  
+  
+<div class="loader" id="loader">  
+  
+<div class="spinner"></div>  
+  
+</div>  
+  
+  
+  
+<div class="header">  
+  
+<div>  
+<i class="fas fa-user-shield"></i>  
+CYPX ADMIN PANEL  
+</div>  
+  
+  
+<button class="logout" onclick="logout()">  
+  
+Logout  
+  
+</button>  
+  
+  
+</div>  
+  
+  
+  
+  
+<div class="container">  
+  
+  
+<div id="adminEmail">  
+  
+Checking admin...  
+  
+</div>  
+  
+  
+  
+<div class="cards">  
+  
+  
+<div class="card">  
+  
+<i class="fas fa-users"></i>  
+  
+<small>Total Users</small>  
+  
+<h2 id="totalUsers">  
+0  
+</h2>  
+  
+</div>  
+  
+  
+  
+  
+<div class="card">  
+  
+<i class="fas fa-wallet"></i>  
+  
+<small>Total Deposits</small>  
+  
+<h2 id="totalDeposits">  
+$0.00  
+</h2>  
+  
+</div>  
+  
+  
+  
+  
+<div class="card">  
+  
+<i class="fas fa-money-bill-transfer"></i>  
+  
+<small>Withdrawals</small>  
+  
+<h2 id="totalWithdrawals">  
+$0.00  
+</h2>  
+  
+</div>  
+  
+  
+  
+  
+<div class="card">  
+  
+<i class="fas fa-id-card"></i>  
+  
+<small>Pending KYC</small>  
+  
+<h2 id="pendingKyc">  
+0  
+</h2>  
+  
+</div>  
+  
+  
+</div>  
+  
+  
+  
+  
+<div class="menu">
+
+
+<a href="admin-users.html">
+
+<i class="fas fa-users"></i>
+
+User Management
+
+</a>
+
+
+
+<a href="admin-deposits.html">
+
+<i class="fas fa-wallet"></i>
+
+Deposit Management
+
+</a>
+
+
+
+
+<a href="admin-withdrawals.html">
+
+<i class="fas fa-money-bill-transfer"></i>
+
+Withdrawal Management
+
+</a>
+
+
+
+
+<a href="admin-kyc.html">
+
+<i class="fas fa-id-card"></i>
+
+KYC Management
+
+</a>
+
+
+
+
+<a href="admin-vip.html">
+
+<i class="fas fa-crown"></i>
+
+VIP Management
+
+</a>
+
+
+
+
+<a href="admin-referrals.html">
+
+<i class="fas fa-users-rays"></i>
+
+Referral Management
+
+</a>
+
+
+
+
+<a href="admin-financial.html">
+
+<i class="fas fa-money-bill-trend-up"></i>
+
+Financial Control
+
+</a>
+
+
+
+
+<a href="admin-transactions.html">
+
+<i class="fas fa-file-invoice-dollar"></i>
+
+Transaction Audit
+
+</a>
+
+
+
+
+<a href="admin-settings.html">
+
+<i class="fas fa-cog"></i>
+
+System Settings
+
+</a>
+
+
+
+<a href="admin-logs.html">
+
+<i class="fas fa-clock-rotate-left"></i>
+
+Admin Activity Logs
+
+</a>
+
+
+</div>
+  
+  
+  
+</div>  
+  
+  
+  
+  
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  
+  
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>  
+  
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  
+  
+  
+  
+<script>  
+  
+  
+const firebaseConfig = {  
+  
+apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
+  
+authDomain: "quantum-rio.firebaseapp.com",  
+  
+databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
+  
+projectId: "quantum-rio",  
+  
+storageBucket: "quantum-rio.firebasestorage.app",  
+  
+messagingSenderId: "805433999377",  
+  
+appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",  
+  
+measurementId: "G-4RSQXZJX44"  
+  
+};  
+  
+  
+  
+if(!firebase.apps.length){
+    firebase.initializeApp(firebaseConfig);
+}  
+  
+  
+  
+const auth = firebase.auth();  
+  
+const db = firebase.database();  
+  
+  
+// ===============================  
+// ADMIN SECURITY CHECK  
+// ===============================  
+  
+auth.onAuthStateChanged(user => {  
+  
+    if(!user){  
+  
+        window.location.href = "auth.html";  
+        return;  
+  
+    }  
+  
+  
+    const uid = user.uid;  
+  
+  
+    db.ref("admins/" + uid).once("value")  
+    .then(snapshot => {  
+  
+  
+        if(!snapshot.exists()){  
+  
+            alert("Access denied. Admin only.");  
+  
+            auth.signOut();  
+  
+            window.location.href = "auth.html";  
+  
+            return;  
+  
+        }  
+  
+  
+        const admin = snapshot.val();  
+  
+  
+        if(admin.status !== "active" || admin.role !== "admin"){  
+  
+  
+            alert("Admin account disabled.");  
+  
+            auth.signOut();  
+  
+            window.location.href = "auth.html";  
+  
+            return;  
+  
+        }  
+  
+  
+  
+        document.getElementById("adminEmail").textContent =  
+        "Admin: " + user.email;  
+  
+  
+  
+        loadDashboard();  
+  
+  
+  
+        document.getElementById("loader").style.display="none";  
+  
+  
+    })  
+  
+    .catch(error=>{  
+  
+        console.error(error);  
+  
+        alert("Admin verification failed.");  
+  
+    });  
+  
+  
+});  
+  
+  
+  
+  
+// ===============================  
+// DASHBOARD DATA  
+// ===============================  
+  
+  
+function loadDashboard(){  
+  
+  
+  
+// TOTAL USERS  
+  
+db.ref("users").on("value", snap=>{  
+  
+  
+    let count = 0;  
+  
+  
+    snap.forEach(()=>{  
+  
+        count++;  
+  
+    });  
+  
+  
+    document.getElementById("totalUsers").textContent=count;  
+  
+  
+});  
+  
+  
+  
+  
+  
+  
+// TOTAL DEPOSITS  
+  
+  
+db.ref("deposits").on("value", snap=>{  
+  
+  
+    let total = 0;  
+  
+  
+  
+    snap.forEach(user=>{  
+  
+  
+        user.forEach(deposit=>{  
+  
+  
+            let d = deposit.val();  
+  
+  
+  
+            total += Number(  
+  
+                d.amount ||  
+  
+                d.depositAmount ||  
+  
+                d.price ||  
+  
+                0  
+  
+            );  
+  
+  
+  
+        });  
+  
+  
+  
+    });  
+  
+  
+  
+    document.getElementById("totalDeposits").textContent =  
+  
+    "$" + total.toLocaleString(  
+        "en-US",  
+        {  
+            minimumFractionDigits:2  
+        }  
+    );  
+  
+  
+});  
+  
+  
+  
+  
+  
+  
+  
+  
+// TOTAL WITHDRAWALS  
+  
+  
+db.ref("withdrawals").on("value", snap=>{  
+  
+  
+    let total = 0;  
+  
+  
+  
+    snap.forEach(user=>{  
+  
+  
+        user.forEach(request=>{  
+  
+  
+            let w=request.val();  
+  
+  
+  
+            if(  
+                w.status &&  
+                w.status.toLowerCase()=="approved"  
+            ){  
+  
+                total += Number(  
+  
+                    w.amount || 0  
+  
+                );  
+  
+            }  
+  
+  
+        });  
+  
+  
+  
+    });  
+  
+  
+  
+    document.getElementById("totalWithdrawals").textContent =  
+  
+    "$" + total.toLocaleString(  
+        "en-US",  
+        {  
+            minimumFractionDigits:2  
+        }  
+    );  
+  
+  
+  
+});  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+// PENDING KYC  
+  
+  
+db.ref("users").on("value", snap=>{  
+  
+  
+let pending = 0;  
+  
+  
+  
+snap.forEach(user=>{  
+  
+  
+    let data=user.val();  
+  
+  
+  
+    if(  
+        data.kycStatus &&  
+        data.kycStatus.toLowerCase()=="pending"  
+    ){  
+  
+        pending++;  
+  
+    }  
+  
+  
+  
+});  
+  
+  
+  
+document.getElementById("pendingKyc").textContent=pending;  
+  
+  
+  
+});  
+  
+  
+  
+}  
+  
+  
+  
+  
+  
+  
+// ===============================  
+// LOGOUT  
+// ===============================  
+  
+  
+function logout(){  
+  
+  
+auth.signOut()  
+  
+.then(()=>{  
+  
+  
+    localStorage.clear();  
+  
+    sessionStorage.clear();  
+  
+  
+    window.location.href="auth.html";  
+  
+  
+});  
+  
+  
+}
+
+</script>
+
+</body>
+  </html>
