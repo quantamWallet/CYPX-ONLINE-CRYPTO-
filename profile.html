@@ -170,7 +170,48 @@ nav a {
 nav i { font-size:20px; }
 </style>
 </head>
+<div id="comingSoonModal" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+z-index:10000;
+justify-content:center;
+align-items:center;
+">
 
+<div style="
+background:#001d3d;
+width:300px;
+padding:25px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 0 30px rgba(0,0,0,.5);
+">
+
+<h3 style="color:white;margin-top:0;">
+🚀 Coming Soon
+</h3>
+
+<p style="color:#ddd;">
+KYC verification will be available soon.
+</p>
+
+<button onclick="
+document.getElementById('comingSoonModal').style.display='none'
+"
+style="
+padding:12px 25px;
+border:none;
+border-radius:10px;
+background:#00e5ff;
+font-weight:bold;
+">
+OK
+</button>
+
+</div>
+</div>
 <body>
 <!-- Logout Confirmation Modal -->
 <div id="logoutModal" style="
@@ -280,7 +321,7 @@ align-items:center;
 
 <div class="menu">
 
-<a href="kyc.html" id="kycBtn" class="menu-item" style="display:none;">
+<a href="javascript:void(0)" id="kycBtn" class="menu-item" style="display:none;">
     <i class="fas fa-id-card"></i>
     Verify Identity (KYC)
 </a>
@@ -314,7 +355,11 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+document.getElementById("kycBtn").addEventListener("click", function(){
 
+    document.getElementById("comingSoonModal").style.display="flex";
+
+});
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -348,21 +393,35 @@ let earningsUser = 0;
 
 /* SUM FUNCTION */
 function sumSnapshot(snapshot){
-  let total = 0;
-  snapshot.forEach(child=>{
-    const d = child.val();
-    const value =
-      d?.amount ??
-      d?.amt ??
-      d?.value ??
-      d?.earnings ??
-      d?.profit ??
-      0;
 
-    total += Number(value);
+  let total = 0;
+
+  snapshot.forEach(child=>{
+
+    const d = child.val();
+
+    if(typeof d === "number"){
+      total += d;
+      return;
+    }
+
+    if(d){
+
+      total += Number(
+        d.amount ||
+        d.depositAmount ||
+        d.price ||
+        d.value ||
+        0
+      );
+
+    }
+
   });
+
   return total;
-}
+
+  }
 
 /* RENDER */
 function render(){
@@ -492,9 +551,7 @@ auth.onAuthStateChanged(user => {
     render();
   });
 
-  db.ref("deposits").on("value", snap => {
-    depositGlobal = sumSnapshot(snap);
-    render();
+  depositGlobal = 0;
   });
 
 });
