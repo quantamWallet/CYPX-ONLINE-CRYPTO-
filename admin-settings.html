@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS - Admin Settings</title>
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<style>
+
+body{
+
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#000814;
+color:white;
+
+}
+
+
+.header{
+
+padding:18px;
+background:linear-gradient(90deg,#001d3d,#003566);
+display:flex;
+align-items:center;
+gap:15px;
+
+}
+
+
+.header a{
+
+color:white;
+text-decoration:none;
+
+}
+
+
+.container{
+
+padding:15px;
+
+}
+
+
+.card{
+
+background:#001a33;
+padding:20px;
+border-radius:15px;
+margin-bottom:15px;
+
+}
+
+
+.log{
+
+background:#002244;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+
+font-size:14px;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+<a href="admin.html">
+
+<i class="fas fa-arrow-left"></i>
+
+</a>
+
+
+<b>
+
+<i class="fas fa-cog"></i>
+
+Admin Settings
+
+</b>
+
+
+</div>
+
+
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+<h3>
+System Information
+</h3>
+
+
+<p>
+Platform:
+<b>CYPX HOLDINGS</b>
+</p>
+
+
+<p>
+Version:
+<b>1.0</b>
+</p>
+
+
+<p>
+Status:
+<b style="color:#16a34a;">
+ONLINE
+</b>
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+Admin Activity Logs
+</h3>
+
+
+<div id="logs">
+
+Loading logs...
+
+</div>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+
+
+
+<script>
+
+
+const firebaseConfig={
+
+
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+authDomain:"quantum-rio.firebaseapp.com",
+
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+
+projectId:"quantum-rio",
+
+storageBucket:"quantum-rio.firebasestorage.app",
+
+messagingSenderId:"805433999377",
+
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+
+
+};
+
+
+
+firebase.initializeApp(firebaseConfig);
+
+
+
+const auth=firebase.auth();
+
+const db=firebase.database();
+
+
+
+
+
+let adminUID="";
+
+let adminEmail="";
+
+
+
+
+
+// ADMIN SECURITY
+
+
+auth.onAuthStateChanged(user=>{
+
+
+if(!user){
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+adminUID=user.uid;
+
+adminEmail=user.email;
+
+
+
+db.ref("admins/"+adminUID)
+.once("value")
+
+.then(admin=>{
+
+
+if(!admin.exists()){
+
+
+alert("Admin only");
+
+window.location.href="auth.html";
+
+return;
+
+
+}
+
+
+
+loadLogs();
+
+
+});
+
+
+
+});
+
+
+
+
+
+
+
+
+// LOAD LOGS
+
+
+function loadLogs(){
+
+
+
+db.ref("adminLogs")
+
+.limitToLast(50)
+
+.on("value",snap=>{
+
+
+let html="";
+
+
+
+let logs=[];
+
+
+
+snap.forEach(child=>{
+
+
+logs.push(child.val());
+
+
+});
+
+
+
+logs.reverse();
+
+
+
+
+logs.forEach(log=>{
+
+
+
+let time =
+log.time
+?
+new Date(log.time).toLocaleString()
+:
+"Unknown";
+
+
+
+html += `
+
+
+<div class="log">
+
+
+<b>
+${log.action || "Action"}
+</b>
+
+
+<br>
+
+
+User:
+${log.user || "N/A"}
+
+
+<br>
+
+
+Admin:
+${log.admin || "N/A"}
+
+
+<br>
+
+
+${time}
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+document.getElementById("logs").innerHTML =
+html || "No activity yet";
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// CREATE LOG FUNCTION
+// Use this function from other admin pages
+
+
+function createLog(action,user){
+
+
+
+db.ref("adminLogs").push({
+
+action:action,
+
+user:user,
+
+admin:adminEmail,
+
+adminUID:adminUID,
+
+time:Date.now()
+
+
+});
+
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>
