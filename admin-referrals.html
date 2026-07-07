@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX HOLDINGS - Referral Management</title>
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<style>
+
+body{
+
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#000814;
+color:white;
+
+}
+
+
+.header{
+
+padding:18px;
+background:linear-gradient(90deg,#001d3d,#003566);
+display:flex;
+align-items:center;
+gap:15px;
+
+}
+
+
+.header a{
+
+color:white;
+text-decoration:none;
+
+}
+
+
+.container{
+
+padding:15px;
+
+}
+
+
+.card{
+
+background:#001a33;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+
+}
+
+
+select,input,button{
+
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+margin-top:10px;
+
+}
+
+
+button{
+
+background:#00e5ff;
+font-weight:bold;
+
+}
+
+
+.level{
+
+background:#002244;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+<div class="header">
+
+<a href="admin.html">
+
+<i class="fas fa-arrow-left"></i>
+
+</a>
+
+
+<b>
+
+<i class="fas fa-users"></i>
+
+Referral Management
+
+</b>
+
+
+</div>
+
+
+
+
+<div class="container">
+
+
+<div class="card">
+
+
+<h3>Select User</h3>
+
+
+<select id="userSelect"
+onchange="loadReferralTree()">
+
+
+<option>
+Select user
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+<div id="referralResult"></div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+
+
+<script>
+
+
+const firebaseConfig={
+
+
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+authDomain:"quantum-rio.firebaseapp.com",
+
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+
+projectId:"quantum-rio",
+
+storageBucket:"quantum-rio.firebasestorage.app",
+
+messagingSenderId:"805433999377",
+
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+
+};
+
+
+
+if(!firebase.apps.length){
+
+firebase.initializeApp(firebaseConfig);
+
+}
+
+
+
+const auth=firebase.auth();
+
+const db=firebase.database();
+
+
+
+let adminEmail="";
+let adminUID="";
+
+
+
+
+
+
+
+auth.onAuthStateChanged(user=>{
+
+
+if(!user){
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+adminEmail=user.email;
+
+adminUID=user.uid;
+
+
+
+db.ref("admins/"+user.uid)
+
+.once("value")
+
+.then(admin=>{
+
+
+if(!admin.exists()){
+
+
+alert("Admin only");
+
+window.location.href="auth.html";
+
+return;
+
+}
+
+
+
+loadUsers();
+
+
+});
+
+
+});
+
+
+
+
+
+
+
+
+
+function loadUsers(){
+
+
+db.ref("users")
+
+.once("value")
+
+.then(snapshot=>{
+
+
+let select=
+document.getElementById("userSelect");
+
+
+
+snapshot.forEach(child=>{
+
+
+let u=child.val();
+
+
+
+let option=document.createElement("option");
+
+
+option.value=child.key;
+
+
+option.textContent=
+(u.username || u.email || child.key);
+
+
+
+select.appendChild(option);
+
+
+
+});
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+function loadReferralTree(){
+
+
+let uid =
+document.getElementById("userSelect")
+.value;
+
+
+
+if(!uid)return;
+
+
+
+let html="";
+
+
+
+db.ref("referrals/"+uid)
+
+.once("value")
+
+.then(snapshot=>{
+
+
+
+let data=snapshot.val() || {};
+
+
+
+
+html += `
+
+
+<div class="card">
+
+
+<h3>
+Referral Network
+</h3>
+
+
+
+<div class="level">
+
+Level 1:
+${countLevel(data.level1)}
+
+</div>
+
+
+
+<div class="level">
+
+Level 2:
+${countLevel(data.level2)}
+
+</div>
+
+
+
+<div class="level">
+
+Level 3:
+${countLevel(data.level3)}
+
+</div>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+document.getElementById("referralResult")
+.innerHTML=html;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function countLevel(level){
+
+
+if(!level)return 0;
+
+
+return Object.keys(level).length;
+
+
+}
+
+
+
+
+
+
+</script>
+
+
+</body>
+
+</html>
