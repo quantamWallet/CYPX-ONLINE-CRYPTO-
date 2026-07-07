@@ -266,24 +266,25 @@ function uploadOne(path, file, progressEl){
 
     progressEl.parentElement.style.display = "block";
 
-    task.on(
+        task.on(
       "state_changed",
-      snapshot=>{
+      snapshot => {
         console.log("Uploaded:", snapshot.bytesTransferred, "/", snapshot.totalBytes);
 
         progressEl.style.width =
           Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100) + "%";
       },
-      error=>{
+      error => {
         clearTimeout(t);
         console.error("Upload Error:", error.code, error.message);
         reject(error);
       },
-      async ()=>{
+      async () => {
         clearTimeout(t);
         console.log("Upload complete");
         resolve(await getDownloadURL(task.snapshot.ref));
-          );
+      }
+    );
   });
   }
 /* File pick + preview + block HEIC */
