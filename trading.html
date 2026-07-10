@@ -393,8 +393,16 @@ document.getElementById("pairSelect").onchange = e=>{
   updateUI();
 }
 
-pushNotif("Connected to CYPX TRADE", "info");
+... all your code above ...
+
+pushNotif("Connected to CYPX TRADE", "info"); // DELETE THIS LINE
+
+// ADD THIS INSTEAD
+if(!sessionStorage.getItem("cypx_welcomed")){
+  pushNotif("Connected to CYPX TRADE", "info");
+  sessionStorage.setItem("cypx_welcomed", "true");
+}
 window.closePosition = closePosition;
 </script>
 </body>
-                                            </html>
+</html>
