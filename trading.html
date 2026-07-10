@@ -14,30 +14,54 @@ body{background:var(--bg);color:var(--text)}
 .container{max-width:1200px;margin:0 auto;padding:12px}
 .header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
 .logo{font-weight:700;font-size:20px;color:var(--brand)}
-.balance-card{background:var(--card);padding:16px;border-radius:14px;display:flex;gap:30px;margin-bottom:12px;border:1px solid var(--line)}
-.bal-item.bal-label{font-size:12px;color:var(--muted)}
-.bal-item.bal-value{font-size:20px;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 340px;gap:12px}
+.balance-card{background:var(--card);padding:12px;border-radius:14px;display:flex;gap:20px}
+.balance-card div{line-height:1.4}
+.bal-label{font-size:12px;color:var(--muted)}
+.bal-value{font-size:18px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:12px;margin-top:12px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 .card{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--line)}
-.copy-btn-link{width:100%;padding:10px;background:var(--brand);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;margin-bottom:12px}
-.signal-box input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);margin-bottom:8px}
-.signal-box button{width:100%;padding:12px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;cursor:pointer}
-.active-signal{background:var(--card2);padding:12px;border-radius:12px;margin-top:10px;border-left:3px solid var(--brand)}
-.active-signal.row{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
 .pair-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .pair-price{font-size:26px;font-weight:700}
+.pair-change{font-size:14px}
 .pair-change.up{color:var(--ok)}.pair-change.down{color:var(--bad)}
 .chart{height:400px;background:var(--card2);border-radius:10px;overflow:hidden}
+.order-panel h3{margin-bottom:10px}
 .tabs{display:flex;background:var(--card2);border-radius:10px;padding:4px;margin-bottom:10px}
 .tab{flex:1;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-weight:600}
 .tab.active{background:var(--brand)}
 .input-group{margin-bottom:10px}
-.input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text)}
-.btn-buy{width:100%;padding:14px;background:var(--ok);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
-.btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
+.input-group label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+.input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:16px;outline:none}
+.btn-buy{width:100%;padding:14px;background:var(--ok);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
+.btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
+.btn-signal{width:100%;padding:14px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px}
+.btn-buy:disabled,.btn-sell:disabled{opacity:.4;cursor:not-allowed}
+.positions table{width:100%;border-collapse:collapse;font-size:12px}
+.positions th{text-align:left;color:var(--muted);padding:8px 4px;border-bottom:1px solid var(--line)}
+.positions td{padding:8px 4px}
+.badge-side{padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-side.buy{background:rgba(22,163,74,.2);color:var(--ok)}
+.badge-side.sell{background:rgba(220,38,38,.2);color:var(--bad)}
+.badge-signal{background:rgba(245,158,11,.2);color:var(--warn);font-size:10px;padding:2px 4px;border-radius:4px;margin-left:4px}
+.pos.pnl.up{color:var(--ok)}.pos.pnl.down{color:var(--bad)}
+.close-btn{background:var(--line);border:none;color:var(--text);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px}
+.close-btn:hover{background:var(--bad)}
+.notif-bell{position:relative;cursor:pointer;font-size:20px}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;font-size:10px;padding:2px 5px;border-radius:99px}
+.notif-panel{position:absolute;top:40px;right:0;width:320px;background:var(--card2);border:1px solid var(--line);border-radius:12px;display:none;z-index:99;max-height:400px;overflow-y:auto}
+.notif-panel.show{display:block}
+.notif-item{padding:10px;border-bottom:1px solid var(--line);font-size:13px}
+.notif-item.time{font-size:11px;color:var(--muted)}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--card2);padding:12px 16px;border-radius:12px;border-left:4px solid var(--brand);display:none;z-index:999}
-.toast.show{display:block}
+.toast.show{display:block;animation:slide.3s}
+@keyframes slide{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.center-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);padding:20px 30px;border-radius:16px;border:2px solid var(--brand);font-size:18px;font-weight:700;display:none;z-index:1000;box-shadow:0 0 30px rgba(0,0,0,.5);text-align:center}
+.center-toast.show{display:block;animation:pop.3s}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.8)}100%{transform:translate(-50%,-50%) scale(1)}}
+.loading{opacity:.5;pointer-events:none}
+.last-updated{font-size:11px;color:var(--muted);margin-left:8px}
+.divider{height:1px;background:var(--line);margin:14px 0}
 </style>
 </head>
 <body>
@@ -45,18 +69,16 @@ body{background:var(--bg);color:var(--text)}
 <div class="container">
   <div class="header">
     <div class="logo"><i class="fa-solid fa-chart-line"></i> CYPX TRADE</div>
-    <button class="copy-btn-link" onclick="window.location.href='copy.html'"><i class="fa-solid fa-copy"></i> Copy Trading</button>
-  </div>
-
-  <!-- BALANCE CARD -->
-  <div class="balance-card">
-    <div class="bal-item">
-      <div class="bal-label">Main Balance</div>
-      <div class="bal-value" id="mainBalance">$0.00</div>
-    </div>
-    <div class="bal-item">
-      <div class="bal-label">Equity</div>
-      <div class="bal-value" id="equityBalance">$0.00</div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="balance-card" id="balCard">
+        <div><div class="bal-label">Balance</div><div class="bal-value" id="balance">--</div></div>
+        <div><div class="bal-label">Equity</div><div class="bal-value" id="equity">--</div></div>
+      </div>
+      <div style="position:relative">
+        <i class="fa-solid fa-bell notif-bell" id="bell"></i>
+        <span class="badge" id="notifCount" style="display:none">0</span>
+        <div class="notif-panel" id="notifPanel"></div>
+      </div>
     </div>
   </div>
 
@@ -66,52 +88,78 @@ body{background:var(--bg);color:var(--text)}
         <div class="pair-header">
           <select id="pairSelect" style="background:var(--card2);border:1px solid var(--line);color:var(--text);padding:6px;border-radius:8px">
             <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
+            <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
+            <option>ADA/USDT</option><option>TON/USDT</option>
           </select>
           <div class="pair-price" id="pairPrice">$0.00</div>
           <div class="pair-change up" id="pairChange">0.00%</div>
+          <div class="last-updated" id="lastUpdated"></div>
         </div>
         <div class="chart" id="tradingview_chart"></div>
       </div>
+
+      <div class="card positions" style="margin-top:12px">
+        <h3>Open Positions</h3>
+        <table>
+          <thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>Entry</th><th>P&L</th><th>TP/SL</th><th></th></tr></thead>
+          <tbody id="positionsBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div>
-      <!-- SIGNAL CODE BOX -->
-      <div class="card signal-box">
-        <h3><i class="fa-solid fa-key"></i> Enter Signal Code</h3>
-        <input type="text" id="signalCode" placeholder="SIGNAL-BTC-001" style="text-transform:uppercase">
-        <button onclick="activateSignal()">Activate Signal</button>
-        <div id="activeSignalBox"></div>
+    <div class="card order-panel">
+      <h3>Place Order</h3>
+      <div class="tabs">
+        <div class="tab active" data-type="buy">Buy</div>
+        <div class="tab" data-type="sell">Sell</div>
       </div>
+      <div class="input-group">
+        <label>Amount USDT <span style="color:var(--warn)">Min $50</span></label>
+        <input type="number" id="orderAmount" placeholder="100" value="100" min="50" step="0.01">
+      </div>
+      <div class="input-group">
+        <label>Take Profit %</label>
+        <input type="number" id="tp" placeholder="2" value="2" min="0.1" step="0.1">
+      </div>
+      <div class="input-group">
+        <label>Stop Loss %</label>
+        <input type="number" id="sl" placeholder="1" value="1" min="0.1" step="0.1">
+      </div>
+      <button class="btn-buy" id="buyBtn" disabled>Buy BTC</button>
+      <button class="btn-sell" id="sellBtn" style="display:none" disabled>Sell BTC</button>
 
-      <div class="card">
-        <h3>Place Order</h3>
-        <div class="tabs">
-          <div class="tab active" data-type="buy">Buy</div>
-          <div class="tab" data-type="sell">Sell</div>
-        </div>
-        <div class="input-group"><input type="number" id="orderAmount" placeholder="Amount USDT" value="100"></div>
-        <div class="input-group"><input type="number" id="tp" placeholder="TP %" value="2"></div>
-        <div class="input-group"><input type="number" id="sl" placeholder="SL %" value="1"></div>
-        <button class="btn-buy" id="buyBtn">Buy</button>
-        <button class="btn-sell" id="sellBtn" style="display:none">Sell</button>
+      <div class="divider"></div>
+
+      <h3><i class="fa-solid fa-key"></i> Signal Code</h3>
+      <div class="input-group">
+        <label>Enter Signal Code</label>
+        <input type="text" id="signalCode" placeholder="SIGNAL-BTC-001" style="text-transform:uppercase">
       </div>
+      <div class="input-group">
+        <label>Amount to Risk <span style="color:var(--warn)">Min $50</span></label>
+        <input type="number" id="signalAmount" placeholder="100" value="100" min="50">
+      </div>
+      <button class="btn-signal" onclick="activateSignal()">Activate Signal</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="center-toast" id="centerToast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, get, set, push, update, runTransaction, serverTimestamp, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, push, remove, serverTimestamp, runTransaction, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
+  storageBucket: "quantum-rio.appspot.com",
   messagingSenderId: "805433999377",
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
@@ -121,64 +169,121 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+const MIN_TRADE = 50;
 let uid = null;
-let balance = 0;
-let equity = 0;
+let balance = null;
+let positions = {};
+let currentPair = "BTC/USDT";
 let prices = {};
+let prevPrices = {};
 let orderType = "buy";
-let activeSignalTrade = null;
+let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]");
 
+const toast = document.getElementById("toast");
+const centerToast = document.getElementById("centerToast");
+const notifPanel = document.getElementById("notifPanel");
+const notifCount = document.getElementById("notifCount");
+
+function saveNotifs(){
+  localStorage.setItem("cypx_notifs", JSON.stringify(notifs));
+}
 function pushNotif(msg, type="info"){
-  const toast = document.getElementById("toast");
+  const time = new Date().toLocaleTimeString();
+  notifs.unshift({msg, time});
+  if(notifs.length > 50) notifs.pop();
+  saveNotifs();
+  notifCount.textContent = notifs.length;
+  notifCount.style.display = notifs.length? 'block' : 'none';
   toast.textContent = msg;
   toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"), 3000);
+  renderNotifs();
 }
-
-onAuthStateChanged(auth, (user)=>{
-  if(!user){ window.location.href="auth.html"; return; }
-  uid = user.uid;
-  loadChart("BTC/USDT");
-  fetchPrices();
-  onValue(ref(db, `users/${uid}/balance`), snap=>{
-    balance = snap.val() || 0;
-    document.getElementById("mainBalance").textContent = "$" + balance.toFixed(2);
-    updateEquity();
-  });
-  loadActiveSignalTrade();
-});
-
-function updateEquity(){
-  let pnl = 0;
-  if(activeSignalTrade && prices[activeSignalTrade.pair]){
-    const current = prices[activeSignalTrade.pair];
-    const diff = activeSignalTrade.side === "buy"? current - activeSignalTrade.entry : activeSignalTrade.entry - current;
-    pnl = (diff / activeSignalTrade.pipValue) * (activeSignalTrade.amount / activeSignalTrade.entry) * activeSignalTrade.pipValue;
-  }
-  equity = balance + pnl;
-  document.getElementById("equityBalance").textContent = "$" + equity.toFixed(2);
+function showCenterToast(msg, type="ok"){
+  centerToast.innerHTML = msg.replace('\n','<br>');
+  centerToast.style.borderColor = type==="ok"? "var(--ok)" : "var(--bad)";
+  centerToast.style.color = type==="ok"? "var(--ok)" : "var(--bad)";
+  centerToast.classList.add("show");
+  setTimeout(()=>centerToast.classList.remove("show"), 2500);
 }
+function renderNotifs(){
+  notifPanel.innerHTML = notifs.length? notifs.map(n=>`<div class="notif-item">${n.msg}<div class="time">${n.time}</div></div>`).join('') : `<div class="notif-item">No notifications</div>`;
+}
+document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show");
+renderNotifs();
 
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
   new TradingView.widget({
     "width": "100%", "height": 400, "symbol": "BINANCE:" + symbol.replace("/", ""),
-    "interval": "15", "theme": "dark", "container_id": "tradingview_chart"
+    "interval": "15", "theme": "dark", "style": "1", "toolbar_bg": "#1a2440",
+    "enable_publishing": false, "hide_top_toolbar": false, "container_id": "tradingview_chart"
   });
 }
 
 async function fetchPrices(){
-  const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
-  const data = await res.json();
-  prices["BTC/USDT"] = parseFloat(data.price);
-  document.getElementById("pairPrice").textContent = "$" + prices["BTC/USDT"].toFixed(2);
-  checkSignalTrade();
+  try{
+    const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
+    const data = await res.json();
+    const map = {
+      "BTCUSDT":"BTC/USDT","ETHUSDT":"ETH/USDT","SOLUSDT":"SOL/USDT",
+      "BNBUSDT":"BNB/USDT","XRPUSDT":"XRP/USDT","DOGEUSDT":"DOGE/USDT",
+      "ADAUSDT":"ADA/USDT","TONUSDT":"TON/USDT"
+    };
+    prevPrices = {...prices};
+    Object.keys(map).forEach(s=>{
+      const item = data.find(d=>d.symbol===s);
+      if(item){ prices[map[s]] = parseFloat(item.lastPrice); }
+    });
+    document.getElementById("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString();
+    updateUI();
+  }catch(e){ console.error("Price fetch failed", e); }
+}
+
+function updateUI(){
+  const price = prices[currentPair];
+  if(!price) return;
+  const prev = prevPrices[currentPair] || price;
+  const change = prev? ((price - prev) / prev) * 100 : 0;
+  document.getElementById("pairPrice").textContent = "$" + price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  const changeEl = document.getElementById("pairChange");
+  changeEl.textContent = change.toFixed(2) + "%";
+  changeEl.className = "pair-change " + (change >= 0? "up" : "down");
+  document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
+  document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
+  checkTP_SL();
   updateEquity();
 }
 setInterval(fetchPrices, 3000);
 
-// TAB SWITCH
+onAuthStateChanged(auth, (user)=>{
+  if(!user){ window.location.href="auth.html"; return; }
+  uid = user.uid;
+  document.getElementById("balCard").classList.add("loading");
+  loadChart(currentPair);
+  fetchPrices();
+  const userBalRef = ref(db, `users/${uid}/balance`);
+  const positionsRef = ref(db, `trade/${uid}/positions`);
+  onValue(userBalRef, (snap)=>{
+    balance = snap.exists()? parseFloat(snap.val()) : 0;
+    updateEquity();
+    toggleButtons();
+    document.getElementById("balCard").classList.remove("loading");
+  });
+  onValue(positionsRef, (snap)=>{
+    positions = snap.val() || {};
+    renderPositions();
+    updateEquity();
+  });
+});
+
+function toggleButtons(){
+  const disabled = balance === null;
+  document.getElementById("buyBtn").disabled = disabled;
+  document.getElementById("sellBtn").disabled = disabled;
+}
+
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   t.classList.add("active");
@@ -187,100 +292,119 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
 });
 
-// ===== SIGNAL CODE SYSTEM =====
+// ===== MANUAL ORDER =====
+async function placeOrder(){
+  if(balance === null) return pushNotif("Balance loading...", "bad");
+  const amount = parseFloat(document.getElementById("orderAmount").value);
+  const tp = parseFloat(document.getElementById("tp").value);
+  const sl = parseFloat(document.getElementById("sl").value);
+  const price = prices[currentPair];
+  if(!price) return pushNotif("Price not loaded yet", "bad");
+  if(isNaN(amount) || amount < MIN_TRADE) return pushNotif(`Minimum order $${MIN_TRADE}`, "bad");
+  if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
+
+  const qty = amount / price;
+  const fee = amount * 0.001;
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
+    const curr = parseFloat(current) || 0;
+    return curr - amount - fee;
+  });
+  await push(ref(db, `trade/${uid}/positions`), {
+    pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount,
+    tp: tp, sl: sl, type: "manual", openedAt: serverTimestamp()
+  });
+  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(6)} ${currentPair}`, "ok");
+}
+document.getElementById("buyBtn").onclick = placeOrder;
+document.getElementById("sellBtn").onclick = placeOrder;
+
+// ===== SIGNAL CODE =====
 window.activateSignal = async function(){
   const code = document.getElementById("signalCode").value.trim().toUpperCase();
+  const userAmount = parseFloat(document.getElementById("signalAmount").value);
   if(!code) return pushNotif("Enter a signal code", "bad");
+  if(userAmount < MIN_TRADE) return pushNotif(`Minimum amount $${MIN_TRADE}`, "bad");
+  if(userAmount > balance) return pushNotif("Insufficient balance", "bad");
 
   const signalRef = ref(db, `signals/${code}`);
   const snap = await get(signalRef);
   if(!snap.exists()) return pushNotif("Invalid signal code", "bad");
-
   const signal = snap.val();
   const now = Date.now();
-
   if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad");
   if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
-  if(signal.amount > balance) return pushNotif("Insufficient balance", "bad");
 
   const price = prices[signal.pair];
   if(!price) return pushNotif("Price not loaded", "bad");
-
-  const qty = signal.amount / price;
+  const qty = userAmount / price;
   const tpPrice = signal.side === "buy"? price + (signal.tp_pips * signal.pipValue) : price - (signal.tp_pips * signal.pipValue);
   const slPrice = signal.side === "buy"? price - (signal.sl_pips * signal.pipValue) : price + (signal.sl_pips * signal.pipValue);
 
-  await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) - signal.amount);
-
-  const tradeRef = await push(ref(db, `trade/${uid}/signalPositions`), {
-    pair: signal.pair, side: signal.side, qty: qty, entry: price, amount: signal.amount,
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
+  await push(ref(db, `trade/${uid}/positions`), {
+    pair: signal.pair, side: signal.side, qty, entry: price, amount: userAmount,
     tp_pips: signal.tp_pips, sl_pips: signal.sl_pips, pipValue: signal.pipValue,
-    tpPrice: tpPrice, slPrice: slPrice, openedAt: now, expiresAt: now + 600000, code: code
+    tpPrice, slPrice, type: "signal", openedAt: now, expiresAt: now + 600000, code
   });
-
   await update(signalRef, { [`usedBy/${uid}`]: true });
-  pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair}`, "ok");
-  loadActiveSignalTrade();
+  pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
+  document.getElementById("signalCode").value = "";
 }
 
-async function loadActiveSignalTrade(){
-  const snap = await get(ref(db, `trade/${uid}/signalPositions`));
-  if(snap.exists()){
-    const trades = snap.val();
-    const lastKey = Object.keys(trades).pop();
-    activeSignalTrade = trades[lastKey];
-    activeSignalTrade.key = lastKey;
-    renderActiveSignal();
+// ===== TP/SL/AUTO CLOSE =====
+function checkTP_SL(){
+  Object.keys(positions).forEach(id=>{
+    const p = positions[id];
+    const price = prices[p.pair];
+    if(!price) return;
+    let shouldClose = false; let reason = ""; let type="info";
+
+    if(p.type === "signal"){
+      const diff = p.side==="buy"? price - p.entry : p.entry - price;
+      const pnl = (diff / p.pipValue) * p.amount;
+      if(p.side === "buy" && price >= p.tpPrice){ shouldClose = true; reason = "TAKE PROFIT"; type="ok"; }
+      if(p.side === "sell" && price <= p.tpPrice){ shouldClose = true; reason = "TAKE PROFIT"; type="ok"; }
+      if(p.side === "buy" && price <= p.slPrice){ shouldClose = true; reason = "STOP LOSS"; type="bad"; }
+      if(p.side === "sell" && price >= p.slPrice){ shouldClose = true; reason = "STOP LOSS"; type="bad"; }
+      if(Date.now() >= p.expiresAt){ shouldClose = true; reason = "TIME EXPIRED"; type="bad"; }
+      if(shouldClose) closePosition(id, `${reason}\nP&L: $${pnl.toFixed(2)}`, type);
+    } else {
+      const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
+      const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
+      if(pnlPct >= p.tp){ closePosition(id, `TAKE PROFIT +${pnlPct.toFixed(2)}%`, "ok"); }
+      else if(pnlPct <= -p.sl){ closePosition(id, `STOP LOSS ${pnlPct.toFixed(2)}%`, "bad"); }
+    }
+  });
+}
+
+// ===== CLOSE POSITION =====
+window.closePosition = async function(id, reason="Manual Close", type="info"){
+  const p = positions[id];
+  if(!p) return;
+  const price = prices[p.pair];
+  if(!price) return pushNotif("Price not loaded", "bad");
+  let pnl = 0;
+  if(p.type === "signal"){
+    const diff = p.side==="buy"? price - p.entry : p.entry - price;
+    pnl = (diff / p.pipValue) * p.amount;
+  } else {
+    pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
   }
+  const returnAmount = p.amount + pnl;
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
+  await remove(ref(db, `trade/${uid}/positions/${id}`));
+  showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type);
+  pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, type);
 }
 
-function renderActiveSignal(){
-  if(!activeSignalTrade) return;
-  const s = activeSignalTrade;
-  const timeLeft = Math.max(0, s.expiresAt - Date.now());
-  const mins = Math.floor(timeLeft / 60000);
-  const secs = Math.floor((timeLeft % 60000) / 1000);
+// ===== RENDER POSITIONS =====
+function renderPositions(){
+  const tbody = document.getElementById("positionsBody");
+  const arr = Object.entries(positions);
+  if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
 
-  document.getElementById("activeSignalBox").innerHTML = `
-    <div class="active-signal">
-      <div style="font-weight:700;margin-bottom:6px">${s.side.toUpperCase()} ${s.pair}</div>
-      <div class="row"><span>Entry:</span><span>$${s.entry.toFixed(2)}</span></div>
-      <div class="row"><span>TP:</span><span>$${s.tpPrice.toFixed(2)} (${s.tp_pips}p @ $${s.pipValue})</span></div>
-      <div class="row"><span>SL:</span><span>$${s.slPrice.toFixed(2)} (${s.sl_pips}p @ $${s.pipValue})</span></div>
-      <div class="row"><span>Time Left:</span><span>${mins}:${secs.toString().padStart(2,'0')}</span></div>
-    </div>
-  `;
-}
-
-async function checkSignalTrade(){
-  if(!activeSignalTrade ||!prices[activeSignalTrade.pair]) return;
-
-  const s = activeSignalTrade;
-  const current = prices[s.pair];
-  const now = Date.now();
-
-  let shouldClose = false;
-  let reason = "";
-
-  // Check TP
-  if(s.side === "buy" && current >= s.tpPrice){ shouldClose = true; reason = "Take Profit"; }
-  if(s.side === "sell" && current <= s.tpPrice){ shouldClose = true; reason = "Take Profit"; }
-  // Check SL
-  if(s.side === "buy" && current <= s.slPrice){ shouldClose = true; reason = "Stop Loss"; }
-  if(s.side === "sell" && current >= s.slPrice){ shouldClose = true; reason = "Stop Loss"; }
-  // Check 10min expiry
-  if(now >= s.expiresAt){ shouldClose = true; reason = "Time Expired"; }
-
-  if(shouldClose){
-    const diff = s.side === "buy"? current - s.entry : s.entry - current;
-    const pnl = (diff / s.pipValue) * s.amount;
-    await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) + s.amount + pnl);
-    await remove(ref(db, `trade/${uid}/signalPositions/${s.key}`));
-    pushNotif(`${reason} Closed: ${pnl >= 0? '+' : ''}$${pnl.toFixed(2)}`, pnl >= 0? "ok" : "bad");
-    activeSignalTrade = null;
-    document.getElementById("activeSignalBox").innerHTML = "";
-  }
-}
-</script>
-</body>
-  </html>
+  tbody.innerHTML = arr.map(([id, p])=>{
+    const price = prices[p.pair] || p.entry;
+    let pnl = 0; let pnlPct = 0;
+    if(p.type === "signal"){
+      const diff = p.side==="buy"? price - p.entry : p.entr
