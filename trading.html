@@ -14,15 +14,17 @@ body{background:var(--bg);color:var(--text)}
 .container{max-width:1200px;margin:0 auto;padding:12px}
 .header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
 .logo{font-weight:700;font-size:20px;color:var(--brand)}
-.balance-card{background:var(--card);padding:12px;border-radius:14px;display:flex;gap:20px}
-.bal-label{font-size:12px;color:var(--muted)}
-.bal-value{font-size:18px;font-weight:600}
-.grid{display:grid;grid-template-columns:1fr 340px;gap:12px;margin-top:12px}
+.balance-card{background:var(--card);padding:16px;border-radius:14px;display:flex;gap:30px;margin-bottom:12px;border:1px solid var(--line)}
+.bal-item.bal-label{font-size:12px;color:var(--muted)}
+.bal-item.bal-value{font-size:20px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:12px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 .card{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--line)}
 .copy-btn-link{width:100%;padding:10px;background:var(--brand);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;margin-bottom:12px}
 .signal-box input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);margin-bottom:8px}
 .signal-box button{width:100%;padding:12px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;cursor:pointer}
+.active-signal{background:var(--card2);padding:12px;border-radius:12px;margin-top:10px;border-left:3px solid var(--brand)}
+.active-signal.row{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
 .pair-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .pair-price{font-size:26px;font-weight:700}
 .pair-change.up{color:var(--ok)}.pair-change.down{color:var(--bad)}
@@ -36,8 +38,6 @@ body{background:var(--bg);color:var(--text)}
 .btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--card2);padding:12px 16px;border-radius:12px;border-left:4px solid var(--brand);display:none;z-index:999}
 .toast.show{display:block}
-.center-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);padding:20px 30px;border-radius:16px;border:2px solid var(--brand);font-weight:700;display:none;z-index:1000}
-.center-toast.show{display:block}
 </style>
 </head>
 <body>
@@ -46,6 +46,18 @@ body{background:var(--bg);color:var(--text)}
   <div class="header">
     <div class="logo"><i class="fa-solid fa-chart-line"></i> CYPX TRADE</div>
     <button class="copy-btn-link" onclick="window.location.href='copy.html'"><i class="fa-solid fa-copy"></i> Copy Trading</button>
+  </div>
+
+  <!-- BALANCE CARD -->
+  <div class="balance-card">
+    <div class="bal-item">
+      <div class="bal-label">Main Balance</div>
+      <div class="bal-value" id="mainBalance">$0.00</div>
+    </div>
+    <div class="bal-item">
+      <div class="bal-label">Equity</div>
+      <div class="bal-value" id="equityBalance">$0.00</div>
+    </div>
   </div>
 
   <div class="grid">
@@ -68,7 +80,7 @@ body{background:var(--bg);color:var(--text)}
         <h3><i class="fa-solid fa-key"></i> Enter Signal Code</h3>
         <input type="text" id="signalCode" placeholder="SIGNAL-BTC-001" style="text-transform:uppercase">
         <button onclick="activateSignal()">Activate Signal</button>
-        <div id="signalStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+        <div id="activeSignalBox"></div>
       </div>
 
       <div class="card">
@@ -88,14 +100,12 @@ body{background:var(--bg);color:var(--text)}
 </div>
 
 <div class="toast" id="toast"></div>
-<div class="center-toast" id="centerToast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, get, set, push, update, runTransaction, serverTimestamp, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, get, set, push, update, runTransaction, serverTimestamp, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// YOUR ACTUAL CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -113,10 +123,11 @@ const db = getDatabase(app);
 
 let uid = null;
 let balance = 0;
+let equity = 0;
 let prices = {};
 let orderType = "buy";
+let activeSignalTrade = null;
 
-// TOAST
 function pushNotif(msg, type="info"){
   const toast = document.getElementById("toast");
   toast.textContent = msg;
@@ -130,8 +141,24 @@ onAuthStateChanged(auth, (user)=>{
   uid = user.uid;
   loadChart("BTC/USDT");
   fetchPrices();
-  onValue(ref(db, `users/${uid}/balance`), snap=>{ balance = snap.val() || 0; });
+  onValue(ref(db, `users/${uid}/balance`), snap=>{
+    balance = snap.val() || 0;
+    document.getElementById("mainBalance").textContent = "$" + balance.toFixed(2);
+    updateEquity();
+  });
+  loadActiveSignalTrade();
 });
+
+function updateEquity(){
+  let pnl = 0;
+  if(activeSignalTrade && prices[activeSignalTrade.pair]){
+    const current = prices[activeSignalTrade.pair];
+    const diff = activeSignalTrade.side === "buy"? current - activeSignalTrade.entry : activeSignalTrade.entry - current;
+    pnl = (diff / activeSignalTrade.pipValue) * (activeSignalTrade.amount / activeSignalTrade.entry) * activeSignalTrade.pipValue;
+  }
+  equity = balance + pnl;
+  document.getElementById("equityBalance").textContent = "$" + equity.toFixed(2);
+}
 
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
@@ -146,8 +173,10 @@ async function fetchPrices(){
   const data = await res.json();
   prices["BTC/USDT"] = parseFloat(data.price);
   document.getElementById("pairPrice").textContent = "$" + prices["BTC/USDT"].toFixed(2);
+  checkSignalTrade();
+  updateEquity();
 }
-setInterval(fetchPrices, 5000);
+setInterval(fetchPrices, 3000);
 
 // TAB SWITCH
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
@@ -170,36 +199,88 @@ window.activateSignal = async function(){
   const signal = snap.val();
   const now = Date.now();
 
-  // 1. Check expiration: 10 minutes
-  if(now > signal.expiresAt){
-    return pushNotif("This signal has expired", "bad");
-  }
-
-  // 2. Check if user already used it
-  if(signal.usedBy && signal.usedBy[uid]){
-    return pushNotif("You already used this signal", "bad");
-  }
-
-  // 3. Check balance
+  if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad");
+  if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
   if(signal.amount > balance) return pushNotif("Insufficient balance", "bad");
 
-  // 4. Place the trade automatically
   const price = prices[signal.pair];
   if(!price) return pushNotif("Price not loaded", "bad");
 
   const qty = signal.amount / price;
+  const tpPrice = signal.side === "buy"? price + (signal.tp_pips * signal.pipValue) : price - (signal.tp_pips * signal.pipValue);
+  const slPrice = signal.side === "buy"? price - (signal.sl_pips * signal.pipValue) : price + (signal.sl_pips * signal.pipValue);
+
   await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) - signal.amount);
-  await push(ref(db, `trade/${uid}/positions`), {
-    pair: signal.pair, side: signal.side, qty: qty, entry: price,
-    amount: signal.amount, tp: signal.tp, sl: signal.sl, source: "signal:" + code, openedAt: serverTimestamp()
+
+  const tradeRef = await push(ref(db, `trade/${uid}/signalPositions`), {
+    pair: signal.pair, side: signal.side, qty: qty, entry: price, amount: signal.amount,
+    tp_pips: signal.tp_pips, sl_pips: signal.sl_pips, pipValue: signal.pipValue,
+    tpPrice: tpPrice, slPrice: slPrice, openedAt: now, expiresAt: now + 600000, code: code
   });
 
-  // 5. Mark code as used by this user
   await update(signalRef, { [`usedBy/${uid}`]: true });
-
   pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair}`, "ok");
-  document.getElementById("signalStatus").textContent = `Active: ${signal.pair} ${signal.side}`;
+  loadActiveSignalTrade();
+}
+
+async function loadActiveSignalTrade(){
+  const snap = await get(ref(db, `trade/${uid}/signalPositions`));
+  if(snap.exists()){
+    const trades = snap.val();
+    const lastKey = Object.keys(trades).pop();
+    activeSignalTrade = trades[lastKey];
+    activeSignalTrade.key = lastKey;
+    renderActiveSignal();
+  }
+}
+
+function renderActiveSignal(){
+  if(!activeSignalTrade) return;
+  const s = activeSignalTrade;
+  const timeLeft = Math.max(0, s.expiresAt - Date.now());
+  const mins = Math.floor(timeLeft / 60000);
+  const secs = Math.floor((timeLeft % 60000) / 1000);
+
+  document.getElementById("activeSignalBox").innerHTML = `
+    <div class="active-signal">
+      <div style="font-weight:700;margin-bottom:6px">${s.side.toUpperCase()} ${s.pair}</div>
+      <div class="row"><span>Entry:</span><span>$${s.entry.toFixed(2)}</span></div>
+      <div class="row"><span>TP:</span><span>$${s.tpPrice.toFixed(2)} (${s.tp_pips}p @ $${s.pipValue})</span></div>
+      <div class="row"><span>SL:</span><span>$${s.slPrice.toFixed(2)} (${s.sl_pips}p @ $${s.pipValue})</span></div>
+      <div class="row"><span>Time Left:</span><span>${mins}:${secs.toString().padStart(2,'0')}</span></div>
+    </div>
+  `;
+}
+
+async function checkSignalTrade(){
+  if(!activeSignalTrade ||!prices[activeSignalTrade.pair]) return;
+
+  const s = activeSignalTrade;
+  const current = prices[s.pair];
+  const now = Date.now();
+
+  let shouldClose = false;
+  let reason = "";
+
+  // Check TP
+  if(s.side === "buy" && current >= s.tpPrice){ shouldClose = true; reason = "Take Profit"; }
+  if(s.side === "sell" && current <= s.tpPrice){ shouldClose = true; reason = "Take Profit"; }
+  // Check SL
+  if(s.side === "buy" && current <= s.slPrice){ shouldClose = true; reason = "Stop Loss"; }
+  if(s.side === "sell" && current >= s.slPrice){ shouldClose = true; reason = "Stop Loss"; }
+  // Check 10min expiry
+  if(now >= s.expiresAt){ shouldClose = true; reason = "Time Expired"; }
+
+  if(shouldClose){
+    const diff = s.side === "buy"? current - s.entry : s.entry - current;
+    const pnl = (diff / s.pipValue) * s.amount;
+    await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) + s.amount + pnl);
+    await remove(ref(db, `trade/${uid}/signalPositions/${s.key}`));
+    pushNotif(`${reason} Closed: ${pnl >= 0? '+' : ''}$${pnl.toFixed(2)}`, pnl >= 0? "ok" : "bad");
+    activeSignalTrade = null;
+    document.getElementById("activeSignalBox").innerHTML = "";
+  }
 }
 </script>
 </body>
-</html>
+  </html>
