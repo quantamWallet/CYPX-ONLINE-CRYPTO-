@@ -88,7 +88,6 @@
   import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-  // YOUR REAL CONFIG - UNCHANGED
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -165,10 +164,8 @@
     }, 'image/jpeg', 0.8);
   }
 
-  // NEW: Compress image to 1200px width, 65% quality
   async function compressImage(file) {
-    if(file.type === "application/pdf" || file.size < 400*1024) return file; // skip small files and PDFs
-    
+    if(file.type === "application/pdf" || file.size < 400*1024) return file;
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -178,14 +175,14 @@
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          let maxW = 1200; // KYC only needs this
+          let maxW = 1200;
           let scale = maxW / img.width;
           canvas.width = maxW;
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
             resolve(new File(, file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
-          }, "image/jpeg", 0.65); // 65% quality
+          }, "image/jpeg", 0.65);
         }
       }
     });
@@ -196,12 +193,12 @@
     document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
     document.getElementById(baseId + 'Preview').style.display = 'block';
     document.getElementById(baseId + 'Name').innerText = `Selected: ${(file.size/1024/1024).toFixed(2)}MB`;
-    
+
     const statusEl = document.getElementById(baseId + 'Status');
     statusEl.style.display = 'block';
     statusEl.className = 'upload-status';
     statusEl.innerText = `⏳ Compressing & Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}...`;
-    
+
     document.getElementById(baseId + 'Prog').style.display = 'block';
 
     if(baseId === 'idFront') handleFrontUpload(file);
@@ -218,11 +215,16 @@
   });
 
   async function handleFrontUpload(file) {
+    if(!currentUser) return showToast("Please login first", "error");
     try {
       const url = await uploadFile(file, 'idFront');
       fileStore.idFrontUrl = url;
-      await update(ref(db, "kyc_submissions/" + currentUser.uid), {idFront: url});
-      
+      // KEY FIX: Save to users/UID/kyc and set status to pending
+      await update(ref(db, "users/" + currentUser.uid), {
+        kyc: { idFront: url, updatedAt: Date.now() },
+        kycStatus: "pending"
+      });
+
       const statusEl = document.getElementById('idFrontStatus');
       statusEl.className = 'upload-status success';
       statusEl.innerText = '✅ Front ID Uploaded Successfully';
@@ -241,11 +243,17 @@
   }
 
   async function handleBackUpload(file) {
+    if(!currentUser) return showToast("Please login first", "error");
     try {
       const url = await uploadFile(file, 'idBack');
       fileStore.idBackUrl = url;
-      await update(ref(db, "kyc_submissions/" + currentUser.uid), {idBack: url});
-      
+      // KEY FIX: Merge into kyc object
+      await update(ref(db, "users/" + currentUser.uid), {
+        "kyc/idBack": url,
+        "kyc/updatedAt": Date.now(),
+        kycStatus: "pending"
+      });
+
       const statusEl = document.getElementById('idBackStatus');
       statusEl.className = 'upload-status success';
       statusEl.innerText = '✅ Back ID Uploaded Successfully';
@@ -270,11 +278,10 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
-  // UPDATED: Now compresses before upload
   async function uploadFile(file, name) {
-    const compressed = await compressImage(file); // 1. Compress first
+    const compressed = await compressImage(file);
     const sRef = storageRef(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
-    const task = uploadBytesResumable(sRef, compressed); // 2. Upload compressed
+    const task = uploadBytesResumable(sRef, compressed);
     const progEl = document.getElementById(name + 'Prog');
     const statusEl = document.getElementById(name + 'Status');
     progEl.style.display = 'block';
