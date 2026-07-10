@@ -13,74 +13,68 @@
       background-size: cover; background-attachment: fixed;
       margin: 0; padding: 20px; color: white; padding-bottom: 100px;
     }
-   .container { max-width: 1200px; margin: 0 auto; }
-
-   .header { text-align: center; margin-bottom: 25px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 25px; }
     h1 { color: #ffd700; margin: 0 0 8px; font-size: 28px; }
-   .subtitle { color: #a0aec0; margin-bottom: 20px; font-size: 14px; }
+  .subtitle { color: #a0aec0; margin-bottom: 20px; font-size: 14px; }
 
-    /* PORTFOLIO SUMMARY */
-   .portfolio-card {
+    /* ADDED BALANCE CARD */
+  .balance-card {
+      background: linear-gradient(145deg,#007BFF,#007A54);
+      padding: 18px; border-radius: 16px; margin-bottom: 20px; text-align: center;
+      box-shadow: 0 0 25px rgba(0,200,255,0.25);
+    }
+  .balance-label { font-size: 13px; color: #fff; }
+  .balance-value { font-size: 26px; font-weight: 700; color: #ffd700; margin-top: 5px; }
+
+  .portfolio-card {
       background: linear-gradient(145deg,#002b5c,#001f3f);
       padding: 20px; border-radius: 16px; margin-bottom: 25px;
       box-shadow: 0 0 25px rgba(0,200,255,0.25);
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
     }
-   .portfolio-stat { text-align: center; }
-   .portfolio-label { font-size: 12px; color: #94e2cc; }
-   .portfolio-value { font-size: 22px; font-weight: 700; margin-top: 5px; }
-   .portfolio-value.green { color: #00C896; }
-   .portfolio-value.red { color: #ef4444; }
-
-   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-
-   .trader-card {
-      background: rgba(0,26,51,0.8); backdrop-filter: blur(10px);
-      padding: 20px; border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,150,255,0.15);
-      border: 2px solid rgba(255,255,255,0.05);
-      transition: 0.3s;
-    }
-   .trader-card.copying { border-color: #00C896; box-shadow: 0 0 25px rgba(0,200,150,0.3); }
-   .trader-card:hover { transform: translateY(-3px); }
-
-   .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-   .avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #007A54); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
-   .trader-name { font-weight: 700; font-size: 17px; color: #fff; }
-   .verified { background: #00C896; color: #000; font-size: 10px; padding: 3px 7px; border-radius: 6px; margin-left: 6px; font-weight: 700; }
-
-   .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
-   .stat { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: center; }
-   .stat-label { font-size: 11px; color: #94e2cc; }
-   .stat-value { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
-   .stat-value.green { color: #00C896; }
-   .stat-value.red { color: #ef4444; }
-   .stat-value.gold { color: #ffd700; }
-
-   .pnl-box { background: rgba(0,200,150,0.1); border: 1px solid #00C896; padding: 14px; border-radius: 10px; margin: 15px 0; display: none; }
-   .pnl-box.active { display: block; }
-   .pnl-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 14px; }
-   .pnl-label { color: #94e2cc; }
-   .pnl-value { font-weight: 700; }
-
-   .btn-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
-   .copy-btn { width: 100%; padding: 14px; background: linear-gradient(90deg,#00C896,#007A54); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
-   .copy-btn:hover { opacity: 0.9; }
-   .stop-btn { background: linear-gradient(90deg,#ef4444,#dc2626); }
-
-   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-   .modal.active { display: flex; }
-   .modal-content { background: #001d3d; padding: 30px; border-radius: 16px; max-width: 420px; width: 90%; border: 1px solid rgba(0,200,255,0.3); }
-   .modal-content h2 { margin-top: 0; color: #ffd700; }
-   .modal-content label { font-size: 13px; color: #94e2cc; }
-   .modal-content input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: rgba(0,0,0,0.3); color: white; }
-   .modal-actions { display: flex; gap: 10px; }
-   .btn-secondary { background: #334155; }
-
-   .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
-   .toast.show { transform: translateX(0); }
-   .toast.success { background: #00C896; }
-   .toast.error { background: #ef4444; }
+  .portfolio-stat { text-align: center; }
+  .portfolio-label { font-size: 12px; color: #94e2cc; }
+  .portfolio-value { font-size: 22px; font-weight: 700; margin-top: 5px; }
+  .portfolio-value.green { color: #00C896; }
+  .portfolio-value.red { color: #ef4444; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .trader-card { background: rgba(0,26,51,0.8); backdrop-filter: blur(10px); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,150,255,0.15); border: 2px solid rgba(255,255,255,0.05); transition: 0.3s; }
+  .trader-card.copying { border-color: #00C896; box-shadow: 0 0 25px rgba(0,200,150,0.3); }
+  .trader-card:hover { transform: translateY(-3px); }
+  .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+  .avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #007A54); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+  .trader-name { font-weight: 700; font-size: 17px; color: #fff; }
+  .verified { background: #00C896; color: #000; font-size: 10px; padding: 3px 7px; border-radius: 6px; margin-left: 6px; font-weight: 700; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .stat { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: center; }
+  .stat-label { font-size: 11px; color: #94e2cc; }
+  .stat-value { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
+  .stat-value.green { color: #00C896; }
+  .stat-value.red { color: #ef4444; }
+  .stat-value.gold { color: #ffd700; }
+  .pnl-box { background: rgba(0,200,150,0.1); border: 1px solid #00C896; padding: 14px; border-radius: 10px; margin: 15px 0; display: none; }
+  .pnl-box.active { display: block; }
+  .pnl-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 14px; }
+  .pnl-label { color: #94e2cc; }
+  .pnl-value { font-weight: 700; }
+  .btn-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .copy-btn { width: 100%; padding: 14px; background: linear-gradient(90deg,#00C896,#007A54); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
+  .copy-btn:hover { opacity: 0.9; }
+  .copy-btn:disabled { background: #555; cursor: not-allowed; }
+  .stop-btn { background: linear-gradient(90deg,#ef4444,#dc2626); }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+  .modal.active { display: flex; }
+  .modal-content { background: #001d3d; padding: 30px; border-radius: 16px; max-width: 420px; width: 90%; border: 1px solid rgba(0,200,255,0.3); }
+  .modal-content h2 { margin-top: 0; color: #ffd700; }
+  .modal-content label { font-size: 13px; color: #94e2cc; }
+  .modal-content input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: rgba(0,0,0,0.3); color: white; }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn-secondary { background: #334155; }
+  .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
+  .toast.show { transform: translateX(0); }
+  .toast.success { background: #00C896; }
+  .toast.error { background: #ef4444; }
   </style>
 </head>
 <body>
@@ -91,26 +85,21 @@
     <p class="subtitle">Automatically copy trades from top CYPX traders. Start with as low as $50.</p>
   </div>
 
-  <!-- PORTFOLIO SUMMARY -->
+  <!-- ADDED: REAL BALANCE -->
+  <div class="balance-card">
+    <div class="balance-label">Available Balance</div>
+    <div class="balance-value" id="userBalance">$0.00</div>
+  </div>
+
   <div class="portfolio-card">
-    <div class="portfolio-stat">
-      <div class="portfolio-label">Total Copied</div>
-      <div class="portfolio-value" id="totalCopied">$0.00</div>
-    </div>
-    <div class="portfolio-stat">
-      <div class="portfolio-label">Total P&L</div>
-      <div class="portfolio-value green" id="totalPnL">$0.00</div>
-    </div>
-    <div class="portfolio-stat">
-      <div class="portfolio-label">Active Traders</div>
-      <div class="portfolio-value" id="activeCount">0</div>
-    </div>
+    <div class="portfolio-stat"><div class="portfolio-label">Total Copied</div><div class="portfolio-value" id="totalCopied">$0.00</div></div>
+    <div class="portfolio-stat"><div class="portfolio-label">Total P&L</div><div class="portfolio-value green" id="totalPnL">$0.00</div></div>
+    <div class="portfolio-stat"><div class="portfolio-label">Active Traders</div><div class="portfolio-value" id="activeCount">0</div></div>
   </div>
 
   <div class="grid" id="tradersGrid"></div>
 </div>
 
-<!-- Copy Modal -->
 <div class="modal" id="copyModal">
   <div class="modal-content">
     <h2><i class="fas fa-rocket"></i> Start Copy Trading</h2>
@@ -160,22 +149,32 @@ const traders = [
 let selectedTrader = null;
 let currentUser = null;
 let userCopies = {};
+let userBalance = 0; // NEW
 
 auth.onAuthStateChanged(user => {
   if(!user) return window.location.href = "signin.html";
   currentUser = user;
-  renderTraders(); // RENDER IMMEDIATELY
+  loadUserBalance(); // NEW
+  renderTraders();
   loadUserCopies();
   startPnLSimulation();
 });
 
 function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
 
+// NEW: LOAD BALANCE IN REAL TIME
+function loadUserBalance(){
+  db.ref("users/" + currentUser.uid + "/balance").on("value", snap => {
+    userBalance = Number(snap.val() || 0);
+    document.getElementById('userBalance').innerText = formatMoney(userBalance);
+  });
+}
+
 function loadUserCopies() {
   db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
     userCopies = snap.val() || {};
     updatePortfolioSummary();
-    renderTraders(); // RE-RENDER WITH P&L DATA
+    renderTraders();
   });
 }
 
@@ -201,9 +200,13 @@ function startPnLSimulation() {
         const traderFee = change * (copy.profitShare / 100);
         const userProfit = change - traderFee;
         copy.pnl = (copy.pnl || 0) + userProfit;
+        // ADD PROFIT TO BALANCE
+        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + userProfit);
         logTrade(id, userProfit, traderFee, copy.amount);
       } else {
         copy.pnl = (copy.pnl || 0) + change;
+        // DEDUCT LOSS FROM BALANCE
+        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + change);
       }
       db.ref("copy_trading/" + currentUser.uid + "/" + id).update({ pnl: copy.pnl, lastUpdate: Date.now() });
       updatePnLDisplay(id);
@@ -255,7 +258,7 @@ function renderTraders() {
 
       <div class="btn-group">
         ${isCopying
-       ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
+      ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
           : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
         }
       </div>
@@ -276,25 +279,39 @@ function closeModal() {
 }
 
 function confirmCopy() {
-  const amount = document.getElementById('copyAmount').value;
-  const lossLimit = document.getElementById('lossLimit').value;
+  const amount = Number(document.getElementById('copyAmount').value);
+  const lossLimit = Number(document.getElementById('lossLimit').value);
+
   if(!amount || amount < 50) return showToast('Minimum copy amount is $50', 'error');
   if(!lossLimit) return showToast('Please set a loss limit', 'error');
 
-  db.ref("copy_trading/" + currentUser.uid + "/" + selectedTrader.id).set({
-    traderName: selectedTrader.name, amount: Number(amount), lossLimit: Number(lossLimit),
-    profitShare: selectedTrader.profitShare, pnl: 0, status: "active", startedAt: Date.now()
+  // NEW: BALANCE CHECK
+  if(amount > userBalance) return showToast(`Insufficient Balance. You have ${formatMoney(userBalance)}`, 'error');
+
+  // DEDUCT BALANCE FIRST
+  db.ref("users/" + currentUser.uid + "/balance").transaction(current => (current||0) - amount)
+.then(() => {
+    return db.ref("copy_trading/" + currentUser.uid + "/" + selectedTrader.id).set({
+      traderName: selectedTrader.name, amount: amount, lossLimit: lossLimit,
+      profitShare: selectedTrader.profitShare, pnl: 0, status: "active", startedAt: Date.now()
+    });
   }).then(() => {
-    db.ref("copy_logs/" + currentUser.uid).push({ action: "START_COPY", traderId: selectedTrader.id, amount: Number(amount), timestamp: Date.now() });
+    db.ref("copy_logs/" + currentUser.uid).push({ action: "START_COPY", traderId: selectedTrader.id, amount: amount, timestamp: Date.now() });
     showToast(`Now copying ${selectedTrader.name}`, 'success'); closeModal();
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
 function stopCopy(traderId) {
-  if(!confirm("Stop copying this trader?")) return;
-  db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove().then(() => {
-    db.ref("copy_logs/" + currentUser.uid).push({ action: "STOP_COPY", traderId, timestamp: Date.now() });
-    showToast("Stopped copying", "info");
+  if(!confirm("Stop copying this trader? Amount will be refunded.")) return;
+  const refundAmount = userCopies[traderId].amount;
+
+  // REFUND BALANCE
+  db.ref("users/" + currentUser.uid + "/balance").transaction(current => (current||0) + refundAmount)
+.then(() => {
+    return db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove();
+  }).then(() => {
+    db.ref("copy_logs/" + currentUser.uid).push({ action: "STOP_COPY", traderId, refund: refundAmount, timestamp: Date.now() });
+    showToast("Stopped copying. $" + refundAmount + " refunded", "info");
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
@@ -306,4 +323,4 @@ function showToast(message, type = "info"){
 }
 </script>
 </body>
-      </html>
+</html>
