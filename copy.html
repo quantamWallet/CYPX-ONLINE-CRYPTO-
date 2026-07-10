@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYPX Copy Trading</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
+   .container { max-width: 1100px; margin: 0 auto; }
+    h1 { color: #0A2540; margin: 0 0 8px; font-size: 28px; }
+   .subtitle { color: #64748b; margin-bottom: 24px; font-size: 14px; }
+   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+   .trader-card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 2px solid transparent;
+      transition: 0.2s;
+    }
+   .trader-card.copying { border-color: #00C896; }
+   .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+   .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #0A2540); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+   .trader-name { font-weight: 700; font-size: 16px; color: #0A2540; }
+   .verified { background: #00C896; color: white; font-size: 10px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+
+   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+   .stat { background: #f8fafc; padding: 10px; border-radius: 10px; }
+   .stat-label { font-size: 11px; color: #64748b; }
+   .stat-value { font-size: 16px; font-weight: 700; color: #0A2540; }
+   .stat-value.green { color: #00C896; }
+   .stat-value.red { color: #ef4444; }
+
+   .pnl-box { background: #f0fdf4; border: 1px solid #00C896; padding: 12px; border-radius: 10px; margin: 12px 0; display: none; }
+   .pnl-box.active { display: block; }
+   .pnl-label { font-size: 12px; color: #64748b; }
+   .pnl-value { font-size: 20px; font-weight: 700; }
+
+   .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+   .copy-btn { width: 100%; padding: 12px; background: #00C896; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+   .copy-btn:hover { background: #00a87f; }
+   .stop-btn { background: #ef4444; }
+   .stop-btn:hover { background: #dc2626; }
+   .copy-btn:disabled { background: #94e2cc; cursor: not-allowed; }
+
+   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+   .modal.active { display: flex; }
+   .modal-content { background: white; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; }
+   .modal-content h2 { margin-top: 0; color: #0A2540; }
+   .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; }
+   .modal-actions { display: flex; gap: 10px; }
+   .btn-secondary { background: #e2e8f0; color: #0A2540; }
+
+   .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
+   .toast.show { transform: translateX(0); }
+   .toast.success { background: #00C896; }
+   .toast.error { background: #ef4444; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Copy Trading</h1>
+  <p class="subtitle">Automatically copy trades from top CYPX traders. Start with as low as $50.</p>
+
+  <div class="grid" id="tradersGrid"></div>
+</div>
+
+<!-- Copy Modal -->
+<div class="modal" id="copyModal">
+  <div class="modal-content">
+    <h2>Start Copy Trading</h2>
+    <p id="modalTraderName"></p>
+    <label>Amount to Copy <small>Min: $50</small></label>
+    <input type="number" id="copyAmount" placeholder="500" min="50">
+    <label>Max Daily Loss Limit</label>
+    <input type="number" id="lossLimit" placeholder="100" min="10">
+    <div class="modal-actions">
+      <button class="copy-btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="copy-btn" onclick="confirmCopy()">Confirm Copy</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  let currentUser = null;
+
+  const traders = [
+    { id: 'kenyan_prince', name: 'Kenyan Prince', roi: '+142.3%', winRate: '78%', followers: '2.4k', risk: 'Medium', avatar: 'KP', pnl: 0 },
+    { id: 'alpha_trader', name: 'Alpha Trader', roi: '+98.7%', winRate: '82%', followers: '5.1k', risk: 'Low', avatar: 'AT', pnl: 0 },
+    { id: 'states_ke', name: 'States Ke', roi: '+210.5%', winRate: '71%', followers: '1.8k', risk: 'High', avatar: 'SK', pnl: 0 },
+    { id: 'vidollar', name: 'Vidollar', roi: '+165.2%', winRate: '75%', followers: '3.2k', risk: 'Medium', avatar: 'VD', pnl: 0 },
+    { id: 'ziwa_fx', name: 'Ziwa Fx', roi: '+89.4%', winRate: '85%', followers: '4.7k', risk: 'Low', avatar: 'ZF', pnl: 0 },
+    { id: 'pizzo_fx', name: 'Pizzo Fx', roi: '+134.8%', winRate: '73%', followers: '2.9k', risk: 'Medium', avatar: 'PF', pnl: 0 }
+  ];
+
+  let selectedTrader = null;
+  let userCopies = {}; // {traderId: {amount, pnl}}
+
+  onAuthStateChanged(auth, (user) => {
+    if(user) {
+      currentUser = user;
+      loadUserCopies();
+    } else {
+      showToast("Please login first", "error");
+    }
+  });
+
+  // Listen to user copies in real time
+  function loadUserCopies() {
+    onSnapshot(doc(db, "copy_trading", currentUser.uid), (snap) => {
+      if(snap.exists()) {
+        userCopies = snap.data().copies || {};
+        renderTraders();
+        simulatePnL(); // start fake P&L updates
+      } else {
+        userCopies = {};
+        renderTraders();
+      }
+    });
+  }
+
+  // Simulate live P&L for demo. Replace with real data later
+  function simulatePnL() {
+    setInterval(() => {
+      for(let id in userCopies) {
+        const change = (Math.random() - 0.4) * 20; // random profit/loss
+        userCopies[id].pnl = (userCopies[id].pnl || 0) + change;
+        updatePnLDisplay(id);
+      }
+    }, 3000);
+  }
+
+  function updatePnLDisplay(id) {
+    const pnlEl = document.getElementById(`pnl-${id}`);
+    if(!pnlEl) return;
+    const pnl = userCopies[id].pnl.toFixed(2);
+    pnlEl.innerText = `$${pnl}`;
+    pnlEl.className = `pnl-value ${pnl >= 0? 'green' : 'red'}`;
+  }
+
+  function renderTraders() {
+    const grid = document.getElementById('tradersGrid');
+    grid.innerHTML = traders.map(t => {
+      const isCopying = userCopies[t.id];
+      return `
+      <div class="trader-card ${isCopying? 'copying' : ''}">
+        <div class="trader-header">
+          <div class="avatar">${t.avatar}</div>
+          <div>
+            <div class="trader-name">${t.name} <span class="verified">VERIFIED</span></div>
+            <div style="font-size:12px; color:#64748b">${t.followers} Copiers</div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">30D ROI</div>
+            <div class="stat-value green">${t.roi}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value">${t.winRate}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Risk Level</div>
+            <div class="stat-value">${t.risk}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Min Copy</div>
+            <div class="stat-value">$50</div>
+          </div>
+        </div>
+
+        <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
+          <div class="pnl-label">Your Copy P&L</div>
+          <div class="pnl-value green" id="pnl-${t.id}">$0.00</div>
+          <div style="font-size:11px; color:#64748b">Copied with $${isCopying?.amount || 0}</div>
+        </div>
+
+        <div class="btn-group">
+          ${isCopying
+           ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')">Stop Copy</button>`
+            : `<button class="copy-btn" id="btn-${t.id}" onclick="openModal('${t.id}')">Copy Trader</button>`
+          }
+        </div>
+      </div>
+    `}).join('');
+  }
+
+  window.openModal = (traderId) => {
+    selectedTrader = traders.find(t => t.id === traderId);
+    document.getElementById('modalTraderName').innerText = `Copy ${selectedTrader.name}'s trades`;
+    document.getElementById('copyModal').classList.add('active');
+  }
+
+  window.closeModal = () => {
+    document.getElementById('copyModal').classList.remove('active');
+    document.getElementById('copyAmount').value = '';
+    document.getElementById('lossLimit').value = '';
+  }
+
+  window.confirmCopy = async () => {
+    const amount = document.getElementById('copyAmount').value;
+    const lossLimit = document.getElementById('lossLimit').value;
+
+    if(!amount || amount < 50) return showToast('Minimum copy amount is $50', 'error');
+    if(!lossLimit) return showToast('Please set a loss limit', 'error');
+    if(!currentUser) return showToast('Login first', 'error');
+
+    try {
+      userCopies[selectedTrader.id] = {
+        amount: Number(amount),
+        lossLimit: Number(lossLimit),
+        pnl: 0,
+        startedAt: new Date().toISOString()
+      };
+
+      await setDoc(doc(db, "copy_trading", currentUser.uid), {
+        copies: userCopies,
+        updatedAt: serverTimestamp()
+      });
+
+      showToast(`Now copying ${selectedTrader.name}`, 'success');
+      closeModal();
+    } catch(e) {
+      showToast("Error: " + e.message, "error");
+    }
+  }
+
+  window.stopCopy = async (traderId) => {
+    if(!confirm("Stop copying this trader?")) return;
+    delete userCopies[traderId];
+    await setDoc(doc(db, "copy_trading", currentUser.uid), {
+      copies: userCopies,
+      updatedAt: serverTimestamp()
+    });
+    showToast("Stopped copying", "info");
+  }
+
+  function showToast(message, type = "info"){
+    const toast = document.getElementById('toast');
+    toast.className = `toast ${type} show`;
+    toast.innerText = message;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+</script>
+
+</body>
+</html>
