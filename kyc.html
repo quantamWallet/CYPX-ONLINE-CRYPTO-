@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYPX KYC Verification</title>
+  <title>CYPX KYC VERIFICATION</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; display: flex; justify-content: center; padding: 20px; margin: 0; }
@@ -30,12 +30,13 @@
 .toast.show { transform: translateX(0); }
 .toast.error { background: #ef4444; }
 .toast.success { background: #00C896; }
+.disabled-section { opacity: 0.5; pointer-events: none; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>CYPX Identity Verification</h1>
+  <h1>CYPX KYC VERIFICATION</h1>
   <p class="subtitle">Secure. Encrypted. Takes 3 minutes.</p>
 
   <div class="progress"><div id="progressBar" class="progress-bar" style="width: 20%"></div></div>
@@ -58,8 +59,8 @@
   <div class="step" id="step2">
     <label>ID Front</label>
     <div class="upload-group">
-      <button type="button" class="outline" onclick="triggerUpload('idFrontUpload')">Upload</button>
-      <button type="button" class="outline" onclick="openCamera('idFront')">Take Photo</button>
+      <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
+      <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
     </div>
     <input type="file" id="idFrontUpload" accept="image/*" style="display:none">
     <video id="idFrontCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
@@ -68,20 +69,22 @@
     <div id="idFrontName" class="file-name"></div>
     <div class="upload-progress" id="idFrontProg"><span></span></div>
 
-    <label>ID Back</label>
-    <div class="upload-group">
-      <button type="button" class="outline" onclick="triggerUpload('idBackUpload')">Upload</button>
-      <button type="button" class="outline" onclick="openCamera('idBack')">Take Photo</button>
+    <div id="backIdSection" class="disabled-section">
+      <label>ID Back</label>
+      <div class="upload-group">
+        <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
+        <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
+      </div>
+      <input type="file" id="idBackUpload" accept="image/*" style="display:none">
+      <video id="idBackCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
+      <canvas id="idBackCanvas" style="display:none"></canvas>
+      <img id="idBackPreview" class="preview" style="display:none">
+      <div id="idBackName" class="file-name"></div>
+      <div class="upload-progress" id="idBackProg"><span></span></div>
     </div>
-    <input type="file" id="idBackUpload" accept="image/*" style="display:none">
-    <video id="idBackCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
-    <canvas id="idBackCanvas" style="display:none"></canvas>
-    <img id="idBackPreview" class="preview" style="display:none">
-    <div id="idBackName" class="file-name"></div>
-    <div class="upload-progress" id="idBackProg"><span></span></div>
 
     <button class="secondary" onclick="nextStep(1)">Back</button>
-    <button onclick="validateAndNext(3)">Continue</button>
+    <button id="step2Continue" onclick="validateAndNext(3)" disabled>Upload Back to Continue</button>
   </div>
 
   <!-- STEP 3 -->
@@ -142,6 +145,7 @@
   let currentUser = null;
   let currentStream = null;
   const fileStore = {};
+  let frontUploaded = false; // NEW: track if front is done
 
   onAuthStateChanged(auth, (user) => {
     if(user) currentUser = user;
@@ -198,7 +202,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File([blob], `${target}.jpg`, { type: "image/jpeg" });
+      const file = new File(, `${target}.jpg`, { type: "image/jpeg" });
       setFile(target, file);
       stopCamera();
       showToast("Photo captured", "success");
@@ -210,6 +214,10 @@
     document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
     document.getElementById(baseId + 'Preview').style.display = 'block';
     document.getElementById(baseId + 'Name').innerText = `Selected: ${(file.size/1024/1024).toFixed(2)}MB`;
+
+    // NEW: Auto upload front when selected
+    if(baseId === 'idFront') handleFrontUpload(file);
+    if(baseId === 'idBack') handleBackUpload(file);
   }
 
   ['idFrontUpload','idBackUpload','selfieUpload'].forEach(id => {
@@ -221,10 +229,53 @@
     })
   });
 
+  // NEW: Upload Front immediately and unlock Back
+  async function handleFrontUpload(file) {
+    const btn1 = document.getElementById('idFrontUploadBtn');
+    const btn2 = document.getElementById('idFrontCamBtn');
+    btn1.disabled = true; btn2.disabled = true;
+    btn1.innerText = "Uploading...";
+
+    try {
+      const url = await uploadFile(file, 'idFront', document.getElementById('idFrontProg'));
+      fileStore.idFrontUrl = url;
+      frontUploaded = true;
+      showToast("Front ID uploaded", "success");
+
+      // Unlock Back ID section
+      document.getElementById('backIdSection').classList.remove('disabled-section');
+      document.getElementById('step2Continue').innerText = "Continue";
+      document.getElementById('step2Continue').disabled = true; // still need back
+    } catch(e) {
+      showToast(e.message, "error");
+      btn1.disabled = false; btn2.disabled = false;
+      btn1.innerText = "Upload";
+    }
+  }
+
+  // NEW: Upload Back immediately
+  async function handleBackUpload(file) {
+    const btn1 = document.getElementById('idBackUploadBtn');
+    const btn2 = document.getElementById('idBackCamBtn');
+    btn1.disabled = true; btn2.disabled = true;
+    btn1.innerText = "Uploading...";
+
+    try {
+      const url = await uploadFile(file, 'idBack', document.getElementById('idBackProg'));
+      fileStore.idBackUrl = url;
+      showToast("Back ID uploaded", "success");
+      document.getElementById('step2Continue').disabled = false;
+    } catch(e) {
+      showToast(e.message, "error");
+      btn1.disabled = false; btn2.disabled = false;
+      btn1.innerText = "Upload";
+    }
+  }
+
   window.validateAndNext = (n) => {
     if(step === 1 &&!document.getElementById('idType').value)
       return showToast("Please select ID Type", "error");
-    if(step === 2 && (!fileStore.idFront ||!fileStore.idBack))
+    if(step === 2 && (!fileStore.idFrontUrl ||!fileStore.idBackUrl))
       return showToast("Please upload both ID Front and Back", "error");
     if(step === 3 &&!fileStore.selfie)
       return showToast("Please upload a selfie", "error");
@@ -237,7 +288,7 @@
     const toast = document.getElementById('toast');
     toast.className = `toast ${type} show`;
     toast.innerText = message;
-    setTimeout(() => toast.classList.remove('show'), 3500);
+    setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
   async function compressImage(file) {
@@ -257,7 +308,7 @@
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
+            resolve(new File(, file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
           }, "image/jpeg", 0.65);
         }
       }
@@ -270,7 +321,6 @@
     const task = uploadBytesResumable(storageRef, compressed);
 
     progEl.style.display = 'block';
-    const timeout = setTimeout(() => { task.cancel(); throw new Error("Upload timed out. Check internet."); }, 120000);
 
     return new Promise((resolve, reject) => {
       task.on('state_changed',
@@ -279,11 +329,12 @@
           progEl.querySelector('span').style.width = pct + '%';
         },
         (error) => {
-          clearTimeout(timeout);
-          reject(error);
+          let msg = "Upload failed";
+          if(error.code === 'storage/unauthorized') msg = "Permission denied. Check Storage Rules.";
+          if(error.code === 'storage/unknown') msg = "Network lost. Please use WiFi and retry.";
+          reject(new Error(msg));
         },
         async () => {
-          clearTimeout(timeout);
           resolve(await getDownloadURL(task.snapshot.ref));
         }
       );
@@ -297,26 +348,21 @@
     btn.innerText = "Submitting... 0%";
 
     try {
-      const urls = {};
-      const uploads = [
-        {key: 'idFront', prog: document.getElementById('idFrontProg')},
-        {key: 'idBack', prog: document.getElementById('idBackProg')},
-        {key: 'selfie', prog: document.getElementById('selfieProg')}
-      ];
+      const urls = {
+        idFront: fileStore.idFrontUrl,
+        idBack: fileStore.idBackUrl
+      };
 
-      let done = 0;
-      for(let u of uploads){
-        if(fileStore[u.key]){
-          urls[u.key] = await uploadFile(fileStore[u.key], u.key, u.prog);
-          done++;
-          btn.innerText = `Submitting... ${Math.round(done/4*100)}%`;
-        }
+      // Upload selfie now
+      if(fileStore.selfie){
+        urls.selfie = await uploadFile(fileStore.selfie, 'selfie', document.getElementById('selfieProg'));
+        btn.innerText = `Submitting... 50%`;
       }
 
       const proofFile = document.getElementById('proof').files[0];
       if(proofFile) {
         urls.proof = await uploadFile(proofFile, 'proof', document.getElementById('proofProg'));
-        done++;
+        btn.innerText = `Submitting... 75%`;
       }
 
       await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
@@ -325,7 +371,7 @@
         idType: document.getElementById('idType').value,
         country: document.getElementById('country').value.trim(),
         address: document.getElementById('address').value.trim(),
-       ...urls,
+     ...urls,
         status: "pending",
         email: currentUser.email,
         createdAt: serverTimestamp()
@@ -334,7 +380,7 @@
       showToast("KYC submitted successfully", "success");
       nextStep(5);
     } catch(e) {
-      showToast("Upload failed: " + e.message, "error");
+      showToast(e.message, "error");
       btn.disabled = false;
       btn.innerText = "Submit for Review";
     }
@@ -342,4 +388,4 @@
 </script>
 
 </body>
-      </html>
+</html>
