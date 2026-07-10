@@ -154,7 +154,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File(, `${target}.jpg`, { type: "image/jpeg" });
+      const file = new File(, `${target}.jpg`, { type: "image/jpeg" }); // FIXED
       setFile(target, file);
       stopCamera();
     }, 'image/jpeg', 0.8);
@@ -169,7 +169,7 @@
     const statusEl = document.getElementById(baseId + 'Status');
     statusEl.style.display = 'block';
     statusEl.className = 'upload-status';
-    statusEl.innerText = `⏳ Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}...`;
+    statusEl.innerText = `⏳ Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}... 0%`;
     
     document.getElementById(baseId + 'Prog').style.display = 'block';
 
@@ -188,7 +188,7 @@
 
   async function handleFrontUpload(file) {
     try {
-      const url = await uploadFile(file, 'idFront', document.getElementById('idFrontProg'));
+      const url = await uploadFile(file, 'idFront');
       fileStore.idFrontUrl = url;
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {idFront: url});
       
@@ -211,7 +211,7 @@
 
   async function handleBackUpload(file) {
     try {
-      const url = await uploadFile(file, 'idBack', document.getElementById('idBackProg'));
+      const url = await uploadFile(file, 'idBack');
       fileStore.idBackUrl = url;
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {idBack: url});
       
@@ -239,9 +239,11 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
-  async function uploadFile(file, name, progEl) {
+  async function uploadFile(file, name) { // FIXED: get progEl inside
     const sRef = storageRef(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
     const task = uploadBytesResumable(sRef, file);
+    const progEl = document.getElementById(name + 'Prog');
+    const statusEl = document.getElementById(name + 'Status');
     progEl.style.display = 'block';
 
     return new Promise((resolve, reject) => {
@@ -249,7 +251,7 @@
         (snap) => {
           const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
           progEl.querySelector('span').style.width = pct + '%';
-          document.getElementById(name + 'Status').innerText = `⏳ Uploading ${name === 'idFront'? 'Front ID' : 'Back ID'}... ${pct}%`;
+          statusEl.innerText = `⏳ Uploading ${name === 'idFront'? 'Front ID' : 'Back ID'}... ${pct}%`;
         },
         (error) => reject(new Error("Upload failed: " + error.message)),
         async () => resolve(await getDownloadURL(task.snapshot.ref))
@@ -265,4 +267,4 @@
 </script>
 
 </body>
-</html>
+  </html>
