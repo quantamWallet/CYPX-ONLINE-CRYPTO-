@@ -114,15 +114,15 @@ body{background:var(--bg);color:var(--text)}
       </div>
       <div class="input-group">
         <label>Amount USDT</label>
-        <input type="number" id="orderAmount" placeholder="100" value="100">
+        <input type="number" id="orderAmount" placeholder="100" value="100" min="10" step="0.01">
       </div>
       <div class="input-group">
         <label>Take Profit %</label>
-        <input type="number" id="tp" placeholder="2" value="2">
+        <input type="number" id="tp" placeholder="2" value="2" min="0.1" step="0.1">
       </div>
       <div class="input-group">
         <label>Stop Loss %</label>
-        <input type="number" id="sl" placeholder="1" value="1">
+        <input type="number" id="sl" placeholder="1" value="1" min="0.1" step="0.1">
       </div>
       <button class="btn-buy" id="buyBtn" disabled>Buy BTC</button>
       <button class="btn-sell" id="sellBtn" style="display:none" disabled>Sell BTC</button>
@@ -230,7 +230,6 @@ async function fetchPrices(){
     updateUI();
   }catch(e){
     console.error("Price fetch failed", e);
-    pushNotif("Failed to fetch prices", "bad");
   }
 }
 
@@ -251,20 +250,20 @@ function updateUI(){
   updateEquity();
 }
 
-setInterval(fetchPrices, 3000); // update every 3 seconds
+setInterval(fetchPrices, 3000);
 
 onAuthStateChanged(auth, (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid;
   document.getElementById("balCard").classList.add("loading");
   loadChart(currentPair);
-  fetchPrices(); // load first price immediately
+  fetchPrices();
 
   const userBalRef = ref(db, `users/${uid}/balance`);
   const positionsRef = ref(db, `trade/${uid}/positions`);
 
   onValue(userBalRef, (snap)=>{
-    balance = snap.exists()? parseFloat(snap.val()) : 0;
+    balance = snap.exists()? parseFloat(snap.val()) : 0; // FIX: allow 0 balance
     updateEquity();
     toggleButtons();
     document.getElementById("balCard").classList.remove("loading");
@@ -278,7 +277,7 @@ onAuthStateChanged(auth, (user)=>{
 });
 
 function toggleButtons(){
-  const disabled = balance === null;
+  const disabled = balance === null; // only disable if still loading
   document.getElementById("buyBtn").disabled = disabled;
   document.getElementById("sellBtn").disabled = disabled;
 }
@@ -308,14 +307,14 @@ function checkTP_SL(){
 }
 
 async function placeOrder(){
-  if(balance === null) return pushNotif("Balance not loaded", "bad");
+  if(balance === null) return pushNotif("Balance loading...", "bad");
   const amount = parseFloat(document.getElementById("orderAmount").value);
   const tp = parseFloat(document.getElementById("tp").value);
   const sl = parseFloat(document.getElementById("sl").value);
   const price = prices[currentPair];
   if(!price) return pushNotif("Price not loaded yet", "bad");
+  if(isNaN(amount) || amount < 10) return pushNotif("Min order $10", "bad");
   if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
-  if(amount <= 0) return pushNotif("Invalid amount", "bad");
 
   const qty = amount / price;
   const fee = amount * 0.001;
@@ -334,11 +333,12 @@ async function placeOrder(){
 document.getElementById("buyBtn").onclick = placeOrder;
 document.getElementById("sellBtn").onclick = placeOrder;
 
-async function closePosition(id, reason="Manual Close", type="info"){
+// FIX: Make closePosition global so onclick works
+window.closePosition = async function(id, reason="Manual Close", type="info"){
   const p = positions[id];
   if(!p) return;
   const price = prices[p.pair];
-  if(!price) return;
+  if(!price) return pushNotif("Price not loaded", "bad");
   const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
   const returnAmount = p.amount + pnl;
 
@@ -392,11 +392,12 @@ document.getElementById("pairSelect").onchange = e=>{
   loadChart(currentPair);
   updateUI();
 }
+
 // Show "Connected" notification only once per session
 if(!sessionStorage.getItem("cypx_welcomed")){
   pushNotif("Connected to CYPX TRADE", "info");
   sessionStorage.setItem("cypx_welcomed", "true");
-                                                      }
+}
 </script>
 </body>
 </html>
