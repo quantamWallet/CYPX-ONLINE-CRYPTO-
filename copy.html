@@ -7,12 +7,12 @@
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
-   .container { max-width: 1100px; margin: 0 auto; }
+  .container { max-width: 1100px; margin: 0 auto; }
     h1 { color: #0A2540; margin: 0 0 8px; font-size: 28px; }
-   .subtitle { color: #64748b; margin-bottom: 24px; font-size: 14px; }
-   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .subtitle { color: #64748b; margin-bottom: 24px; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 
-   .trader-card {
+  .trader-card {
       background: white;
       padding: 20px;
       border-radius: 16px;
@@ -20,43 +20,45 @@
       border: 2px solid transparent;
       transition: 0.2s;
     }
-   .trader-card.copying { border-color: #00C896; }
-   .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-   .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #0A2540); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
-   .trader-name { font-weight: 700; font-size: 16px; color: #0A2540; }
-   .verified { background: #00C896; color: white; font-size: 10px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+  .trader-card.copying { border-color: #00C896; }
+  .trader-card:hover { transform: translateY(-2px); }
+  .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #0A2540); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+  .trader-name { font-weight: 700; font-size: 16px; color: #0A2540; }
+  .verified { background: #00C896; color: white; font-size: 10px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
 
-   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
-   .stat { background: #f8fafc; padding: 10px; border-radius: 10px; }
-   .stat-label { font-size: 11px; color: #64748b; }
-   .stat-value { font-size: 16px; font-weight: 700; color: #0A2540; }
-   .stat-value.green { color: #00C896; }
-   .stat-value.red { color: #ef4444; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .stat { background: #f8fafc; padding: 10px; border-radius: 10px; }
+  .stat-label { font-size: 11px; color: #64748b; }
+  .stat-value { font-size: 16px; font-weight: 700; color: #0A2540; }
+  .stat-value.green { color: #00C896; }
+  .stat-value.red { color: #ef4444; }
+  .stat-value.purple { color: #7c3aed; }
 
-   .pnl-box { background: #f0fdf4; border: 1px solid #00C896; padding: 12px; border-radius: 10px; margin: 12px 0; display: none; }
-   .pnl-box.active { display: block; }
-   .pnl-label { font-size: 12px; color: #64748b; }
-   .pnl-value { font-size: 20px; font-weight: 700; }
+  .pnl-box { background: #f0fdf4; border: 1px solid #00C896; padding: 12px; border-radius: 10px; margin: 12px 0; display: none; }
+  .pnl-box.active { display: block; }
+  .pnl-label { font-size: 12px; color: #64748b; }
+  .pnl-value { font-size: 20px; font-weight: 700; }
 
-   .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-   .copy-btn { width: 100%; padding: 12px; background: #00C896; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-   .copy-btn:hover { background: #00a87f; }
-   .stop-btn { background: #ef4444; }
-   .stop-btn:hover { background: #dc2626; }
-   .copy-btn:disabled { background: #94e2cc; cursor: not-allowed; }
+  .btn-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .copy-btn { width: 100%; padding: 12px; background: #00C896; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+  .copy-btn:hover { background: #00a87f; }
+  .stop-btn { background: #ef4444; }
+  .stop-btn:hover { background: #dc2626; }
+  .copy-btn:disabled { background: #94e2cc; cursor: not-allowed; }
 
-   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-   .modal.active { display: flex; }
-   .modal-content { background: white; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; }
-   .modal-content h2 { margin-top: 0; color: #0A2540; }
-   .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; }
-   .modal-actions { display: flex; gap: 10px; }
-   .btn-secondary { background: #e2e8f0; color: #0A2540; }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+  .modal.active { display: flex; }
+  .modal-content { background: white; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; }
+  .modal-content h2 { margin-top: 0; color: #0A2540; }
+  .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn-secondary { background: #e2e8f0; color: #0A2540; }
 
-   .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
-   .toast.show { transform: translateX(0); }
-   .toast.success { background: #00C896; }
-   .toast.error { background: #ef4444; }
+  .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
+  .toast.show { transform: translateX(0); }
+  .toast.success { background: #00C896; }
+  .toast.error { background: #ef4444; }
   </style>
 </head>
 <body>
@@ -86,12 +88,12 @@
 
 <div id="toast" class="toast"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+<script>
+// REAL FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -103,169 +105,199 @@ const firebaseConfig = {
   measurementId: "G-4RSQXZJX44"
 };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  let currentUser = null;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  const traders = [
-    { id: 'kenyan_prince', name: 'Kenyan Prince', roi: '+142.3%', winRate: '78%', followers: '2.4k', risk: 'Medium', avatar: 'KP', pnl: 0 },
-    { id: 'alpha_trader', name: 'Alpha Trader', roi: '+98.7%', winRate: '82%', followers: '5.1k', risk: 'Low', avatar: 'AT', pnl: 0 },
-    { id: 'states_ke', name: 'States Ke', roi: '+210.5%', winRate: '71%', followers: '1.8k', risk: 'High', avatar: 'SK', pnl: 0 },
-    { id: 'vidollar', name: 'Vidollar', roi: '+165.2%', winRate: '75%', followers: '3.2k', risk: 'Medium', avatar: 'VD', pnl: 0 },
-    { id: 'ziwa_fx', name: 'Ziwa Fx', roi: '+89.4%', winRate: '85%', followers: '4.7k', risk: 'Low', avatar: 'ZF', pnl: 0 },
-    { id: 'pizzo_fx', name: 'Pizzo Fx', roi: '+134.8%', winRate: '73%', followers: '2.9k', risk: 'Medium', avatar: 'PF', pnl: 0 }
-  ];
+const traders = [
+  { id: 'kenyan_prince', name: 'Kenyan Prince', roi: '+142.3%', winRate: '78%', followers: '2.4k', risk: 'Medium', avatar: 'KP', profitShare: 20 },
+  { id: 'alpha_trader', name: 'Alpha Trader', roi: '+98.7%', winRate: '82%', followers: '5.1k', risk: 'Low', avatar: 'AT', profitShare: 15 },
+  { id: 'states_ke', name: 'States Ke', roi: '+210.5%', winRate: '71%', followers: '1.8k', risk: 'High', avatar: 'SK', profitShare: 25 },
+  { id: 'vidollar', name: 'Vidollar', roi: '+165.2%', winRate: '75%', followers: '3.2k', risk: 'Medium', avatar: 'VD', profitShare: 18 },
+  { id: 'ziwa_fx', name: 'Ziwa Fx', roi: '+89.4%', winRate: '85%', followers: '4.7k', risk: 'Low', avatar: 'ZF', profitShare: 12 },
+  { id: 'pizzo_fx', name: 'Pizzo Fx', roi: '+134.8%', winRate: '73%', followers: '2.9k', risk: 'Medium', avatar: 'PF', profitShare: 20 }
+];
 
-  let selectedTrader = null;
-  let userCopies = {}; // {traderId: {amount, pnl}}
+let selectedTrader = null;
+let currentUser = null;
+let userCopies = {};
 
-  onAuthStateChanged(auth, (user) => {
-    if(user) {
-      currentUser = user;
-      loadUserCopies();
-    } else {
-      showToast("Please login first", "error");
-    }
+auth.onAuthStateChanged(user => {
+  if(!user) return window.location.href = "signin.html";
+  currentUser = user;
+  loadUserCopies();
+  startPnLSimulation();
+});
+
+// LOAD COPIES FROM FIREBASE IN REAL TIME
+function loadUserCopies() {
+  db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
+    userCopies = snap.val() || {};
+    renderTraders();
   });
+}
 
-  // Listen to user copies in real time
-  function loadUserCopies() {
-    onSnapshot(doc(db, "copy_trading", currentUser.uid), (snap) => {
-      if(snap.exists()) {
-        userCopies = snap.data().copies || {};
-        renderTraders();
-        simulatePnL(); // start fake P&L updates
+// SIMULATE TRADES - Replace with your real trade engine later
+function startPnLSimulation() {
+  setInterval(() => {
+    for(let id in userCopies) {
+      const copy = userCopies[id];
+      const change = (Math.random() - 0.45) * 20; // profit or loss
+      if(change > 0) { // only take fee on profit
+        const traderFee = change * (copy.profitShare / 100);
+        const userProfit = change - traderFee;
+        copy.pnl = (copy.pnl || 0) + userProfit;
+
+        // LOG THE TRADE
+        logTrade(id, userProfit, traderFee, copy.amount);
       } else {
-        userCopies = {};
-        renderTraders();
+        copy.pnl = (copy.pnl || 0) + change;
       }
-    });
-  }
 
-  // Simulate live P&L for demo. Replace with real data later
-  function simulatePnL() {
-    setInterval(() => {
-      for(let id in userCopies) {
-        const change = (Math.random() - 0.4) * 20; // random profit/loss
-        userCopies[id].pnl = (userCopies[id].pnl || 0) + change;
-        updatePnLDisplay(id);
-      }
-    }, 3000);
-  }
+      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({
+        pnl: copy.pnl,
+        lastUpdate: Date.now()
+      });
+      updatePnLDisplay(id);
+    }
+  }, 5000);
+}
 
-  function updatePnLDisplay(id) {
-    const pnlEl = document.getElementById(`pnl-${id}`);
-    if(!pnlEl) return;
-    const pnl = userCopies[id].pnl.toFixed(2);
-    pnlEl.innerText = `$${pnl}`;
-    pnlEl.className = `pnl-value ${pnl >= 0? 'green' : 'red'}`;
-  }
+function logTrade(traderId, userProfit, traderFee, amount) {
+  const logRef = db.ref("copy_logs/" + currentUser.uid).push();
+  logRef.set({
+    traderId,
+    userProfit: userProfit.toFixed(2),
+    traderFee: traderFee.toFixed(2),
+    amount,
+    timestamp: Date.now()
+  });
+}
 
-  function renderTraders() {
-    const grid = document.getElementById('tradersGrid');
-    grid.innerHTML = traders.map(t => {
-      const isCopying = userCopies[t.id];
-      return `
-      <div class="trader-card ${isCopying? 'copying' : ''}">
-        <div class="trader-header">
-          <div class="avatar">${t.avatar}</div>
-          <div>
-            <div class="trader-name">${t.name} <span class="verified">VERIFIED</span></div>
-            <div style="font-size:12px; color:#64748b">${t.followers} Copiers</div>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-label">30D ROI</div>
-            <div class="stat-value green">${t.roi}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Win Rate</div>
-            <div class="stat-value">${t.winRate}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Risk Level</div>
-            <div class="stat-value">${t.risk}</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label">Min Copy</div>
-            <div class="stat-value">$50</div>
-          </div>
-        </div>
+function updatePnLDisplay(id) {
+  const pnlEl = document.getElementById(`pnl-${id}`);
+  if(!pnlEl) return;
+  const pnl = (userCopies[id]?.pnl || 0).toFixed(2);
+  pnlEl.innerText = `$${pnl}`;
+  pnlEl.className = `pnl-value ${pnl >= 0? 'green' : 'red'}`;
+}
 
-        <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
-          <div class="pnl-label">Your Copy P&L</div>
-          <div class="pnl-value green" id="pnl-${t.id}">$0.00</div>
-          <div style="font-size:11px; color:#64748b">Copied with $${isCopying?.amount || 0}</div>
-        </div>
-
-        <div class="btn-group">
-          ${isCopying
-           ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')">Stop Copy</button>`
-            : `<button class="copy-btn" id="btn-${t.id}" onclick="openModal('${t.id}')">Copy Trader</button>`
-          }
+function renderTraders() {
+  const grid = document.getElementById('tradersGrid');
+  grid.innerHTML = traders.map(t => {
+    const isCopying = userCopies[t.id];
+    return `
+    <div class="trader-card ${isCopying? 'copying' : ''}">
+      <div class="trader-header">
+        <div class="avatar">${t.avatar}</div>
+        <div>
+          <div class="trader-name">${t.name} <span class="verified">VERIFIED</span></div>
+          <div style="font-size:12px; color:#64748b">${t.followers} Copiers</div>
         </div>
       </div>
-    `}).join('');
-  }
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">30D ROI</div>
+          <div class="stat-value green">${t.roi}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Win Rate</div>
+          <div class="stat-value">${t.winRate}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Trader Fee</div>
+          <div class="stat-value purple">${t.profitShare}%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Risk Level</div>
+          <div class="stat-value">${t.risk}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Min Copy</div>
+          <div class="stat-value">$50</div>
+        </div>
+      </div>
 
-  window.openModal = (traderId) => {
-    selectedTrader = traders.find(t => t.id === traderId);
-    document.getElementById('modalTraderName').innerText = `Copy ${selectedTrader.name}'s trades`;
-    document.getElementById('copyModal').classList.add('active');
-  }
+      <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
+        <div class="pnl-label">Your Copy P&L</div>
+        <div class="pnl-value green" id="pnl-${t.id}">$${(isCopying?.pnl || 0).toFixed(2)}</div>
+        <div style="font-size:11px; color:#64748b">Copied with $${isCopying?.amount || 0} | Fee: ${t.profitShare}%</div>
+      </div>
 
-  window.closeModal = () => {
-    document.getElementById('copyModal').classList.remove('active');
-    document.getElementById('copyAmount').value = '';
-    document.getElementById('lossLimit').value = '';
-  }
+      <div class="btn-group">
+        ${isCopying
+         ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')">Stop Copy</button>`
+          : `<button class="copy-btn" id="btn-${t.id}" onclick="openModal('${t.id}')">Copy Trader</button>`
+        }
+      </div>
+    </div>
+  `}).join('');
+}
 
-  window.confirmCopy = async () => {
-    const amount = document.getElementById('copyAmount').value;
-    const lossLimit = document.getElementById('lossLimit').value;
+function openModal(traderId) {
+  selectedTrader = traders.find(t => t.id === traderId);
+  document.getElementById('modalTraderName').innerText = `Copy ${selectedTrader.name}'s trades | Trader takes ${selectedTrader.profitShare}% of profits`;
+  document.getElementById('copyModal').classList.add('active');
+}
 
-    if(!amount || amount < 50) return showToast('Minimum copy amount is $50', 'error');
-    if(!lossLimit) return showToast('Please set a loss limit', 'error');
-    if(!currentUser) return showToast('Login first', 'error');
+function closeModal() {
+  document.getElementById('copyModal').classList.remove('active');
+  document.getElementById('copyAmount').value = '';
+  document.getElementById('lossLimit').value = '';
+}
 
-    try {
-      userCopies[selectedTrader.id] = {
-        amount: Number(amount),
-        lossLimit: Number(lossLimit),
-        pnl: 0,
-        startedAt: new Date().toISOString()
-      };
+function confirmCopy() {
+  const amount = document.getElementById('copyAmount').value;
+  const lossLimit = document.getElementById('lossLimit').value;
 
-      await setDoc(doc(db, "copy_trading", currentUser.uid), {
-        copies: userCopies,
-        updatedAt: serverTimestamp()
-      });
+  if(!amount || amount < 50) return showToast('Minimum copy amount is $50', 'error');
+  if(!lossLimit) return showToast('Please set a loss limit', 'error');
 
-      showToast(`Now copying ${selectedTrader.name}`, 'success');
-      closeModal();
-    } catch(e) {
-      showToast("Error: " + e.message, "error");
-    }
-  }
+  const copyData = {
+    traderName: selectedTrader.name,
+    amount: Number(amount),
+    lossLimit: Number(lossLimit),
+    profitShare: selectedTrader.profitShare,
+    pnl: 0,
+    status: "active",
+    startedAt: Date.now()
+  };
 
-  window.stopCopy = async (traderId) => {
-    if(!confirm("Stop copying this trader?")) return;
-    delete userCopies[traderId];
-    await setDoc(doc(db, "copy_trading", currentUser.uid), {
-      copies: userCopies,
-      updatedAt: serverTimestamp()
+  db.ref("copy_trading/" + currentUser.uid + "/" + selectedTrader.id).set(copyData)
+ .then(() => {
+    // LOG START
+    db.ref("copy_logs/" + currentUser.uid).push({
+      action: "START_COPY",
+      traderId: selectedTrader.id,
+      amount: Number(amount),
+      timestamp: Date.now()
+    });
+    showToast(`Now copying ${selectedTrader.name}`, 'success');
+    closeModal();
+  }).catch(e => showToast("Error: " + e.message, "error"));
+}
+
+function stopCopy(traderId) {
+  if(!confirm("Stop copying this trader?")) return;
+
+  db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove()
+ .then(() => {
+    // LOG STOP
+    db.ref("copy_logs/" + currentUser.uid).push({
+      action: "STOP_COPY",
+      traderId,
+      timestamp: Date.now()
     });
     showToast("Stopped copying", "info");
-  }
+  }).catch(e => showToast("Error: " + e.message, "error"));
+}
 
-  function showToast(message, type = "info"){
-    const toast = document.getElementById('toast');
-    toast.className = `toast ${type} show`;
-    toast.innerText = message;
-    setTimeout(() => toast.classList.remove('show'), 3000);
-  }
+function showToast(message, type = "info"){
+  const toast = document.getElementById('toast');
+  toast.className = `toast ${type} show`;
+  toast.innerText = message;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
 </script>
 
 </body>
