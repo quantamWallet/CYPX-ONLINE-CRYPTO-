@@ -23,13 +23,11 @@
     label { font-weight: 600; display: block; margin-top: 12px; font-size: 14px; color: #334155; }
 .upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .preview,.camera-view { width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; background: #000; }
-.file-name { font-size: 12px; color: #00C896; margin-top: 4px; }
-.upload-progress { height: 8px; background: #e2e8f0; border-radius: 8px; margin-top: 8px; overflow: hidden; }
+.file-name { font-size: 12px; color: #64748b; margin-top: 4px; }
+.upload-progress { height: 8px; background: #e2e8f0; border-radius: 8px; margin-top: 8px; overflow: hidden; display: none; }
 .upload-progress span { display: block; height: 100%; background: #00C896; width: 0%; transition: width 0.2s; }
-.uploading-box { background: #e6fff7; border: 2px dashed #00C896; border-radius: 10px; padding: 20px; margin-top: 8px; text-align: center; font-weight: 600; color: #0A2540; }
-.uploading-box.spinner { border: 3px solid #e2e8f0; border-top: 3px solid #00C896; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 8px; }
-@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
-.uploaded-box { background: #e6fff7; border: 2px solid #00C896; border-radius: 10px; padding: 20px; margin-top: 8px; text-align: center; font-weight: 600; color: #00C896; font-size: 16px; }
+.upload-status { background: #e6fff7; border-left: 4px solid #00C896; padding: 10px 12px; margin-top: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #0A2540; display: none; }
+.upload-status.success { background: #f0fdf4; border-left-color: #22c55e; color: #15803d; }
 .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
 .toast.show { transform: translateX(0); }
 .toast.error { background: #ef4444; }
@@ -48,31 +46,31 @@
   <!-- STEP 2 -->
   <div class="step active" id="step2">
     <label>ID Front</label>
-    <div id="idFrontUploadArea">
-      <div class="upload-group">
-        <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
-        <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
-      </div>
+    <div class="upload-group">
+      <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
+      <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
     </div>
     <input type="file" id="idFrontUpload" accept="image/*" style="display:none">
     <video id="idFrontCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
     <canvas id="idFrontCanvas" style="display:none"></canvas>
     <img id="idFrontPreview" class="preview" style="display:none">
     <div id="idFrontName" class="file-name"></div>
+    <div class="upload-status" id="idFrontStatus"></div>
+    <div class="upload-progress" id="idFrontProg"><span></span></div>
 
     <div id="backIdSection" class="disabled-section">
       <label>ID Back</label>
-      <div id="idBackUploadArea">
-        <div class="upload-group">
-          <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
-          <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
-        </div>
+      <div class="upload-group">
+        <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
+        <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
       </div>
       <input type="file" id="idBackUpload" accept="image/*" style="display:none">
       <video id="idBackCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
       <canvas id="idBackCanvas" style="display:none"></canvas>
       <img id="idBackPreview" class="preview" style="display:none">
       <div id="idBackName" class="file-name"></div>
+      <div class="upload-status" id="idBackStatus"></div>
+      <div class="upload-progress" id="idBackProg"><span></span></div>
     </div>
 
     <button class="secondary" onclick="nextStep(1)">Back</button>
@@ -116,24 +114,6 @@
     step = n;
     document.getElementById(`step${step}`).classList.add('active');
     document.getElementById('progressBar').style.width = `${step*20}%`;
-  }
-
-  function showUploadingState(baseId) {
-    document.getElementById(baseId + 'UploadArea').innerHTML = `
-      <div class="uploading-box">
-        <div class="spinner"></div>
-        Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}... Please wait
-        <div class="upload-progress" id="${baseId}Prog"><span></span></div>
-      </div>
-    `;
-  }
-
-  function showUploadedState(baseId) {
-    document.getElementById(baseId + 'UploadArea').innerHTML = `
-      <div class="uploaded-box">
-        ✅ ${baseId === 'idFront'? 'Front ID' : 'Back ID'} Uploaded Successfully
-      </div>
-    `;
   }
 
   window.triggerUpload = (id) => {
@@ -185,6 +165,14 @@
     document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
     document.getElementById(baseId + 'Preview').style.display = 'block';
     document.getElementById(baseId + 'Name').innerText = `Selected: ${(file.size/1024/1024).toFixed(2)}MB`;
+    
+    const statusEl = document.getElementById(baseId + 'Status');
+    statusEl.style.display = 'block';
+    statusEl.className = 'upload-status';
+    statusEl.innerText = `⏳ Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}...`;
+    
+    document.getElementById(baseId + 'Prog').style.display = 'block';
+
     if(baseId === 'idFront') handleFrontUpload(file);
     if(baseId === 'idBack') handleBackUpload(file);
   }
@@ -199,46 +187,48 @@
   });
 
   async function handleFrontUpload(file) {
-    showUploadingState('idFront'); // REPLACE BUTTONS
-
     try {
       const url = await uploadFile(file, 'idFront', document.getElementById('idFrontProg'));
       fileStore.idFrontUrl = url;
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {idFront: url});
-      showUploadedState('idFront'); // SHOW SUCCESS
+      
+      const statusEl = document.getElementById('idFrontStatus');
+      statusEl.className = 'upload-status success';
+      statusEl.innerText = '✅ Front ID Uploaded Successfully';
+
       showToast("Front ID uploaded", "success");
       document.getElementById('backIdSection').classList.remove('disabled-section');
     } catch(e) {
+      const statusEl = document.getElementById('idFrontStatus');
+      statusEl.className = 'upload-status';
+      statusEl.style.background = '#fef2f2';
+      statusEl.style.borderLeftColor = '#ef4444';
+      statusEl.style.color = '#b91c1c';
+      statusEl.innerText = '❌ Upload failed. Tap Upload to retry.';
       showToast(e.message, "error");
-      // restore buttons on error
-      document.getElementById('idFrontUploadArea').innerHTML = `
-        <div class="upload-group">
-          <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
-          <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
-        </div>
-      `;
     }
   }
 
   async function handleBackUpload(file) {
-    showUploadingState('idBack'); // REPLACE BUTTONS
-
     try {
       const url = await uploadFile(file, 'idBack', document.getElementById('idBackProg'));
       fileStore.idBackUrl = url;
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {idBack: url});
-      showUploadedState('idBack'); // SHOW SUCCESS
+      
+      const statusEl = document.getElementById('idBackStatus');
+      statusEl.className = 'upload-status success';
+      statusEl.innerText = '✅ Back ID Uploaded Successfully';
+
       showToast("Back ID uploaded", "success");
       document.getElementById('step2Continue').disabled = false;
     } catch(e) {
+      const statusEl = document.getElementById('idBackStatus');
+      statusEl.className = 'upload-status';
+      statusEl.style.background = '#fef2f2';
+      statusEl.style.borderLeftColor = '#ef4444';
+      statusEl.style.color = '#b91c1c';
+      statusEl.innerText = '❌ Upload failed. Tap Upload to retry.';
       showToast(e.message, "error");
-      // restore buttons on error
-      document.getElementById('idBackUploadArea').innerHTML = `
-        <div class="upload-group">
-          <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
-          <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
-        </div>
-      `;
     }
   }
 
@@ -259,6 +249,7 @@
         (snap) => {
           const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
           progEl.querySelector('span').style.width = pct + '%';
+          document.getElementById(name + 'Status').innerText = `⏳ Uploading ${name === 'idFront'? 'Front ID' : 'Back ID'}... ${pct}%`;
         },
         (error) => reject(new Error("Upload failed: " + error.message)),
         async () => resolve(await getDownloadURL(task.snapshot.ref))
@@ -274,4 +265,4 @@
 </script>
 
 </body>
-      </html>
+</html>
