@@ -7,26 +7,27 @@
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; display: flex; justify-content: center; padding: 20px; margin: 0; }
- .container { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.container { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
     h1 { color: #0A2540; margin: 0 0 8px; font-size: 24px; }
- .subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
- .progress { background: #e2e8f0; height: 6px; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
- .progress-bar { background: #00C896; height: 100%; border-radius: 10px; transition: width 0.3s ease; }
-    input, button { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
-    input:focus { border-color: #00C896; }
+.subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+.progress { background: #e2e8f0; height: 6px; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+.progress-bar { background: #00C896; height: 100%; border-radius: 10px; transition: width 0.3s ease; }
+    input, button, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
+    input:focus, select:focus { border-color: #00C896; }
     button { background: #00C896; color: white; border: none; cursor: pointer; font-weight: 600; }
     button:disabled { background: #94e2cc; cursor: not-allowed; }
     button.secondary { background: #e2e8f0; color: #0A2540; }
     button.outline { background: white; color: #00C896; border: 1px solid #00C896; }
- .step { display: none; animation: fadeIn 0.2s; }
- .step.active { display: block; }
+.step { display: none; }
+.step.active { display: block; }
     label { font-weight: 600; display: block; margin-top: 12px; font-size: 14px; color: #334155; }
-  .upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-   .preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; }
-   .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
- .toast.show { transform: translateX(0); }
- .toast.error { background: #ef4444; }
- .toast.success { background: #00C896; }
+.upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.preview,.camera-view { width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; background: #000; }
+.file-name { font-size: 12px; color: #00C896; margin-top: 4px; }
+.toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
+.toast.show { transform: translateX(0); }
+.toast.error { background: #ef4444; }
+.toast.success { background: #00C896; }
   </style>
 </head>
 <body>
@@ -41,6 +42,12 @@
   <div class="step active" id="step1">
     <input type="text" id="fullName" placeholder="Full Name" required>
     <input type="date" id="dob" required>
+    <select id="idType" required>
+      <option value="">Select ID Type</option>
+      <option value="passport">Passport</option>
+      <option value="national_id">National ID Card</option>
+      <option value="drivers_license">Driver's License</option>
+    </select>
     <input type="text" id="country" placeholder="Country" required>
     <button onclick="validateAndNext(2)">Continue</button>
   </div>
@@ -50,20 +57,24 @@
     <label>ID Front</label>
     <div class="upload-group">
       <button type="button" class="outline" onclick="triggerUpload('idFrontUpload')">Upload</button>
-      <button type="button" class="outline" onclick="triggerUpload('idFrontCamera')">Take Photo</button>
+      <button type="button" class="outline" onclick="openCamera('idFront')">Take Photo</button>
     </div>
     <input type="file" id="idFrontUpload" accept="image/*" style="display:none">
-    <input type="file" id="idFrontCamera" accept="image/*" capture="environment" style="display:none">
+    <video id="idFrontCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
+    <canvas id="idFrontCanvas" style="display:none"></canvas>
     <img id="idFrontPreview" class="preview" style="display:none">
+    <div id="idFrontName" class="file-name"></div>
 
     <label>ID Back</label>
     <div class="upload-group">
       <button type="button" class="outline" onclick="triggerUpload('idBackUpload')">Upload</button>
-      <button type="button" class="outline" onclick="triggerUpload('idBackCamera')">Take Photo</button>
+      <button type="button" class="outline" onclick="openCamera('idBack')">Take Photo</button>
     </div>
     <input type="file" id="idBackUpload" accept="image/*" style="display:none">
-    <input type="file" id="idBackCamera" accept="image/*" capture="environment" style="display:none">
+    <video id="idBackCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
+    <canvas id="idBackCanvas" style="display:none"></canvas>
     <img id="idBackPreview" class="preview" style="display:none">
+    <div id="idBackName" class="file-name"></div>
 
     <button class="secondary" onclick="nextStep(1)">Back</button>
     <button onclick="validateAndNext(3)">Continue</button>
@@ -74,11 +85,13 @@
     <label>Selfie</label>
     <div class="upload-group">
       <button type="button" class="outline" onclick="triggerUpload('selfieUpload')">Upload</button>
-      <button type="button" class="outline" onclick="triggerUpload('selfieCamera')">Take Selfie</button>
+      <button type="button" class="outline" onclick="openCamera('selfie')">Take Selfie</button>
     </div>
     <input type="file" id="selfieUpload" accept="image/*" style="display:none">
-    <input type="file" id="selfieCamera" accept="image/*" capture="user" style="display:none">
+    <video id="selfieCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
+    <canvas id="selfieCanvas" style="display:none"></canvas>
     <img id="selfiePreview" class="preview" style="display:none">
+    <div id="selfieName" class="file-name"></div>
 
     <button class="secondary" onclick="nextStep(2)">Back</button>
     <button onclick="validateAndNext(4)">Continue</button>
@@ -121,7 +134,8 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
   let currentUser = null;
-  const fileStore = {}; // store selected files here
+  let currentStream = null;
+  const fileStore = {};
 
   onAuthStateChanged(auth, (user) => {
     if(user) currentUser = user;
@@ -130,6 +144,7 @@
 
   let step = 1;
   window.nextStep = (n) => {
+    stopCamera();
     document.getElementById(`step${step}`).classList.remove('active');
     step = n;
     document.getElementById(`step${step}`).classList.add('active');
@@ -137,25 +152,75 @@
     window.scrollTo(0,0);
   }
 
-  window.triggerUpload = (id) => document.getElementById(id).click();
+  window.triggerUpload = (id) => {
+    document.getElementById(id).value = '';
+    document.getElementById(id).click();
+  }
 
-  // Handle all file inputs
-  ['idFrontUpload','idFrontCamera','idBackUpload','idBackCamera','selfieUpload','selfieCamera'].forEach(id => {
+  window.openCamera = async (target) => {
+    if(!window.isSecureContext) return showToast("Camera only works on HTTPS or localhost", "error");
+    stopCamera();
+    const video = document.getElementById(target + 'Cam');
+    video.style.display = 'block';
+    try {
+      const constraints = { video: { facingMode: target === 'selfie'? 'user' : 'environment' } };
+      currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = currentStream;
+      await video.play();
+      const btn = document.createElement('button');
+      btn.innerText = 'Capture Photo';
+      btn.onclick = () => capturePhoto(target);
+      btn.id = target + 'CaptureBtn';
+      btn.style.marginTop = '10px';
+      video.after(btn);
+    } catch(e) {
+      showToast("Camera error: " + e.message, "error");
+    }
+  }
+
+  function stopCamera(){
+    if(currentStream) currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+    document.querySelectorAll('video').forEach(v => { v.style.display = 'none'; v.srcObject = null; });
+    document.querySelectorAll('[id$="CaptureBtn"]').forEach(b => b.remove());
+  }
+
+  function capturePhoto(target){
+    const video = document.getElementById(target + 'Cam');
+    const canvas = document.getElementById(target + 'Canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+      const file = new File([blob], `${target}.jpg`, {
+  type: "image/jpeg"
+});
+// FIXED: added [blob]
+      setFile(target, file);
+      stopCamera();
+      showToast("Photo captured", "success");
+    }, 'image/jpeg', 0.8);
+  }
+
+  function setFile(baseId, file){
+    fileStore[baseId] = file; // replaces old file
+    document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
+    document.getElementById(baseId + 'Preview').style.display = 'block';
+    document.getElementById(baseId + 'Name').innerText = `Selected: ${file.name}`;
+  }
+
+  ['idFrontUpload','idBackUpload','selfieUpload'].forEach(id => {
     document.getElementById(id).addEventListener('change', (e) => {
       const file = e.target.files[0];
       if(!file) return;
-      const baseId = id.replace('Upload','').replace('Camera','');
-      fileStore[baseId] = file;
-      const reader = new FileReader();
-      reader.onload = () => {
-        document.getElementById(baseId + 'Preview').src = reader.result;
-        document.getElementById(baseId + 'Preview').style.display = 'block';
-      }
-      reader.readAsDataURL(file);
+      const baseId = id.replace('Upload','');
+      setFile(baseId, file); // replaces previous upload
     })
   });
 
   window.validateAndNext = (n) => {
+    if(step === 1 &&!document.getElementById('idType').value)
+      return showToast("Please select ID Type", "error");
     if(step === 2 && (!fileStore.idFront ||!fileStore.idBack))
       return showToast("Please upload both ID Front and Back", "error");
     if(step === 3 &&!fileStore.selfie)
@@ -188,7 +253,12 @@
           canvas.width = maxW;
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob((blob) => resolve(new File([blob], file.name, {type: "image/jpeg"})), "image/jpeg", 0.7);
+          canvas.toBlob((blob) => {
+  resolve(new File([blob], file.name, {
+    type: "image/jpeg"
+  }));
+}, "image/jpeg", 0.7);
+// FIXED: added [blob]
         }
       }
     });
@@ -217,9 +287,10 @@
       await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
         fullName: document.getElementById('fullName').value.trim(),
         dob: document.getElementById('dob').value,
+        idType: document.getElementById('idType').value,
         country: document.getElementById('country').value.trim(),
         address: document.getElementById('address').value.trim(),
-     ...urls,
+    ...urls,
         status: "pending",
         email: currentUser.email,
         createdAt: serverTimestamp()
@@ -236,4 +307,4 @@
 </script>
 
 </body>
-        </html>
+      </html>
