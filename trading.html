@@ -160,6 +160,7 @@ let prices = {
   "BNB/USDT": 580.30, "XRP/USDT": 0.52, "DOGE/USDT": 0.14,
   "ADA/USDT": 0.45, "TON/USDT": 5.20
 };
+let prevPrice = prices[currentPair];
 let orderType = "buy";
 let notifs = [];
 
@@ -205,11 +206,19 @@ function loadChart(symbol){
 function updatePrice(){
   const newPrices = {...prices};
   Object.keys(newPrices).forEach(pair=>{
-    newPrices += (Math.random() - 0.5) * (pair.includes("BTC")?50:pair.includes("ETH")?10:1);
+    newPrices += (Math.random() - 0.5) * (pair.includes("BTC")?50:pair.includes("ETH")?10:1); // FIX 1
   });
   prices = newPrices;
+
   const price = prices[currentPair];
+  const change = ((price - prevPrice) / prevPrice) * 100;
+  prevPrice = price;
+
   document.getElementById("pairPrice").textContent = "$" + price.toFixed(2);
+  const changeEl = document.getElementById("pairChange");
+  changeEl.textContent = change.toFixed(2) + "%";
+  changeEl.className = "pair-change " + (change >= 0? "up" : "down");
+
   document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
   document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
   checkTP_SL();
@@ -281,7 +290,6 @@ async function placeOrder(){
   const qty = amount / price;
   const fee = amount * 0.001;
 
-  // Deduct margin + fee on open
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
     const curr = parseFloat(current) || 0;
     return curr - amount - fee;
@@ -296,13 +304,12 @@ async function placeOrder(){
 document.getElementById("buyBtn").onclick = placeOrder;
 document.getElementById("sellBtn").onclick = placeOrder;
 
-/* FIXED: Return amount + pnl on close */
 async function closePosition(id, reason="Manual Close", type="info"){
   const p = positions[id];
   if(!p) return;
   const price = prices[p.pair];
   const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-  const returnAmount = p.amount + pnl; // Return invested amount + profit/loss
+  const returnAmount = p.amount + pnl; // Return invested + pnl
 
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
   await remove(ref(db, `trade/${uid}/positions/${id}`));
@@ -351,6 +358,7 @@ function updateEquity(){
 
 document.getElementById("pairSelect").onchange = e=>{
   currentPair = e.target.value;
+  prevPrice = prices[currentPair];
   loadChart(currentPair);
   updatePrice();
 }
@@ -359,4 +367,4 @@ pushNotif("Connected to CYPX TRADE", "info");
 window.closePosition = closePosition;
 </script>
 </body>
-</html>
+                                                     </html>
