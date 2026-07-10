@@ -58,6 +58,7 @@ body{background:var(--bg);color:var(--text)}
 .center-toast.show{display:block;animation:pop.3s}
 @keyframes pop{0%{transform:translate(-50%,-50%) scale(.8)}100%{transform:translate(-50%,-50%) scale(1)}}
 .loading{opacity:.5;pointer-events:none}
+.last-updated{font-size:11px;color:var(--muted);margin-left:8px}
 </style>
 </head>
 <body>
@@ -89,6 +90,7 @@ body{background:var(--bg);color:var(--text)}
           </select>
           <div class="pair-price" id="pairPrice">$0.00</div>
           <div class="pair-change up" id="pairChange">0.00%</div>
+          <div class="last-updated" id="lastUpdated"></div>
         </div>
         <div class="chart" id="tradingview_chart"></div>
       </div>
@@ -155,12 +157,8 @@ let uid = null;
 let balance = null;
 let positions = {};
 let currentPair = "BTC/USDT";
-let prices = {
-  "BTC/USDT": 68420.50, "ETH/USDT": 3500.20, "SOL/USDT": 150.80,
-  "BNB/USDT": 580.30, "XRP/USDT": 0.52, "DOGE/USDT": 0.14,
-  "ADA/USDT": 0.45, "TON/USDT": 5.20
-};
-let prevPrices = {...prices};
+let prices = {};
+let prevPrices = {};
 let orderType = "buy";
 let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]");
 
@@ -210,19 +208,39 @@ function loadChart(symbol){
   });
 }
 
-function updatePrice(){
-  // FIX: update each pair and save prev price correctly
-  Object.keys(prices).forEach(pair=>{
-    prevPrices[pair] = prices[pair]; // save old price first
-    const volatility = pair.includes("BTC")?50:pair.includes("ETH")?10:1;
-    prices[pair] += (Math.random() - 0.5) * volatility;
-    if(prices[pair] < 0.01) prices[pair] = 0.01;
-  });
+// REAL BINANCE PRICES
+async function fetchPrices(){
+  try{
+    const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
+    const data = await res.json();
+    const map = {
+      "BTCUSDT":"BTC/USDT","ETHUSDT":"ETH/USDT","SOLUSDT":"SOL/USDT",
+      "BNBUSDT":"BNB/USDT","XRPUSDT":"XRP/USDT","DOGEUSDT":"DOGE/USDT",
+      "ADAUSDT":"ADA/USDT","TONUSDT":"TON/USDT"
+    };
 
+    prevPrices = {...prices};
+    Object.keys(map).forEach(s=>{
+      const item = data.find(d=>d.symbol===s);
+      if(item){
+        prices[map[s]] = parseFloat(item.lastPrice);
+      }
+    });
+    document.getElementById("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString();
+    updateUI();
+  }catch(e){
+    console.error("Price fetch failed", e);
+    pushNotif("Failed to fetch prices", "bad");
+  }
+}
+
+function updateUI(){
   const price = prices[currentPair];
-  const change = prevPrices[currentPair]? ((price - prevPrices[currentPair]) / prevPrices[currentPair]) * 100 : 0;
+  if(!price) return;
+  const prev = prevPrices[currentPair] || price;
+  const change = prev? ((price - prev) / prev) * 100 : 0;
 
-  document.getElementById("pairPrice").textContent = "$" + price.toFixed(2);
+  document.getElementById("pairPrice").textContent = "$" + price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   const changeEl = document.getElementById("pairChange");
   changeEl.textContent = change.toFixed(2) + "%";
   changeEl.className = "pair-change " + (change >= 0? "up" : "down");
@@ -232,20 +250,21 @@ function updatePrice(){
   checkTP_SL();
   updateEquity();
 }
-setInterval(updatePrice, 1000);
+
+setInterval(fetchPrices, 3000); // update every 3 seconds
 
 onAuthStateChanged(auth, (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid;
   document.getElementById("balCard").classList.add("loading");
   loadChart(currentPair);
-  updatePrice();
+  fetchPrices(); // load first price immediately
 
   const userBalRef = ref(db, `users/${uid}/balance`);
   const positionsRef = ref(db, `trade/${uid}/positions`);
 
   onValue(userBalRef, (snap)=>{
-    balance = snap.exists()? parseFloat(snap.val()) : null;
+    balance = snap.exists()? parseFloat(snap.val()) : 0;
     updateEquity();
     toggleButtons();
     document.getElementById("balCard").classList.remove("loading");
@@ -278,7 +297,7 @@ function checkTP_SL(){
     const price = prices[p.pair];
     if(!price) return;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-    const pnlPct = (pnl / p.amount) * 100;
+    const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
 
     if(pnlPct >= p.tp){
       closePosition(id, `TAKE PROFIT +${pnlPct.toFixed(2)}%`, "ok");
@@ -294,7 +313,9 @@ async function placeOrder(){
   const tp = parseFloat(document.getElementById("tp").value);
   const sl = parseFloat(document.getElementById("sl").value);
   const price = prices[currentPair];
+  if(!price) return pushNotif("Price not loaded yet", "bad");
   if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
+  if(amount <= 0) return pushNotif("Invalid amount", "bad");
 
   const qty = amount / price;
   const fee = amount * 0.001;
@@ -307,7 +328,7 @@ async function placeOrder(){
     pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount,
     tp: tp, sl: sl, openedAt: serverTimestamp()
   });
-  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair}`, "ok");
+  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(6)} ${currentPair}`, "ok");
 }
 
 document.getElementById("buyBtn").onclick = placeOrder;
@@ -317,6 +338,7 @@ async function closePosition(id, reason="Manual Close", type="info"){
   const p = positions[id];
   if(!p) return;
   const price = prices[p.pair];
+  if(!price) return;
   const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
   const returnAmount = p.amount + pnl;
 
@@ -332,15 +354,15 @@ function renderPositions(){
   const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
 
-  tbody.innerHTML = arr.map(([id, p])=>{ // FIX: added comma here
+  tbody.innerHTML = arr.map(([id, p])=>{
     const price = prices[p.pair] || p.entry;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-    const pnlPct = (pnl / p.amount) * 100;
+    const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
     return `
     <tr class="pos">
       <td>${p.pair}</td>
       <td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td>
-      <td>${p.qty.toFixed(4)}</td>
+      <td>${p.qty.toFixed(6)}</td>
       <td>$${p.entry.toFixed(2)}</td>
       <td class="pnl ${pnl>=0?"up":"down"}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td>
       <td>${p.tp}% / ${p.sl}%</td>
@@ -368,11 +390,11 @@ function updateEquity(){
 document.getElementById("pairSelect").onchange = e=>{
   currentPair = e.target.value;
   loadChart(currentPair);
-  updatePrice();
+  updateUI();
 }
 
 pushNotif("Connected to CYPX TRADE", "info");
 window.closePosition = closePosition;
 </script>
 </body>
-  </html>
+                                            </html>
