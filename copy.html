@@ -164,6 +164,7 @@ let userCopies = {};
 auth.onAuthStateChanged(user => {
   if(!user) return window.location.href = "signin.html";
   currentUser = user;
+  renderTraders(); // RENDER IMMEDIATELY
   loadUserCopies();
   startPnLSimulation();
 });
@@ -174,7 +175,7 @@ function loadUserCopies() {
   db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
     userCopies = snap.val() || {};
     updatePortfolioSummary();
-    renderTraders();
+    renderTraders(); // RE-RENDER WITH P&L DATA
   });
 }
 
@@ -241,18 +242,9 @@ function renderTraders() {
         </div>
       </div>
       <div class="stats">
-        <div class="stat">
-          <div class="stat-label">30D ROI</div>
-          <div class="stat-value green">${t.roi}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Win Rate</div>
-          <div class="stat-value">${t.winRate}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Trader Fee</div>
-          <div class="stat-value gold">${t.profitShare}%</div>
-        </div>
+        <div class="stat"><div class="stat-label">30D ROI</div><div class="stat-value green">${t.roi}</div></div>
+        <div class="stat"><div class="stat-label">Win Rate</div><div class="stat-value">${t.winRate}</div></div>
+        <div class="stat"><div class="stat-label">Trader Fee</div><div class="stat-value gold">${t.profitShare}%</div></div>
       </div>
 
       <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
@@ -263,7 +255,7 @@ function renderTraders() {
 
       <div class="btn-group">
         ${isCopying
-        ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
+       ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
           : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
         }
       </div>
