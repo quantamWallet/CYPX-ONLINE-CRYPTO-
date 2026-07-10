@@ -197,17 +197,13 @@ function updatePrice(){
   document.getElementById("pairPrice").textContent = "$" + prices[currentPair].toFixed(2);
   document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
   document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
-  updatePositionsPnL();
+  checkTP_SL(); // Check every tick
   updateEquity();
 }
-setInterval(updatePrice, 2000);
+setInterval(updatePrice, 1000); // 1s for faster TP/SL
 
-/* FIX 1: Sync from users/UID only */
 onAuthStateChanged(auth, (user)=>{
-  if(!user){
-    window.location.href="auth.html";
-    return;
-  }
+  if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid;
   document.getElementById("balCard").classList.add("loading");
   loadChart(currentPair);
@@ -235,7 +231,6 @@ function toggleButtons(){
   document.getElementById("sellBtn").disabled = disabled;
 }
 
-/* FIX 2: Tab switching for Buy/Sell buttons */
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   t.classList.add("active");
@@ -244,15 +239,20 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
 });
 
-function updatePositionsPnL(){
+/* MT5 STYLE: AUTO TP/SL CHECK */
+function checkTP_SL(){
   Object.keys(positions).forEach(id=>{
     const p = positions[id];
     const price = prices[p.pair];
     if(!price) return;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-    const pnlPct = pnl / (p.entry*p.qty) * 100;
-    if(pnlPct >= p.tp || pnlPct <= -p.sl){
-      closePosition(id, "TP/SL Hit");
+    const pnlPct = (pnl / (p.entry*p.qty)) * 100;
+
+    // Hit TP or SL
+    if(pnlPct >= p.tp){
+      closePosition(id, `TP Hit +${pnlPct.toFixed(2)}%`);
+    } else if(pnlPct <= -p.sl){
+      closePosition(id, `SL Hit ${pnlPct.toFixed(2)}%`);
     }
   });
 }
@@ -268,30 +268,32 @@ async function placeOrder(){
   const qty = amount / price;
   const fee = amount * 0.001;
 
+  // Deduct margin + fee immediately
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
     const curr = parseFloat(current) || 0;
     return curr - amount - fee;
   });
   await push(ref(db, `trade/${uid}/positions`), {
-    pair: currentPair, side: orderType, qty: qty, entry: price,
+    pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount,
     tp: tp, sl: sl, openedAt: serverTimestamp()
   });
-  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair}`, "ok");
+  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair} @ $${price.toFixed(2)}`, "ok");
 }
 
 document.getElementById("buyBtn").onclick = placeOrder;
 document.getElementById("sellBtn").onclick = placeOrder;
 
+/* MT5 STYLE CLOSE: Credit/Debit actual P&L */
 async function closePosition(id, reason="Manual"){
   const p = positions[id];
   if(!p) return;
   const price = prices[p.pair];
-  const closeValue = p.qty * price;
-  const pnl = p.side==="buy"? closeValue - (p.qty*p.entry) : (p.qty*p.entry) - closeValue;
+  const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
 
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + closeValue + pnl);
+  // Return margin + P&L to balance
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + p.amount + pnl);
   await remove(ref(db, `trade/${uid}/positions/${id}`));
-  pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, pnl>=0?"ok":"bad");
+  pushNotif(`Closed ${p.pair} ${reason}. P&L: $${pnl.toFixed(2)}`, pnl>=0?"ok":"bad");
 }
 
 function renderPositions(){
@@ -302,13 +304,14 @@ function renderPositions(){
   tbody.innerHTML = arr.map(([id,p])=>{
     const price = prices[p.pair] || p.entry;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
+    const pnlPct = (pnl / (p.entry*p.qty)) * 100;
     return `
     <tr class="pos">
       <td>${p.pair}</td>
       <td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td>
       <td>${p.qty.toFixed(4)}</td>
       <td>$${p.entry.toFixed(2)}</td>
-      <td class="pnl ${pnl>=0?"up":"down"}">$${pnl.toFixed(2)}</td>
+      <td class="pnl ${pnl>=0?"up":"down"}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td>
       <td>${p.tp}% / ${p.sl}%</td>
       <td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td>
     </tr>`;
@@ -321,12 +324,12 @@ function updateEquity(){
     document.getElementById("equity").textContent = "--";
     return;
   }
-  const totalPnL = Object.values(positions).reduce((sum,p)=>{
+  const floatingPnL = Object.values(positions).reduce((sum,p)=>{
     const price = prices[p.pair] || p.entry;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
     return sum + pnl;
   }, 0);
-  const equity = balance + totalPnL;
+  const equity = balance + floatingPnL;
   document.getElementById("balance").textContent = "$" + balance.toFixed(2);
   document.getElementById("equity").textContent = "$" + equity.toFixed(2);
 }
@@ -341,4 +344,4 @@ pushNotif("Connected to CYPX TRADE", "info");
 window.closePosition = closePosition;
 </script>
 </body>
-</html>
+        </html>
