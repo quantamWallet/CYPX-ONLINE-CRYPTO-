@@ -87,17 +87,18 @@
   import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
+  // YOUR REAL CONFIG - NOT CHANGED
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
@@ -240,7 +241,7 @@ const firebaseConfig = {
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
-  async function uploadFile(file, name) { // FIXED: get progEl inside
+  async function uploadFile(file, name) {
     const sRef = storageRef(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
     const task = uploadBytesResumable(sRef, file);
     const progEl = document.getElementById(name + 'Prog');
@@ -250,7 +251,7 @@ const firebaseConfig = {
     return new Promise((resolve, reject) => {
       task.on('state_changed',
         (snap) => {
-          const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
           progEl.querySelector('span').style.width = pct + '%';
           statusEl.innerText = `⏳ Uploading ${name === 'idFront'? 'Front ID' : 'Back ID'}... ${pct}%`;
         },
@@ -268,4 +269,4 @@ const firebaseConfig = {
 </script>
 
 </body>
-  </html>
+</html>
