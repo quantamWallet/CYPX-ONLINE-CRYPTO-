@@ -135,9 +135,9 @@ import { getDatabase, ref, onValue, push, remove, serverTimestamp, runTransactio
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.app",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com", // FIXED THIS
+  storageBucket: "quantum-rio.appspot.com",
   messagingSenderId: "805433999377",
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
@@ -157,64 +157,68 @@ let prices = {
   "ADA/USDT": 0.45, "TON/USDT": 5.20
 };
 let orderType = "buy";
+let notifs = [];
 
 const toast = document.getElementById("toast");
+const notifPanel = document.getElementById("notifPanel");
+const notifCount = document.getElementById("notifCount");
+
 function pushNotif(msg, type="info"){
+  const time = new Date().toLocaleTimeString();
+  notifs.unshift({msg, time});
+  notifCount.textContent = notifs.length;
+  notifCount.style.display = 'block';
   toast.textContent = msg;
   toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"), 3000);
+  renderNotifs();
 }
+function renderNotifs(){
+  notifPanel.innerHTML = notifs.length? notifs.map(n=>`<div class="notif-item">${n.msg}<div class="time">${n.time}</div></div>`).join('') : `<div class="notif-item">No notifications</div>`;
+}
+document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show");
 
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
   new TradingView.widget({
     "width": "100%", "height": 400, "symbol": "BINANCE:" + symbol.replace("/", ""),
-    "interval": "15", "theme": "dark", "container_id": "tradingview_chart"
+    "interval": "15", "theme": "dark", "style": "1", "toolbar_bg": "#1a2440",
+    "enable_publishing": false, "hide_top_toolbar": false, "container_id": "tradingview_chart"
   });
 }
 
 function updatePrice(){
   const newPrices = {...prices};
   Object.keys(newPrices).forEach(pair=>{
-    newPrices += (Math.random() - 0.5) * (pair.includes("BTC")?50:1);
+    newPrices += (Math.random() - 0.5) * (pair.includes("BTC")?50:pair.includes("ETH")?10:1);
   });
   prices = newPrices;
   document.getElementById("pairPrice").textContent = "$" + prices[currentPair].toFixed(2);
+  document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
+  document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
+  updatePositionsPnL();
   updateEquity();
 }
 setInterval(updatePrice, 2000);
 
-/* CRITICAL FIX: Check both trade/ and users/ */
+/* FIX 1: Sync from users/UID only */
 onAuthStateChanged(auth, (user)=>{
   if(!user){
-    pushNotif("Not logged in", "bad");
     window.location.href="auth.html";
     return;
   }
   uid = user.uid;
-  pushNotif("Logged in: " + uid.substring(0,6));
   document.getElementById("balCard").classList.add("loading");
   loadChart(currentPair);
 
-  const tradeBalRef = ref(db, `trade/${uid}/balance`);
   const userBalRef = ref(db, `users/${uid}/balance`);
   const positionsRef = ref(db, `trade/${uid}/positions`);
 
-  // Try trade balance first
-  onValue(tradeBalRef, (snap)=>{
-    if(snap.exists()){
-      balance = parseFloat(snap.val());
-    } else {
-      // Fallback to users balance
-      onValue(userBalRef, (uSnap)=>{
-        balance = uSnap.exists()? parseFloat(uSnap.val()) : null;
-        if(balance === null) pushNotif("No balance found in DB", "bad");
-      });
-    }
+  onValue(userBalRef, (snap)=>{
+    balance = snap.exists()? parseFloat(snap.val()) : null;
     updateEquity();
-    document.getElementById("buyBtn").disabled = balance === null;
-    document.getElementById("sellBtn").disabled = balance === null;
+    toggleButtons();
     document.getElementById("balCard").classList.remove("loading");
   });
 
@@ -225,42 +229,90 @@ onAuthStateChanged(auth, (user)=>{
   });
 });
 
+function toggleButtons(){
+  const disabled = balance === null;
+  document.getElementById("buyBtn").disabled = disabled;
+  document.getElementById("sellBtn").disabled = disabled;
+}
+
+/* FIX 2: Tab switching for Buy/Sell buttons */
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  orderType = t.dataset.type;
+  document.getElementById("buyBtn").style.display = orderType==="buy"?"block":"none";
+  document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
+});
+
+function updatePositionsPnL(){
+  Object.keys(positions).forEach(id=>{
+    const p = positions[id];
+    const price = prices[p.pair];
+    if(!price) return;
+    const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
+    const pnlPct = pnl / (p.entry*p.qty) * 100;
+    if(pnlPct >= p.tp || pnlPct <= -p.sl){
+      closePosition(id, "TP/SL Hit");
+    }
+  });
+}
+
 async function placeOrder(){
   if(balance === null) return pushNotif("Balance not loaded", "bad");
   const amount = parseFloat(document.getElementById("orderAmount").value);
-  if(amount > balance) return pushNotif("Insufficient balance", "bad");
+  const tp = parseFloat(document.getElementById("tp").value);
+  const sl = parseFloat(document.getElementById("sl").value);
   const price = prices[currentPair];
+  if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
+
   const qty = amount / price;
   const fee = amount * 0.001;
 
-  await runTransaction(ref(db, `trade/${uid}/balance`), (current)=>{
-    const curr = parseFloat(current) || balance || 0;
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
+    const curr = parseFloat(current) || 0;
     return curr - amount - fee;
   });
   await push(ref(db, `trade/${uid}/positions`), {
     pair: currentPair, side: orderType, qty: qty, entry: price,
-    tp: parseFloat(document.getElementById("tp").value),
-    sl: parseFloat(document.getElementById("sl").value),
-    openedAt: serverTimestamp()
+    tp: tp, sl: sl, openedAt: serverTimestamp()
   });
-  pushNotif("Order placed", "ok");
+  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair}`, "ok");
 }
 
-async function closePosition(id){
+document.getElementById("buyBtn").onclick = placeOrder;
+document.getElementById("sellBtn").onclick = placeOrder;
+
+async function closePosition(id, reason="Manual"){
   const p = positions[id];
+  if(!p) return;
   const price = prices[p.pair];
-  const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-  await runTransaction(ref(db, `trade/${uid}/balance`), (current)=> (parseFloat(current)||0) + (p.qty*price) + pnl);
+  const closeValue = p.qty * price;
+  const pnl = p.side==="buy"? closeValue - (p.qty*p.entry) : (p.qty*p.entry) - closeValue;
+
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + closeValue + pnl);
   await remove(ref(db, `trade/${uid}/positions/${id}`));
+  pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, pnl>=0?"ok":"bad");
 }
 
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
-  tbody.innerHTML = arr.length? arr.map(([id,p])=>{
-    const pnl = (prices[p.pair]-p.entry)*p.qty;
-    return `<tr><td>${p.pair}</td><td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td><td>${p.qty.toFixed(4)}</td><td>$${p.entry.toFixed(2)}</td><td class="pnl ${pnl>=0?'up':'down'}">$${pnl.toFixed(2)}</td><td>${p.tp}%/${p.sl}%</td><td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td></tr>`
-  }).join('') : `<tr><td colspan="7">No open positions</td></tr>`;
+  if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
+
+  tbody.innerHTML = arr.map(([id,p])=>{
+    const price = prices[p.pair] || p.entry;
+    const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
+    return `
+    <tr class="pos">
+      <td>${p.pair}</td>
+      <td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td>
+      <td>${p.qty.toFixed(4)}</td>
+      <td>$${p.entry.toFixed(2)}</td>
+      <td class="pnl ${pnl>=0?"up":"down"}">$${pnl.toFixed(2)}</td>
+      <td>${p.tp}% / ${p.sl}%</td>
+      <td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td>
+    </tr>`;
+  }).join('');
 }
 
 function updateEquity(){
@@ -269,15 +321,24 @@ function updateEquity(){
     document.getElementById("equity").textContent = "--";
     return;
   }
-  const totalPnL = Object.values(positions).reduce((s,p)=> s + (prices[p.pair]-p.entry)*p.qty, 0);
+  const totalPnL = Object.values(positions).reduce((sum,p)=>{
+    const price = prices[p.pair] || p.entry;
+    const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
+    return sum + pnl;
+  }, 0);
+  const equity = balance + totalPnL;
   document.getElementById("balance").textContent = "$" + balance.toFixed(2);
-  document.getElementById("equity").textContent = "$" + (balance + totalPnL).toFixed(2);
+  document.getElementById("equity").textContent = "$" + equity.toFixed(2);
 }
 
-document.getElementById("pairSelect").onchange = e=>{currentPair=e.target.value;loadChart(currentPair)};
-document.getElementById("buyBtn").onclick = placeOrder;
-document.getElementById("sellBtn").onclick = placeOrder;
+document.getElementById("pairSelect").onchange = e=>{
+  currentPair = e.target.value;
+  loadChart(currentPair);
+  updatePrice();
+}
+
+pushNotif("Connected to CYPX TRADE", "info");
 window.closePosition = closePosition;
 </script>
 </body>
-          </html>
+</html>
