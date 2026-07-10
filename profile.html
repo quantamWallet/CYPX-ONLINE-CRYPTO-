@@ -72,7 +72,7 @@ body {
   align-items:center;
 }
 
-/* ✅ IMPROVED VIP VISIBILITY */
+/* VIP VISIBILITY */
 .vip {
   padding:6px 14px;
   border-radius:12px;
@@ -84,9 +84,8 @@ body {
   backdrop-filter: blur(6px);
 }
 
-/* better contrast */
 .vip.vip0 { background:#555; color:#fff; }
-.vip.vip1 { background:linear-gradient(90deg,#e0e0e0,#bfbfbf); color:#000;}
+.vip.vip1 { background:linear-gradient(90deg,#e0e0e0,#bf); color:#000;}
 .vip.vip2 { background:linear-gradient(90deg,#ffd700,#ffcc00); color:#000;}
 .vip.vip3 { background:linear-gradient(90deg,#7c54ff,#3ad1d1); color:#fff;}
 .vip.vip4 { background:linear-gradient(90deg,#ff7a7a,#ff3d3d); color:#fff;}
@@ -178,48 +177,7 @@ nav a {
 nav i { font-size:20px; }
 </style>
 </head>
-<div id="comingSoonModal" style="
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.65);
-z-index:10000;
-justify-content:center;
-align-items:center;
-">
 
-<div style="
-background:#001d3d;
-width:300px;
-padding:25px;
-border-radius:18px;
-text-align:center;
-box-shadow:0 0 30px rgba(0,0,0,.5);
-">
-
-<h3 style="color:white;margin-top:0;">
-🚀 Coming Soon
-</h3>
-
-<p style="color:#ddd;">
-KYC verification will be available soon.
-</p>
-
-<button onclick="
-document.getElementById('comingSoonModal').style.display='none'
-"
-style="
-padding:12px 25px;
-border:none;
-border-radius:10px;
-background:#00e5ff;
-font-weight:bold;
-">
-OK
-</button>
-
-</div>
-</div>
 <body>
 <!-- Logout Confirmation Modal -->
 <div id="logoutModal" style="
@@ -283,7 +241,8 @@ align-items:center;
 
   </div>
 </div>
-<!-- ✅ LOADER -->
+
+<!-- LOADER -->
 <div class="loader" id="loader">
   <div class="spinner"></div>
 </div>
@@ -294,27 +253,14 @@ align-items:center;
 
 <div class="profile-card">
     <div>
-
-        <div id="kycBadge" style="
-            display:none;
-            margin-bottom:8px;
-            padding:5px 12px;
-            border-radius:20px;
-            font-size:12px;
-            font-weight:bold;
-            width:max-content;
-        "></div>
-
         <div id="user-email">user@email.com</div>
-
         <div id="user-vip" class="vip">VIP0</div>
-
     </div>
-
     <i class="fas fa-user-circle" style="font-size:50px;"></i>
 </div>
 
-<div class="balance-main"><span id="balance">$0.00</span></div>
+<div class="balance-card">
+  <div class="balance-main"><span id="balance">$0.00</span></div>
   <div class="balance-grid">
     <div>
       <small>Total Deposit</small>
@@ -329,24 +275,28 @@ align-items:center;
 
 <div class="menu">
 
-<a href="javascript:void(0)" id="kycBtn" class="menu-item" style="display:none;">
-    <i class="fas fa-id-card"></i>
-    Verify Identity (KYC)
-</a>
-  <a href="trading.html" class="menu-item"><i class="fas fa-wallet"></i>trade now</a>
+  <!-- KYC REMOVED, REPLACED WITH COPY TRADING -->
+  <a href="copy.html" class="menu-item">
+    <i class="fas fa-copy"></i>
+    Copy Trading
+  </a>
+
+  <a href="trading.html" class="menu-item"><i class="fas fa-chart-line"></i>Trade Now</a>
   <a href="deposit.html" class="menu-item"><i class="fas fa-wallet"></i>Deposit</a>
   <a href="withdraw.html" class="menu-item"><i class="fas fa-money-bill"></i>Withdraw</a>
   <a href="financial.html" class="menu-item"><i class="fas fa-file"></i>Transaction History</a>
-    <a href="admin.html"
-   id="adminPanelBtn"
-   class="menu-item"
-   style="display:none;">
+
+  <a href="admin.html" id="adminPanelBtn" class="menu-item">
     <i class="fas fa-user-shield"></i>
     Admin Panel
-    <a href="javascript:void(0)" class="menu-item" onclick="logout(event)">
+  </a>
+
+  <a href="javascript:void(0)" class="menu-item" onclick="logout(event)">
     <i class="fas fa-sign-out-alt"></i>
     Logout
-    </a>
+  </a>
+
+</div>
 
 <nav>
   <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
@@ -361,11 +311,16 @@ align-items:center;
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio"
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
 if (!firebase.apps.length) {
@@ -373,9 +328,7 @@ if (!firebase.apps.length) {
 }
 const auth = firebase.auth();
 const db = firebase.database();
-document.getElementById("kycBtn").addEventListener("click", function () {
-    window.location.href = "kyc.html";
-});
+
 /* FORMAT */
 function formatMoney(num){
   return "$" + Number(num || 0).toLocaleString("en-US", {
@@ -401,95 +354,59 @@ function getVip(data){
 /* STATE */
 let userData = {};
 let depositUser = 0;
-let depositGlobal = 0;
 let earningsUser = 0;
 
 /* SUM FUNCTION */
 function sumSnapshot(snapshot){
-
   let total = 0;
-
   snapshot.forEach(child=>{
-
     const d = child.val();
-
     if(typeof d === "number"){
       total += d;
       return;
     }
-
     if(d){
-
-      total += Number(
-        d.amount ||
-        d.depositAmount ||
-        d.price ||
-        d.value ||
-        0
-      );
-
+      total += Number(d.amount || d.depositAmount || d.price || d.value || 0);
     }
-
   });
-
   return total;
-
-  }
+}
 
 /* RENDER */
 function render(){
   document.getElementById("loader").style.display = "none";
-
-  document.getElementById("balance").textContent =
-    formatMoney(userData.balance);
-
-  document.getElementById("deposit").textContent =
-    formatMoney(depositUser);
-  document.getElementById("earnings").textContent =
-    formatMoney(earningsUser);
+  document.getElementById("balance").textContent = formatMoney(userData.balance);
+  document.getElementById("deposit").textContent = formatMoney(depositUser);
+  document.getElementById("earnings").textContent = formatMoney(earningsUser);
 
   const vip = getVip(userData);
   const el = document.getElementById("user-vip");
-
   el.className = "vip " + vip.toLowerCase();
   el.textContent = vip;
 }
 
-/* 🔐 AUTH */
+/* AUTH */
 auth.onAuthStateChanged(user => {
-
   if (!user) {
     window.location.href = "signin.html";
     return;
   }
   const uid = user.uid;
-  db.ref("admins/" + uid).once("value")
-.then(snap => {
 
+  db.ref("admins/" + uid).once("value").then(snap => {
     if (!snap.exists()) return;
-
     const admin = snap.val();
-
-    if (
-        admin.role === "admin" &&
-        admin.status === "active"
-    ) {
-
+    if (admin.role === "admin" && admin.status === "active") {
         document.getElementById("adminPanelBtn").style.display = "flex";
-
     }
+  }).catch(console.error);
 
-})
-.catch(console.error);
   document.getElementById("user-email").textContent = user.email;
 
-  /* ✅ CLEAN EARNINGS FUNCTION */
+  /* EARNINGS */
   function loadEarnings() {
     let total = 0;
-
-    db.ref("referralPurchases/" + uid).once("value")
-    .then(refSnap => {
-
+    db.ref("referralPurchases/" + uid).once("value").then(refSnap => {
       if (refSnap.exists()) {
         refSnap.forEach(child => {
           const e = child.val();
@@ -498,84 +415,39 @@ auth.onAuthStateChanged(user => {
           }
         });
       }
-
       return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
-    })
-    .then(bonusSnap => {
-
+    }).then(bonusSnap => {
       if (bonusSnap.val() === true) {
         total += 100;
       }
-
-      // 🔥 TRY BOTH PATHS (important)
       return db.ref("users/" + uid + "/vipEarnings").once("value");
-    })
-    .then(vipSnap => {
-
+    }).then(vipSnap => {
       if (vipSnap.exists()) {
         vipSnap.forEach(child => {
           const v = child.val();
           total += Number(v.totalEarned || 0);
         });
       }
-
       earningsUser = total;
       render();
-    })
-    .catch(err => {
+    }).catch(err => {
       console.error("Earnings error:", err);
-      render(); // 🔥 NEVER freeze loader
+      render();
     });
   }
 
-  // ✅ RUN IT
   loadEarnings();
-
-  // ✅ REALTIME LISTENERS
   db.ref("referralPurchases/" + uid).on("value", loadEarnings);
   db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
   db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
 
-  /* USER DATA */
+  /* USER DATA - KYC LOGIC REMOVED */
   db.ref("users/" + uid).on("value", snap => {
-
     userData = snap.val() || {};
-
-    const badge = document.getElementById("kycBadge");
-    const kycBtn = document.getElementById("kycBtn");
-
-    switch (userData.kycStatus) {
-
-        case "verified":
-            badge.style.display = "inline-block";
-            badge.style.background = "#16a34a";
-            badge.textContent = "✓ KYC VERIFIED";
-            kycBtn.style.display = "none";
-            break;
-
-        case "pending":
-            badge.style.display = "inline-block";
-            badge.style.background = "#f59e0b";
-            badge.textContent = "⏳ KYC PENDING";
-            kycBtn.style.display = "none";
-            break;
-
-        case "rejected":
-            badge.style.display = "inline-block";
-            badge.style.background = "#dc2626";
-            badge.textContent = "✖ KYC REJECTED";
-            kycBtn.style.display = "flex";
-            break;
-
-        default:
-            badge.style.display = "none";
-            kycBtn.style.display = "flex";
-    }
-
     render();
-});
-  
-    /* DEPOSITS */
+  });
+
+  /* DEPOSITS */
   db.ref("deposits/" + uid).on("value", snap => {
     depositUser = sumSnapshot(snap);
     render();
@@ -584,12 +456,10 @@ auth.onAuthStateChanged(user => {
 });
 
 /* LOGOUT */
-
 function logout(event) {
     if (event) event.preventDefault();
-
     document.getElementById("logoutModal").style.display = "flex";
-    }
+}
 
 document.getElementById("cancelLogout").addEventListener("click", function (e) {
     e.stopPropagation();
@@ -597,19 +467,12 @@ document.getElementById("cancelLogout").addEventListener("click", function (e) {
 });
 
 document.getElementById("confirmLogout").addEventListener("click", function (e) {
-
     e.stopPropagation();
-
-    auth.signOut()
-    .then(() => {
-
+    auth.signOut().then(() => {
         localStorage.clear();
         sessionStorage.clear();
-
         window.location.href = "auth.html";
-
-    })
-    .catch(error => {
+    }).catch(error => {
         console.error("Logout error:", error);
         document.getElementById("logoutModal").style.display = "none";
     });
@@ -622,4 +485,4 @@ setTimeout(()=>{
 </script>
 </body>
   <script src="js/app-back.js"></script>
-</html>
+  </html>
