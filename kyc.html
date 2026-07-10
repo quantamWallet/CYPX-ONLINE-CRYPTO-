@@ -24,8 +24,12 @@
 .upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .preview,.camera-view { width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; background: #000; }
 .file-name { font-size: 12px; color: #00C896; margin-top: 4px; }
-.upload-progress { height: 4px; background: #e2e8f0; border-radius: 4px; margin-top: 4px; overflow: hidden; display: none; }
-.upload-progress span { display: block; height: 100%; background: #00C896; width: 0%; transition: width.2s; }
+.upload-progress { height: 8px; background: #e2e8f0; border-radius: 8px; margin-top: 8px; overflow: hidden; }
+.upload-progress span { display: block; height: 100%; background: #00C896; width: 0%; transition: width 0.2s; }
+.uploading-box { background: #e6fff7; border: 2px dashed #00C896; border-radius: 10px; padding: 20px; margin-top: 8px; text-align: center; font-weight: 600; color: #0A2540; }
+.uploading-box.spinner { border: 3px solid #e2e8f0; border-top: 3px solid #00C896; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 8px; }
+@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+.uploaded-box { background: #e6fff7; border: 2px solid #00C896; border-radius: 10px; padding: 20px; margin-top: 8px; text-align: center; font-weight: 600; color: #00C896; font-size: 16px; }
 .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
 .toast.show { transform: translateX(0); }
 .toast.error { background: #ef4444; }
@@ -39,86 +43,42 @@
   <h1>CYPX KYC VERIFICATION</h1>
   <p class="subtitle">Secure. Encrypted. Takes 3 minutes.</p>
 
-  <div class="progress"><div id="progressBar" class="progress-bar" style="width: 20%"></div></div>
-
-  <!-- STEP 1 -->
-  <div class="step active" id="step1">
-    <input type="text" id="fullName" placeholder="Full Name" required>
-    <input type="date" id="dob" required>
-    <select id="idType" required>
-      <option value="">Select ID Type</option>
-      <option value="passport">Passport</option>
-      <option value="national_id">National ID Card</option>
-      <option value="drivers_license">Driver's License</option>
-    </select>
-    <input type="text" id="country" placeholder="Country" required>
-    <button id="step1Btn" onclick="saveStep1AndNext()" disabled>Loading...</button>
-  </div>
+  <div class="progress"><div id="progressBar" class="progress-bar" style="width: 40%"></div></div>
 
   <!-- STEP 2 -->
-  <div class="step" id="step2">
+  <div class="step active" id="step2">
     <label>ID Front</label>
-    <div class="upload-group">
-      <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
-      <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
+    <div id="idFrontUploadArea">
+      <div class="upload-group">
+        <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
+        <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
+      </div>
     </div>
     <input type="file" id="idFrontUpload" accept="image/*" style="display:none">
     <video id="idFrontCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
     <canvas id="idFrontCanvas" style="display:none"></canvas>
     <img id="idFrontPreview" class="preview" style="display:none">
     <div id="idFrontName" class="file-name"></div>
-    <div class="upload-progress" id="idFrontProg"><span></span></div>
 
     <div id="backIdSection" class="disabled-section">
       <label>ID Back</label>
-      <div class="upload-group">
-        <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
-        <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
+      <div id="idBackUploadArea">
+        <div class="upload-group">
+          <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
+          <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
+        </div>
       </div>
       <input type="file" id="idBackUpload" accept="image/*" style="display:none">
       <video id="idBackCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
       <canvas id="idBackCanvas" style="display:none"></canvas>
       <img id="idBackPreview" class="preview" style="display:none">
       <div id="idBackName" class="file-name"></div>
-      <div class="upload-progress" id="idBackProg"><span></span></div>
     </div>
 
     <button class="secondary" onclick="nextStep(1)">Back</button>
     <button id="step2Continue" onclick="validateAndNext(3)" disabled>Upload Back to Continue</button>
   </div>
 
-  <!-- STEP 3 -->
-  <div class="step" id="step3">
-    <label>Selfie</label>
-    <div class="upload-group">
-      <button type="button" class="outline" onclick="triggerUpload('selfieUpload')">Upload</button>
-      <button type="button" class="outline" onclick="openCamera('selfie')">Take Selfie</button>
-    </div>
-    <input type="file" id="selfieUpload" accept="image/*" style="display:none">
-    <video id="selfieCam" class="camera-view" style="display:none" autoplay playsinline muted></video>
-    <canvas id="selfieCanvas" style="display:none"></canvas>
-    <img id="selfiePreview" class="preview" style="display:none">
-    <div id="selfieName" class="file-name"></div>
-    <div class="upload-progress" id="selfieProg"><span></span></div>
-
-    <button class="secondary" onclick="nextStep(2)">Back</button>
-    <button onclick="validateAndNext(4)">Continue</button>
-  </div>
-
-  <!-- STEP 4 -->
-  <div class="step" id="step4">
-    <input type="text" id="address" placeholder="Home Address" required>
-    <label>Proof of Address <input type="file" id="proof" accept="image/*,application/pdf"></label>
-    <div class="upload-progress" id="proofProg"><span></span></div>
-    <button class="secondary" onclick="nextStep(3)">Back</button>
-    <button id="submitBtn" onclick="submitKYC()">Submit for Review</button>
-  </div>
-
-  <!-- STEP 5 -->
-  <div class="step" id="step5">
-    <h2 style="color:#00C896;">Submitted ✅</h2>
-    <p>Your CYPX KYC is under review. We'll email you within 24 hours.</p>
-  </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -126,7 +86,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-  import { getDatabase, ref, set, update, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+  import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -136,8 +96,7 @@
     projectId: "quantum-rio",
     storageBucket: "quantum-rio.firebasestorage.app",
     messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -147,56 +106,34 @@
   let currentUser = null;
   let currentStream = null;
   const fileStore = {};
-  let frontUploaded = false;
 
-  const fullName = document.getElementById("fullName");
-  const dob = document.getElementById("dob");
-  const idType = document.getElementById("idType");
-  const country = document.getElementById("country");
-  const step1Btn = document.getElementById("step1Btn");
+  onAuthStateChanged(auth, (user) => { if(user) currentUser = user; });
 
-  onAuthStateChanged(auth, async (user) => {
-    if(user) {
-      currentUser = user;
-      step1Btn.disabled = false;
-      step1Btn.innerText = "Continue";
-      await loadProgress(); // auto resume
-    }
-    else {
-      showToast("Please login to CYPX first", "error");
-      step1Btn.disabled = true;
-      step1Btn.innerText = "Please Login";
-    }
-  });
-
-  let step = 1;
+  let step = 2;
   window.nextStep = (n) => {
     stopCamera();
     document.getElementById(`step${step}`).classList.remove('active');
     step = n;
     document.getElementById(`step${step}`).classList.add('active');
     document.getElementById('progressBar').style.width = `${step*20}%`;
-    window.scrollTo(0,0);
   }
 
-  async function loadProgress(){
-    const snap = await get(ref(db, "kyc_submissions/" + currentUser.uid));
-    if(snap.exists()){
-      const data = snap.val();
-      if(data.fullName){
-        fullName.value = data.fullName;
-        dob.value = data.dob;
-        idType.value = data.idType;
-        country.value = data.country;
-      }
-      if(data.idFront){ fileStore.idFrontUrl = data.idFront; frontUploaded = true; document.getElementById('backIdSection').classList.remove('disabled-section'); }
-      if(data.idBack){ fileStore.idBackUrl = data.idBack; document.getElementById('step2Continue').disabled = false; }
-      if(data.selfie){ fileStore.selfie = true; }
+  function showUploadingState(baseId) {
+    document.getElementById(baseId + 'UploadArea').innerHTML = `
+      <div class="uploading-box">
+        <div class="spinner"></div>
+        Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}... Please wait
+        <div class="upload-progress" id="${baseId}Prog"><span></span></div>
+      </div>
+    `;
+  }
 
-      if(data.status === 'pending'){ nextStep(5); return; }
-      if(data.idBack){ nextStep(3); return; }
-      if(data.idFront){ nextStep(2); return; }
-    }
+  function showUploadedState(baseId) {
+    document.getElementById(baseId + 'UploadArea').innerHTML = `
+      <div class="uploaded-box">
+        ✅ ${baseId === 'idFront'? 'Front ID' : 'Back ID'} Uploaded Successfully
+      </div>
+    `;
   }
 
   window.triggerUpload = (id) => {
@@ -205,7 +142,7 @@
   }
 
   window.openCamera = async (target) => {
-    if(!window.isSecureContext) return showToast("Camera only works on HTTPS or localhost", "error");
+    if(!window.isSecureContext) return showToast("Camera only works on HTTPS", "error");
     stopCamera();
     const video = document.getElementById(target + 'Cam');
     video.style.display = 'block';
@@ -220,9 +157,7 @@
       btn.id = target + 'CaptureBtn';
       btn.style.marginTop = '10px';
       video.after(btn);
-    } catch(e) {
-      showToast("Camera error: " + e.message, "error");
-    }
+    } catch(e) { showToast("Camera error: " + e.message, "error"); }
   }
 
   function stopCamera(){
@@ -239,10 +174,9 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File([blob], `${target}.jpg`, { type: "image/jpeg" });
+      const file = new File(, `${target}.jpg`, { type: "image/jpeg" });
       setFile(target, file);
       stopCamera();
-      showToast("Photo captured", "success");
     }, 'image/jpeg', 0.8);
   }
 
@@ -255,7 +189,7 @@
     if(baseId === 'idBack') handleBackUpload(file);
   }
 
-  ['idFrontUpload','idBackUpload','selfieUpload'].forEach(id => {
+  ['idFrontUpload','idBackUpload'].forEach(id => {
     document.getElementById(id).addEventListener('change', (e) => {
       const file = e.target.files[0];
       if(!file) return;
@@ -265,77 +199,47 @@
   });
 
   async function handleFrontUpload(file) {
-    const btn1 = document.getElementById('idFrontUploadBtn');
-    const btn2 = document.getElementById('idFrontCamBtn');
-    btn1.disabled = true; btn2.disabled = true;
-    btn1.innerText = "Uploading...";
+    showUploadingState('idFront'); // REPLACE BUTTONS
 
     try {
       const url = await uploadFile(file, 'idFront', document.getElementById('idFrontProg'));
       fileStore.idFrontUrl = url;
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {idFront: url});
-      frontUploaded = true;
+      showUploadedState('idFront'); // SHOW SUCCESS
       showToast("Front ID uploaded", "success");
       document.getElementById('backIdSection').classList.remove('disabled-section');
-      document.getElementById('step2Continue').innerText = "Continue";
     } catch(e) {
       showToast(e.message, "error");
-      btn1.disabled = false; btn2.disabled = false;
-      btn1.innerText = "Upload";
+      // restore buttons on error
+      document.getElementById('idFrontUploadArea').innerHTML = `
+        <div class="upload-group">
+          <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
+          <button type="button" class="outline" id="idFrontCamBtn" onclick="openCamera('idFront')">Take Photo</button>
+        </div>
+      `;
     }
   }
 
   async function handleBackUpload(file) {
-    const btn1 = document.getElementById('idBackUploadBtn');
-    const btn2 = document.getElementById('idBackCamBtn');
-    btn1.disabled = true; btn2.disabled = true;
-    btn1.innerText = "Uploading...";
+    showUploadingState('idBack'); // REPLACE BUTTONS
 
     try {
       const url = await uploadFile(file, 'idBack', document.getElementById('idBackProg'));
       fileStore.idBackUrl = url;
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {idBack: url});
+      showUploadedState('idBack'); // SHOW SUCCESS
       showToast("Back ID uploaded", "success");
       document.getElementById('step2Continue').disabled = false;
     } catch(e) {
       showToast(e.message, "error");
-      btn1.disabled = false; btn2.disabled = false;
-      btn1.innerText = "Upload";
+      // restore buttons on error
+      document.getElementById('idBackUploadArea').innerHTML = `
+        <div class="upload-group">
+          <button type="button" class="outline" id="idBackUploadBtn" onclick="triggerUpload('idBackUpload')">Upload</button>
+          <button type="button" class="outline" id="idBackCamBtn" onclick="openCamera('idBack')">Take Photo</button>
+        </div>
+      `;
     }
-  }
-
-  window.saveStep1AndNext = async () => {
-    if(!currentUser) return showToast("Please wait, logging in...", "error");
-    if(!fullName.value.trim() ||!dob.value ||!idType.value ||!country.value.trim())
-      return showToast("Please fill all fields", "error");
-
-    step1Btn.disabled = true;
-    step1Btn.innerText = "Saving...";
-
-    try {
-      await set(ref(db, "kyc_submissions/" + currentUser.uid), {
-        fullName: fullName.value.trim(),
-        dob: dob.value,
-        idType: idType.value,
-        country: country.value.trim(),
-        createdAt: serverTimestamp()
-      });
-      nextStep(2);
-    } catch(e) {
-      showToast("Save failed: " + e.message, "error");
-      step1Btn.disabled = false;
-      step1Btn.innerText = "Continue";
-    }
-  }
-
-  window.validateAndNext = (n) => {
-    if(step === 2 && (!fileStore.idFrontUrl ||!fileStore.idBackUrl))
-      return showToast("Please upload both ID Front and Back", "error");
-    if(step === 3 &&!fileStore.selfie)
-      return showToast("Please upload a selfie", "error");
-    const inputs = document.getElementById(`step${step}`).querySelectorAll('input[required]');
-    for(let input of inputs){ if(!input.value) return showToast("Please fill all required fields", "error"); }
-    nextStep(n);
   }
 
   function showToast(message, type = "info"){
@@ -345,34 +249,9 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
-  async function compressImage(file) {
-    if(file.type === "application/pdf" || file.size < 500*1024) return file;
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          let maxW = 1200;
-          let scale = maxW / img.width;
-          canvas.width = maxW;
-          canvas.height = img.height * scale;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
-          }, "image/jpeg", 0.65);
-        }
-      }
-    });
-  }
-
   async function uploadFile(file, name, progEl) {
-    const compressed = await compressImage(file);
     const sRef = storageRef(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
-    const task = uploadBytesResumable(sRef, compressed);
+    const task = uploadBytesResumable(sRef, file);
     progEl.style.display = 'block';
 
     return new Promise((resolve, reject) => {
@@ -387,41 +266,12 @@
     });
   }
 
-  window.submitKYC = async () => {
-    if(!currentUser) return showToast("Login first", "error");
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.innerText = "Submitting... 0%";
-
-    try {
-      const urls = { idFront: fileStore.idFrontUrl, idBack: fileStore.idBackUrl };
-      if(fileStore.selfie){
-        urls.selfie = await uploadFile(fileStore.selfie, 'selfie', document.getElementById('selfieProg'));
-        btn.innerText = `Submitting... 50%`;
-      }
-      const proofFile = document.getElementById('proof').files[0];
-      if(proofFile) {
-        urls.proof = await uploadFile(proofFile, 'proof', document.getElementById('proofProg'));
-        btn.innerText = `Submitting... 75%`;
-      }
-
-      await update(ref(db, "kyc_submissions/" + currentUser.uid), {
-        address: document.getElementById('address').value.trim(),
-     ...urls,
-        status: "pending",
-        email: currentUser.email,
-        submittedAt: serverTimestamp()
-      });
-
-      showToast("KYC submitted successfully", "success");
-      nextStep(5);
-    } catch(e) {
-      showToast(e.message, "error");
-      btn.disabled = false;
-      btn.innerText = "Submit for Review";
-    }
+  window.validateAndNext = (n) => {
+    if(!fileStore.idFrontUrl ||!fileStore.idBackUrl)
+      return showToast("Please upload both ID Front and Back", "error");
+    nextStep(n);
   }
 </script>
 
 </body>
-</html>
+      </html>
