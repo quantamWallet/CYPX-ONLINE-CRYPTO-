@@ -160,9 +160,9 @@ let prices = {
   "BNB/USDT": 580.30, "XRP/USDT": 0.52, "DOGE/USDT": 0.14,
   "ADA/USDT": 0.45, "TON/USDT": 5.20
 };
-let prevPrices = {...prices}; // FIX 1: track prev per pair
+let prevPrices = {...prices};
 let orderType = "buy";
-let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]"); // FIX 2: load from storage
+let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]");
 
 const toast = document.getElementById("toast");
 const centerToast = document.getElementById("centerToast");
@@ -176,7 +176,7 @@ function saveNotifs(){
 function pushNotif(msg, type="info"){
   const time = new Date().toLocaleTimeString();
   notifs.unshift({msg, time});
-  if(notifs.length > 50) notifs.pop(); // keep it light
+  if(notifs.length > 50) notifs.pop();
   saveNotifs();
   notifCount.textContent = notifs.length;
   notifCount.style.display = notifs.length? 'block' : 'none';
@@ -199,7 +199,7 @@ function renderNotifs(){
   notifPanel.innerHTML = notifs.length? notifs.map(n=>`<div class="notif-item">${n.msg}<div class="time">${n.time}</div></div>`).join('') : `<div class="notif-item">No notifications</div>`;
 }
 document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show");
-renderNotifs(); // render on load so they don't disappear
+renderNotifs();
 
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
@@ -211,16 +211,16 @@ function loadChart(symbol){
 }
 
 function updatePrice(){
-  // FIX 1: move all prices at the same time and keep them valid
+  // FIX: update each pair and save prev price correctly
   Object.keys(prices).forEach(pair=>{
-    prevPrices[pair] = prices[pair];
+    prevPrices[pair] = prices[pair]; // save old price first
     const volatility = pair.includes("BTC")?50:pair.includes("ETH")?10:1;
     prices[pair] += (Math.random() - 0.5) * volatility;
-    if(prices[pair] < 0.01) prices[pair] = 0.01; // prevent negative
+    if(prices[pair] < 0.01) prices[pair] = 0.01;
   });
 
   const price = prices[currentPair];
-  const change = ((price - prevPrices[currentPair]) / prevPrices[currentPair]) * 100;
+  const change = prevPrices[currentPair]? ((price - prevPrices[currentPair]) / prevPrices[currentPair]) * 100 : 0;
 
   document.getElementById("pairPrice").textContent = "$" + price.toFixed(2);
   const changeEl = document.getElementById("pairChange");
@@ -239,7 +239,7 @@ onAuthStateChanged(auth, (user)=>{
   uid = user.uid;
   document.getElementById("balCard").classList.add("loading");
   loadChart(currentPair);
-  updatePrice(); // init UI immediately
+  updatePrice();
 
   const userBalRef = ref(db, `users/${uid}/balance`);
   const positionsRef = ref(db, `trade/${uid}/positions`);
@@ -332,7 +332,7 @@ function renderPositions(){
   const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
 
-  tbody.innerHTML = arr.map(([id][p])=>{
+  tbody.innerHTML = arr.map(([id, p])=>{ // FIX: added comma here
     const price = prices[p.pair] || p.entry;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
     const pnlPct = (pnl / p.amount) * 100;
