@@ -126,31 +126,39 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+  import { getDatabase, ref, set, update, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
+  // YOUR REAL CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
     projectId: "quantum-rio",
     storageBucket: "quantum-rio.firebasestorage.app",
     messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getFirestore(app);
+  const db = getDatabase(app);
   const storage = getStorage(app);
   let currentUser = null;
   let currentStream = null;
   const fileStore = {};
   let frontUploaded = false;
 
+  const fullName = document.getElementById("fullName");
+  const dob = document.getElementById("dob");
+  const idType = document.getElementById("idType");
+  const country = document.getElementById("country");
+
   onAuthStateChanged(auth, async (user) => {
     if(user) {
       currentUser = user;
-      await loadProgress(); // NEW: auto resume
+      await loadProgress(); // auto resume
     }
     else showToast("Please login to CYPX first", "error");
   });
@@ -165,11 +173,11 @@
     window.scrollTo(0,0);
   }
 
-  // NEW: Load existing data and jump to correct step
+  // Load existing data from RTDB and jump to correct step
   async function loadProgress(){
-    const snap = await getDoc(doc(db, "kyc_submissions", currentUser.uid));
+    const snap = await get(ref(db, "kyc_submissions/" + currentUser.uid));
     if(snap.exists()){
-      const data = snap.data();
+      const data = snap.val();
       if(data.fullName){
         fullName.value = data.fullName;
         dob.value = data.dob;
@@ -178,7 +186,7 @@
       }
       if(data.idFront){ fileStore.idFrontUrl = data.idFront; frontUploaded = true; document.getElementById('backIdSection').classList.remove('disabled-section'); }
       if(data.idBack){ fileStore.idBackUrl = data.idBack; document.getElementById('step2Continue').disabled = false; }
-      if(data.selfie){ fileStore.selfie = true; } // just flag
+      if(data.selfie){ fileStore.selfie = true; }
 
       if(data.status === 'pending'){ nextStep(5); return; }
       if(data.idBack){ nextStep(3); return; }
@@ -226,7 +234,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File(, `${target}.jpg`, { type: "image/jpeg" }); // FIXED
+      const file = new File([blob], `${target}.jpg`, { type: "image/jpeg" }); // FIXED
       setFile(target, file);
       stopCamera();
       showToast("Photo captured", "success");
@@ -260,7 +268,7 @@
     try {
       const url = await uploadFile(file, 'idFront', document.getElementById('idFrontProg'));
       fileStore.idFrontUrl = url;
-      await setDoc(doc(db, "kyc_submissions", currentUser.uid), {idFront: url}, {merge: true});
+      await update(ref(db, "kyc_submissions/" + currentUser.uid), {idFront: url});
       frontUploaded = true;
       showToast("Front ID uploaded", "success");
       document.getElementById('backIdSection').classList.remove('disabled-section');
@@ -281,7 +289,7 @@
     try {
       const url = await uploadFile(file, 'idBack', document.getElementById('idBackProg'));
       fileStore.idBackUrl = url;
-      await setDoc(doc(db, "kyc_submissions", currentUser.uid), {idBack: url}, {merge: true});
+      await update(ref(db, "kyc_submissions/" + currentUser.uid), {idBack: url});
       showToast("Back ID uploaded", "success");
       document.getElementById('step2Continue').disabled = false;
     } catch(e) {
@@ -291,18 +299,17 @@
     }
   }
 
-  // NEW: Save step 1 to DB then go next
   window.saveStep1AndNext = async () => {
     if(!fullName.value.trim() ||!dob.value ||!idType.value ||!country.value.trim())
       return showToast("Please fill all fields", "error");
 
     document.getElementById('step1Btn').disabled = true;
-    await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
+    await set(ref(db, "kyc_submissions/" + currentUser.uid), {
       fullName: fullName.value.trim(),
       dob: dob.value,
       idType: idType.value,
       country: country.value.trim(),
-    }, {merge: true});
+    });
     nextStep(2);
   }
 
@@ -340,7 +347,7 @@
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
-            resolve(new File(, file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" })); // FIXED
+            resolve(new File([blob], file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" })); // FIXED
           }, "image/jpeg", 0.65);
         }
       }
@@ -349,8 +356,8 @@
 
   async function uploadFile(file, name, progEl) {
     const compressed = await compressImage(file);
-    const storageRef = ref(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
-    const task = uploadBytesResumable(storageRef, compressed);
+    const sRef = storageRef(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
+    const task = uploadBytesResumable(sRef, compressed);
     progEl.style.display = 'block';
 
     return new Promise((resolve, reject) => {
@@ -383,13 +390,13 @@
         btn.innerText = `Submitting... 75%`;
       }
 
-      await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
+      await update(ref(db, "kyc_submissions/" + currentUser.uid), {
         address: document.getElementById('address').value.trim(),
-    ...urls,
+      ...urls,
         status: "pending",
         email: currentUser.email,
-        createdAt: serverTimestamp()
-      }, {merge: true});
+        submittedAt: serverTimestamp()
+      });
 
       showToast("KYC submitted successfully", "success");
       nextStep(5);
@@ -402,4 +409,4 @@
 </script>
 
 </body>
-                                                                                                           </html>
+        </html>                                    
