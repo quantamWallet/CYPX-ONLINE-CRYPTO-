@@ -24,6 +24,8 @@
 .upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .preview,.camera-view { width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; background: #000; }
 .file-name { font-size: 12px; color: #00C896; margin-top: 4px; }
+.upload-progress { height: 4px; background: #e2e8f0; border-radius: 4px; margin-top: 4px; overflow: hidden; display: none; }
+.upload-progress span { display: block; height: 100%; background: #00C896; width: 0%; transition: width.2s; }
 .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
 .toast.show { transform: translateX(0); }
 .toast.error { background: #ef4444; }
@@ -64,6 +66,7 @@
     <canvas id="idFrontCanvas" style="display:none"></canvas>
     <img id="idFrontPreview" class="preview" style="display:none">
     <div id="idFrontName" class="file-name"></div>
+    <div class="upload-progress" id="idFrontProg"><span></span></div>
 
     <label>ID Back</label>
     <div class="upload-group">
@@ -75,6 +78,7 @@
     <canvas id="idBackCanvas" style="display:none"></canvas>
     <img id="idBackPreview" class="preview" style="display:none">
     <div id="idBackName" class="file-name"></div>
+    <div class="upload-progress" id="idBackProg"><span></span></div>
 
     <button class="secondary" onclick="nextStep(1)">Back</button>
     <button onclick="validateAndNext(3)">Continue</button>
@@ -92,6 +96,7 @@
     <canvas id="selfieCanvas" style="display:none"></canvas>
     <img id="selfiePreview" class="preview" style="display:none">
     <div id="selfieName" class="file-name"></div>
+    <div class="upload-progress" id="selfieProg"><span></span></div>
 
     <button class="secondary" onclick="nextStep(2)">Back</button>
     <button onclick="validateAndNext(4)">Continue</button>
@@ -101,6 +106,7 @@
   <div class="step" id="step4">
     <input type="text" id="address" placeholder="Home Address" required>
     <label>Proof of Address <input type="file" id="proof" accept="image/*,application/pdf"></label>
+    <div class="upload-progress" id="proofProg"><span></span></div>
     <button class="secondary" onclick="nextStep(3)">Back</button>
     <button id="submitBtn" onclick="submitKYC()">Submit for Review</button>
   </div>
@@ -118,7 +124,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -192,10 +198,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File([blob], `${target}.jpg`, {
-  type: "image/jpeg"
-});
-// FIXED: added [blob]
+      const file = new File([blob], `${target}.jpg`, { type: "image/jpeg" });
       setFile(target, file);
       stopCamera();
       showToast("Photo captured", "success");
@@ -203,10 +206,10 @@
   }
 
   function setFile(baseId, file){
-    fileStore[baseId] = file; // replaces old file
+    fileStore[baseId] = file;
     document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
     document.getElementById(baseId + 'Preview').style.display = 'block';
-    document.getElementById(baseId + 'Name').innerText = `Selected: ${file.name}`;
+    document.getElementById(baseId + 'Name').innerText = `Selected: ${(file.size/1024/1024).toFixed(2)}MB`;
   }
 
   ['idFrontUpload','idBackUpload','selfieUpload'].forEach(id => {
@@ -214,7 +217,7 @@
       const file = e.target.files[0];
       if(!file) return;
       const baseId = id.replace('Upload','');
-      setFile(baseId, file); // replaces previous upload
+      setFile(baseId, file);
     })
   });
 
@@ -234,11 +237,11 @@
     const toast = document.getElementById('toast');
     toast.className = `toast ${type} show`;
     toast.innerText = message;
-    setTimeout(() => toast.classList.remove('show'), 3000);
+    setTimeout(() => toast.classList.remove('show'), 3500);
   }
 
   async function compressImage(file) {
-    if(file.type === "application/pdf") return file;
+    if(file.type === "application/pdf" || file.size < 500*1024) return file;
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -248,41 +251,73 @@
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          const maxW = 1200;
-          const scale = maxW / img.width;
+          let maxW = 1200;
+          let scale = maxW / img.width;
           canvas.width = maxW;
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
-  resolve(new File([blob], file.name, {
-    type: "image/jpeg"
-  }));
-}, "image/jpeg", 0.7);
-// FIXED: added [blob]
+            resolve(new File([blob], file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
+          }, "image/jpeg", 0.65);
         }
       }
     });
   }
 
-  async function uploadFile(file, name) {
+  async function uploadFile(file, name, progEl) {
     const compressed = await compressImage(file);
     const storageRef = ref(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
-    await uploadBytes(storageRef, compressed);
-    return await getDownloadURL(storageRef);
+    const task = uploadBytesResumable(storageRef, compressed);
+
+    progEl.style.display = 'block';
+    const timeout = setTimeout(() => { task.cancel(); throw new Error("Upload timed out. Check internet."); }, 120000);
+
+    return new Promise((resolve, reject) => {
+      task.on('state_changed',
+        (snap) => {
+          const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+          progEl.querySelector('span').style.width = pct + '%';
+        },
+        (error) => {
+          clearTimeout(timeout);
+          reject(error);
+        },
+        async () => {
+          clearTimeout(timeout);
+          resolve(await getDownloadURL(task.snapshot.ref));
+        }
+      );
+    });
   }
 
   window.submitKYC = async () => {
     if(!currentUser) return showToast("Login first", "error");
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').innerText = "Submitting...";
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerText = "Submitting... 0%";
 
     try {
       const urls = {};
-      for(let key in fileStore){
-        urls[key] = await uploadFile(fileStore[key], key);
+      const uploads = [
+        {key: 'idFront', prog: document.getElementById('idFrontProg')},
+        {key: 'idBack', prog: document.getElementById('idBackProg')},
+        {key: 'selfie', prog: document.getElementById('selfieProg')}
+      ];
+
+      let done = 0;
+      for(let u of uploads){
+        if(fileStore[u.key]){
+          urls[u.key] = await uploadFile(fileStore[u.key], u.key, u.prog);
+          done++;
+          btn.innerText = `Submitting... ${Math.round(done/4*100)}%`;
+        }
       }
+
       const proofFile = document.getElementById('proof').files[0];
-      if(proofFile) urls.proof = await uploadFile(proofFile, 'proof');
+      if(proofFile) {
+        urls.proof = await uploadFile(proofFile, 'proof', document.getElementById('proofProg'));
+        done++;
+      }
 
       await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
         fullName: document.getElementById('fullName').value.trim(),
@@ -290,7 +325,7 @@
         idType: document.getElementById('idType').value,
         country: document.getElementById('country').value.trim(),
         address: document.getElementById('address').value.trim(),
-    ...urls,
+       ...urls,
         status: "pending",
         email: currentUser.email,
         createdAt: serverTimestamp()
@@ -300,8 +335,8 @@
       nextStep(5);
     } catch(e) {
       showToast("Upload failed: " + e.message, "error");
-      document.getElementById('submitBtn').disabled = false;
-      document.getElementById('submitBtn').innerText = "Submit for Review";
+      btn.disabled = false;
+      btn.innerText = "Submit for Review";
     }
   }
 </script>
