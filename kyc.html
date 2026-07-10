@@ -219,9 +219,9 @@
     try {
       const url = await uploadFile(file, 'idFront');
       fileStore.idFrontUrl = url;
-      // KEY FIX: Save to users/UID/kyc and set status to pending
       await update(ref(db, "users/" + currentUser.uid), {
-        kyc: { idFront: url, updatedAt: Date.now() },
+        "kyc/idFront": url,
+        "kyc/updatedAt": Date.now(),
         kycStatus: "pending"
       });
 
@@ -247,7 +247,6 @@
     try {
       const url = await uploadFile(file, 'idBack');
       fileStore.idBackUrl = url;
-      // KEY FIX: Merge into kyc object
       await update(ref(db, "users/" + currentUser.uid), {
         "kyc/idBack": url,
         "kyc/updatedAt": Date.now(),
