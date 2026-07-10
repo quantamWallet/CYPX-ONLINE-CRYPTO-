@@ -54,6 +54,9 @@ body{background:var(--bg);color:var(--text)}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--card2);padding:12px 16px;border-radius:12px;border-left:4px solid var(--brand);display:none;z-index:999}
 .toast.show{display:block;animation:slide.3s}
 @keyframes slide{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.center-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);padding:20px 30px;border-radius:16px;border:2px solid var(--brand);font-size:18px;font-weight:700;display:none;z-index:1000;box-shadow:0 0 30px rgba(0,0,0,.5)}
+.center-toast.show{display:block;animation:pop.3s}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.8)}100%{transform:translate(-50%,-50%) scale(1)}}
 .loading{opacity:.5;pointer-events:none}
 </style>
 </head>
@@ -126,6 +129,7 @@ body{background:var(--bg);color:var(--text)}
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="center-toast" id="centerToast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -160,6 +164,7 @@ let orderType = "buy";
 let notifs = [];
 
 const toast = document.getElementById("toast");
+const centerToast = document.getElementById("centerToast");
 const notifPanel = document.getElementById("notifPanel");
 const notifCount = document.getElementById("notifCount");
 
@@ -174,6 +179,15 @@ function pushNotif(msg, type="info"){
   setTimeout(()=>toast.classList.remove("show"), 3000);
   renderNotifs();
 }
+
+function showCenterToast(msg, type="ok"){
+  centerToast.textContent = msg;
+  centerToast.style.borderColor = type==="ok"? "var(--ok)" : "var(--bad)";
+  centerToast.style.color = type==="ok"? "var(--ok)" : "var(--bad)";
+  centerToast.classList.add("show");
+  setTimeout(()=>centerToast.classList.remove("show"), 2500);
+}
+
 function renderNotifs(){
   notifPanel.innerHTML = notifs.length? notifs.map(n=>`<div class="notif-item">${n.msg}<div class="time">${n.time}</div></div>`).join('') : `<div class="notif-item">No notifications</div>`;
 }
@@ -188,19 +202,21 @@ function loadChart(symbol){
   });
 }
 
+/* FIX 1: Corrected price loop */
 function updatePrice(){
   const newPrices = {...prices};
   Object.keys(newPrices).forEach(pair=>{
-    newPrices += (Math.random() - 0.5) * (pair.includes("BTC")?50:pair.includes("ETH")?10:1);
+    newPrices[pair] += (Math.random() - 0.5) * (pair.includes("BTC")?50:pair.includes("ETH")?10:1);
   });
   prices = newPrices;
-  document.getElementById("pairPrice").textContent = "$" + prices[currentPair].toFixed(2);
+  const price = prices[currentPair];
+  document.getElementById("pairPrice").textContent = "$" + price.toFixed(2);
   document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
   document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
-  checkTP_SL(); // Check every tick
+  checkTP_SL();
   updateEquity();
 }
-setInterval(updatePrice, 1000); // 1s for faster TP/SL
+setInterval(updatePrice, 1000);
 
 onAuthStateChanged(auth, (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
@@ -239,20 +255,18 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
 });
 
-/* MT5 STYLE: AUTO TP/SL CHECK */
 function checkTP_SL(){
   Object.keys(positions).forEach(id=>{
     const p = positions[id];
     const price = prices[p.pair];
     if(!price) return;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-    const pnlPct = (pnl / (p.entry*p.qty)) * 100;
+    const pnlPct = (pnl / p.amount) * 100;
 
-    // Hit TP or SL
     if(pnlPct >= p.tp){
-      closePosition(id, `TP Hit +${pnlPct.toFixed(2)}%`);
+      closePosition(id, `TAKE PROFIT +${pnlPct.toFixed(2)}%`, "ok");
     } else if(pnlPct <= -p.sl){
-      closePosition(id, `SL Hit ${pnlPct.toFixed(2)}%`);
+      closePosition(id, `STOP LOSS ${pnlPct.toFixed(2)}%`, "bad");
     }
   });
 }
@@ -268,7 +282,6 @@ async function placeOrder(){
   const qty = amount / price;
   const fee = amount * 0.001;
 
-  // Deduct margin + fee immediately
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
     const curr = parseFloat(current) || 0;
     return curr - amount - fee;
@@ -277,23 +290,25 @@ async function placeOrder(){
     pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount,
     tp: tp, sl: sl, openedAt: serverTimestamp()
   });
-  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair} @ $${price.toFixed(2)}`, "ok");
+  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair}`, "ok");
 }
 
 document.getElementById("buyBtn").onclick = placeOrder;
 document.getElementById("sellBtn").onclick = placeOrder;
 
-/* MT5 STYLE CLOSE: Credit/Debit actual P&L */
-async function closePosition(id, reason="Manual"){
+/* FIX 2: Correct close logic. Only add pnl, not amount again */
+async function closePosition(id, reason="Manual Close", type="info"){
   const p = positions[id];
   if(!p) return;
   const price = prices[p.pair];
   const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
 
-  // Return margin + P&L to balance
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + p.amount + pnl);
+  // Return only P&L. Margin was already deducted on open
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + pnl);
   await remove(ref(db, `trade/${uid}/positions/${id}`));
-  pushNotif(`Closed ${p.pair} ${reason}. P&L: $${pnl.toFixed(2)}`, pnl>=0?"ok":"bad");
+
+  showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type);
+  pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, type);
 }
 
 function renderPositions(){
@@ -304,7 +319,7 @@ function renderPositions(){
   tbody.innerHTML = arr.map(([id,p])=>{
     const price = prices[p.pair] || p.entry;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-    const pnlPct = (pnl / (p.entry*p.qty)) * 100;
+    const pnlPct = (pnl / p.amount) * 100;
     return `
     <tr class="pos">
       <td>${p.pair}</td>
@@ -344,4 +359,4 @@ pushNotif("Connected to CYPX TRADE", "info");
 window.closePosition = closePosition;
 </script>
 </body>
-        </html>
+  </html>
