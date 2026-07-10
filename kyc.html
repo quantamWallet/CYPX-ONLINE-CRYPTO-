@@ -7,32 +7,33 @@
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; display: flex; justify-content: center; padding: 20px; margin: 0; }
-.container { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    h1 { color: #0A2540; margin: 0 0 8px; font-size: 24px; }
-.subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
-.progress { background: #e2e8f0; height: 6px; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
-.progress-bar { background: #00C896; height: 100%; border-radius: 10px; transition: width 0.3s ease; }
-    input, button, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
+.container { background: white; max-width: 600px; width: 100%; padding: 24px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1e293b; margin: 0 0 6px; font-size: 22px; font-weight: 700; }
+.subtitle { color: #64748b; margin-bottom: 16px; font-size: 13px; }
+.progress { background: #e2e8f0; height: 6px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+.progress-bar { background: #00C896; height: 100%; border-radius: 10px; transition: width 0.3s ease; width: 20%; }
+    input, button, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; font-weight: 600; }
     input:focus, select:focus { border-color: #00C896; }
-    button { background: #00C896; color: white; border: none; cursor: pointer; font-weight: 600; }
+    button { background: #00C896; color: white; border: none; cursor: pointer; }
     button:disabled { background: #94e2cc; cursor: not-allowed; }
-    button.secondary { background: #e2e8f0; color: #0A2540; }
-    button.outline { background: white; color: #00C896; border: 1px solid #00C896; }
+    button.secondary { background: #e2e8f0; color: #334155; }
+    button.outline { background: white; color: #00C896; border: 1.5px solid #00C896; }
+    button.outline:active { background: #e6fff7; }
 .step { display: none; }
 .step.active { display: block; }
-    label { font-weight: 600; display: block; margin-top: 12px; font-size: 14px; color: #334155; }
+    label { font-weight: 600; display: block; margin-top: 16px; margin-bottom: 6px; font-size: 14px; color: #334155; }
 .upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .preview,.camera-view { width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; background: #000; }
 .file-name { font-size: 12px; color: #64748b; margin-top: 4px; }
-.upload-progress { height: 8px; background: #e2e8f0; border-radius: 8px; margin-top: 8px; overflow: hidden; display: none; }
+.upload-progress { height: 6px; background: #e2e8f0; border-radius: 8px; margin-top: 8px; overflow: hidden; display: none; }
 .upload-progress span { display: block; height: 100%; background: #00C896; width: 0%; transition: width 0.2s; }
-.upload-status { background: #e6fff7; border-left: 4px solid #00C896; padding: 10px 12px; margin-top: 8px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #0A2540; display: none; }
+.upload-status { background: #e6fff7; border-left: 4px solid #00C896; padding: 10px 12px; margin-top: 8px; border-radius: 8px; font-size: 13px; font-weight: 600; color: #0A2540; display: none; }
 .upload-status.success { background: #f0fdf4; border-left-color: #22c55e; color: #15803d; }
-.toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
-.toast.show { transform: translateX(0); }
+.toast { position: fixed; top: 20px; right: 20px; left: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateY(-100px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; text-align: center; }
+.toast.show { transform: translateY(0); }
 .toast.error { background: #ef4444; }
 .toast.success { background: #00C896; }
-.disabled-section { opacity: 0.5; pointer-events: none; }
+.disabled-section { opacity: 0.4; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -41,7 +42,7 @@
   <h1>CYPX KYC VERIFICATION</h1>
   <p class="subtitle">Secure. Encrypted. Takes 3 minutes.</p>
 
-  <div class="progress"><div id="progressBar" class="progress-bar" style="width: 40%"></div></div>
+  <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
 
   <!-- STEP 2 -->
   <div class="step active" id="step2">
@@ -87,7 +88,7 @@
   import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-  // YOUR REAL CONFIG - NOT CHANGED
+  // YOUR REAL CONFIG - UNCHANGED
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -135,6 +136,8 @@
       await video.play();
       const btn = document.createElement('button');
       btn.innerText = 'Capture Photo';
+      btn.style.background = '#00C896';
+      btn.style.color = 'white';
       btn.onclick = () => capturePhoto(target);
       btn.id = target + 'CaptureBtn';
       btn.style.marginTop = '10px';
@@ -156,7 +159,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File(, `${target}.jpg`, { type: "image/jpeg" }); // FIXED
+      const file = new File(, `${target}.jpg`, { type: "image/jpeg" });
       setFile(target, file);
       stopCamera();
     }, 'image/jpeg', 0.8);
