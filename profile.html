@@ -373,10 +373,8 @@ if (!firebase.apps.length) {
 }
 const auth = firebase.auth();
 const db = firebase.database();
-document.getElementById("kycBtn").addEventListener("click", function(){
-
-    document.getElementById("comingSoonModal").style.display="flex";
-
+document.getElementById("kycBtn").addEventListener("click", function () {
+    window.location.href = "kyc.html";
 });
 /* FORMAT */
 function formatMoney(num){
