@@ -165,6 +165,32 @@
     }, 'image/jpeg', 0.8);
   }
 
+  // NEW: Compress image to 1200px width, 65% quality
+  async function compressImage(file) {
+    if(file.type === "application/pdf" || file.size < 400*1024) return file; // skip small files and PDFs
+    
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          let maxW = 1200; // KYC only needs this
+          let scale = maxW / img.width;
+          canvas.width = maxW;
+          canvas.height = img.height * scale;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            resolve(new File(, file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
+          }, "image/jpeg", 0.65); // 65% quality
+        }
+      }
+    });
+  }
+
   function setFile(baseId, file){
     fileStore[baseId] = file;
     document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
@@ -174,7 +200,7 @@
     const statusEl = document.getElementById(baseId + 'Status');
     statusEl.style.display = 'block';
     statusEl.className = 'upload-status';
-    statusEl.innerText = `⏳ Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}... 0%`;
+    statusEl.innerText = `⏳ Compressing & Uploading ${baseId === 'idFront'? 'Front ID' : 'Back ID'}...`;
     
     document.getElementById(baseId + 'Prog').style.display = 'block';
 
@@ -244,9 +270,11 @@
     setTimeout(() => toast.classList.remove('show'), 4000);
   }
 
+  // UPDATED: Now compresses before upload
   async function uploadFile(file, name) {
+    const compressed = await compressImage(file); // 1. Compress first
     const sRef = storageRef(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
-    const task = uploadBytesResumable(sRef, file);
+    const task = uploadBytesResumable(sRef, compressed); // 2. Upload compressed
     const progEl = document.getElementById(name + 'Prog');
     const statusEl = document.getElementById(name + 'Status');
     progEl.style.display = 'block';
@@ -256,7 +284,7 @@
         (snap) => {
           const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
           progEl.querySelector('span').style.width = pct + '%';
-          statusEl.innerText = `⏳ Uploading ${name === 'idFront'? 'Front ID' : 'Back ID'}... ${pct}%`;
+          statusEl.innerText = `⏳ Uploading ${name === 'idFront'? 'Front ID' : 'Back ID'}... ${pct}% - ${(compressed.size/1024/1024).toFixed(2)}MB`;
         },
         (error) => reject(new Error("Upload failed: " + error.message)),
         async () => resolve(await getDownloadURL(task.snapshot.ref))
@@ -272,4 +300,4 @@
 </script>
 
 </body>
-</html>
+  </html>
