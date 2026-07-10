@@ -3,139 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CYPX Admin - Trade Control</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<title>CYPX TRADE - Trading</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <style>
-    * { box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #0a0f1a;
-    margin: 0; padding: 20px; color: #fff;
-  }
-  .container { max-width: 1300px; margin: 0 auto; }
-  h1 { color: #ffd700; text-align: center; margin-bottom: 20px; }
-  
-  .tabs { display:flex; gap:10px; margin-bottom:20px }
-  .tab-btn { flex:1; padding:12px; background:#001f3f; border:1px solid #00C896; color:#00C896; border-radius:10px; cursor:pointer; font-weight:700 }
-  .tab-btn.active { background:#00C896; color:#000 }
-
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media(max-width:900px){ .grid{ grid-template-columns: 1fr; } }
-
-  .card {
-    background: linear-gradient(145deg,#001f3f,#002b5c);
-    padding: 20px; border-radius: 16px;
-    box-shadow: 0 0 20px rgba(0,200,255,0.15);
-    border: 1px solid rgba(0,200,255,0.2);
-  }
-  .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
-
-  .form-group { margin-bottom: 15px; }
-  .form-group label { font-size: 12px; color: #94e2cc; display: block; margin-bottom: 5px; }
-  .form-group input, .form-group select {
-    width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: white; font-size: 14px;
-  }
-
-  .btn {
-    width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
-    background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px;
-  }
-  .btn:hover { opacity: 0.9; }
-  .btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
-  .btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
-  .btn-warn { background: linear-gradient(90deg,#f59e0b,#d97706); color:#000 }
-
-  .signal-item {
-    background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 10px;
-    font-size: 13px; border-left:3px solid #f59e0b;
-  }
-  .code { font-weight:700; color:#ffd700; font-size:14px }
-  .toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
-  .toast.show { transform: translateX(0); }
-  .hide { display:none }
+:root{--bg:#0b1120;--card:#121a2b;--card2:#1a2440;--brand:#2563eb;--ok:#16a34a;--bad:#dc2626;--warn:#f59e0b;--text:#e2e8f0;--muted:#94a3b8;--line:#24324f}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:var(--bg);color:var(--text)}
+.container{max-width:1200px;margin:0 auto;padding:12px}
+.header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+.logo{font-weight:700;font-size:20px;color:var(--brand)}
+.header-right{display:flex;gap:10px;align-items:center}
+.notif-btn{background:var(--card2);border:none;color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer;position:relative}
+.notif-dot{position:absolute;top:4px;right:6px;width:8px;height:8px;background:var(--bad);border-radius:50%;display:none}
+.balance-card{background:var(--card);padding:16px;border-radius:14px;display:flex;gap:30px;margin-bottom:12px;border:1px solid var(--line)}
+.bal-item.bal-label{font-size:12px;color:var(--muted)}
+.bal-item.bal-value{font-size:20px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:12px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--line)}
+.copy-btn-link{width:100%;padding:10px;background:var(--brand);border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer;margin-bottom:12px}
+.signal-box input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);margin-bottom:8px}
+.signal-box button{width:100%;padding:12px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;cursor:pointer}
+.active-signal{background:var(--card2);padding:12px;border-radius:12px;margin-top:10px;border-left:3px solid var(--brand)}
+.active-signal.row{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
+.pair-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.pair-price{font-size:26px;font-weight:700}
+.pair-change.up{color:var(--ok)}.pair-change.down{color:var(--bad)}
+.chart{height:400px;background:var(--card2);border-radius:10px;overflow:hidden}
+.tabs{display:flex;background:var(--card2);border-radius:10px;padding:4px;margin-bottom:10px}
+.tab{flex:1;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-weight:600}
+.tab.active{background:var(--brand)}
+.input-group{margin-bottom:10px}
+.input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text)}
+.btn-buy{width:100%;padding:14px;background:var(--ok);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
+.btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
+.position-item{background:var(--card2);padding:10px;border-radius:10px;margin-bottom:8px;font-size:13px}
+.pos-row{display:flex;justify-content:space-between;margin:3px 0}
+.close-btn{width:100%;padding:6px;background:var(--bad);border:none;border-radius:6px;color:#fff;cursor:pointer;margin-top:5px;font-size:12px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--card2);padding:12px 16px;border-radius:12px;border-left:4px solid var(--brand);display:none;z-index:999}
+.toast.show{display:block}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1><i class="fas fa-user-shield"></i> CYPX Admin - Trade Control</h1>
-
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('copy')">Copy Trading</button>
-    <button class="tab-btn" onclick="switchTab('signal')">Signal Codes</button>
-  </div>
-
-  <!-- TAB 1: COPY TRADING - YOUR OLD CODE -->
-  <div id="copyTab">
-    <div class="grid">
-      <div class="card">
-        <h2><i class="fas fa-paper-plane"></i> Push New Trade</h2>
-        <div class="form-group">
-          <label>Select Trader</label>
-          <select id="traderSelect"></select>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Symbol</label><input id="symbol" value="EURUSD"></div>
-          <div class="form-group"><label>Type</label><select id="type"><option>BUY</option><option>SELL</option></select></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001"></div>
-          <div class="form-group"><label>Admin Capital $</label><input id="adminCapital" type="number" value="1000"></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001"></div>
-          <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001"></div>
-        </div>
-        <button class="btn btn-blue" onclick="openTrade()">1. Open Trade</button>
-        <div id="openTradeBox" style="display:none; margin-top:15px">
-          <div class="form-group"><label>Close Trade With Final P&L $</label><input id="closeProfit" type="number"></div>
-          <button class="btn btn-red" onclick="closeTrade()">2. Close Trade & Pay Copiers</button>
-        </div>
-      </div>
-      <div>
-        <div class="card" style="margin-bottom:20px"><h2><i class="fas fa-users"></i> Traders & Copiers</h2><div id="traderStats"></div></div>
-        <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog"></div></div>
-      </div>
+  <div class="header">
+    <div class="logo"><i class="fa-solid fa-chart-line"></i> CYPX TRADE</div>
+    <div class="header-right">
+      <button class="notif-btn" onclick="pushNotif('No new notifications')"><i class="fa-solid fa-bell"></i><span class="notif-dot" id="notifDot"></span></button>
+      <button class="copy-btn-link" style="width:auto;padding:10px 16px" onclick="window.location.href='copy.html'"><i class="fa-solid fa-copy"></i> Copy</button>
     </div>
   </div>
 
-  <!-- TAB 2: NEW SIGNAL CODES -->
-  <div id="signalTab" class="hide">
-    <div class="grid">
+  <div class="balance-card">
+    <div class="bal-item"><div class="bal-label">Main Balance</div><div class="bal-value" id="mainBalance">$0.00</div></div>
+    <div class="bal-item"><div class="bal-label">Equity</div><div class="bal-value" id="equityBalance">$0.00</div></div>
+  </div>
+
+  <div class="grid">
+    <div>
       <div class="card">
-        <h2><i class="fas fa-bolt"></i> Generate Signal Code</h2>
-        <div class="form-group"><label>Pair</label>
-          <select id="sigPair"><option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option></select>
+        <div class="pair-header">
+          <select id="pairSelect" style="background:var(--card2);border:1px solid var(--line);color:var(--text);padding:6px;border-radius:8px">
+            <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
+          </select>
+          <div class="pair-price" id="pairPrice">$0.00</div>
+          <div class="pair-change up" id="pairChange">0.00%</div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Side</label><select id="sigSide"><option value="buy">BUY</option><option value="sell">SELL</option></select></div>
-          <div class="form-group"><label>Amount USDT</label><input id="sigAmount" type="number" value="100"></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px">
-          <div class="form-group"><label>TP Pips</label><input id="sigTP" type="number" value="50"></div>
-          <div class="form-group"><label>SL Pips</label><input id="sigSL" type="number" value="25"></div>
-          <div class="form-group"><label>Pip Value $</label><input id="sigPip" type="number" value="5"></div>
-        </div>
-        <button class="btn btn-warn" onclick="generateSignal()">GENERATE SIGNAL CODE</button>
-        <div id="sigOutput" style="margin-top:12px; text-align:center; font-weight:700; color:#00C896"></div>
+        <div class="chart" id="tradingview_chart"></div>
       </div>
 
       <div class="card">
-        <h2><i class="fas fa-list"></i> Active Signals</h2>
-        <div id="activeSignalsList"></div>
+        <h3><i class="fa-solid fa-list"></i> Open Positions</h3>
+        <div id="openPositionsList">No open positions</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card signal-box">
+        <h3><i class="fa-solid fa-key"></i> Enter Signal Code</h3>
+        <input type="text" id="signalCode" placeholder="SIGNAL-BTC-001" style="text-transform:uppercase">
+        <input type="number" id="signalAmount" placeholder="Min $50 to risk" value="100" min="50">
+        <button onclick="activateSignal()">Activate Signal</button>
+        <div id="activeSignalBox"></div>
+      </div>
+
+      <div class="card">
+        <h3>Place Manual Order</h3>
+        <div class="tabs">
+          <div class="tab active" data-type="buy">Buy</div>
+          <div class="tab" data-type="sell">Sell</div>
+        </div>
+        <div class="input-group"><input type="number" id="orderAmount" placeholder="Min $50 USDT" value="100" min="50"></div>
+        <div class="input-group"><input type="number" id="tp" placeholder="TP %" value="2"></div>
+        <div class="input-group"><input type="number" id="sl" placeholder="SL %" value="1"></div>
+        <button class="btn-buy" id="buyBtn" onclick="placeOrder('buy')">Buy</button>
+        <button class="btn-sell" id="sellBtn" style="display:none" onclick="placeOrder('sell')">Sell</button>
       </div>
     </div>
   </div>
-
 </div>
 
-<div id="toast" class="toast"></div>
+<div class="toast" id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, get, set, push, update, runTransaction, serverTimestamp, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-<script>
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -147,92 +124,203 @@ const firebaseConfig = {
   measurementId: "G-4RSQXZJX44"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-const traders = [
-  { id: 'kenyan_prince', name: 'Kenyan Prince', profitShare: 20 },
-  { id: 'alpha_trader', name: 'Alpha Trader', profitShare: 15 },
-  { id: 'states_ke', name: 'States Ke', profitShare: 25 },
-  { id: 'vidollar', name: 'Vidollar', profitShare: 18 },
-  { id: 'ziwa_fx', name: 'Ziwa Fx', profitShare: 12 },
-  { id: 'pizzo_fx', name: 'Pizzo Fx', profitShare: 20 }
-];
+const MIN_TRADE = 50; // $50 minimum
+let uid = null;
+let balance = 0;
+let equity = 0;
+let prices = {};
+let orderType = "buy";
+let allPositions = {};
 
-let currentOpenTrade = null;
-
-function switchTab(tab){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(tab==='copy'){ document.getElementById('copyTab').classList.remove('hide'); document.getElementById('signalTab').classList.add('hide'); event.target.classList.add('active') }
-  else { document.getElementById('signalTab').classList.remove('hide'); document.getElementById('copyTab').classList.add('hide'); event.target.classList.add('active'); loadActiveSignals() }
+function pushNotif(msg, type="info"){
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 3000);
 }
 
-// ===== OLD COPY TRADING CODE - UNCHANGED =====
-function loadTraders(){
-  const select = document.getElementById('traderSelect');
-  select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
-}
-function openTrade(){ /* ...your old code... */ 
-  const traderId = document.getElementById('traderSelect').value;
-  currentOpenTrade = { traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value, entry: Number(document.getElementById('entry').value), tp: Number(document.getElementById('tp').value), sl: Number(document.getElementById('sl').value), adminCapital: Number(document.getElementById('adminCapital').value), status: "OPEN", openedAt: Date.now() };
-  document.getElementById('openTradeBox').style.display = 'block'; showToast("Trade Opened. Now close it with P&L");
-}
-function closeTrade(){ /* ...your old code... */
-  if(!currentOpenTrade) return; const profit = Number(document.getElementById('closeProfit').value);
-  const tradeData = { ...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
-  db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData).then(() => { showToast(`Trade Closed. Copiers will be paid $${profit}`, 'success'); document.getElementById('openTradeBox').style.display = 'none'; currentOpenTrade = null; });
-}
-
-// ===== NEW SIGNAL CODE SYSTEM =====
-window.generateSignal = async function(){
-  const pair = document.getElementById("sigPair").value;
-  const side = document.getElementById("sigSide").value;
-  const amount = parseFloat(document.getElementById("sigAmount").value);
-  const tp_pips = parseFloat(document.getElementById("sigTP").value);
-  const sl_pips = parseFloat(document.getElementById("sigSL").value);
-  const pipValue = parseFloat(document.getElementById("sigPip").value);
-
-  const code = `SIGNAL-${pair.split('/')[0]}-${Date.now()}`;
-  const expiresAt = Date.now() + 600000; // 10 min
-
-  await db.ref(`signals/${code}`).set({
-    pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, createdAt: Date.now()
+onAuthStateChanged(auth, (user)=>{
+  if(!user){ window.location.href="auth.html"; return; }
+  uid = user.uid;
+  loadChart("BTC/USDT");
+  fetchPrices();
+  onValue(ref(db, `users/${uid}/balance`), snap=>{
+    balance = snap.val() || 0;
+    document.getElementById("mainBalance").textContent = "$" + balance.toFixed(2);
+    updateEquity();
   });
+  loadAllPositions();
+});
 
-  document.getElementById("sigOutput").innerHTML = `Code: <span class="code">${code}</span> <br><small>Copied to clipboard</small>`;
-  navigator.clipboard.writeText(code);
-  showToast("Signal Created: " + code);
-  loadActiveSignals();
+function updateEquity(){
+  let pnl = 0;
+  Object.values(allPositions).forEach(p=>{
+    if(prices[p.pair]){
+      const current = prices[p.pair];
+      const diff = p.side === "buy"? current - p.entry : p.entry - current;
+      if(p.type === "signal") pnl += (diff / p.pipValue) * p.amount;
+      else pnl += (diff / p.entry) * p.amount;
+    }
+  });
+  equity = balance + pnl;
+  document.getElementById("equityBalance").textContent = "$" + equity.toFixed(2);
 }
 
-function loadActiveSignals(){
-  db.ref("signals").on("value", snap=>{
-    let html = "";
-    snap.forEach(child=>{
-      const s = child.val();
-      const timeLeft = Math.max(0, s.expiresAt - Date.now());
-      const mins = Math.floor(timeLeft / 60000);
-      if(timeLeft > 0){
-        html += `
-        <div class="signal-item">
-          <div class="code">${child.key}</div>
-          <div>${s.side.toUpperCase()} ${s.pair} | $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL @ $${s.pipValue}</div>
-          <div style="color:#94e2cc; font-size:12px">Expires in: ${mins}min</div>
-        </div>`;
-      }
-    });
-    document.getElementById("activeSignalsList").innerHTML = html || "No active signals";
+function loadChart(symbol){
+  document.getElementById("tradingview_chart").innerHTML = "";
+  new TradingView.widget({
+    "width": "100%", "height": 400, "symbol": "BINANCE:" + symbol.replace("/", ""),
+    "interval": "15", "theme": "dark", "container_id": "tradingview_chart"
   });
 }
 
-function showToast(message){
-  const toast = document.getElementById('toast');
-  toast.innerText = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+async function fetchPrices(){
+  const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT");
+  const data = await res.json();
+  prices["BTC/USDT"] = parseFloat(data.price);
+  document.getElementById("pairPrice").textContent = "$" + prices["BTC/USDT"].toFixed(2);
+  checkAllPositions();
+  updateEquity();
+}
+setInterval(fetchPrices, 3000);
+
+// TAB SWITCH
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  orderType = t.dataset.type;
+  document.getElementById("buyBtn").style.display = orderType==="buy"?"block":"none";
+  document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
+});
+
+// ===== MANUAL BUY/SELL =====
+window.placeOrder = async function(side){
+  const amount = parseFloat(document.getElementById("orderAmount").value);
+  const tp = parseFloat(document.getElementById("tp").value);
+  const sl = parseFloat(document.getElementById("sl").value);
+  const pair = document.getElementById("pairSelect").value;
+  const price = prices[pair];
+
+  if(amount < MIN_TRADE) return pushNotif(`Minimum trade is $${MIN_TRADE}`, "bad");
+  if(amount > balance) return pushNotif("Insufficient balance", "bad");
+  if(!price) return pushNotif("Price not loaded", "bad");
+
+  const qty = amount / price;
+  await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) - amount);
+  await push(ref(db, `trade/${uid}/positions`), {
+    pair, side, qty, entry: price, amount, tp, sl, type: "manual", openedAt: Date.now()
+  });
+  pushNotif(`${side.toUpperCase()} ${pair} Opened - $${amount}`, "ok");
 }
 
-loadTraders();
+// ===== SIGNAL CODE SYSTEM =====
+window.activateSignal = async function(){
+  const code = document.getElementById("signalCode").value.trim().toUpperCase();
+  const userAmount = parseFloat(document.getElementById("signalAmount").value);
+  if(!code) return pushNotif("Enter a signal code", "bad");
+  if(userAmount < MIN_TRADE) return pushNotif(`Minimum amount is $${MIN_TRADE}`, "bad");
+  if(userAmount > balance) return pushNotif("Insufficient balance", "bad");
+
+  const signalRef = ref(db, `signals/${code}`);
+  const snap = await get(signalRef);
+  if(!snap.exists()) return pushNotif("Invalid signal code", "bad");
+
+  const signal = snap.val();
+  const now = Date.now();
+  if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad");
+  if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
+
+  const price = prices[signal.pair];
+  if(!price) return pushNotif("Price not loaded", "bad");
+
+  const qty = userAmount / price;
+  const tpPrice = signal.side === "buy"? price + (signal.tp_pips * signal.pipValue) : price - (signal.tp_pips * signal.pipValue);
+  const slPrice = signal.side === "buy"? price - (signal.sl_pips * signal.pipValue) : price + (signal.sl_pips * signal.pipValue);
+
+  await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) - userAmount);
+  await push(ref(db, `trade/${uid}/positions`), {
+    pair: signal.pair, side: signal.side, qty, entry: price, amount: userAmount,
+    tp_pips: signal.tp_pips, sl_pips: signal.sl_pips, pipValue: signal.pipValue,
+    tpPrice, slPrice, type: "signal", openedAt: now, expiresAt: now + 600000, code, source: code
+  });
+  await update(signalRef, { [`usedBy/${uid}`]: true });
+  pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
+  document.getElementById("signalCode").value = "";
+}
+
+// ===== LOAD + RENDER ALL POSITIONS =====
+function loadAllPositions(){
+  onValue(ref(db, `trade/${uid}/positions`), snap=>{
+    allPositions = snap.val() || {};
+    renderPositions();
+  });
+}
+
+function renderPositions(){
+  const box = document.getElementById("openPositionsList");
+  if(Object.keys(allPositions).length === 0){ box.innerHTML = "No open positions"; return; }
+
+  let html = "";
+  Object.entries(allPositions).forEach(([key, p])=>{
+    const current = prices[p.pair] || p.entry;
+    const diff = p.side === "buy"? current - p.entry : p.entry - current;
+    const pnl = p.type === "signal"? (diff / p.pipValue) * p.amount : (diff / p.entry) * p.amount;
+    const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
+
+    html += `<div class="position-item">
+      <div class="pos-row"><b>${p.side.toUpperCase()} ${p.pair}</b><span style="color:${pnl>=0?'var(--ok)':'var(--bad)'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</span></div>
+      <div class="pos-row"><span>Entry:</span><span>$${p.entry.toFixed(2)}</span></div>
+      <div class="pos-row"><span>Amount:</span><span>$${p.amount}</span></div>
+      ${p.type==="signal"? `<div class="pos-row"><span>TP/SL:</span><span>$${p.tpPrice.toFixed(0)}/$${p.slPrice.toFixed(0)}</span></div>
+      <div class="pos-row"><span>Time:</span><span>${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span></div>` :
+      `<div class="pos-row"><span>TP/SL:</span><span>${p.tp}% / ${p.sl}%</span></div>`}
+      <button class="close-btn" onclick="closePosition('${key}')">Close Position</button>
+    </div>`;
+  });
+  box.innerHTML = html;
+}
+
+// ===== CLOSE POSITION MANUALLY =====
+window.closePosition = async function(key){
+  const p = allPositions[key];
+  const current = prices[p.pair];
+  const diff = p.side === "buy"? current - p.entry : p.entry - current;
+  const pnl = p.type === "signal"? (diff / p.pipValue) * p.amount : (diff / p.entry) * p.amount;
+  await runTransaction(ref(db, `users/${uid}/balance`), b => (b||0) + p.amount + pnl);
+  await remove(ref(db, `trade/${uid}/positions/${key}`));
+  pushNotif(`Closed: ${pnl >= 0? '+' : ''}$${pnl.toFixed(2)}`, pnl >= 0? "ok" : "bad");
+}
+
+// ===== AUTO CLOSE TP/SL/10MIN =====
+function checkAllPositions(){
+  Object.entries(allPositions).forEach(([key, p])=>{
+    if(!prices[p.pair]) return;
+    const current = prices[p.pair];
+    let shouldClose = false;
+
+    if(p.type === "signal"){
+      if(p.side === "buy" && current >= p.tpPrice){ shouldClose = true; }
+      if(p.side === "sell" && current <= p.tpPrice){ shouldClose = true; }
+      if(p.side === "buy" && current <= p.slPrice){ shouldClose = true; }
+      if(p.side === "sell" && current >= p.slPrice){ shouldClose = true; }
+      if(Date.now() >= p.expiresAt){ shouldClose = true; }
+    } else {
+      const tpPrice = p.side === "buy"? p.entry * (1 + p.tp/100) : p.entry * (1 - p.tp/100);
+      const slPrice = p.side === "buy"? p.entry * (1 - p.sl/100) : p.entry * (1 + p.sl/100);
+      if(p.side === "buy" && current >= tpPrice){ shouldClose = true; }
+      if(p.side === "sell" && current <= tpPrice){ shouldClose = true; }
+      if(p.side === "buy" && current <= slPrice){ shouldClose = true; }
+      if(p.side === "sell" && current >= slPrice){ shouldClose = true; }
+    }
+
+    if(shouldClose) closePosition(key);
+  });
+}
 </script>
 </body>
-           </html>
+                                                              </html>
