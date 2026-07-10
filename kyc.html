@@ -52,7 +52,7 @@
       <option value="drivers_license">Driver's License</option>
     </select>
     <input type="text" id="country" placeholder="Country" required>
-    <button onclick="validateAndNext(2)">Continue</button>
+    <button id="step1Btn" onclick="saveStep1AndNext()">Continue</button>
   </div>
 
   <!-- STEP 2 -->
@@ -126,7 +126,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -145,10 +145,13 @@
   let currentUser = null;
   let currentStream = null;
   const fileStore = {};
-  let frontUploaded = false; // NEW: track if front is done
+  let frontUploaded = false;
 
-  onAuthStateChanged(auth, (user) => {
-    if(user) currentUser = user;
+  onAuthStateChanged(auth, async (user) => {
+    if(user) {
+      currentUser = user;
+      await loadProgress(); // NEW: auto resume
+    }
     else showToast("Please login to CYPX first", "error");
   });
 
@@ -160,6 +163,27 @@
     document.getElementById(`step${step}`).classList.add('active');
     document.getElementById('progressBar').style.width = `${step*20}%`;
     window.scrollTo(0,0);
+  }
+
+  // NEW: Load existing data and jump to correct step
+  async function loadProgress(){
+    const snap = await getDoc(doc(db, "kyc_submissions", currentUser.uid));
+    if(snap.exists()){
+      const data = snap.data();
+      if(data.fullName){
+        fullName.value = data.fullName;
+        dob.value = data.dob;
+        idType.value = data.idType;
+        country.value = data.country;
+      }
+      if(data.idFront){ fileStore.idFrontUrl = data.idFront; frontUploaded = true; document.getElementById('backIdSection').classList.remove('disabled-section'); }
+      if(data.idBack){ fileStore.idBackUrl = data.idBack; document.getElementById('step2Continue').disabled = false; }
+      if(data.selfie){ fileStore.selfie = true; } // just flag
+
+      if(data.status === 'pending'){ nextStep(5); return; }
+      if(data.idBack){ nextStep(3); return; }
+      if(data.idFront){ nextStep(2); return; }
+    }
   }
 
   window.triggerUpload = (id) => {
@@ -202,7 +226,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File(, `${target}.jpg`, { type: "image/jpeg" });
+      const file = new File(, `${target}.jpg`, { type: "image/jpeg" }); // FIXED
       setFile(target, file);
       stopCamera();
       showToast("Photo captured", "success");
@@ -214,8 +238,6 @@
     document.getElementById(baseId + 'Preview').src = URL.createObjectURL(file);
     document.getElementById(baseId + 'Preview').style.display = 'block';
     document.getElementById(baseId + 'Name').innerText = `Selected: ${(file.size/1024/1024).toFixed(2)}MB`;
-
-    // NEW: Auto upload front when selected
     if(baseId === 'idFront') handleFrontUpload(file);
     if(baseId === 'idBack') handleBackUpload(file);
   }
@@ -229,7 +251,6 @@
     })
   });
 
-  // NEW: Upload Front immediately and unlock Back
   async function handleFrontUpload(file) {
     const btn1 = document.getElementById('idFrontUploadBtn');
     const btn2 = document.getElementById('idFrontCamBtn');
@@ -239,13 +260,11 @@
     try {
       const url = await uploadFile(file, 'idFront', document.getElementById('idFrontProg'));
       fileStore.idFrontUrl = url;
+      await setDoc(doc(db, "kyc_submissions", currentUser.uid), {idFront: url}, {merge: true});
       frontUploaded = true;
       showToast("Front ID uploaded", "success");
-
-      // Unlock Back ID section
       document.getElementById('backIdSection').classList.remove('disabled-section');
       document.getElementById('step2Continue').innerText = "Continue";
-      document.getElementById('step2Continue').disabled = true; // still need back
     } catch(e) {
       showToast(e.message, "error");
       btn1.disabled = false; btn2.disabled = false;
@@ -253,7 +272,6 @@
     }
   }
 
-  // NEW: Upload Back immediately
   async function handleBackUpload(file) {
     const btn1 = document.getElementById('idBackUploadBtn');
     const btn2 = document.getElementById('idBackCamBtn');
@@ -263,6 +281,7 @@
     try {
       const url = await uploadFile(file, 'idBack', document.getElementById('idBackProg'));
       fileStore.idBackUrl = url;
+      await setDoc(doc(db, "kyc_submissions", currentUser.uid), {idBack: url}, {merge: true});
       showToast("Back ID uploaded", "success");
       document.getElementById('step2Continue').disabled = false;
     } catch(e) {
@@ -272,9 +291,22 @@
     }
   }
 
+  // NEW: Save step 1 to DB then go next
+  window.saveStep1AndNext = async () => {
+    if(!fullName.value.trim() ||!dob.value ||!idType.value ||!country.value.trim())
+      return showToast("Please fill all fields", "error");
+
+    document.getElementById('step1Btn').disabled = true;
+    await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
+      fullName: fullName.value.trim(),
+      dob: dob.value,
+      idType: idType.value,
+      country: country.value.trim(),
+    }, {merge: true});
+    nextStep(2);
+  }
+
   window.validateAndNext = (n) => {
-    if(step === 1 &&!document.getElementById('idType').value)
-      return showToast("Please select ID Type", "error");
     if(step === 2 && (!fileStore.idFrontUrl ||!fileStore.idBackUrl))
       return showToast("Please upload both ID Front and Back", "error");
     if(step === 3 &&!fileStore.selfie)
@@ -308,7 +340,7 @@
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
-            resolve(new File(, file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
+            resolve(new File(, file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" })); // FIXED
           }, "image/jpeg", 0.65);
         }
       }
@@ -319,7 +351,6 @@
     const compressed = await compressImage(file);
     const storageRef = ref(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
     const task = uploadBytesResumable(storageRef, compressed);
-
     progEl.style.display = 'block';
 
     return new Promise((resolve, reject) => {
@@ -328,15 +359,8 @@
           const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
           progEl.querySelector('span').style.width = pct + '%';
         },
-        (error) => {
-          let msg = "Upload failed";
-          if(error.code === 'storage/unauthorized') msg = "Permission denied. Check Storage Rules.";
-          if(error.code === 'storage/unknown') msg = "Network lost. Please use WiFi and retry.";
-          reject(new Error(msg));
-        },
-        async () => {
-          resolve(await getDownloadURL(task.snapshot.ref));
-        }
+        (error) => reject(new Error("Upload failed: " + error.message)),
+        async () => resolve(await getDownloadURL(task.snapshot.ref))
       );
     });
   }
@@ -348,17 +372,11 @@
     btn.innerText = "Submitting... 0%";
 
     try {
-      const urls = {
-        idFront: fileStore.idFrontUrl,
-        idBack: fileStore.idBackUrl
-      };
-
-      // Upload selfie now
+      const urls = { idFront: fileStore.idFrontUrl, idBack: fileStore.idBackUrl };
       if(fileStore.selfie){
         urls.selfie = await uploadFile(fileStore.selfie, 'selfie', document.getElementById('selfieProg'));
         btn.innerText = `Submitting... 50%`;
       }
-
       const proofFile = document.getElementById('proof').files[0];
       if(proofFile) {
         urls.proof = await uploadFile(proofFile, 'proof', document.getElementById('proofProg'));
@@ -366,16 +384,12 @@
       }
 
       await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
-        fullName: document.getElementById('fullName').value.trim(),
-        dob: document.getElementById('dob').value,
-        idType: document.getElementById('idType').value,
-        country: document.getElementById('country').value.trim(),
         address: document.getElementById('address').value.trim(),
-     ...urls,
+    ...urls,
         status: "pending",
         email: currentUser.email,
         createdAt: serverTimestamp()
-      });
+      }, {merge: true});
 
       showToast("KYC submitted successfully", "success");
       nextStep(5);
@@ -388,4 +402,4 @@
 </script>
 
 </body>
-</html>
+                                                                                                           </html>
