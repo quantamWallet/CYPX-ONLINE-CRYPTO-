@@ -35,6 +35,7 @@ body{background:var(--bg);color:var(--text)}
 .input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:16px;outline:none}
 .btn-buy{width:100%;padding:14px;background:var(--ok);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
 .btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
+.btn-buy:disabled,.btn-sell:disabled{opacity:.4;cursor:not-allowed}
 .positions table{width:100%;border-collapse:collapse;font-size:12px}
 .positions th{text-align:left;color:var(--muted);padding:8px 4px;border-bottom:1px solid var(--line)}
 .positions td{padding:8px 4px}
@@ -44,8 +45,6 @@ body{background:var(--bg);color:var(--text)}
 .pos.pnl.up{color:var(--ok)}.pos.pnl.down{color:var(--bad)}
 .close-btn{background:var(--line);border:none;color:var(--text);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px}
 .close-btn:hover{background:var(--bad)}
-
-/* Notifications */
 .notif-bell{position:relative;cursor:pointer;font-size:20px}
 .badge{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;font-size:10px;padding:2px 5px;border-radius:99px}
 .notif-panel{position:absolute;top:40px;right:0;width:320px;background:var(--card2);border:1px solid var(--line);border-radius:12px;display:none;z-index:99;max-height:400px;overflow-y:auto}
@@ -65,8 +64,8 @@ body{background:var(--bg);color:var(--text)}
     <div class="logo"><i class="fa-solid fa-chart-line"></i> CYPX TRADE</div>
     <div style="display:flex;align-items:center;gap:16px">
       <div class="balance-card" id="balCard">
-        <div><div class="bal-label">Balance</div><div class="bal-value" id="balance">$0.00</div></div>
-        <div><div class="bal-label">Equity</div><div class="bal-value" id="equity">$0.00</div></div>
+        <div><div class="bal-label">Balance</div><div class="bal-value" id="balance">--</div></div>
+        <div><div class="bal-label">Equity</div><div class="bal-value" id="equity">--</div></div>
       </div>
       <div style="position:relative">
         <i class="fa-solid fa-bell notif-bell" id="bell"></i>
@@ -120,8 +119,8 @@ body{background:var(--bg);color:var(--text)}
         <label>Stop Loss %</label>
         <input type="number" id="sl" placeholder="1" value="1">
       </div>
-      <button class="btn-buy" id="buyBtn">Buy BTC</button>
-      <button class="btn-sell" id="sellBtn" style="display:none">Sell BTC</button>
+      <button class="btn-buy" id="buyBtn" disabled>Buy BTC</button>
+      <button class="btn-sell" id="sellBtn" style="display:none" disabled>Sell BTC</button>
     </div>
   </div>
 </div>
@@ -148,7 +147,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 let uid = null;
-let balance = 0;
+let balance = null; // null = not loaded yet
 let positions = {};
 let currentPair = "BTC/USDT";
 let prices = {
@@ -158,13 +157,14 @@ let prices = {
 };
 let orderType = "buy";
 let notifs = [];
-let tvWidget = null;
 
 /* DOM */
 const toast = document.getElementById("toast");
 const notifPanel = document.getElementById("notifPanel");
 const notifCount = document.getElementById("notifCount");
 const balCard = document.getElementById("balCard");
+const buyBtn = document.getElementById("buyBtn");
+const sellBtn = document.getElementById("sellBtn");
 
 /* NOTIFICATIONS */
 function pushNotif(msg, type="info"){
@@ -187,16 +187,9 @@ document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show"
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
   new TradingView.widget({
-    "width": "100%",
-    "height": 400,
-    "symbol": "BINANCE:" + symbol.replace("/", ""),
-    "interval": "15",
-    "theme": "dark",
-    "style": "1",
-    "toolbar_bg": "#1a2440",
-    "enable_publishing": false,
-    "hide_top_toolbar": false,
-    "container_id": "tradingview_chart"
+    "width": "100%", "height": 400, "symbol": "BINANCE:" + symbol.replace("/", ""),
+    "interval": "15", "theme": "dark", "style": "1", "toolbar_bg": "#1a2440",
+    "enable_publishing": false, "hide_top_toolbar": false, "container_id": "tradingview_chart"
   });
 }
 
@@ -208,32 +201,49 @@ function updatePrice(){
   if(currentPair){
     const price = prices[currentPair];
     document.getElementById("pairPrice").textContent = "$" + price.toFixed(2);
-    document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
-    document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
+    buyBtn.textContent = `Buy ${currentPair.split('/')[0]}`;
+    sellBtn.textContent = `Sell ${currentPair.split('/')[0]}`;
     updatePositionsPnL();
   }
 }
 setInterval(updatePrice, 2000);
 
-/* FIREBASE LISTENERS - USING TRADE NODE */
+/* FIREBASE LISTENERS - 100% REALTIME */
 onAuthStateChanged(auth, async (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid;
   balCard.classList.add("loading");
   loadChart(currentPair);
 
-  onValue(ref(db, `trade/${uid}/balance`), (snap)=>{
-    balance = snap.val() || 0;
+  const balanceRef = ref(db, `trade/${uid}/balance`);
+  const positionsRef = ref(db, `trade/${uid}/positions`);
+
+  // 1. Balance Listener - NO DEFAULTS
+  onValue(balanceRef, (snap)=>{
+    if(snap.exists()){
+      balance = parseFloat(snap.val());
+    } else {
+      balance = null; // stays null if not set in DB
+      pushNotif("Balance not set in DB. Add it in Firebase", "bad");
+    }
     updateEquity();
+    toggleButtons();
     balCard.classList.remove("loading");
   });
 
-  onValue(ref(db, `trade/${uid}/positions`), (snap)=>{
+  // 2. Positions Listener
+  onValue(positionsRef, (snap)=>{
     positions = snap.val() || {};
     renderPositions();
     updateEquity();
   });
 });
+
+function toggleButtons(){
+  const disabled = balance === null;
+  buyBtn.disabled = disabled;
+  sellBtn.disabled = disabled;
+}
 
 /* UPDATE P&L + AUTO TP/SL */
 function updatePositionsPnL(){
@@ -254,11 +264,12 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   t.classList.add("active");
   orderType = t.dataset.type;
-  document.getElementById("buyBtn").style.display = orderType==="buy"?"block":"none";
-  document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
+  buyBtn.style.display = orderType==="buy"?"block":"none";
+  sellBtn.style.display = orderType==="sell"?"block":"none";
 });
 
 async function placeOrder(){
+  if(balance === null) return pushNotif("Balance not loaded", "bad");
   const amount = parseFloat(document.getElementById("orderAmount").value);
   const tp = parseFloat(document.getElementById("tp").value);
   const sl = parseFloat(document.getElementById("sl").value);
@@ -272,7 +283,8 @@ async function placeOrder(){
 
   try{
     await runTransaction(ref(db, `trade/${uid}/balance`), (current)=>{
-      return current >= amount+fee? newBalance : undefined;
+      const curr = parseFloat(current) || 0;
+      return curr >= amount+fee? newBalance : undefined;
     });
     await update(posRef, {
       pair: currentPair, side: orderType, qty: qty, entry: price,
@@ -284,8 +296,8 @@ async function placeOrder(){
   }
 }
 
-document.getElementById("buyBtn").onclick = placeOrder;
-document.getElementById("sellBtn").onclick = placeOrder;
+buyBtn.onclick = placeOrder;
+sellBtn.onclick = placeOrder;
 
 async function closePosition(id, reason="Manual"){
   const p = positions[id];
@@ -295,7 +307,7 @@ async function closePosition(id, reason="Manual"){
   const pnl = p.side==="buy"? closeValue - (p.qty*p.entry) : (p.qty*p.entry) - closeValue;
 
   try{
-    await runTransaction(ref(db, `trade/${uid}/balance`), (current)=> (current||0) + closeValue + pnl);
+    await runTransaction(ref(db, `trade/${uid}/balance`), (current)=> parseFloat(current||0) + closeValue + pnl);
     await remove(ref(db, `trade/${uid}/positions/${id}`));
     pushNotif(`Closed ${p.pair} ${reason}. P&L: $${pnl.toFixed(2)}`, pnl>=0?"ok":"bad");
   }catch(e){
@@ -325,6 +337,11 @@ function renderPositions(){
 }
 
 function updateEquity(){
+  if(balance === null){
+    document.getElementById("balance").textContent = "--";
+    document.getElementById("equity").textContent = "--";
+    return;
+  }
   const totalPnL = Object.values(positions).reduce((sum,p)=>{
     const price = prices[p.pair] || p.entry;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
@@ -346,4 +363,4 @@ pushNotif("Connected to CYPX TRADE", "info");
 window.closePosition = closePosition;
 </script>
 </body>
-  </html>
+                                                                                                           </html>
