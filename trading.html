@@ -6,6 +6,7 @@
 <title>CYPX TRADE - Trading</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <style>
 :root{--bg:#0b1120;--card:#121a2b;--card2:#1a2440;--brand:#2563eb;--ok:#16a34a;--bad:#dc2626;--warn:#f59e0b;--text:#e2e8f0;--muted:#94a3b8;--line:#24324f}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
@@ -20,11 +21,11 @@ body{background:var(--bg);color:var(--text)}
 .grid{display:grid;grid-template-columns:1fr 340px;gap:12px;margin-top:12px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 .card{background:var(--card);border-radius:16px;padding:14px;border:1px solid var(--line)}
-.pair-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pair-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .pair-price{font-size:26px;font-weight:700}
 .pair-change{font-size:14px}
 .pair-change.up{color:var(--ok)}.pair-change.down{color:var(--bad)}
-.chart{height:260px;background:var(--card2);border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.chart{height:400px;background:var(--card2);border-radius:10px;overflow:hidden}
 .order-panel h3{margin-bottom:10px}
 .tabs{display:flex;background:var(--card2);border-radius:10px;padding:4px;margin-bottom:10px}
 .tab{flex:1;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-weight:600}
@@ -34,11 +35,15 @@ body{background:var(--bg);color:var(--text)}
 .input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:16px;outline:none}
 .btn-buy{width:100%;padding:14px;background:var(--ok);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
 .btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
-.positions table{width:100%;border-collapse:collapse;font-size:13px}
+.positions table{width:100%;border-collapse:collapse;font-size:12px}
 .positions th{text-align:left;color:var(--muted);padding:8px 4px;border-bottom:1px solid var(--line)}
 .positions td{padding:8px 4px}
+.badge-side{padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-side.buy{background:rgba(22,163,74,.2);color:var(--ok)}
+.badge-side.sell{background:rgba(220,38,38,.2);color:var(--bad)}
 .pos.pnl.up{color:var(--ok)}.pos.pnl.down{color:var(--bad)}
-.close-btn{background:var(--line);border:none;color:var(--text);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:12px}
+.close-btn{background:var(--line);border:none;color:var(--text);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px}
+.close-btn:hover{background:var(--bad)}
 
 /* Notifications */
 .notif-bell{position:relative;cursor:pointer;font-size:20px}
@@ -77,19 +82,21 @@ body{background:var(--bg);color:var(--text)}
         <div class="pair-header">
           <select id="pairSelect" style="background:var(--card2);border:1px solid var(--line);color:var(--text);padding:6px;border-radius:8px">
             <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
+            <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
+            <option>ADA/USDT</option><option>TON/USDT</option>
           </select>
           <div class="pair-price" id="pairPrice">$0.00</div>
           <div class="pair-change up" id="pairChange">0.00%</div>
         </div>
-        <div class="chart"><i class="fa-solid fa-chart-area"></i> Live Chart</div>
+        <div class="chart" id="tradingview_chart"></div>
       </div>
 
       <div class="card positions" style="margin-top:12px">
         <h3>Open Positions</h3>
         <table>
-          <thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>P&L</th><th></th></tr></thead>
+          <thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>Entry</th><th>P&L</th><th>TP/SL</th><th></th></tr></thead>
           <tbody id="positionsBody">
-            <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>
+            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -124,7 +131,7 @@ body{background:var(--bg);color:var(--text)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, onValue, update, push, remove, serverTimestamp, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, update, push, remove, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -144,9 +151,14 @@ let uid = null;
 let balance = 0;
 let positions = {};
 let currentPair = "BTC/USDT";
-let prices = { "BTC/USDT": 68420.50, "ETH/USDT": 3500.20, "SOL/USDT": 150.80 };
+let prices = {
+  "BTC/USDT": 68420.50, "ETH/USDT": 3500.20, "SOL/USDT": 150.80,
+  "BNB/USDT": 580.30, "XRP/USDT": 0.52, "DOGE/USDT": 0.14,
+  "ADA/USDT": 0.45, "TON/USDT": 5.20
+};
 let orderType = "buy";
 let notifs = [];
+let tvWidget = null;
 
 /* DOM */
 const toast = document.getElementById("toast");
@@ -171,10 +183,27 @@ function renderNotifs(){
 }
 document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show");
 
-/* REALTIME PRICE SIM - replace with Binance API later */
+/* TRADINGVIEW CHART */
+function loadChart(symbol){
+  document.getElementById("tradingview_chart").innerHTML = "";
+  new TradingView.widget({
+    "width": "100%",
+    "height": 400,
+    "symbol": "BINANCE:" + symbol.replace("/", ""),
+    "interval": "15",
+    "theme": "dark",
+    "style": "1",
+    "toolbar_bg": "#1a2440",
+    "enable_publishing": false,
+    "hide_top_toolbar": false,
+    "container_id": "tradingview_chart"
+  });
+}
+
+/* REALTIME PRICE SIM */
 function updatePrice(){
   Object.keys(prices).forEach(pair=>{
-    prices[pair] += (Math.random() - 0.5) * (pair.includes("BTC")?50:5);
+    prices[pair] += (Math.random() - 0.5) * (pair.includes("BTC")?50:pair.includes("ETH")?10:1);
   });
   if(currentPair){
     const price = prices[currentPair];
@@ -186,21 +215,20 @@ function updatePrice(){
 }
 setInterval(updatePrice, 2000);
 
-/* FIREBASE LISTENERS */
+/* FIREBASE LISTENERS - USING TRADE NODE */
 onAuthStateChanged(auth, async (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid;
   balCard.classList.add("loading");
+  loadChart(currentPair);
 
-  // 1. Listen to balance
-  onValue(ref(db, `users/${uid}/balance`), (snap)=>{
+  onValue(ref(db, `trade/${uid}/balance`), (snap)=>{
     balance = snap.val() || 0;
     updateEquity();
     balCard.classList.remove("loading");
   });
 
-  // 2. Listen to positions
-  onValue(ref(db, `users/${uid}/positions`), (snap)=>{
+  onValue(ref(db, `trade/${uid}/positions`), (snap)=>{
     positions = snap.val() || {};
     renderPositions();
     updateEquity();
@@ -209,14 +237,12 @@ onAuthStateChanged(auth, async (user)=>{
 
 /* UPDATE P&L + AUTO TP/SL */
 function updatePositionsPnL(){
-  const price = prices[currentPair];
   Object.keys(positions).forEach(id=>{
     const p = positions[id];
-    if(p.pair!== currentPair) return;
+    const price = prices[p.pair];
+    if(!price) return;
     const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
     const pnlPct = pnl / (p.entry*p.qty) * 100;
-
-    // Auto close
     if(pnlPct >= p.tp || pnlPct <= -p.sl){
       closePosition(id, "TP/SL Hit");
     }
@@ -242,20 +268,15 @@ async function placeOrder(){
   const qty = amount / price;
   const fee = amount * 0.001;
   const newBalance = balance - amount - fee;
-  const posRef = push(ref(db, `users/${uid}/positions`));
+  const posRef = push(ref(db, `trade/${uid}/positions`));
 
   try{
-    await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
+    await runTransaction(ref(db, `trade/${uid}/balance`), (current)=>{
       return current >= amount+fee? newBalance : undefined;
     });
     await update(posRef, {
-      pair: currentPair,
-      side: orderType,
-      qty: qty,
-      entry: price,
-      tp: tp,
-      sl: sl,
-      openedAt: serverTimestamp()
+      pair: currentPair, side: orderType, qty: qty, entry: price,
+      tp: tp, sl: sl, openedAt: serverTimestamp()
     });
     pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(4)} ${currentPair} @ $${price.toFixed(2)}`, "ok");
   }catch(e){
@@ -274,8 +295,8 @@ async function closePosition(id, reason="Manual"){
   const pnl = p.side==="buy"? closeValue - (p.qty*p.entry) : (p.qty*p.entry) - closeValue;
 
   try{
-    await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (current||0) + closeValue + pnl);
-    await remove(ref(db, `users/${uid}/positions/${id}`));
+    await runTransaction(ref(db, `trade/${uid}/balance`), (current)=> (current||0) + closeValue + pnl);
+    await remove(ref(db, `trade/${uid}/positions/${id}`));
     pushNotif(`Closed ${p.pair} ${reason}. P&L: $${pnl.toFixed(2)}`, pnl>=0?"ok":"bad");
   }catch(e){
     pushNotif("Close failed", "bad");
@@ -285,7 +306,7 @@ async function closePosition(id, reason="Manual"){
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
-  if(!arr.length){ tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
+  if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
 
   tbody.innerHTML = arr.map(([id,p])=>{
     const price = prices[p.pair] || p.entry;
@@ -293,10 +314,12 @@ function renderPositions(){
     return `
     <tr class="pos">
       <td>${p.pair}</td>
-      <td style="color:${p.side==="buy"?"var(--ok)":"var(--bad)"}">${p.side.toUpperCase()}</td>
+      <td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td>
       <td>${p.qty.toFixed(4)}</td>
+      <td>$${p.entry.toFixed(2)}</td>
       <td class="pnl ${pnl>=0?"up":"down"}">$${pnl.toFixed(2)}</td>
-      <td><button class="close-btn" onclick="closePosition('${id}')">Close</button></td>
+      <td>${p.tp}% / ${p.sl}%</td>
+      <td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td>
     </tr>`;
   }).join('');
 }
@@ -314,12 +337,13 @@ function updateEquity(){
 
 document.getElementById("pairSelect").onchange = e=>{
   currentPair = e.target.value;
+  loadChart(currentPair);
   updatePrice();
   pushNotif(`Switched to ${currentPair}`, "info");
 }
 
 pushNotif("Connected to CYPX TRADE", "info");
-window.closePosition = closePosition; // for onclick
+window.closePosition = closePosition;
 </script>
 </body>
-</html>
+  </html>
