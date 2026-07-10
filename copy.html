@@ -4,68 +4,108 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CYPX Copy Trading</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
-  .container { max-width: 1100px; margin: 0 auto; }
-    h1 { color: #0A2540; margin: 0 0 8px; font-size: 28px; }
-  .subtitle { color: #64748b; margin-bottom: 24px; font-size: 14px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-
-  .trader-card {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      border: 2px solid transparent;
-      transition: 0.2s;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(rgba(0,8,20,0.85), rgba(0,29,61,0.85)), url("Screenshot_20260701-191309.jpg");
+      background-size: cover; background-attachment: fixed;
+      margin: 0; padding: 20px; color: white; padding-bottom: 100px;
     }
-  .trader-card.copying { border-color: #00C896; }
-  .trader-card:hover { transform: translateY(-2px); }
-  .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #0A2540); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
-  .trader-name { font-weight: 700; font-size: 16px; color: #0A2540; }
-  .verified { background: #00C896; color: white; font-size: 10px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+   .container { max-width: 1200px; margin: 0 auto; }
 
-  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
-  .stat { background: #f8fafc; padding: 10px; border-radius: 10px; }
-  .stat-label { font-size: 11px; color: #64748b; }
-  .stat-value { font-size: 16px; font-weight: 700; color: #0A2540; }
-  .stat-value.green { color: #00C896; }
-  .stat-value.red { color: #ef4444; }
-  .stat-value.purple { color: #7c3aed; }
+   .header { text-align: center; margin-bottom: 25px; }
+    h1 { color: #ffd700; margin: 0 0 8px; font-size: 28px; }
+   .subtitle { color: #a0aec0; margin-bottom: 20px; font-size: 14px; }
 
-  .pnl-box { background: #f0fdf4; border: 1px solid #00C896; padding: 12px; border-radius: 10px; margin: 12px 0; display: none; }
-  .pnl-box.active { display: block; }
-  .pnl-label { font-size: 12px; color: #64748b; }
-  .pnl-value { font-size: 20px; font-weight: 700; }
+    /* PORTFOLIO SUMMARY */
+   .portfolio-card {
+      background: linear-gradient(145deg,#002b5c,#001f3f);
+      padding: 20px; border-radius: 16px; margin-bottom: 25px;
+      box-shadow: 0 0 25px rgba(0,200,255,0.25);
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+    }
+   .portfolio-stat { text-align: center; }
+   .portfolio-label { font-size: 12px; color: #94e2cc; }
+   .portfolio-value { font-size: 22px; font-weight: 700; margin-top: 5px; }
+   .portfolio-value.green { color: #00C896; }
+   .portfolio-value.red { color: #ef4444; }
 
-  .btn-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
-  .copy-btn { width: 100%; padding: 12px; background: #00C896; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-  .copy-btn:hover { background: #00a87f; }
-  .stop-btn { background: #ef4444; }
-  .stop-btn:hover { background: #dc2626; }
-  .copy-btn:disabled { background: #94e2cc; cursor: not-allowed; }
+   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 
-  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-  .modal.active { display: flex; }
-  .modal-content { background: white; padding: 30px; border-radius: 16px; max-width: 400px; width: 90%; }
-  .modal-content h2 { margin-top: 0; color: #0A2540; }
-  .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 10px; }
-  .modal-actions { display: flex; gap: 10px; }
-  .btn-secondary { background: #e2e8f0; color: #0A2540; }
+   .trader-card {
+      background: rgba(0,26,51,0.8); backdrop-filter: blur(10px);
+      padding: 20px; border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,150,255,0.15);
+      border: 2px solid rgba(255,255,255,0.05);
+      transition: 0.3s;
+    }
+   .trader-card.copying { border-color: #00C896; box-shadow: 0 0 25px rgba(0,200,150,0.3); }
+   .trader-card:hover { transform: translateY(-3px); }
 
-  .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
-  .toast.show { transform: translateX(0); }
-  .toast.success { background: #00C896; }
-  .toast.error { background: #ef4444; }
+   .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+   .avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #007A54); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+   .trader-name { font-weight: 700; font-size: 17px; color: #fff; }
+   .verified { background: #00C896; color: #000; font-size: 10px; padding: 3px 7px; border-radius: 6px; margin-left: 6px; font-weight: 700; }
+
+   .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+   .stat { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: center; }
+   .stat-label { font-size: 11px; color: #94e2cc; }
+   .stat-value { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
+   .stat-value.green { color: #00C896; }
+   .stat-value.red { color: #ef4444; }
+   .stat-value.gold { color: #ffd700; }
+
+   .pnl-box { background: rgba(0,200,150,0.1); border: 1px solid #00C896; padding: 14px; border-radius: 10px; margin: 15px 0; display: none; }
+   .pnl-box.active { display: block; }
+   .pnl-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 14px; }
+   .pnl-label { color: #94e2cc; }
+   .pnl-value { font-weight: 700; }
+
+   .btn-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
+   .copy-btn { width: 100%; padding: 14px; background: linear-gradient(90deg,#00C896,#007A54); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
+   .copy-btn:hover { opacity: 0.9; }
+   .stop-btn { background: linear-gradient(90deg,#ef4444,#dc2626); }
+
+   .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+   .modal.active { display: flex; }
+   .modal-content { background: #001d3d; padding: 30px; border-radius: 16px; max-width: 420px; width: 90%; border: 1px solid rgba(0,200,255,0.3); }
+   .modal-content h2 { margin-top: 0; color: #ffd700; }
+   .modal-content label { font-size: 13px; color: #94e2cc; }
+   .modal-content input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: rgba(0,0,0,0.3); color: white; }
+   .modal-actions { display: flex; gap: 10px; }
+   .btn-secondary { background: #334155; }
+
+   .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
+   .toast.show { transform: translateX(0); }
+   .toast.success { background: #00C896; }
+   .toast.error { background: #ef4444; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Copy Trading</h1>
-  <p class="subtitle">Automatically copy trades from top CYPX traders. Start with as low as $50.</p>
+  <div class="header">
+    <h1><i class="fas fa-copy"></i> Copy Trading</h1>
+    <p class="subtitle">Automatically copy trades from top CYPX traders. Start with as low as $50.</p>
+  </div>
+
+  <!-- PORTFOLIO SUMMARY -->
+  <div class="portfolio-card">
+    <div class="portfolio-stat">
+      <div class="portfolio-label">Total Copied</div>
+      <div class="portfolio-value" id="totalCopied">$0.00</div>
+    </div>
+    <div class="portfolio-stat">
+      <div class="portfolio-label">Total P&L</div>
+      <div class="portfolio-value green" id="totalPnL">$0.00</div>
+    </div>
+    <div class="portfolio-stat">
+      <div class="portfolio-label">Active Traders</div>
+      <div class="portfolio-value" id="activeCount">0</div>
+    </div>
+  </div>
 
   <div class="grid" id="tradersGrid"></div>
 </div>
@@ -73,8 +113,8 @@
 <!-- Copy Modal -->
 <div class="modal" id="copyModal">
   <div class="modal-content">
-    <h2>Start Copy Trading</h2>
-    <p id="modalTraderName"></p>
+    <h2><i class="fas fa-rocket"></i> Start Copy Trading</h2>
+    <p id="modalTraderName" style="color:#94e2cc"></p>
     <label>Amount to Copy <small>Min: $50</small></label>
     <input type="number" id="copyAmount" placeholder="500" min="50">
     <label>Max Daily Loss Limit</label>
@@ -93,7 +133,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-// REAL FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -129,48 +168,52 @@ auth.onAuthStateChanged(user => {
   startPnLSimulation();
 });
 
-// LOAD COPIES FROM FIREBASE IN REAL TIME
+function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
+
 function loadUserCopies() {
   db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
     userCopies = snap.val() || {};
+    updatePortfolioSummary();
     renderTraders();
   });
 }
 
-// SIMULATE TRADES - Replace with your real trade engine later
+function updatePortfolioSummary() {
+  let totalAmount = 0, totalPnL = 0, count = 0;
+  for(let id in userCopies){
+    totalAmount += userCopies[id].amount;
+    totalPnL += userCopies[id].pnl || 0;
+    count++;
+  }
+  document.getElementById('totalCopied').innerText = formatMoney(totalAmount);
+  document.getElementById('totalPnL').innerText = formatMoney(totalPnL);
+  document.getElementById('totalPnL').className = `portfolio-value ${totalPnL >= 0? 'green' : 'red'}`;
+  document.getElementById('activeCount').innerText = count;
+}
+
 function startPnLSimulation() {
   setInterval(() => {
     for(let id in userCopies) {
       const copy = userCopies[id];
-      const change = (Math.random() - 0.45) * 20; // profit or loss
-      if(change > 0) { // only take fee on profit
+      const change = (Math.random() - 0.45) * 25;
+      if(change > 0) {
         const traderFee = change * (copy.profitShare / 100);
         const userProfit = change - traderFee;
         copy.pnl = (copy.pnl || 0) + userProfit;
-
-        // LOG THE TRADE
         logTrade(id, userProfit, traderFee, copy.amount);
       } else {
         copy.pnl = (copy.pnl || 0) + change;
       }
-
-      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({
-        pnl: copy.pnl,
-        lastUpdate: Date.now()
-      });
+      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({ pnl: copy.pnl, lastUpdate: Date.now() });
       updatePnLDisplay(id);
     }
+    updatePortfolioSummary();
   }, 5000);
 }
 
 function logTrade(traderId, userProfit, traderFee, amount) {
-  const logRef = db.ref("copy_logs/" + currentUser.uid).push();
-  logRef.set({
-    traderId,
-    userProfit: userProfit.toFixed(2),
-    traderFee: traderFee.toFixed(2),
-    amount,
-    timestamp: Date.now()
+  db.ref("copy_logs/" + currentUser.uid).push({
+    traderId, userProfit: userProfit.toFixed(2), traderFee: traderFee.toFixed(2), amount, timestamp: Date.now()
   });
 }
 
@@ -178,7 +221,7 @@ function updatePnLDisplay(id) {
   const pnlEl = document.getElementById(`pnl-${id}`);
   if(!pnlEl) return;
   const pnl = (userCopies[id]?.pnl || 0).toFixed(2);
-  pnlEl.innerText = `$${pnl}`;
+  pnlEl.innerText = formatMoney(pnl);
   pnlEl.className = `pnl-value ${pnl >= 0? 'green' : 'red'}`;
 }
 
@@ -186,13 +229,15 @@ function renderTraders() {
   const grid = document.getElementById('tradersGrid');
   grid.innerHTML = traders.map(t => {
     const isCopying = userCopies[t.id];
+    const userPnL = isCopying?.pnl || 0;
+    const traderEarned = userPnL > 0? (userPnL * t.profitShare / (100 - t.profitShare)) : 0;
     return `
     <div class="trader-card ${isCopying? 'copying' : ''}">
       <div class="trader-header">
         <div class="avatar">${t.avatar}</div>
         <div>
           <div class="trader-name">${t.name} <span class="verified">VERIFIED</span></div>
-          <div style="font-size:12px; color:#64748b">${t.followers} Copiers</div>
+          <div style="font-size:12px; color:#94e2cc">${t.followers} Copiers</div>
         </div>
       </div>
       <div class="stats">
@@ -206,28 +251,20 @@ function renderTraders() {
         </div>
         <div class="stat">
           <div class="stat-label">Trader Fee</div>
-          <div class="stat-value purple">${t.profitShare}%</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Risk Level</div>
-          <div class="stat-value">${t.risk}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Min Copy</div>
-          <div class="stat-value">$50</div>
+          <div class="stat-value gold">${t.profitShare}%</div>
         </div>
       </div>
 
       <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
-        <div class="pnl-label">Your Copy P&L</div>
-        <div class="pnl-value green" id="pnl-${t.id}">$${(isCopying?.pnl || 0).toFixed(2)}</div>
-        <div style="font-size:11px; color:#64748b">Copied with $${isCopying?.amount || 0} | Fee: ${t.profitShare}%</div>
+        <div class="pnl-row"><span class="pnl-label">Your P&L</span><span class="pnl-value green" id="pnl-${t.id}">${formatMoney(userPnL)}</span></div>
+        <div class="pnl-row"><span class="pnl-label">Copied Amount</span><span class="pnl-value">${formatMoney(isCopying?.amount)}</span></div>
+        <div class="pnl-row"><span class="pnl-label">Trader Earned</span><span class="pnl-value gold">${formatMoney(traderEarned)}</span></div>
       </div>
 
       <div class="btn-group">
         ${isCopying
-         ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')">Stop Copy</button>`
-          : `<button class="copy-btn" id="btn-${t.id}" onclick="openModal('${t.id}')">Copy Trader</button>`
+        ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
+          : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
         }
       </div>
     </div>
@@ -236,7 +273,7 @@ function renderTraders() {
 
 function openModal(traderId) {
   selectedTrader = traders.find(t => t.id === traderId);
-  document.getElementById('modalTraderName').innerText = `Copy ${selectedTrader.name}'s trades | Trader takes ${selectedTrader.profitShare}% of profits`;
+  document.getElementById('modalTraderName').innerText = `Copy ${selectedTrader.name} | Trader takes ${selectedTrader.profitShare}% of your profits`;
   document.getElementById('copyModal').classList.add('active');
 }
 
@@ -249,45 +286,22 @@ function closeModal() {
 function confirmCopy() {
   const amount = document.getElementById('copyAmount').value;
   const lossLimit = document.getElementById('lossLimit').value;
-
   if(!amount || amount < 50) return showToast('Minimum copy amount is $50', 'error');
   if(!lossLimit) return showToast('Please set a loss limit', 'error');
 
-  const copyData = {
-    traderName: selectedTrader.name,
-    amount: Number(amount),
-    lossLimit: Number(lossLimit),
-    profitShare: selectedTrader.profitShare,
-    pnl: 0,
-    status: "active",
-    startedAt: Date.now()
-  };
-
-  db.ref("copy_trading/" + currentUser.uid + "/" + selectedTrader.id).set(copyData)
- .then(() => {
-    // LOG START
-    db.ref("copy_logs/" + currentUser.uid).push({
-      action: "START_COPY",
-      traderId: selectedTrader.id,
-      amount: Number(amount),
-      timestamp: Date.now()
-    });
-    showToast(`Now copying ${selectedTrader.name}`, 'success');
-    closeModal();
+  db.ref("copy_trading/" + currentUser.uid + "/" + selectedTrader.id).set({
+    traderName: selectedTrader.name, amount: Number(amount), lossLimit: Number(lossLimit),
+    profitShare: selectedTrader.profitShare, pnl: 0, status: "active", startedAt: Date.now()
+  }).then(() => {
+    db.ref("copy_logs/" + currentUser.uid).push({ action: "START_COPY", traderId: selectedTrader.id, amount: Number(amount), timestamp: Date.now() });
+    showToast(`Now copying ${selectedTrader.name}`, 'success'); closeModal();
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
 function stopCopy(traderId) {
   if(!confirm("Stop copying this trader?")) return;
-
-  db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove()
- .then(() => {
-    // LOG STOP
-    db.ref("copy_logs/" + currentUser.uid).push({
-      action: "STOP_COPY",
-      traderId,
-      timestamp: Date.now()
-    });
+  db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove().then(() => {
+    db.ref("copy_logs/" + currentUser.uid).push({ action: "STOP_COPY", traderId, timestamp: Date.now() });
     showToast("Stopped copying", "info");
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
@@ -299,6 +313,5 @@ function showToast(message, type = "info"){
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 </script>
-
 </body>
-</html>
+      </html>
