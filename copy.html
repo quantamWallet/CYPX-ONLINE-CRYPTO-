@@ -6,101 +6,114 @@
   <title>CYPX Copy Trading</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(rgba(0,8,20,0.85), rgba(0,29,61,0.85)), url("Screenshot_20260701-191309.jpg");
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, rgba(0,8,20,0.95), rgba(0,29,61,0.95)), url("Screenshot_20260701-191309.jpg");
       background-size: cover; background-attachment: fixed;
-      margin: 0; padding: 20px; color: white; padding-bottom: 100px;
+      color: white; padding-bottom: 100px; min-height: 100vh;
     }
-  .container { max-width: 1200px; margin: 0 auto; }
-  .header { text-align: center; margin-bottom: 25px; }
-    h1 { color: #ffd700; margin: 0 0 8px; font-size: 28px; }
-  .subtitle { color: #a0aec0; margin-bottom: 20px; font-size: 14px; }
+ .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+ .header { text-align: center; margin-bottom: 30px; }
+    h1 { color: #ffd700; margin: 0 0 8px; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+ .subtitle { color: #a0aec0; font-size: 15px; }
 
-    /* ADDED BALANCE CARD */
-  .balance-card {
-      background: linear-gradient(145deg,#007BFF,#007A54);
-      padding: 18px; border-radius: 16px; margin-bottom: 20px; text-align: center;
-      box-shadow: 0 0 25px rgba(0,200,255,0.25);
+ .balance-card {
+      background: linear-gradient(135deg,#007BFF 0%,#00C896 100%);
+      padding: 22px; border-radius: 18px; margin-bottom: 24px; text-align: center;
+      box-shadow: 0 8px 30px rgba(0,200,255,0.3); border: 1px solid rgba(255,255,255,0.1);
     }
-  .balance-label { font-size: 13px; color: #fff; }
-  .balance-value { font-size: 26px; font-weight: 700; color: #ffd700; margin-top: 5px; }
+ .balance-label { font-size: 13px; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 1px; }
+ .balance-value { font-size: 30px; font-weight: 800; color: #ffd700; margin-top: 6px; }
 
-  .portfolio-card {
-      background: linear-gradient(145deg,#002b5c,#001f3f);
-      padding: 20px; border-radius: 16px; margin-bottom: 25px;
-      box-shadow: 0 0 25px rgba(0,200,255,0.25);
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+ .portfolio-card {
+      background: rgba(0,26,51,0.6); backdrop-filter: blur(15px);
+      padding: 24px; border-radius: 18px; margin-bottom: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
     }
-  .portfolio-stat { text-align: center; }
-  .portfolio-label { font-size: 12px; color: #94e2cc; }
-  .portfolio-value { font-size: 22px; font-weight: 700; margin-top: 5px; }
-  .portfolio-value.green { color: #00C896; }
-  .portfolio-value.red { color: #ef4444; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-  .trader-card { background: rgba(0,26,51,0.8); backdrop-filter: blur(10px); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,150,255,0.15); border: 2px solid rgba(255,255,255,0.05); transition: 0.3s; }
-  .trader-card.copying { border-color: #00C896; box-shadow: 0 0 25px rgba(0,200,150,0.3); }
-  .trader-card:hover { transform: translateY(-3px); }
-  .trader-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-  .avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #00C896, #007A54); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
-  .trader-name { font-weight: 700; font-size: 17px; color: #fff; }
-  .verified { background: #00C896; color: #000; font-size: 10px; padding: 3px 7px; border-radius: 6px; margin-left: 6px; font-weight: 700; }
-  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
-  .stat { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: center; }
-  .stat-label { font-size: 11px; color: #94e2cc; }
-  .stat-value { font-size: 16px; font-weight: 700; color: #fff; margin-top: 4px; }
-  .stat-value.green { color: #00C896; }
-  .stat-value.red { color: #ef4444; }
-  .stat-value.gold { color: #ffd700; }
-  .pnl-box { background: rgba(0,200,150,0.1); border: 1px solid #00C896; padding: 14px; border-radius: 10px; margin: 15px 0; display: none; }
-  .pnl-box.active { display: block; }
-  .pnl-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 14px; }
-  .pnl-label { color: #94e2cc; }
-  .pnl-value { font-weight: 700; }
-  .btn-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
-  .copy-btn { width: 100%; padding: 14px; background: linear-gradient(90deg,#00C896,#007A54); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
-  .copy-btn:hover { opacity: 0.9; }
-  .copy-btn:disabled { background: #555; cursor: not-allowed; }
-  .stop-btn { background: linear-gradient(90deg,#ef4444,#dc2626); }
-  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-  .modal.active { display: flex; }
-  .modal-content { background: #001d3d; padding: 30px; border-radius: 16px; max-width: 420px; width: 90%; border: 1px solid rgba(0,200,255,0.3); }
-  .modal-content h2 { margin-top: 0; color: #ffd700; }
-  .modal-content label { font-size: 13px; color: #94e2cc; }
-  .modal-content input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; background: rgba(0,0,0,0.3); color: white; }
-  .modal-actions { display: flex; gap: 10px; }
-  .btn-secondary { background: #334155; }
-  .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; }
-  .toast.show { transform: translateX(0); }
-  .toast.success { background: #00C896; }
-  .toast.error { background: #ef4444; }
-  .avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid #00f5a0;
-  box-shadow: 0 0 12px rgba(0, 245, 160, 0.4);
-  background: #0a1f2e; /* fallback if image fails */
-}
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-          }
+ .portfolio-stat { text-align: center; }
+ .portfolio-label { font-size: 12px; color: #94e2cc; text-transform: uppercase; letter-spacing: 0.5px; }
+ .portfolio-value { font-size: 24px; font-weight: 800; margin-top: 6px; }
+ .portfolio-value.green { color: #00C896; }
+ .portfolio-value.red { color: #ef4444; }
+ .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px; }
+
+ .trader-card {
+    background: rgba(0,26,51,0.7); backdrop-filter: blur(15px);
+    padding: 22px; border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.3s ease;
+  }
+ .trader-card.copying { border-color: #00C896; box-shadow: 0 0 30px rgba(0,200,150,0.4); }
+ .trader-card:hover { transform: translateY(-5px); border-color: rgba(0,200,150,0.3); }
+
+ .trader-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+
+  /* FIXED AVATAR */
+ .avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    overflow: hidden; flex-shrink: 0;
+    border: 2px solid #00C896;
+    box-shadow: 0 0 15px rgba(0, 245, 160, 0.5);
+    background: #0a1f2e;
+  }
+ .avatar img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+
+ .trader-name { font-weight: 700; font-size: 18px; color: #fff; }
+ .verified { background: linear-gradient(90deg,#00C896,#007A54); color: #000; font-size: 10px; padding: 4px 8px; border-radius: 6px; margin-left: 6px; font-weight: 800; }
+ .trader-bio { font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px; }
+
+ .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 18px 0; }
+ .stat { background: rgba(255,255,255,0.05); padding: 14px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+ .stat-label { font-size: 11px; color: #94e2cc; text-transform: uppercase; }
+ .stat-value { font-size: 17px; font-weight: 800; color: #fff; margin-top: 5px; }
+ .stat-value.green { color: #00C896; }
+ .stat-value.gold { color: #ffd700; }
+
+ .pnl-box { background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.3); padding: 16px; border-radius: 12px; margin: 16px 0; display: none; }
+ .pnl-box.active { display: block; }
+ .pnl-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
+ .pnl-label { color: #94e2cc; }
+ .pnl-value { font-weight: 800; }
+
+ .copy-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(90deg,#00C896,#007A54);
+    color: white; border: none; border-radius: 12px;
+    font-weight: 800; cursor: pointer; font-size: 15px;
+    transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,200,150,0.3);
+  }
+ .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,200,150,0.4); }
+ .copy-btn:disabled { background: #555; cursor: not-allowed; transform: none; }
+ .stop-btn { background: linear-gradient(90deg,#ef4444,#dc2626); box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
+ .stop-btn:hover { box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
+
+ .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
+ .modal.active { display: flex; }
+ .modal-content { background: #001d3d; padding: 32px; border-radius: 20px; max-width: 440px; width: 90%; border: 1px solid rgba(0,200,255,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+ .modal-content h2 { margin-top: 0; color: #ffd700; margin-bottom: 12px; }
+ .modal-content label { font-size: 13px; color: #94e2cc; display: block; margin-bottom: 6px; }
+ .modal-content input { width: 100%; padding: 14px; margin: 8px 0 18px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; background: rgba(0,0,0,0.3); color: white; font-size: 15px; }
+ .modal-actions { display: flex; gap: 12px; }
+ .btn-secondary { background: #334155; box-shadow: none; }
+ .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-weight: 600; }
+ .toast.show { transform: translateX(0); }
+ .toast.success { background: #00C896; }
+ .toast.error { background: #ef4444; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <h1><i class="fas fa-copy"></i> Copy Trading</h1>
+    <h1><i class="fas fa-copy"></i> CYPX Copy Trading</h1>
     <p class="subtitle">Automatically copy trades from top CYPX traders. Start with as low as $50.</p>
   </div>
 
-  <!-- ADDED: REAL BALANCE -->
   <div class="balance-card">
     <div class="balance-label">Available Balance</div>
     <div class="balance-value" id="userBalance">$0.00</div>
@@ -118,7 +131,7 @@
 <div class="modal" id="copyModal">
   <div class="modal-content">
     <h2><i class="fas fa-rocket"></i> Start Copy Trading</h2>
-    <p id="modalTraderName" style="color:#94e2cc"></p>
+    <p id="modalTraderName" style="color:#94e2cc; margin-bottom: 20px;"></p>
     <label>Amount to Copy <small>Min: $50</small></label>
     <input type="number" id="copyAmount" placeholder="500" min="50">
     <label>Max Daily Loss Limit</label>
@@ -152,84 +165,85 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+/* FIXED: FILES IN ROOT - NO FOLDER */
 const traders = [
-  { 
-    id: 'kenyan_prince', 
-    name: 'Kenyan Prince', 
+  {
+    id: 'kenyan_prince',
+    name: 'Kenyan Prince',
     bio: 'Nairobi based. Specialist in Gold & Indices. 6+ years trading experience.',
-    roi: '+142.3%', 
-    winRate: '78%', 
-    followers: '2.4k', 
-    risk: 'Medium', 
-    avatar: 'Kenyan Prince.jpg', // <-- real path
-    profitShare: 20 
+    roi: '+142.3%',
+    winRate: '78%',
+    followers: '2.4k',
+    risk: 'Medium',
+    avatar: 'kenyan_prince.jpg', // REMOVED images/
+    profitShare: 20
   },
-  { 
-    id: 'alpha_trader', 
+  {
+    id: 'alpha_trader',
     name: 'Alpha Snique',
     bio: 'Conservative trader. Low risk scalper on EURUSD & GBPUSD. Consistent monthly gains.',
-    roi: '+98.7%', 
-    winRate: '82%', 
-    followers: '5.1k', 
-    risk: 'Low', 
-    avatar: 'alpha Snique.jpg', // <-- real path
-    profitShare: 15 
+    roi: '+98.7%',
+    winRate: '82%',
+    followers: '5.1k',
+    risk: 'Low',
+    avatar: 'alpha_snique.jpg', // REMOVED images/
+    profitShare: 15
   },
-  { 
-    id: 'states_ke', 
-    name: 'States Ke', 
+  {
+    id: 'states_ke',
+    name: 'States Ke',
     bio: 'High risk, high reward. NY session trader. Known for big wins on US30 & NAS100.',
-    roi: '+210.5%', 
-    winRate: '71%', 
-    followers: '1.8k', 
-    risk: 'High', 
-    avatar: 'stateske.jpg',
-    profitShare: 25 
+    roi: '+210.5%',
+    winRate: '71%',
+    followers: '1.8k',
+    risk: 'High',
+    avatar: 'states_ke.jpg', // REMOVED images/
+    profitShare: 25
   },
-  { 
-    id: 'vidollar', 
-    name: 'Vidollar', 
+  {
+    id: 'vidollar',
+    name: 'Vidollar',
     bio: 'Mombasa trader. Swing trader on majors. Disciplined risk management and TP/SL.',
-    roi: '+165.2%', 
-    winRate: '75%', 
-    followers: '3.2k', 
-    risk: 'Medium', 
-    avatar: 'vidollar.jpg',
-    profitShare: 18 
+    roi: '+165.2%',
+    winRate: '75%',
+    followers: '3.2k',
+    risk: 'Medium',
+    avatar: 'vidollar.jpg', // REMOVED images/
+    profitShare: 18
   },
-  { 
-    id: 'ziwa_fx', 
-    name: 'Ziwa Fx', 
+  {
+    id: 'ziwa_fx',
+    name: 'Ziwa Fx',
     bio: 'Kisumu based. Low risk strategy. 85% win rate on scalping London session.',
-    roi: '+89.4%', 
-    winRate: '85%', 
-    followers: '4.7k', 
-    risk: 'Low', 
-    avatar: 'ziwa.jpg',
-    profitShare: 12 
+    roi: '+89.4%',
+    winRate: '85%',
+    followers: '4.7k',
+    risk: 'Low',
+    avatar: 'ziwa_fx.jpg', // REMOVED images/
+    profitShare: 12
   },
-  { 
-    id: 'pizzo_fx', 
-    name: 'Pizzo Fx', 
+  {
+    id: 'pizzo_fx',
+    name: 'Pizzo Fx',
     bio: 'Eldoret trader. Crypto + Forex hybrid. Aggressive but calculated entries.',
-    roi: '+134.8%', 
-    winRate: '73%', 
-    followers: '2.9k', 
-    risk: 'Medium', 
-    avatar: 'pizzo.jpg',
-    profitShare: 20 
+    roi: '+134.8%',
+    winRate: '73%',
+    followers: '2.9k',
+    risk: 'Medium',
+    avatar: 'pizzo_fx.jpg', // REMOVED images/
+    profitShare: 20
   }
 ];
 
 let selectedTrader = null;
 let currentUser = null;
 let userCopies = {};
-let userBalance = 0; // NEW
+let userBalance = 0;
 
 auth.onAuthStateChanged(user => {
   if(!user) return window.location.href = "signin.html";
   currentUser = user;
-  loadUserBalance(); // NEW
+  loadUserBalance();
   renderTraders();
   loadUserCopies();
   startPnLSimulation();
@@ -237,7 +251,6 @@ auth.onAuthStateChanged(user => {
 
 function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
 
-// NEW: LOAD BALANCE IN REAL TIME
 function loadUserBalance(){
   db.ref("users/" + currentUser.uid + "/balance").on("value", snap => {
     userBalance = Number(snap.val() || 0);
@@ -275,12 +288,10 @@ function startPnLSimulation() {
         const traderFee = change * (copy.profitShare / 100);
         const userProfit = change - traderFee;
         copy.pnl = (copy.pnl || 0) + userProfit;
-        // ADD PROFIT TO BALANCE
         db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + userProfit);
         logTrade(id, userProfit, traderFee, copy.amount);
       } else {
         copy.pnl = (copy.pnl || 0) + change;
-        // DEDUCT LOSS FROM BALANCE
         db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + change);
       }
       db.ref("copy_trading/" + currentUser.uid + "/" + id).update({ pnl: copy.pnl, lastUpdate: Date.now() });
@@ -305,7 +316,7 @@ function renderTraders() {
     return `
     <div class="trader-card ${isCopying? 'copying' : ''}">
       <div class="trader-header">
-        <div class="avatar"><img src="${t.avatar}" alt="${t.name}"></div>
+        <div class="avatar"><img src="${t.avatar}" alt="${t.name}" onerror="this.src='https://ui-avatars.com/api/?name=${t.name}&background=00C896&color=fff'"></div>
         <div>
           <div class="trader-name">${t.name} <span class="verified">VERIFIED</span></div>
           <div style="font-size:12px; color:#94e2cc">${t.followers} Copiers</div>
@@ -328,13 +339,18 @@ function renderTraders() {
 
       <div class="btn-group">
         ${isCopying
-      ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
+     ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
           : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
         }
       </div>
     </div>
   `}).join('');
   }
+
+function updatePnLDisplay(id){
+  const el = document.getElementById('pnl-'+id);
+  if(el) el.innerText = formatMoney(userCopies[id].pnl);
+}
 
 function openModal(traderId) {
   selectedTrader = traders.find(t => t.id === traderId);
@@ -354,11 +370,8 @@ function confirmCopy() {
 
   if(!amount || amount < 50) return showToast('Minimum copy amount is $50', 'error');
   if(!lossLimit) return showToast('Please set a loss limit', 'error');
-
-  // NEW: BALANCE CHECK
   if(amount > userBalance) return showToast(`Insufficient Balance. You have ${formatMoney(userBalance)}`, 'error');
 
-  // DEDUCT BALANCE FIRST
   db.ref("users/" + currentUser.uid + "/balance").transaction(current => (current||0) - amount)
 .then(() => {
     return db.ref("copy_trading/" + currentUser.uid + "/" + selectedTrader.id).set({
@@ -374,8 +387,6 @@ function confirmCopy() {
 function stopCopy(traderId) {
   if(!confirm("Stop copying this trader? Amount will be refunded.")) return;
   const refundAmount = userCopies[traderId].amount;
-
-  // REFUND BALANCE
   db.ref("users/" + currentUser.uid + "/balance").transaction(current => (current||0) + refundAmount)
 .then(() => {
     return db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove();
