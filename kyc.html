@@ -52,7 +52,7 @@
       <option value="drivers_license">Driver's License</option>
     </select>
     <input type="text" id="country" placeholder="Country" required>
-    <button id="step1Btn" onclick="saveStep1AndNext()">Continue</button>
+    <button id="step1Btn" onclick="saveStep1AndNext()" disabled>Loading...</button>
   </div>
 
   <!-- STEP 2 -->
@@ -129,7 +129,6 @@
   import { getDatabase, ref, set, update, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-  // YOUR REAL CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -154,13 +153,20 @@
   const dob = document.getElementById("dob");
   const idType = document.getElementById("idType");
   const country = document.getElementById("country");
+  const step1Btn = document.getElementById("step1Btn");
 
   onAuthStateChanged(auth, async (user) => {
     if(user) {
       currentUser = user;
+      step1Btn.disabled = false;
+      step1Btn.innerText = "Continue";
       await loadProgress(); // auto resume
     }
-    else showToast("Please login to CYPX first", "error");
+    else {
+      showToast("Please login to CYPX first", "error");
+      step1Btn.disabled = true;
+      step1Btn.innerText = "Please Login";
+    }
   });
 
   let step = 1;
@@ -173,7 +179,6 @@
     window.scrollTo(0,0);
   }
 
-  // Load existing data from RTDB and jump to correct step
   async function loadProgress(){
     const snap = await get(ref(db, "kyc_submissions/" + currentUser.uid));
     if(snap.exists()){
@@ -234,7 +239,7 @@
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     canvas.toBlob(blob => {
-      const file = new File([blob], `${target}.jpg`, { type: "image/jpeg" }); // FIXED
+      const file = new File([blob], `${target}.jpg`, { type: "image/jpeg" });
       setFile(target, file);
       stopCamera();
       showToast("Photo captured", "success");
@@ -300,17 +305,27 @@
   }
 
   window.saveStep1AndNext = async () => {
+    if(!currentUser) return showToast("Please wait, logging in...", "error");
     if(!fullName.value.trim() ||!dob.value ||!idType.value ||!country.value.trim())
       return showToast("Please fill all fields", "error");
 
-    document.getElementById('step1Btn').disabled = true;
-    await set(ref(db, "kyc_submissions/" + currentUser.uid), {
-      fullName: fullName.value.trim(),
-      dob: dob.value,
-      idType: idType.value,
-      country: country.value.trim(),
-    });
-    nextStep(2);
+    step1Btn.disabled = true;
+    step1Btn.innerText = "Saving...";
+
+    try {
+      await set(ref(db, "kyc_submissions/" + currentUser.uid), {
+        fullName: fullName.value.trim(),
+        dob: dob.value,
+        idType: idType.value,
+        country: country.value.trim(),
+        createdAt: serverTimestamp()
+      });
+      nextStep(2);
+    } catch(e) {
+      showToast("Save failed: " + e.message, "error");
+      step1Btn.disabled = false;
+      step1Btn.innerText = "Continue";
+    }
   }
 
   window.validateAndNext = (n) => {
@@ -347,7 +362,7 @@
           canvas.height = img.height * scale;
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           canvas.toBlob((blob) => {
-            resolve(new File([blob], file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" })); // FIXED
+            resolve(new File([blob], file.name.replace(/\..+$/,'') + '.jpg', { type: "image/jpeg" }));
           }, "image/jpeg", 0.65);
         }
       }
@@ -392,7 +407,7 @@
 
       await update(ref(db, "kyc_submissions/" + currentUser.uid), {
         address: document.getElementById('address').value.trim(),
-      ...urls,
+     ...urls,
         status: "pending",
         email: currentUser.email,
         submittedAt: serverTimestamp()
@@ -409,4 +424,4 @@
 </script>
 
 </body>
-        </html>                                    
+</html>
