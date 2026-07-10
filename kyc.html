@@ -44,8 +44,17 @@
 
   <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
 
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <label>Full Name</label>
+    <input type="text" id="fullName" placeholder="John Doe">
+    <label>ID Number</label>
+    <input type="text" id="idNumber" placeholder="12345678">
+    <button onclick="nextStep(2)">Continue</button>
+  </div>
+
   <!-- STEP 2 -->
-  <div class="step active" id="step2">
+  <div class="step" id="step2">
     <label>ID Front</label>
     <div class="upload-group">
       <button type="button" class="outline" id="idFrontUploadBtn" onclick="triggerUpload('idFrontUpload')">Upload</button>
@@ -76,6 +85,12 @@
 
     <button class="secondary" onclick="nextStep(1)">Back</button>
     <button id="step2Continue" onclick="validateAndNext(3)" disabled>Upload Back to Continue</button>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <h2>Submitted</h2>
+    <p>We will review your KYC within 24 hours.</p>
   </div>
 
 </div>
@@ -109,7 +124,7 @@
 
   onAuthStateChanged(auth, (user) => { if(user) currentUser = user; });
 
-  let step = 2;
+  let step = 1;
   window.nextStep = (n) => {
     stopCamera();
     document.getElementById(`step${step}`).classList.remove('active');
@@ -220,6 +235,8 @@
       const url = await uploadFile(file, 'idFront');
       fileStore.idFrontUrl = url;
       await update(ref(db, "users/" + currentUser.uid), {
+        "kyc/fullName": document.getElementById('fullName').value,
+        "kyc/idNumber": document.getElementById('idNumber').value,
         "kyc/idFront": url,
         "kyc/updatedAt": Date.now(),
         kycStatus: "pending"
@@ -232,12 +249,6 @@
       showToast("Front ID uploaded", "success");
       document.getElementById('backIdSection').classList.remove('disabled-section');
     } catch(e) {
-      const statusEl = document.getElementById('idFrontStatus');
-      statusEl.className = 'upload-status';
-      statusEl.style.background = '#fef2f2';
-      statusEl.style.borderLeftColor = '#ef4444';
-      statusEl.style.color = '#b91c1c';
-      statusEl.innerText = '❌ Upload failed. Tap Upload to retry.';
       showToast(e.message, "error");
     }
   }
@@ -260,12 +271,6 @@
       showToast("Back ID uploaded", "success");
       document.getElementById('step2Continue').disabled = false;
     } catch(e) {
-      const statusEl = document.getElementById('idBackStatus');
-      statusEl.className = 'upload-status';
-      statusEl.style.background = '#fef2f2';
-      statusEl.style.borderLeftColor = '#ef4444';
-      statusEl.style.color = '#b91c1c';
-      statusEl.innerText = '❌ Upload failed. Tap Upload to retry.';
       showToast(e.message, "error");
     }
   }
@@ -306,4 +311,4 @@
 </script>
 
 </body>
-      </html>
+</html>
