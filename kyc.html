@@ -5,24 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CYPX KYC Verification</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f7fa; display: flex; justify-content: center; padding: 20px; }
-   .container { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-    h1 { color: #0A2540; }
-   .progress { background: #e0e0e0; height: 8px; border-radius: 10px; margin-bottom: 20px; }
-   .progress-bar { background: #00C896; height: 8px; border-radius: 10px; transition: width 0.3s; }
-    input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-    button { background: #00C896; color: white; border: none; cursor: pointer; font-weight: bold; }
-    button:disabled { background: #ccc; }
-   .step { display: none; }
-   .step.active { display: block; }
-    label { font-weight: bold; display: block; margin-top: 10px; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; display: flex; justify-content: center; padding: 20px; margin: 0; }
+ .container { background: white; max-width: 600px; width: 100%; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #0A2540; margin: 0 0 8px; font-size: 24px; }
+ .subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+ .progress { background: #e2e8f0; height: 6px; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+ .progress-bar { background: #00C896; height: 100%; border-radius: 10px; transition: width 0.3s ease; }
+    input, button { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; }
+    input:focus { border-color: #00C896; }
+    button { background: #00C896; color: white; border: none; cursor: pointer; font-weight: 600; }
+    button:disabled { background: #94e2cc; cursor: not-allowed; }
+    button.secondary { background: #e2e8f0; color: #0A2540; }
+    button.outline { background: white; color: #00C896; border: 1px solid #00C896; }
+ .step { display: none; animation: fadeIn 0.2s; }
+ .step.active { display: block; }
+    label { font-weight: 600; display: block; margin-top: 12px; font-size: 14px; color: #334155; }
+  .upload-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+   .preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-top: 8px; border: 1px solid #e2e8f0; }
+   .toast { position: fixed; top: 20px; right: 20px; background: #0A2540; color: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transform: translateX(400px); transition: transform 0.3s ease; z-index: 9999; font-size: 14px; }
+ .toast.show { transform: translateX(0); }
+ .toast.error { background: #ef4444; }
+ .toast.success { background: #00C896; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <h1>CYPX Identity Verification</h1>
-  <p>Secure. Encrypted. Takes 3 minutes.</p>
+  <p class="subtitle">Secure. Encrypted. Takes 3 minutes.</p>
 
   <div class="progress"><div id="progressBar" class="progress-bar" style="width: 20%"></div></div>
 
@@ -31,44 +42,71 @@
     <input type="text" id="fullName" placeholder="Full Name" required>
     <input type="date" id="dob" required>
     <input type="text" id="country" placeholder="Country" required>
-    <button onclick="nextStep(2)">Continue</button>
+    <button onclick="validateAndNext(2)">Continue</button>
   </div>
 
   <!-- STEP 2 -->
   <div class="step" id="step2">
-    <label>ID Front <input type="file" id="idFront" accept="image/*"></label>
-    <label>ID Back <input type="file" id="idBack" accept="image/*"></label>
-    <button onclick="nextStep(3)">Continue</button>
+    <label>ID Front</label>
+    <div class="upload-group">
+      <button type="button" class="outline" onclick="triggerUpload('idFrontUpload')">Upload</button>
+      <button type="button" class="outline" onclick="triggerUpload('idFrontCamera')">Take Photo</button>
+    </div>
+    <input type="file" id="idFrontUpload" accept="image/*" style="display:none">
+    <input type="file" id="idFrontCamera" accept="image/*" capture="environment" style="display:none">
+    <img id="idFrontPreview" class="preview" style="display:none">
+
+    <label>ID Back</label>
+    <div class="upload-group">
+      <button type="button" class="outline" onclick="triggerUpload('idBackUpload')">Upload</button>
+      <button type="button" class="outline" onclick="triggerUpload('idBackCamera')">Take Photo</button>
+    </div>
+    <input type="file" id="idBackUpload" accept="image/*" style="display:none">
+    <input type="file" id="idBackCamera" accept="image/*" capture="environment" style="display:none">
+    <img id="idBackPreview" class="preview" style="display:none">
+
+    <button class="secondary" onclick="nextStep(1)">Back</button>
+    <button onclick="validateAndNext(3)">Continue</button>
   </div>
 
   <!-- STEP 3 -->
   <div class="step" id="step3">
-    <label>Selfie <input type="file" id="selfie" accept="image/*" capture="user"></label>
-    <button onclick="nextStep(4)">Continue</button>
+    <label>Selfie</label>
+    <div class="upload-group">
+      <button type="button" class="outline" onclick="triggerUpload('selfieUpload')">Upload</button>
+      <button type="button" class="outline" onclick="triggerUpload('selfieCamera')">Take Selfie</button>
+    </div>
+    <input type="file" id="selfieUpload" accept="image/*" style="display:none">
+    <input type="file" id="selfieCamera" accept="image/*" capture="user" style="display:none">
+    <img id="selfiePreview" class="preview" style="display:none">
+
+    <button class="secondary" onclick="nextStep(2)">Back</button>
+    <button onclick="validateAndNext(4)">Continue</button>
   </div>
 
   <!-- STEP 4 -->
   <div class="step" id="step4">
     <input type="text" id="address" placeholder="Home Address" required>
     <label>Proof of Address <input type="file" id="proof" accept="image/*,application/pdf"></label>
+    <button class="secondary" onclick="nextStep(3)">Back</button>
     <button id="submitBtn" onclick="submitKYC()">Submit for Review</button>
   </div>
 
   <!-- STEP 5 -->
   <div class="step" id="step5">
-    <h2 style="color:green;">Submitted ✅</h2>
+    <h2 style="color:#00C896;">Submitted ✅</h2>
     <p>Your CYPX KYC is under review. We'll email you within 24 hours.</p>
   </div>
 </div>
 
-<!-- FIREBASE SDK -->
+<div id="toast" class="toast"></div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-  // TODO: REPLACE WITH YOUR CONFIG
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
     authDomain: "quantum-rio.firebaseapp.com",
@@ -83,10 +121,11 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
   let currentUser = null;
+  const fileStore = {}; // store selected files here
 
   onAuthStateChanged(auth, (user) => {
     if(user) currentUser = user;
-    else alert("Please login to CYPX first");
+    else showToast("Please login to CYPX first", "error");
   });
 
   let step = 1;
@@ -95,44 +134,106 @@
     step = n;
     document.getElementById(`step${step}`).classList.add('active');
     document.getElementById('progressBar').style.width = `${step*20}%`;
+    window.scrollTo(0,0);
+  }
+
+  window.triggerUpload = (id) => document.getElementById(id).click();
+
+  // Handle all file inputs
+  ['idFrontUpload','idFrontCamera','idBackUpload','idBackCamera','selfieUpload','selfieCamera'].forEach(id => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      const baseId = id.replace('Upload','').replace('Camera','');
+      fileStore[baseId] = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById(baseId + 'Preview').src = reader.result;
+        document.getElementById(baseId + 'Preview').style.display = 'block';
+      }
+      reader.readAsDataURL(file);
+    })
+  });
+
+  window.validateAndNext = (n) => {
+    if(step === 2 && (!fileStore.idFront ||!fileStore.idBack))
+      return showToast("Please upload both ID Front and Back", "error");
+    if(step === 3 &&!fileStore.selfie)
+      return showToast("Please upload a selfie", "error");
+    const inputs = document.getElementById(`step${step}`).querySelectorAll('input[required]');
+    for(let input of inputs){ if(!input.value) return showToast("Please fill all required fields", "error"); }
+    nextStep(n);
+  }
+
+  function showToast(message, type = "info"){
+    const toast = document.getElementById('toast');
+    toast.className = `toast ${type} show`;
+    toast.innerText = message;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  async function compressImage(file) {
+    if(file.type === "application/pdf") return file;
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const maxW = 1200;
+          const scale = maxW / img.width;
+          canvas.width = maxW;
+          canvas.height = img.height * scale;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => resolve(new File([blob], file.name, {type: "image/jpeg"})), "image/jpeg", 0.7);
+        }
+      }
+    });
   }
 
   async function uploadFile(file, name) {
-    const storageRef = ref(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}`);
-    await uploadBytes(storageRef, file);
+    const compressed = await compressImage(file);
+    const storageRef = ref(storage, `kyc/${currentUser.uid}/${name}_${Date.now()}.jpg`);
+    await uploadBytes(storageRef, compressed);
     return await getDownloadURL(storageRef);
   }
 
   window.submitKYC = async () => {
-    if(!currentUser) return alert("Login first");
+    if(!currentUser) return showToast("Login first", "error");
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('submitBtn').innerText = "Submitting...";
 
     try {
       const urls = {};
-      const files = ['idFront','idBack','selfie','proof'];
-      for(let f of files){
-        const file = document.getElementById(f).files[0];
-        if(file) urls[f] = await uploadFile(file, f);
+      for(let key in fileStore){
+        urls[key] = await uploadFile(fileStore[key], key);
       }
+      const proofFile = document.getElementById('proof').files[0];
+      if(proofFile) urls.proof = await uploadFile(proofFile, 'proof');
 
       await setDoc(doc(db, "kyc_submissions", currentUser.uid), {
-        fullName: document.getElementById('fullName').value,
+        fullName: document.getElementById('fullName').value.trim(),
         dob: document.getElementById('dob').value,
-        country: document.getElementById('country').value,
-        address: document.getElementById('address').value,
-       ...urls,
+        country: document.getElementById('country').value.trim(),
+        address: document.getElementById('address').value.trim(),
+     ...urls,
         status: "pending",
         email: currentUser.email,
         createdAt: serverTimestamp()
       });
 
+      showToast("KYC submitted successfully", "success");
       nextStep(5);
     } catch(e) {
-      alert("Error: " + e.message);
+      showToast("Upload failed: " + e.message, "error");
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').innerText = "Submit for Review";
     }
   }
 </script>
 
 </body>
-</html>
+        </html>
