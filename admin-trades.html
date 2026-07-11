@@ -194,7 +194,6 @@ let currentOpenTrade = null;
 let pnlIsProfit = true;
 let isAdmin = false;
 
-// ===== AUTO ADMIN CHECK =====
 auth.onAuthStateChanged(user=>{
   if(user){
     db.ref(`admins/${user.uid}`).once('value').then(snap=>{
@@ -214,6 +213,7 @@ auth.onAuthStateChanged(user=>{
     isAdmin = false;
     document.getElementById('mainApp').classList.add('hide');
     document.getElementById('lockScreen').classList.remove('hide');
+    showToast("Please login first", true);
   }
 });
 
@@ -255,11 +255,18 @@ function loadRealtimeData(){
     else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
   });
 
+  // FIX 2: PROPER COPIER COUNT
   db.ref("users").on("value", snap=>{
     let html = "";
     traders.forEach(t=>{
       let copiers = [];
-      snap.forEach(u=>{ if(u.val().copiedTrader === t.id) copiers.push(u.val().username || u.key); });
+      snap.forEach(u=>{
+        const user = u.val();
+        // Check both copiedTrader and copied_trader in case of old data
+        if(user.copiedTrader === t.id || user.copied_trader === t.id) {
+          copiers.push(user.username || u.key.substring(0,6));
+        }
+      });
       html += `<div class="trader-stat" onclick="this.querySelector('.copier-list').classList.toggle('hide')">
         <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
         <div class="copier-list hide">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
@@ -281,24 +288,37 @@ function loadRealtimeData(){
     document.getElementById("tradeLog").innerHTML = html || "No trades yet";
   });
 
-  // ===== SIGNAL LISTENER V2 =====
+  // FIXED SIGNAL LISTENER WITH AUTO CLOSE
   db.ref("signals").on("value", snap=>{
     let html = "";
     snap.forEach(child=>{
       const s = child.val();
-      const timeLeft = Math.max(0, s.expiresAt - Date.now());
-      const mins = Math.floor(timeLeft / 60000);
-      const secs = Math.floor((timeLeft % 60000) / 1000);
+      const timeLeft = s.expiresAt - Date.now();
+      const isExpired = timeLeft <= 0;
       const isClosed = s.status === 'CLOSED';
+      const mins = Math.floor(Math.max(0, timeLeft) / 60000);
+      const secs = Math.floor((Math.max(0, timeLeft) % 60000) / 1000);
 
-      html += `<div class="signal-item ${isClosed?'closed':''}">
+      if(isExpired &&!isClosed){
+        db.ref(`signals/${child.key}`).update({status: 'CLOSED'});
+        for(const uid in s.usedBy){
+          db.ref(`users/${uid}/signalTrades/${child.key}/status`).set("CLOSED");
+        }
+        return;
+      }
+
+      html += `<div class="signal-item ${isClosed?'closed':''}" style="border-left:3px solid ${isClosed?'#666':'#f59e0b'}; opacity:${isClosed?'0.6':'1'}">
         <div style="display:flex; justify-content:space-between; align-items:center">
           <div class="code">${child.key}</div>
           ${!isClosed? `<button class="btn-sm btn-red" onclick="closeSignal('${child.key}')">Close Signal</button>` : `<span style="color:#22c55e">CLOSED</span>`}
         </div>
         <div>${s.side.toUpperCase()} ${s.pair} | Admin Amt: $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL</div>
-        <div style="color:#94e2cc; font-size:12px">Expires: ${mins}:${secs.toString().padStart(2,'0')} | Users: ${Object.keys(s.usedBy||{}).length}</div>
-        <div class="signal-stats">Admin P&L: <span style="color:${(s.adminPnL||0)>=0?'#22c55e':'#ef4444'}">$${(s.adminPnL||0).toFixed(2)}</span></div>
+        <div style="color:#94e2cc; font-size:12px">
+          ${isClosed? 'Status: CLOSED' : `Expires: ${mins}:${secs.toString().padStart(2,'0')}`} | Users: ${Object.keys(s.usedBy||{}).length}
+        </div>
+        <div style="background:rgba(0,200,150,0.1); padding:8px; border-radius:6px; margin-top:8px; font-size:12px">
+          Admin P&L: <span style="color:${(s.adminPnL||0)>=0?'#22c55e':'#ef4444'}">$${(s.adminPnL||0).toFixed(2)}</span>
+        </div>
         ${!isClosed? `
         <div style="margin-top:8px; display:flex; gap:8px">
           <input id="award_${child.key}" type="number" placeholder="Award P&L $" style="flex:1">
@@ -318,13 +338,13 @@ function openTrade(){
   const sl = parseFloat(document.getElementById('sl').value);
   if(isNaN(entry) || isNaN(tp) || isNaN(sl)) return showToast("Fill Entry, TP, SL first");
 
-  const traderId = document.getElementById('traderSelect').value;
+  const traderId = document.getElementById('traderSelect').value; // FIX 1: LOCK TRADER ON OPEN
   currentOpenTrade = {
     id: Date.now(), traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value,
     entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value),
     status: "OPEN", openedAt: Date.now()
   };
-  db.ref("admin_active_trade").set(currentOpenTrade).then(()=>showToast("Trade Opened"));
+  db.ref("admin_active_trade").set(currentOpenTrade).then(()=>showToast("Trade Opened for " + traders.find(t=>t.id===traderId).name));
 }
 
 function showActiveTradeBox(){
@@ -345,13 +365,14 @@ async function closeTrade(){
   if(!pnlIsProfit) profit = -Math.abs(profit);
 
   const tradeData = {...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
+  const traderId = currentOpenTrade.traderId; // FIX 1: USE LOCKED TRADER ID
 
   try {
-    await db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData);
+    await db.ref("admin_trades/" + traderId).push(tradeData);
 
-    const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(currentOpenTrade.traderId).once("value");
+    const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(traderId).once("value");
     const updates = {};
-    const traderFee = traders.find(t=>t.id===currentOpenTrade.traderId).profitShare;
+    const traderFee = traders.find(t=>t.id===traderId).profitShare;
 
     usersSnap.forEach(userSnap=>{
       const uid = userSnap.key;
@@ -373,7 +394,6 @@ async function closeTrade(){
   }
 }
 
-// ===== SIGNAL CODE V2 =====
 window.generateSignal = async function(){
   if(!isAdmin) return showToast("Unauthorized", true);
   const pair = document.getElementById("sigPair").value;
@@ -399,16 +419,13 @@ window.generateSignal = async function(){
     showToast("Firebase Error: " + e.message, true);
   }
 }
-// ===== CLOSE SIGNAL - DISABLE NOT DELETE =====
+
 window.closeSignal = async function(code){
   if(!isAdmin) return showToast("Unauthorized", true);
-
   const signalSnap = await db.ref(`signals/${code}`).once("value");
   const signal = signalSnap.val();
   if(!signal) return;
-
   const updates = {};
-  // Close all user trades for this signal
   for(const uid in signal.usedBy){
     updates[`users/${uid}/signalTrades/${code}/status`] = "CLOSED";
   }
@@ -417,7 +434,6 @@ window.closeSignal = async function(code){
   showToast("Signal Closed. All user trades closed.");
 }
 
-// ===== AWARD SIGNAL WITH CORRECT FORMULA 🚥 =====
 window.awardSignal = async function(code, isProfit){
   if(!isAdmin) return showToast("Unauthorized", true);
   let awardedPnL = parseFloat(document.getElementById(`award_${code}`).value);
@@ -430,37 +446,26 @@ window.awardSignal = async function(code, isProfit){
 
   const updates = {};
   let count = 0;
-  const DEFAULT_MULTIPLIER = 10; // userAmount / adminCapital * 10
+  const DEFAULT_MULTIPLIER = 10;
 
   for(const uid in signal.usedBy){
-    const userData = signal.usedBy[uid]; // {amount: 50}
+    const userData = signal.usedBy[uid];
     const userAmount = userData.amount || 0;
-    const adminCapital = signal.amount; // $100
-
-    // YOUR FORMULA: userAmount / adminCapital * 10
+    const adminCapital = signal.amount;
     const userProfit = (userAmount / adminCapital) * DEFAULT_MULTIPLIER;
     const finalUserProfit = isProfit? userProfit : -userProfit;
 
     const userSnap = await db.ref(`users/${uid}`).once("value");
     const user = userSnap.val();
     if(user){
-      // Add profit to balance
       updates[`users/${uid}/balance`] = (user.balance || 0) + finalUserProfit;
-      // Save to history
-      updates[`users/${uid}/history/signal_${code}`] = {
-       ...signal,
-        awardedPnL,
-        userProfit: finalUserProfit,
-        awardedAt: Date.now()
-      };
-      // Close user signal trade
+      updates[`users/${uid}/history/signal_${code}`] = {...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()};
       updates[`users/${uid}/signalTrades/${code}/status`] = "CLOSED";
       updates[`users/${uid}/signalTrades/${code}/profit`] = finalUserProfit;
       count++;
     }
   }
 
-  // Update admin P&L and close signal
   updates[`signals/${code}/adminPnL`] = awardedPnL;
   updates[`signals/${code}/status`] = "CLOSED";
 
