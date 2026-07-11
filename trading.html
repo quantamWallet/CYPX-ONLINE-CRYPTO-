@@ -168,7 +168,6 @@ const centerToast = document.getElementById("centerToast");
 const notifPanel = document.getElementById("notifPanel");
 const notifCount = document.getElementById("notifCount");
 
-// ===== ASSETS CONFIG =====
 const ASSETS = {
   "BTC/USDT": {tv: "BINANCE:BTCUSDT", api: "BTCUSDT"},
   "ETH/USDT": {tv: "BINANCE:ETHUSDT", api: "ETHUSDT"},
@@ -188,24 +187,39 @@ const ASSETS = {
   "EUR/GBP": {tv: "FX:EURGBP", api: null},
 }
 
-function saveNotifs(){ localStorage.setItem("cypx_notifs", JSON.stringify(notifs)); }
-function pushNotif(msg, type="info"){
+// 1. TOAST ONLY - NOT SAVED TO BELL
+function showToast(msg, type="info"){
   const time = new Date().toLocaleTimeString();
-  notifs.unshift({msg, time}); if(notifs.length > 50) notifs.pop(); saveNotifs();
-  notifCount.textContent = notifs.length; notifCount.style.display = notifs.length? 'block' : 'none';
-  toast.textContent = msg; toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
-  toast.classList.add("show"); setTimeout(()=>toast.classList.remove("show"), 3000); renderNotifs();
+  toast.textContent = msg;
+  toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 3000);
 }
+
+// 2. SAVE TO BELL - ONLY FOR TRADE EVENTS
+function saveNotif(msg, type="info"){
+  const time = new Date().toLocaleTimeString();
+  notifs.unshift({msg, time});
+  if(notifs.length > 50) notifs.pop();
+  localStorage.setItem("cypx_notifs", JSON.stringify(notifs));
+  notifCount.textContent = notifs.length;
+  notifCount.style.display = notifs.length? 'block' : 'none';
+  renderNotifs();
+}
+
 function showCenterToast(msg, type="ok"){
   centerToast.innerHTML = msg.replace('\n','<br>');
   centerToast.style.borderColor = type==="ok"? "var(--ok)" : "var(--bad)";
   centerToast.style.color = type==="ok"? "var(--ok)" : "var(--bad)";
-  centerToast.classList.add("show"); setTimeout(()=>centerToast.classList.remove("show"), 2500);
+  centerToast.classList.add("show");
+  setTimeout(()=>centerToast.classList.remove("show"), 2500);
 }
+
 function renderNotifs(){
   notifPanel.innerHTML = notifs.length? notifs.map(n=>`<div class="notif-item">${n.msg}<div class="time">${n.time}</div></div>`).join('') : `<div class="notif-item">No notifications</div>`;
 }
-document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show"); renderNotifs();
+document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show");
+renderNotifs();
 
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
@@ -251,19 +265,35 @@ onAuthStateChanged(auth, (user)=>{
   onValue(positionsRef, (snap)=>{ positions = snap.val() || {}; renderPositions(); updateEquity(); });
 });
 
-// ===== SIGNAL CODE ONLY - REMOVED MANUAL TRADE =====
+// ===== SIGNAL CODE ONLY =====
 window.activateSignal = async function(){
-  const code = document.getElementById("signalCode").value.trim().toUpperCase(); const userAmount = parseFloat(document.getElementById("signalAmount").value);
-  if(!code) return pushNotif("Enter a signal code", "bad"); if(userAmount < MIN_TRADE) return pushNotif(`Minimum amount $${MIN_TRADE}`, "bad"); if(userAmount > balance) return pushNotif("Insufficient balance", "bad");
-  const signalRef = ref(db, `signals/${code}`); const snap = await get(signalRef); if(!snap.exists()) return pushNotif("Invalid signal code", "bad"); const signal = snap.val(); const now = Date.now();
-  if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad"); if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
-  const price = prices[signal.pair]; if(!price) return pushNotif("Price not loaded", "bad");
-  const tpPct = (signal.tp_pips * signal.pipValue / price) * 100; const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
+  const code = document.getElementById("signalCode").value.trim().toUpperCase();
+  const userAmount = parseFloat(document.getElementById("signalAmount").value);
+
+  // THESE USE showToast() - NOT SAVED
+  if(!code) return showToast("Enter a signal code", "bad");
+  if(userAmount < MIN_TRADE) return showToast(`Minimum amount $${MIN_TRADE}`, "bad");
+  if(userAmount > balance) return showToast("Insufficient balance", "bad");
+
+  const signalRef = ref(db, `signals/${code}`);
+  const snap = await get(signalRef);
+  if(!snap.exists()) return showToast("Invalid signal code", "bad");
+  const signal = snap.val();
+  const now = Date.now();
+
+  if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
+  if(signal.usedBy && signal.usedBy[uid]) return showToast("You already used this signal", "bad");
+
+  const price = prices[signal.pair];
+  if(!price) return showToast("Price not loaded", "bad");
+
+  const tpPct = (signal.tp_pips * signal.pipValue / price) * 100;
+  const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
 
   // 1. Deduct balance
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
 
-  // 2. PUSH TO FIREBASE REALTIME - SAME AS BEFORE
+  // 2. PUSH TO FIREBASE REALTIME
   await push(ref(db, `trade/${uid}/positions`), {
     pair: signal.pair,
     side: signal.side,
@@ -281,33 +311,54 @@ window.activateSignal = async function(){
   // 3. Mark signal as used
   await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount} });
 
-  pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount} @ ${LEVERAGE}x`, "ok");
+  // THIS ONE USES saveNotif() - SAVED TO BELL
+  saveNotif(`🟢 Trade Opened: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
+  showToast(`Signal Activated: $${userAmount}`, "ok");
   document.getElementById("signalCode").value = "";
 }
 
 // ===== TP/SL AUTO CLOSE =====
 function checkTP_SL(){
-  Object.keys(positions).forEach(id=>{ const p = positions[id]; const price = prices[p.pair]; if(!price) return; const {pnl, pnlPct} = calcPnL(p, price);
+  Object.keys(positions).forEach(id=>{
+    const p = positions[id];
+    const price = prices[p.pair];
+    if(!price) return;
+    const {pnl, pnlPct} = calcPnL(p, price);
     let shouldClose = false; let reason = ""; let type="info";
-    if(pnlPct >= p.tp){ shouldClose = true; reason = `TAKE PROFIT +${pnlPct.toFixed(2)}%`; type="ok"; }
-    else if(pnlPct <= -p.sl){ shouldClose = true; reason = `STOP LOSS ${pnlPct.toFixed(2)}%`; type="bad"; }
+    if(pnlPct >= p.tp){ shouldClose = true; reason = `TAKE PROFIT HIT`; type="ok"; }
+    else if(pnlPct <= -p.sl){ shouldClose = true; reason = `STOP LOSS HIT`; type="bad"; }
     else if(p.expiresAt && Date.now() >= p.expiresAt){ shouldClose = true; reason = `TIME EXPIRED`; type="bad"; }
-    if(shouldClose) closePosition(id, `${reason}\nP&L: $${pnl.toFixed(2)}`, type);
+    if(shouldClose) closePosition(id, reason, pnl, type);
   });
 }
 
 // ===== CLOSE POSITION =====
-window.closePosition = async function(id, reason="Manual Close", type="info"){
-  const p = positions[id]; if(!p) return; const price = prices[p.pair]; if(!price) return pushNotif("Price not loaded", "bad"); const {pnl} = calcPnL(p, price);
-  const returnAmount = p.amount + pnl; await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
-  await remove(ref(db, `trade/${uid}/positions/${id}`)); showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type); pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, type);
+window.closePosition = async function(id, reason="Manual Close", pnl=null, type="info"){
+  const p = positions[id]; if(!p) return;
+  const price = prices[p.pair];
+  if(!price) return showToast("Price not loaded", "bad");
+  const calc = calcPnL(p, price);
+  if(pnl === null) pnl = calc.pnl;
+
+  const returnAmount = p.amount + pnl;
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
+  await remove(ref(db, `trade/${uid}/positions/${id}`));
+
+  showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type);
+
+  // THIS ONE USES saveNotif() - SAVED TO BELL
+  saveNotif(`🔴 Trade Closed: ${p.pair} | ${reason} | P&L: $${pnl.toFixed(2)}`, type);
 }
 
 // ===== RENDER POSITIONS =====
 function renderPositions(){
   const tbody = document.getElementById("positionsBody"); const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
-  tbody.innerHTML = arr.map(([id, p])=>{ const price = prices[p.pair] || p.entry; const {pnl, pnlPct} = calcPnL(p, price); const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null; const pnlClass = pnl >= 0? "up" : "down";
+  tbody.innerHTML = arr.map(([id, p])=>{
+    const price = prices[p.pair] || p.entry;
+    const {pnl, pnlPct} = calcPnL(p, price);
+    const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
+    const pnlClass = pnl >= 0? "up" : "down";
     return `<tr class="pos"><td>${p.pair} <span class="badge-signal">SIGNAL</span></td><td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td><td>${(p.amount / p.entry).toFixed(6)}</td><td>$${p.entry.toFixed(4)}</td><td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td><td>${p.tp.toFixed(2)}% / ${p.sl.toFixed(2)}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td><td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
   }).join('');
 }
@@ -320,8 +371,6 @@ function updateEquity(){
 }
 
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
-
-if(!sessionStorage.getItem("cypx_welcomed")){ pushNotif("Connected to CYPX TRADE - Signal Only Mode", "info"); sessionStorage.setItem("cypx_welcomed", "true"); }
-</script>
+    </script>
 </body>
           </html>
