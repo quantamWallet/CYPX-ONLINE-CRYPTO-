@@ -49,7 +49,6 @@
     <button class="tab-btn" onclick="switchTab('signal', event)">Signal Codes</button>
   </div>
 
-  <!-- TAB 1: COPY TRADING -->
   <div id="copyTab">
     <div class="grid">
       <div class="card">
@@ -104,7 +103,6 @@
     </div>
   </div>
   
-  <!-- TAB 2: SIGNAL CODES -->
   <div id="signalTab" class="hide">
     <div class="grid">
       <div class="card">
@@ -183,11 +181,9 @@ function switchTab(tab, e){
   if(tab==='copy'){ 
     document.getElementById('copyTab').classList.remove('hide'); 
     document.getElementById('signalTab').classList.add('hide'); 
-    loadTraderStats(); loadTradeLog();
   } else { 
     document.getElementById('signalTab').classList.remove('hide'); 
     document.getElementById('copyTab').classList.add('hide'); 
-    loadActiveSignals(); 
   }
 }
 
@@ -197,12 +193,40 @@ function setPnL(isProfit){
   document.getElementById('btnLoss').style.opacity = !isProfit ? '1' : '0.5';
 }
 
-// ===== COPY TRADING =====
+// ===== REALTIME COPY TRADING =====
 function loadTraders(){
   const select = document.getElementById('traderSelect');
   select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
-  db.ref("admin_active_trade").once("value", snap=>{
+  
+  // REALTIME LISTENER
+  db.ref("admin_active_trade").on("value", snap=>{
     if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
+    else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
+  });
+  
+  // REALTIME TRADER STATS
+  db.ref("users").on("value", ()=>{
+    let html = "";
+    traders.forEach(t=>{
+      db.ref("users").orderByChild("copiedTrader").equalTo(t.id).once("value", snap=>{
+        html += `<div class="trader-stat"><b>${t.name}</b> - ${snap.numChildren()} Copiers | ${t.profitShare}% Fee</div>`;
+        document.getElementById("traderStats").innerHTML = html;
+      });
+    });
+  });
+  
+  // REALTIME TRADE LOG
+  db.ref("admin_trades").limitToLast(10).on("value", snap=>{
+    let html = "";
+    snap.forEach(traderSnap=>{
+      traderSnap.forEach(tradeSnap=>{
+        const tr = tradeSnap.val();
+        html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
+          ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
+        </div>` + html;
+      });
+    });
+    document.getElementById("tradeLog").innerHTML = html || "No trades yet";
   });
 }
 
@@ -214,12 +238,12 @@ function openTrade(){
   
   const traderId = document.getElementById('traderSelect').value;
   currentOpenTrade = { 
-    traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value, 
+    id: Date.now(), traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value, 
     entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value), 
     status: "OPEN", openedAt: Date.now() 
   };
   db.ref("admin_active_trade").set(currentOpenTrade);
-  showActiveTradeBox(); showToast("Trade Opened. Now close it with P&L");
+  showToast("Trade Opened. Now close it with P&L");
 }
 
 function showActiveTradeBox(){
@@ -240,58 +264,39 @@ async function closeTrade(){
   
   const tradeData = { ...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
   
-  // 1. Save to history
-  await db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData);
-  
-  // 2. PAY COPIERS
-  const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(currentOpenTrade.traderId).once("value");
-  const updates = {};
-  const traderFee = traders.find(t=>t.id===currentOpenTrade.traderId).profitShare;
-  usersSnap.forEach(userSnap=>{
-    const user = userSnap.val();
-    const capitalRatio = (user.copyCapital || 100) / currentOpenTrade.adminCapital;
-    const grossProfit = profit * capitalRatio;
-    const userProfit = grossProfit * (1 - traderFee/100);
-    updates[`users/${userSnap.key}/balance`] = (user.balance || 0) + userProfit;
-  });
-  if(Object.keys(updates).length > 0) await db.ref().update(updates);
-  
-  // 3. Clear active trade
-  await db.ref("admin_active_trade").remove();
-  showToast(`Trade Closed. P&L: $${profit}. Copiers Paid!`); 
-  document.getElementById('openTradeBox').style.display = 'none'; 
-  currentOpenTrade = null; 
-  loadTradeLog();
-}
-
-function loadTraderStats(){
-  document.getElementById("traderStats").innerHTML = "";
-  traders.forEach(t=>{
-    db.ref("users").orderByChild("copiedTrader").equalTo(t.id).once("value", snap=>{
-      const div = document.createElement('div');
-      div.className = "trader-stat";
-      div.innerHTML = `<b>${t.name}</b> - ${snap.numChildren()} Copiers | ${t.profitShare}% Fee`;
-      document.getElementById("traderStats").appendChild(div);
+  try {
+    // 1. Save to history
+    await db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData);
+    
+    // 2. PAY COPIERS + CLOSE THEIR POSITIONS
+    const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(currentOpenTrade.traderId).once("value");
+    const updates = {};
+    const traderFee = traders.find(t=>t.id===currentOpenTrade.traderId).profitShare;
+    
+    usersSnap.forEach(userSnap=>{
+      const uid = userSnap.key;
+      const user = userSnap.val();
+      const capitalRatio = (user.copyCapital || 100) / currentOpenTrade.adminCapital;
+      const grossProfit = profit * capitalRatio;
+      const userProfit = grossProfit * (1 - traderFee/100);
+      
+      updates[`users/${uid}/balance`] = (user.balance || 0) + userProfit;
+      updates[`users/${uid}/trade/${currentOpenTrade.id}`] = null; // DELETE THEIR OPEN POSITION
+      updates[`users/${uid}/history/${currentOpenTrade.id}`] = tradeData; // ADD TO HISTORY
     });
-  });
+    
+    if(Object.keys(updates).length > 0) await db.ref().update(updates);
+    
+    // 3. Clear active trade
+    await db.ref("admin_active_trade").remove();
+    showToast(`Trade Closed. P&L: $${profit}. ${usersSnap.numChildren()} Copiers Paid!`); 
+  } catch(e) {
+    showToast("Error: " + e.message);
+    console.error(e);
+  }
 }
 
-function loadTradeLog(){
-  db.ref("admin_trades").limitToLast(10).once("value", snap=>{
-    let html = "";
-    snap.forEach(traderSnap=>{
-      traderSnap.forEach(tradeSnap=>{
-        const tr = tradeSnap.val();
-        html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
-          ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
-        </div>` + html;
-      });
-    });
-    document.getElementById("tradeLog").innerHTML = html || "No trades yet";
-  });
-}
-
-// ===== FIXED SIGNAL CODE =====
+// ===== REALTIME SIGNAL CODE =====
 window.generateSignal = async function(){
   const pair = document.getElementById("sigPair").value;
   const side = document.getElementById("sigSide").value;
@@ -305,33 +310,34 @@ window.generateSignal = async function(){
   const code = `SIGNAL-${pair.split('/')[0]}-${Date.now()}`;
   const expiresAt = Date.now() + 600000;
 
-  await db.ref(`signals/${code}`).set({
-    pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, createdAt: Date.now()
-  });
-
-  document.getElementById("sigOutput").innerHTML = `Code: <span class="code">${code}</span> <br><small>Copied to clipboard</small>`;
-  navigator.clipboard.writeText(code);
-  showToast("Signal Created: " + code);
-  loadActiveSignals();
-}
-
-function loadActiveSignals(){
-  db.ref("signals").on("value", snap=>{
-    let html = "";
-    snap.forEach(child=>{
-      const s = child.val();
-      const timeLeft = Math.max(0, s.expiresAt - Date.now());
-      const mins = Math.floor(timeLeft / 60000);
-      const secs = Math.floor((timeLeft % 60000) / 1000);
-      if(timeLeft > 0){
-        html += `<div class="signal-item"><div class="code">${child.key}</div>
-          <div>${s.side.toUpperCase()} ${s.pair} | $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL @ $${s.pipValue}</div>
-          <div style="color:#94e2cc; font-size:12px">Expires: ${mins}:${secs.toString().padStart(2,'0')}</div></div>`;
-      } else { db.ref("signals/" + child.key).remove(); }
+  try {
+    await db.ref(`signals/${code}`).set({
+      pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, createdAt: Date.now()
     });
-    document.getElementById("activeSignalsList").innerHTML = html || "No active signals";
-  });
+    document.getElementById("sigOutput").innerHTML = `Code: <span class="code">${code}</span> <br><small>Copied to clipboard</small>`;
+    navigator.clipboard.writeText(code).catch(()=>{});
+    showToast("Signal Created: " + code);
+  } catch(e) {
+    showToast("Firebase Error: " + e.message);
+  }
 }
+
+// REALTIME SIGNALS LISTENER
+db.ref("signals").on("value", snap=>{
+  let html = "";
+  snap.forEach(child=>{
+    const s = child.val();
+    const timeLeft = Math.max(0, s.expiresAt - Date.now());
+    const mins = Math.floor(timeLeft / 60000);
+    const secs = Math.floor((timeLeft % 60000) / 1000);
+    if(timeLeft > 0){
+      html += `<div class="signal-item"><div class="code">${child.key}</div>
+        <div>${s.side.toUpperCase()} ${s.pair} | $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL @ $${s.pipValue}</div>
+        <div style="color:#94e2cc; font-size:12px">Expires: ${mins}:${secs.toString().padStart(2,'0')}</div></div>`;
+    } else { db.ref("signals/" + child.key).remove(); }
+  });
+  document.getElementById("activeSignalsList").innerHTML = html || "No active signals";
+});
 
 function showToast(message){
   const toast = document.getElementById('toast');
@@ -340,7 +346,7 @@ function showToast(message){
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-loadTraders(); loadTraderStats(); loadTradeLog(); setPnL(true);
+loadTraders(); setPnL(true);
 </script>
 </body>
    </html>
