@@ -27,16 +27,10 @@ body{background:var(--bg);color:var(--text)}
 .pair-change.up{color:var(--ok)}.pair-change.down{color:var(--bad)}
 .chart{height:400px;background:var(--card2);border-radius:10px;overflow:hidden}
 .order-panel h3{margin-bottom:10px}
-.tabs{display:flex;background:var(--card2);border-radius:10px;padding:4px;margin-bottom:10px}
-.tab{flex:1;text-align:center;padding:8px;border-radius:8px;cursor:pointer;font-weight:600}
-.tab.active{background:var(--brand)}
 .input-group{margin-bottom:10px}
 .input-group label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
 .input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:16px;outline:none}
-.btn-buy{width:100%;padding:14px;background:var(--ok);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
-.btn-sell{width:100%;padding:14px;background:var(--bad);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:16px;cursor:pointer;margin-top:4px}
 .btn-signal{width:100%;padding:14px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px}
-.btn-buy:disabled,.btn-sell:disabled{opacity:.4;cursor:not-allowed}
 .positions table{width:100%;border-collapse:collapse;font-size:12px}
 .positions th{text-align:left;color:var(--muted);padding:8px 4px;border-bottom:1px solid var(--line)}
 .positions td{padding:8px 4px}
@@ -61,7 +55,7 @@ body{background:var(--bg);color:var(--text)}
 @keyframes pop{0%{transform:translate(-50%,-50%) scale(.8)}100%{transform:translate(-50%,-50%) scale(1)}}
 .loading{opacity:.5;pointer-events:none}
 .last-updated{font-size:11px;color:var(--muted);margin-left:8px}
-.divider{height:1px;background:var(--line);margin:14px 0}
+.info-box{background:rgba(37,99,235,.1); border:1px solid var(--brand); padding:12px; border-radius:10px; font-size:13px; color:var(--muted); margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -117,29 +111,12 @@ body{background:var(--bg);color:var(--text)}
     </div>
 
     <div class="card order-panel">
-      <h3>Place Order</h3>
-      <div class="tabs">
-        <div class="tab active" data-type="buy">Buy</div>
-        <div class="tab" data-type="sell">Sell</div>
+      <h3><i class="fa-solid fa-key"></i> Signal Trading Only</h3>
+      <div class="info-box">
+        <i class="fa-solid fa-info-circle"></i> Manual trading disabled.
+        Get signal codes from Admin to trade.
       </div>
-      <div class="input-group">
-        <label>Amount USDT <span style="color:var(--warn)">Min $50</span></label>
-        <input type="number" id="orderAmount" placeholder="100" value="100" min="50" step="0.01">
-      </div>
-      <div class="input-group">
-        <label>Take Profit %</label>
-        <input type="number" id="tp" placeholder="2" value="2" min="0.1" step="0.1">
-      </div>
-      <div class="input-group">
-        <label>Stop Loss %</label>
-        <input type="number" id="sl" placeholder="1" value="1" min="0.1" step="0.1">
-      </div>
-      <button class="btn-buy" id="buyBtn" disabled>Buy BTC</button>
-      <button class="btn-sell" id="sellBtn" style="display:none" disabled>Sell BTC</button>
 
-      <div class="divider"></div>
-
-      <h3><i class="fa-solid fa-key"></i> Signal Code</h3>
       <div class="input-group">
         <label>Enter Signal Code</label>
         <input type="text" id="signalCode" placeholder="SIGNAL-BTC-001" style="text-transform:uppercase">
@@ -155,6 +132,7 @@ body{background:var(--bg);color:var(--text)}
 
 <div class="toast" id="toast"></div>
 <div class="center-toast" id="centerToast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -183,7 +161,6 @@ let positions = {};
 let currentPair = "BTC/USDT";
 let prices = {};
 let prevPrices = {};
-let orderType = "buy";
 let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]");
 
 const toast = document.getElementById("toast");
@@ -256,8 +233,6 @@ function updateUI(){
   document.getElementById("pairPrice").textContent = "$" + price.toLocaleString(undefined,{minimumFractionDigits:4,maximumFractionDigits:4});
   const changeEl = document.getElementById("pairChange"); changeEl.textContent = change.toFixed(2) + "%";
   changeEl.className = "pair-change " + (change >= 0? "up" : "down");
-  document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
-  document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
   checkTP_SL(); updateEquity();
 }
 setInterval(fetchPrices, 3000);
@@ -272,27 +247,11 @@ onAuthStateChanged(auth, (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid; document.getElementById("balCard").classList.add("loading"); loadChart(currentPair); fetchPrices();
   const userBalRef = ref(db, `users/${uid}/balance`); const positionsRef = ref(db, `trade/${uid}/positions`);
-  onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); toggleButtons(); document.getElementById("balCard").classList.remove("loading"); });
+  onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
   onValue(positionsRef, (snap)=>{ positions = snap.val() || {}; renderPositions(); updateEquity(); });
 });
 
-function toggleButtons(){ const disabled = balance === null; document.getElementById("buyBtn").disabled = disabled; document.getElementById("sellBtn").disabled = disabled; }
-
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); t.classList.add("active"); orderType = t.dataset.type; document.getElementById("buyBtn").style.display = orderType==="buy"?"block":"none"; document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none"; });
-
-// ===== MANUAL ORDER =====
-async function placeOrder(){
-  if(balance === null) return pushNotif("Balance loading...", "bad");
-  const amount = parseFloat(document.getElementById("orderAmount").value); const tp = parseFloat(document.getElementById("tp").value); const sl = parseFloat(document.getElementById("sl").value); const price = prices[currentPair];
-  if(!price) return pushNotif("Price not loaded yet", "bad"); if(isNaN(amount) || amount < MIN_TRADE) return pushNotif(`Minimum order $${MIN_TRADE}`, "bad"); if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
-  const qty = amount / price; const fee = amount * 0.001;
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{ const curr = parseFloat(current) || 0; return curr - amount - fee; });
-  await push(ref(db, `trade/${uid}/positions`), { pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount, tp: tp, sl: sl, type: "manual", openedAt: serverTimestamp() });
-  pushNotif(`${orderType.toUpperCase()} ${currentPair} $${amount} @ ${LEVERAGE}x`, "ok");
-}
-document.getElementById("buyBtn").onclick = placeOrder; document.getElementById("sellBtn").onclick = placeOrder;
-
-// ===== SIGNAL CODE =====
+// ===== SIGNAL CODE ONLY - REMOVED MANUAL TRADE =====
 window.activateSignal = async function(){
   const code = document.getElementById("signalCode").value.trim().toUpperCase(); const userAmount = parseFloat(document.getElementById("signalAmount").value);
   if(!code) return pushNotif("Enter a signal code", "bad"); if(userAmount < MIN_TRADE) return pushNotif(`Minimum amount $${MIN_TRADE}`, "bad"); if(userAmount > balance) return pushNotif("Insufficient balance", "bad");
@@ -300,9 +259,30 @@ window.activateSignal = async function(){
   if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad"); if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
   const price = prices[signal.pair]; if(!price) return pushNotif("Price not loaded", "bad");
   const tpPct = (signal.tp_pips * signal.pipValue / price) * 100; const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
+
+  // 1. Deduct balance
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
-  await push(ref(db, `trade/${uid}/positions`), { pair: signal.pair, side: signal.side, qty: userAmount/price, entry: price, amount: userAmount, tp: tpPct, sl: slPct, type: "signal", openedAt: now, expiresAt: now + 600000, code });
-  await update(signalRef, { [`usedBy/${uid}`]: true }); pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount} @ ${LEVERAGE}x`, "ok"); document.getElementById("signalCode").value = "";
+
+  // 2. PUSH TO FIREBASE REALTIME - SAME AS BEFORE
+  await push(ref(db, `trade/${uid}/positions`), {
+    pair: signal.pair,
+    side: signal.side,
+    qty: userAmount/price,
+    entry: price,
+    amount: userAmount,
+    tp: tpPct,
+    sl: slPct,
+    type: "signal",
+    openedAt: now,
+    expiresAt: now + 600000,
+    code
+  });
+
+  // 3. Mark signal as used
+  await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount} });
+
+  pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount} @ ${LEVERAGE}x`, "ok");
+  document.getElementById("signalCode").value = "";
 }
 
 // ===== TP/SL AUTO CLOSE =====
@@ -328,7 +308,7 @@ function renderPositions(){
   const tbody = document.getElementById("positionsBody"); const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
   tbody.innerHTML = arr.map(([id, p])=>{ const price = prices[p.pair] || p.entry; const {pnl, pnlPct} = calcPnL(p, price); const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null; const pnlClass = pnl >= 0? "up" : "down";
-    return `<tr class="pos"><td>${p.pair} ${p.type==="signal"?'<span class="badge-signal">SIGNAL</span>':''}</td><td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td><td>${(p.amount / p.entry).toFixed(6)}</td><td>$${p.entry.toFixed(4)}</td><td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td><td>${p.tp}% / ${p.sl}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td><td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+    return `<tr class="pos"><td>${p.pair} <span class="badge-signal">SIGNAL</span></td><td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td><td>${(p.amount / p.entry).toFixed(6)}</td><td>$${p.entry.toFixed(4)}</td><td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td><td>${p.tp.toFixed(2)}% / ${p.sl.toFixed(2)}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td><td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -341,7 +321,7 @@ function updateEquity(){
 
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
 
-if(!sessionStorage.getItem("cypx_welcomed")){ pushNotif("Connected to CYPX TRADE 200x", "info"); sessionStorage.setItem("cypx_welcomed", "true"); }
+if(!sessionStorage.getItem("cypx_welcomed")){ pushNotif("Connected to CYPX TRADE - Signal Only Mode", "info"); sessionStorage.setItem("cypx_welcomed", "true"); }
 </script>
 </body>
-</html>
+          </html>
