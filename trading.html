@@ -187,16 +187,13 @@ const ASSETS = {
   "EUR/GBP": {tv: "FX:EURGBP", api: null},
 }
 
-// 1. TOAST ONLY - NOT SAVED TO BELL
 function showToast(msg, type="info"){
-  const time = new Date().toLocaleTimeString();
   toast.textContent = msg;
   toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"), 3000);
 }
 
-// 2. SAVE TO BELL - ONLY FOR TRADE EVENTS
 function saveNotif(msg, type="info"){
   const time = new Date().toLocaleTimeString();
   notifs.unshift({msg, time});
@@ -212,7 +209,7 @@ function showCenterToast(msg, type="ok"){
   centerToast.style.borderColor = type==="ok"? "var(--ok)" : "var(--bad)";
   centerToast.style.color = type==="ok"? "var(--ok)" : "var(--bad)";
   centerToast.classList.add("show");
-  setTimeout(()=>centerToast.classList.remove("show"), 2500);
+  setTimeout(()=>centerToast.classList.remove("show"), 3000);
 }
 
 function renderNotifs(){
@@ -247,7 +244,7 @@ function updateUI(){
   document.getElementById("pairPrice").textContent = "$" + price.toLocaleString(undefined,{minimumFractionDigits:4,maximumFractionDigits:4});
   const changeEl = document.getElementById("pairChange"); changeEl.textContent = change.toFixed(2) + "%";
   changeEl.className = "pair-change " + (change >= 0? "up" : "down");
-  checkTP_SL(); updateEquity();
+  updateEquity();
 }
 setInterval(fetchPrices, 3000);
 
@@ -260,9 +257,23 @@ function calcPnL(p, currentPrice){
 onAuthStateChanged(auth, (user)=>{
   if(!user){ window.location.href="auth.html"; return; }
   uid = user.uid; document.getElementById("balCard").classList.add("loading"); loadChart(currentPair); fetchPrices();
-  const userBalRef = ref(db, `users/${uid}/balance`); const positionsRef = ref(db, `trade/${uid}/positions`);
+  const userBalRef = ref(db, `users/${uid}/balance`);
+  const positionsRef = ref(db, `trade/${uid}/positions`);
   onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
   onValue(positionsRef, (snap)=>{ positions = snap.val() || {}; renderPositions(); updateEquity(); });
+
+  // LISTEN FOR ADMIN CLOSING TRADE
+  onValue(ref(db, `users/${uid}/trade_notifications`), (snap)=>{
+    const data = snap.val();
+    if(data){
+      Object.keys(data).forEach(key=>{
+        const notif = data[key];
+        showCenterToast(notif.msg, notif.type);
+        saveNotif(notif.msg, notif.type);
+        db.ref(`users/${uid}/trade_notifications/${key}`).remove(); // delete after showing
+      });
+    }
+  });
 });
 
 // ===== SIGNAL CODE ONLY =====
@@ -270,7 +281,6 @@ window.activateSignal = async function(){
   const code = document.getElementById("signalCode").value.trim().toUpperCase();
   const userAmount = parseFloat(document.getElementById("signalAmount").value);
 
-  // THESE USE showToast() - NOT SAVED
   if(!code) return showToast("Enter a signal code", "bad");
   if(userAmount < MIN_TRADE) return showToast(`Minimum amount $${MIN_TRADE}`, "bad");
   if(userAmount > balance) return showToast("Insufficient balance", "bad");
@@ -282,7 +292,15 @@ window.activateSignal = async function(){
   const now = Date.now();
 
   if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
-  if(signal.usedBy && signal.usedBy[uid]) return showToast("You already used this signal", "bad");
+
+  // FIX: CHECK IF USER ALREADY USED THIS SIGNAL AND ITS STILL ACTIVE
+  if(signal.usedBy && signal.usedBy[uid]){
+    const usedTime = signal.usedBy[uid].usedAt;
+    if(now < signal.expiresAt){
+      const minsLeft = Math.ceil((signal.expiresAt - now) / 60000);
+      return showToast(`Signal In Use. Expires in ${minsLeft}min`, "bad");
+    }
+  }
 
   const price = prices[signal.pair];
   if(!price) return showToast("Price not loaded", "bad");
@@ -304,62 +322,37 @@ window.activateSignal = async function(){
     sl: slPct,
     type: "signal",
     openedAt: now,
-    expiresAt: now + 600000,
-    code
+    expiresAt: signal.expiresAt,
+    code,
+    status: "OPEN"
   });
 
-  // 3. Mark signal as used
-  await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount} });
+  // 3. Mark signal as used with timestamp
+  await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount, usedAt: now} });
 
-  // THIS ONE USES saveNotif() - SAVED TO BELL
   saveNotif(`🟢 Trade Opened: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
   showToast(`Signal Activated: $${userAmount}`, "ok");
   document.getElementById("signalCode").value = "";
 }
 
-// ===== TP/SL AUTO CLOSE =====
-function checkTP_SL(){
-  Object.keys(positions).forEach(id=>{
-    const p = positions[id];
-    const price = prices[p.pair];
-    if(!price) return;
-    const {pnl, pnlPct} = calcPnL(p, price);
-    let shouldClose = false; let reason = ""; let type="info";
-    if(pnlPct >= p.tp){ shouldClose = true; reason = `TAKE PROFIT HIT`; type="ok"; }
-    else if(pnlPct <= -p.sl){ shouldClose = true; reason = `STOP LOSS HIT`; type="bad"; }
-    else if(p.expiresAt && Date.now() >= p.expiresAt){ shouldClose = true; reason = `TIME EXPIRED`; type="bad"; }
-    if(shouldClose) closePosition(id, reason, pnl, type);
-  });
-}
-
-// ===== CLOSE POSITION =====
-window.closePosition = async function(id, reason="Manual Close", pnl=null, type="info"){
-  const p = positions[id]; if(!p) return;
-  const price = prices[p.pair];
-  if(!price) return showToast("Price not loaded", "bad");
-  const calc = calcPnL(p, price);
-  if(pnl === null) pnl = calc.pnl;
-
-  const returnAmount = p.amount + pnl;
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
-  await remove(ref(db, `trade/${uid}/positions/${id}`));
-
-  showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type);
-
-  // THIS ONE USES saveNotif() - SAVED TO BELL
-  saveNotif(`🔴 Trade Closed: ${p.pair} | ${reason} | P&L: $${pnl.toFixed(2)}`, type);
-}
-
-// ===== RENDER POSITIONS =====
+// ===== RENDER POSITIONS - NO CLOSE BUTTON =====
 function renderPositions(){
   const tbody = document.getElementById("positionsBody"); const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
-  tbody.innerHTML = arr.map(([id, p])=>{
+  tbody.innerHTML = arr.map(([id][p])=>{
     const price = prices[p.pair] || p.entry;
     const {pnl, pnlPct} = calcPnL(p, price);
     const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
     const pnlClass = pnl >= 0? "up" : "down";
-    return `<tr class="pos"><td>${p.pair} <span class="badge-signal">SIGNAL</span></td><td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td><td>${(p.amount / p.entry).toFixed(6)}</td><td>$${p.entry.toFixed(4)}</td><td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td><td>${p.tp.toFixed(2)}% / ${p.sl.toFixed(2)}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td><td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+    return `<tr class="pos">
+      <td>${p.pair} <span class="badge-signal">SIGNAL</span></td>
+      <td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td>
+      <td>${(p.amount / p.entry).toFixed(6)}</td>
+      <td>$${p.entry.toFixed(4)}</td>
+      <td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td>
+      <td>${p.tp.toFixed(2)}% / ${p.sl.toFixed(2)}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td>
+      <td><span style="font-size:11px; color:var(--muted)">Admin Controlled</span></td>
+    </tr>`;
   }).join('');
 }
 
