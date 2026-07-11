@@ -31,6 +31,7 @@ body{background:var(--bg);color:var(--text)}
 .input-group label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
 .input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:16px;outline:none}
 .btn-signal{width:100%;padding:14px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px}
+.btn-signal:disabled{opacity:.4;cursor:not-allowed}
 .positions table{width:100%;border-collapse:collapse;font-size:12px}
 .positions th{text-align:left;color:var(--muted);padding:8px 4px;border-bottom:1px solid var(--line)}
 .positions td{padding:8px 4px}
@@ -123,7 +124,7 @@ body{background:var(--bg);color:var(--text)}
         <label>Amount to Risk <span style="color:var(--warn)">Min $50</span></label>
         <input type="number" id="signalAmount" placeholder="100" value="100" min="50">
       </div>
-      <button class="btn-signal" onclick="activateSignal()">Activate Signal</button>
+      <button class="btn-signal" id="activateBtn" onclick="activateSignal()">Activate Signal</button>
     </div>
   </div>
 </div>
@@ -134,7 +135,7 @@ body{background:var(--bg);color:var(--text)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, onValue, push, remove, serverTimestamp, runTransaction, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, push, remove, runTransaction, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -160,11 +161,13 @@ let currentPair = "BTC/USDT";
 let prices = {};
 let prevPrices = {};
 let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]");
+let hasOpenPosition = false; // NEW: track if user has open trade
 
 const toast = document.getElementById("toast");
 const centerToast = document.getElementById("centerToast");
 const notifPanel = document.getElementById("notifPanel");
 const notifCount = document.getElementById("notifCount");
+const activateBtn = document.getElementById("activateBtn");
 
 const ASSETS = {
   "BTC/USDT": {tv: "BINANCE:BTCUSDT", api: "BTCUSDT"},
@@ -259,9 +262,18 @@ onAuthStateChanged(auth, (user)=>{
   const userBalRef = ref(db, `users/${uid}/balance`);
   const positionsRef = ref(db, `trade/${uid}/positions`);
   onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
-  onValue(positionsRef, (snap)=>{ positions = snap.val() || {}; renderPositions(); updateEquity(); });
 
-  // LISTEN FOR ADMIN CLOSING TRADE - FIXED db.ref to ref
+  // FIX 1: Check if user has open position and disable button
+  onValue(positionsRef, (snap)=>{
+    positions = snap.val() || {};
+    hasOpenPosition = Object.keys(positions).length > 0;
+    activateBtn.disabled = hasOpenPosition;
+    activateBtn.textContent = hasOpenPosition? "Close Current Trade First" : "Activate Signal";
+    renderPositions();
+    updateEquity();
+  });
+
+  // FIX 2: LISTEN FOR ADMIN CLOSING TRADE POPUP
   onValue(ref(db, `users/${uid}/trade_notifications`), (snap)=>{
     const data = snap.val();
     if(data){
@@ -269,14 +281,16 @@ onAuthStateChanged(auth, (user)=>{
         const notif = data[key];
         showCenterToast(notif.msg, notif.type);
         saveNotif(notif.msg, notif.type);
-        remove(ref(db, `users/${uid}/trade_notifications/${key}`)); // FIXED
+        remove(ref(db, `users/${uid}/trade_notifications/${key}`));
       });
     }
   });
 });
 
-// ===== SIGNAL CODE ONLY =====
+// ===== SIGNAL CODE ONLY - 1 TRADE PER USER RULE =====
 window.activateSignal = async function(){
+  if(hasOpenPosition) return showToast("You already have an open trade. Wait for Admin to close it.", "bad");
+
   const code = document.getElementById("signalCode").value.trim().toUpperCase();
   const userAmount = parseFloat(document.getElementById("signalAmount").value);
 
@@ -291,13 +305,11 @@ window.activateSignal = async function(){
   const now = Date.now();
 
   if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
+  if(signal.status === "CLOSED") return showToast("This signal is already closed", "bad");
 
+  // FIX 3: Check if this specific user already used this code
   if(signal.usedBy && signal.usedBy[uid]){
-    const usedTime = signal.usedBy[uid].usedAt;
-    if(now < signal.expiresAt){
-      const minsLeft = Math.ceil((signal.expiresAt - now) / 60000);
-      return showToast(`Signal In Use. Expires in ${minsLeft}min`, "bad");
-    }
+    return showToast(`Signal Already Used By You`, "bad");
   }
 
   const price = prices[signal.pair];
@@ -330,12 +342,12 @@ window.activateSignal = async function(){
   document.getElementById("signalCode").value = "";
 }
 
-// ===== RENDER POSITIONS - FIXED TYPO [id,p] =====
+// ===== RENDER POSITIONS =====
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
-  tbody.innerHTML = arr.map(([id, p])=>{ // FIXED COMMA
+  tbody.innerHTML = arr.map(([id, p])=>{
     const price = prices[p.pair] || p.entry;
     const {pnl, pnlPct} = calcPnL(p, price);
     const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
