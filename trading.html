@@ -39,8 +39,6 @@ body{background:var(--bg);color:var(--text)}
 .badge-side.sell{background:rgba(220,38,38,.2);color:var(--bad)}
 .badge-signal{background:rgba(245,158,11,.2);color:var(--warn);font-size:10px;padding:2px 4px;border-radius:4px;margin-left:4px}
 .pnl.up{color:var(--ok)}.pnl.down{color:var(--bad)}
-.close-btn{background:var(--line);border:none;color:var(--text);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px}
-.close-btn:hover{background:var(--bad)}
 .notif-bell{position:relative;cursor:pointer;font-size:20px}
 .badge{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;font-size:10px;padding:2px 5px;border-radius:99px}
 .notif-panel{position:absolute;top:40px;right:0;width:320px;background:var(--card2);border:1px solid var(--line);border-radius:12px;display:none;z-index:99;max-height:400px;overflow-y:auto}
@@ -102,9 +100,9 @@ body{background:var(--bg);color:var(--text)}
       <div class="card positions" style="margin-top:12px">
         <h3>Open Positions</h3>
         <table>
-          <thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>Entry</th><th>P&L</th><th>TP/SL</th><th></th></tr></thead>
+          <thead><tr><th>Pair</th><th>Side</th><th>Qty</th><th>Entry</th><th>P&L</th><th>TP/SL</th></tr></thead>
           <tbody id="positionsBody">
-            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>
+            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -270,7 +268,7 @@ onAuthStateChanged(auth, (user)=>{
         const notif = data[key];
         showCenterToast(notif.msg, notif.type);
         saveNotif(notif.msg, notif.type);
-        db.ref(`users/${uid}/trade_notifications/${key}`).remove(); // delete after showing
+        db.ref(`users/${uid}/trade_notifications/${key}`).remove();
       });
     }
   });
@@ -293,7 +291,6 @@ window.activateSignal = async function(){
 
   if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
 
-  // FIX: CHECK IF USER ALREADY USED THIS SIGNAL AND ITS STILL ACTIVE
   if(signal.usedBy && signal.usedBy[uid]){
     const usedTime = signal.usedBy[uid].usedAt;
     if(now < signal.expiresAt){
@@ -308,10 +305,8 @@ window.activateSignal = async function(){
   const tpPct = (signal.tp_pips * signal.pipValue / price) * 100;
   const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
 
-  // 1. Deduct balance
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
 
-  // 2. PUSH TO FIREBASE REALTIME
   await push(ref(db, `trade/${uid}/positions`), {
     pair: signal.pair,
     side: signal.side,
@@ -327,7 +322,6 @@ window.activateSignal = async function(){
     status: "OPEN"
   });
 
-  // 3. Mark signal as used with timestamp
   await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount, usedAt: now} });
 
   saveNotif(`🟢 Trade Opened: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
@@ -335,11 +329,11 @@ window.activateSignal = async function(){
   document.getElementById("signalCode").value = "";
 }
 
-// ===== RENDER POSITIONS - NO CLOSE BUTTON =====
+// ===== RENDER POSITIONS - FIXED TYPO HERE =====
 function renderPositions(){
   const tbody = document.getElementById("positionsBody"); const arr = Object.entries(positions);
-  if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
-  tbody.innerHTML = arr.map(([id][p])=>{
+  if(!arr.length){ tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
+  tbody.innerHTML = arr.map(([id, p])=>{ // FIXED: was [id][p]
     const price = prices[p.pair] || p.entry;
     const {pnl, pnlPct} = calcPnL(p, price);
     const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
@@ -351,7 +345,6 @@ function renderPositions(){
       <td>$${p.entry.toFixed(4)}</td>
       <td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td>
       <td>${p.tp.toFixed(2)}% / ${p.sl.toFixed(2)}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td>
-      <td><span style="font-size:11px; color:var(--muted)">Admin Controlled</span></td>
     </tr>`;
   }).join('');
 }
@@ -364,6 +357,6 @@ function updateEquity(){
 }
 
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
-    </script>
+</script>
 </body>
-          </html>
+  </html>
