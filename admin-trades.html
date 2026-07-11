@@ -250,38 +250,54 @@ function loadTraders(){
 }
 
 function loadRealtimeData(){
+  // 1. Active trade
   db.ref("admin_active_trade").on("value", snap=>{
     if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
     else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
   });
-// FIXED COPIER COUNT - reads from copy_trading
-db.ref("copy_trading").on("value", snap=>{
-    let html = "";
-    traders.forEach(t=>{
-      let copiers = [];
-      snap.forEach(userSnap=>{
-        const uid = userSnap.key;
-        const userCopies = userSnap.val();
-        if(userCopies[t.id]){ // if this user is copying this trader
-          // get username from users node
-          db.ref("users/"+uid+"/username").once("value").then(nameSnap=>{
-            const name = nameSnap.val() || uid.substring(0,6);
-            copiers.push(name);
-          });
-        }
-      });
-      // small delay to let names load
-      setTimeout(()=>{
-        html += `<div class="trader-stat" onclick="this.querySelector('.copier-list').classList.toggle('hide')">
-          <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
-          <div class="copier-list hide">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
-        </div>`;
-        document.getElementById("traderStats").innerHTML = html;
-      }, 200);
+
+  // 2. FIXED: FAST COPIER COUNT - NO NESTED CALLS
+  let usernames = {}; // cache usernames
+  db.ref("users").on("value", userSnap=>{
+    userSnap.forEach(u=>{
+      usernames[u.key] = u.val().username || u.key.substring(0,6);
     });
   });
 
-  // FIXED SIGNAL LISTENER WITH AUTO CLOSE
+  db.ref("copy_trading").on("value", snap=>{
+    const copyData = snap.val() || {};
+    let html = "";
+
+    traders.forEach(t=>{
+      let copiers = [];
+      for(let uid in copyData){
+        if(copyData[uid][t.id]){ // user is copying this trader
+          copiers.push(usernames[uid] || uid.substring(0,6));
+        }
+      }
+      html += `<div class="trader-stat">
+        <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
+        <div class="copier-list hide">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
+      </div>`;
+    });
+    document.getElementById("traderStats").innerHTML = html || "No copiers yet";
+  });
+
+  // 3. Trade History
+  db.ref("admin_trades").limitToLast(10).on("value", snap=>{
+    let html = "";
+    snap.forEach(traderSnap=>{
+      traderSnap.forEach(tradeSnap=>{
+        const tr = tradeSnap.val();
+        html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
+          ${traders.find(t=>t.id===traderSnap.key)?.name} | ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
+        </div>` + html;
+      });
+    });
+    document.getElementById("tradeLog").innerHTML = html || "No trades yet";
+  });
+
+  // 4. Signals with auto close
   db.ref("signals").on("value", snap=>{
     let html = "";
     snap.forEach(child=>{
@@ -309,9 +325,7 @@ db.ref("copy_trading").on("value", snap=>{
         <div style="color:#94e2cc; font-size:12px">
           ${isClosed? 'Status: CLOSED' : `Expires: ${mins}:${secs.toString().padStart(2,'0')}`} | Users: ${Object.keys(s.usedBy||{}).length}
         </div>
-        <div style="background:rgba(0,200,150,0.1); padding:8px; border-radius:6px; margin-top:8px; font-size:12px">
-          Admin P&L: <span style="color:${(s.adminPnL||0)>=0?'#22c55e':'#ef4444'}">$${(s.adminPnL||0).toFixed(2)}</span>
-        </div>
+        <div class="signal-stats">Admin P&L: <span style="color:${(s.adminPnL||0)>=0?'#22c55e':'#ef4444'}">$${(s.adminPnL||0).toFixed(2)}</span></div>
         ${!isClosed? `
         <div style="margin-top:8px; display:flex; gap:8px">
           <input id="award_${child.key}" type="number" placeholder="Award P&L $" style="flex:1">
@@ -322,7 +336,7 @@ db.ref("copy_trading").on("value", snap=>{
     });
     document.getElementById("activeSignalsList").innerHTML = html || "No signals";
   });
-}
+   }
 
 function openTrade(){
   if(!isAdmin) return showToast("Unauthorized", true);
