@@ -26,6 +26,8 @@
   .btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
   .btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
   .btn-warn { background: linear-gradient(90deg,#f59e0b,#d97706); color:#000 }
+  .btn-profit { background:linear-gradient(90deg,#16a34a,#15803d) }
+  .btn-loss { background:linear-gradient(90deg,#ef4444,#dc2626) }
   .signal-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; border-left:3px solid #f59e0b; }
   .code { font-weight:700; color:#ffd700; font-size:14px }
   .toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
@@ -34,6 +36,7 @@
   .trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px }
   .trader-stat b{color:#00C896}
   .open-trade-box { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px }
+  .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
 </style>
 </head>
 <body>
@@ -73,28 +76,35 @@
           <div class="form-group"><label>Type</label><select id="type"><option>BUY</option><option>SELL</option></select></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001" placeholder="1.08500"></div>
+          <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001" placeholder="63500"></div>
           <div class="form-group"><label>Admin Capital $</label><input id="adminCapital" type="number" value="1000"></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001" placeholder="1.08700"></div>
-          <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001" placeholder="1.08300"></div>
+          <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001" placeholder="65250"></div>
+          <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001" placeholder="603100"></div>
         </div>
         <button class="btn btn-blue" onclick="openTrade()">1. Open Trade</button>
         <div id="openTradeBox" class="open-trade-box" style="display:none; margin-top:15px">
           <h3 style="margin:0 0 10px 0; color:#3b82f6; font-size:14px"><i class="fas fa-circle" style="color:#22c55e; font-size:8px"></i> ACTIVE TRADE</h3>
           <div id="activeTradeInfo" style="font-size:12px; margin-bottom:10px"></div>
-          <div class="form-group"><label>Close Trade With Final P&L $</label><input id="closeProfit" type="number" placeholder="250"></div>
+          <div class="form-group"><label>Close Trade With Final P&L $</label>
+            <div class="pnl-buttons">
+              <button type="button" class="btn btn-profit" id="btnProfit" onclick="setPnL(true)">+ PROFIT</button>
+              <button type="button" class="btn btn-loss" id="btnLoss" onclick="setPnL(false)">- LOSS</button>
+            </div>
+            <input id="closeProfit" type="number" placeholder="25">
+          </div>
           <button class="btn btn-red" onclick="closeTrade()">2. Close Trade & Pay Copiers</button>
         </div>
       </div>
       <div>
-        <div class="card" style="margin-bottom:20px"><h2><i class="fas fa-users"></i> Traders & Copiers</h2><div id="traderStats"></div></div>
-        <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog"></div></div>
+        <div class="card" style="margin-bottom:20px"><h2><i class="fas fa-users"></i> Traders & Copiers</h2><div id="traderStats">Loading...</div></div>
+        <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog">Loading...</div></div>
       </div>
     </div>
-   </div>
-     <!-- TAB 2: SIGNAL CODES -->
+  </div>
+  
+  <!-- TAB 2: SIGNAL CODES -->
   <div id="signalTab" class="hide">
     <div class="grid">
       <div class="card">
@@ -120,7 +130,7 @@
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px">
           <div class="form-group"><label>TP Pips</label><input id="sigTP" type="number" value="50"></div>
           <div class="form-group"><label>SL Pips</label><input id="sigSL" type="number" value="25"></div>
-          <div class="form-group"><label>Pip Value $</label><input id="sigPip" type="number" value="5"></div>
+          <div class="form-group"><label>Pip Value $</label><input id="sigPip" type="number" value="2" step="0.1"></div>
         </div>
         <button class="btn btn-warn" onclick="generateSignal()">GENERATE SIGNAL CODE</button>
         <div id="sigOutput" style="margin-top:12px; text-align:center; font-weight:700; color:#00C896"></div>
@@ -128,7 +138,7 @@
 
       <div class="card">
         <h2><i class="fas fa-list"></i> Active Signals</h2>
-        <div id="activeSignalsList"></div>
+        <div id="activeSignalsList">Loading...</div>
       </div>
     </div>
   </div>
@@ -165,6 +175,7 @@ const traders = [
 ];
 
 let currentOpenTrade = null;
+let pnlIsProfit = true;
 
 function switchTab(tab, e){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -180,41 +191,35 @@ function switchTab(tab, e){
   }
 }
 
-// ===== COPY TRADING CODE WITH FIREBASE PERSISTENCE =====
+function setPnL(isProfit){
+  pnlIsProfit = isProfit;
+  document.getElementById('btnProfit').style.opacity = isProfit ? '1' : '0.5';
+  document.getElementById('btnLoss').style.opacity = !isProfit ? '1' : '0.5';
+}
+
+// ===== COPY TRADING =====
 function loadTraders(){
   const select = document.getElementById('traderSelect');
   select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
-  
-  // Load any active trade from Firebase
   db.ref("admin_active_trade").once("value", snap=>{
-    if(snap.exists()){
-      currentOpenTrade = snap.val();
-      showActiveTradeBox();
-    }
+    if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
   });
 }
 
 function openTrade(){ 
-  const entry = Number(document.getElementById('entry').value);
-  const tp = Number(document.getElementById('tp').value);
-  const sl = Number(document.getElementById('sl').value);
-  if(!entry || !tp || !sl) return showToast("Fill Entry, TP, SL first");
+  const entry = parseFloat(document.getElementById('entry').value);
+  const tp = parseFloat(document.getElementById('tp').value);
+  const sl = parseFloat(document.getElementById('sl').value);
+  if(isNaN(entry) || isNaN(tp) || isNaN(sl)) return showToast("Fill Entry, TP, SL first");
   
   const traderId = document.getElementById('traderSelect').value;
   currentOpenTrade = { 
-    traderId, 
-    symbol: document.getElementById('symbol').value, 
-    type: document.getElementById('type').value, 
-    entry, tp, sl, 
-    adminCapital: Number(document.getElementById('adminCapital').value), 
-    status: "OPEN", 
-    openedAt: Date.now() 
+    traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value, 
+    entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value), 
+    status: "OPEN", openedAt: Date.now() 
   };
-  
-  // Save to Firebase so it persists on refresh
   db.ref("admin_active_trade").set(currentOpenTrade);
-  showActiveTradeBox();
-  showToast("Trade Opened. Now close it with P&L");
+  showActiveTradeBox(); showToast("Trade Opened. Now close it with P&L");
 }
 
 function showActiveTradeBox(){
@@ -227,41 +232,58 @@ function showActiveTradeBox(){
   `;
 }
 
-function closeTrade(){ 
+async function closeTrade(){ 
   if(!currentOpenTrade) return; 
-  const profit = Number(document.getElementById('closeProfit').value);
+  let profit = parseFloat(document.getElementById('closeProfit').value);
   if(isNaN(profit)) return showToast("Enter P&L amount");
+  if(!pnlIsProfit) profit = -Math.abs(profit);
   
   const tradeData = { ...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
-  db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData).then(() => { 
-    db.ref("admin_active_trade").remove(); // clear active trade
-    showToast(`Trade Closed. Copiers will be paid $${profit}`); 
-    document.getElementById('openTradeBox').style.display = 'none'; 
-    currentOpenTrade = null; 
-    loadTradeLog();
+  
+  // 1. Save to history
+  await db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData);
+  
+  // 2. PAY COPIERS
+  const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(currentOpenTrade.traderId).once("value");
+  const updates = {};
+  const traderFee = traders.find(t=>t.id===currentOpenTrade.traderId).profitShare;
+  usersSnap.forEach(userSnap=>{
+    const user = userSnap.val();
+    const capitalRatio = (user.copyCapital || 100) / currentOpenTrade.adminCapital;
+    const grossProfit = profit * capitalRatio;
+    const userProfit = grossProfit * (1 - traderFee/100);
+    updates[`users/${userSnap.key}/balance`] = (user.balance || 0) + userProfit;
   });
+  if(Object.keys(updates).length > 0) await db.ref().update(updates);
+  
+  // 3. Clear active trade
+  await db.ref("admin_active_trade").remove();
+  showToast(`Trade Closed. P&L: $${profit}. Copiers Paid!`); 
+  document.getElementById('openTradeBox').style.display = 'none'; 
+  currentOpenTrade = null; 
+  loadTradeLog();
 }
 
 function loadTraderStats(){
-  let html = "";
+  document.getElementById("traderStats").innerHTML = "";
   traders.forEach(t=>{
     db.ref("users").orderByChild("copiedTrader").equalTo(t.id).once("value", snap=>{
-      const copiers = snap.numChildren();
-      html += `<div class="trader-stat"><b>${t.name}</b> - ${copiers} Copiers | ${t.profitShare}% Fee</div>`;
-      document.getElementById("traderStats").innerHTML = html;
+      const div = document.createElement('div');
+      div.className = "trader-stat";
+      div.innerHTML = `<b>${t.name}</b> - ${snap.numChildren()} Copiers | ${t.profitShare}% Fee`;
+      document.getElementById("traderStats").appendChild(div);
     });
   });
 }
 
 function loadTradeLog(){
-  db.ref("admin_trades").limitToLast(5).once("value", snap=>{
+  db.ref("admin_trades").limitToLast(10).once("value", snap=>{
     let html = "";
     snap.forEach(traderSnap=>{
       traderSnap.forEach(tradeSnap=>{
         const tr = tradeSnap.val();
         html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
-          ${new Date(tr.openedAt).toLocaleDateString()} - ${tr.symbol} ${tr.type} 
-          <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">$${tr.profit}</span>
+          ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
         </div>` + html;
       });
     });
@@ -269,7 +291,7 @@ function loadTradeLog(){
   });
 }
 
-// ===== SIGNAL CODE SYSTEM =====
+// ===== FIXED SIGNAL CODE =====
 window.generateSignal = async function(){
   const pair = document.getElementById("sigPair").value;
   const side = document.getElementById("sigSide").value;
@@ -278,10 +300,10 @@ window.generateSignal = async function(){
   const sl_pips = parseFloat(document.getElementById("sigSL").value);
   const pipValue = parseFloat(document.getElementById("sigPip").value);
 
-  if(!amount || !tp_pips || !sl_pips) return showToast("Fill all fields");
+  if(isNaN(amount) || isNaN(tp_pips) || isNaN(sl_pips) || isNaN(pipValue)) return showToast("Fill all fields with numbers");
 
   const code = `SIGNAL-${pair.split('/')[0]}-${Date.now()}`;
-  const expiresAt = Date.now() + 600000; // 10 min
+  const expiresAt = Date.now() + 600000;
 
   await db.ref(`signals/${code}`).set({
     pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, createdAt: Date.now()
@@ -302,15 +324,10 @@ function loadActiveSignals(){
       const mins = Math.floor(timeLeft / 60000);
       const secs = Math.floor((timeLeft % 60000) / 1000);
       if(timeLeft > 0){
-        html += `
-        <div class="signal-item">
-          <div class="code">${child.key}</div>
+        html += `<div class="signal-item"><div class="code">${child.key}</div>
           <div>${s.side.toUpperCase()} ${s.pair} | $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL @ $${s.pipValue}</div>
-          <div style="color:#94e2cc; font-size:12px">Expires in: ${mins}:${secs.toString().padStart(2,'0')}</div>
-        </div>`;
-      } else {
-        db.ref("signals/" + child.key).remove();
-      }
+          <div style="color:#94e2cc; font-size:12px">Expires: ${mins}:${secs.toString().padStart(2,'0')}</div></div>`;
+      } else { db.ref("signals/" + child.key).remove(); }
     });
     document.getElementById("activeSignalsList").innerHTML = html || "No active signals";
   });
@@ -323,9 +340,7 @@ function showToast(message){
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-loadTraders();
-loadTraderStats();
-loadTradeLog();
+loadTraders(); loadTraderStats(); loadTradeLog(); setPnL(true);
 </script>
 </body>
-</html>
+   </html>
