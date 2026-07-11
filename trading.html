@@ -44,7 +44,7 @@ body{background:var(--bg);color:var(--text)}
 .badge-side.buy{background:rgba(22,163,74,.2);color:var(--ok)}
 .badge-side.sell{background:rgba(220,38,38,.2);color:var(--bad)}
 .badge-signal{background:rgba(245,158,11,.2);color:var(--warn);font-size:10px;padding:2px 4px;border-radius:4px;margin-left:4px}
-.pos.pnl.up{color:var(--ok)}.pos.pnl.down{color:var(--bad)}
+.pnl.up{color:var(--ok)}.pnl.down{color:var(--bad)}
 .close-btn{background:var(--line);border:none;color:var(--text);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:11px}
 .close-btn:hover{background:var(--bad)}
 .notif-bell{position:relative;cursor:pointer;font-size:20px}
@@ -87,9 +87,16 @@ body{background:var(--bg);color:var(--text)}
       <div class="card">
         <div class="pair-header">
           <select id="pairSelect" style="background:var(--card2);border:1px solid var(--line);color:var(--text);padding:6px;border-radius:8px">
-            <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
-            <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
-            <option>ADA/USDT</option><option>TON/USDT</option>
+            <optgroup label="Crypto">
+              <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
+              <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
+              <option>ADA/USDT</option><option>TON/USDT</option>
+            </optgroup>
+            <optgroup label="Forex">
+              <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+              <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+              <option>USD/CAD</option><option>EUR/GBP</option>
+            </optgroup>
           </select>
           <div class="pair-price" id="pairPrice">$0.00</div>
           <div class="pair-change up" id="pairChange">0.00%</div>
@@ -148,7 +155,6 @@ body{background:var(--bg);color:var(--text)}
 
 <div class="toast" id="toast"></div>
 <div class="center-toast" id="centerToast"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -170,6 +176,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 const MIN_TRADE = 50;
+const LEVERAGE = 200;
 let uid = null;
 let balance = null;
 let positions = {};
@@ -184,281 +191,157 @@ const centerToast = document.getElementById("centerToast");
 const notifPanel = document.getElementById("notifPanel");
 const notifCount = document.getElementById("notifCount");
 
-function saveNotifs(){
-  localStorage.setItem("cypx_notifs", JSON.stringify(notifs));
+// ===== ASSETS CONFIG =====
+const ASSETS = {
+  "BTC/USDT": {tv: "BINANCE:BTCUSDT", api: "BTCUSDT"},
+  "ETH/USDT": {tv: "BINANCE:ETHUSDT", api: "ETHUSDT"},
+  "SOL/USDT": {tv: "BINANCE:SOLUSDT", api: "SOLUSDT"},
+  "BNB/USDT": {tv: "BINANCE:BNBUSDT", api: "BNBUSDT"},
+  "XRP/USDT": {tv: "BINANCE:XRPUSDT", api: "XRPUSDT"},
+  "DOGE/USDT": {tv: "BINANCE:DOGEUSDT", api: "DOGEUSDT"},
+  "ADA/USDT": {tv: "BINANCE:ADAUSDT", api: "ADAUSDT"},
+  "TON/USDT": {tv: "BINANCE:TONUSDT", api: "TONUSDT"},
+  "EUR/USD": {tv: "FX:EURUSD", api: null},
+  "GBP/USD": {tv: "FX:GBPUSD", api: null},
+  "USD/JPY": {tv: "FX:USDJPY", api: null},
+  "USD/CHF": {tv: "FX:USDCHF", api: null},
+  "AUD/USD": {tv: "FX:AUDUSD", api: null},
+  "NZD/USD": {tv: "FX:NZDUSD", api: null},
+  "USD/CAD": {tv: "FX:USDCAD", api: null},
+  "EUR/GBP": {tv: "FX:EURGBP", api: null},
 }
+
+function saveNotifs(){ localStorage.setItem("cypx_notifs", JSON.stringify(notifs)); }
 function pushNotif(msg, type="info"){
   const time = new Date().toLocaleTimeString();
-  notifs.unshift({msg, time});
-  if(notifs.length > 50) notifs.pop();
-  saveNotifs();
-  notifCount.textContent = notifs.length;
-  notifCount.style.display = notifs.length? 'block' : 'none';
-  toast.textContent = msg;
-  toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
-  toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"), 3000);
-  renderNotifs();
+  notifs.unshift({msg, time}); if(notifs.length > 50) notifs.pop(); saveNotifs();
+  notifCount.textContent = notifs.length; notifCount.style.display = notifs.length? 'block' : 'none';
+  toast.textContent = msg; toast.style.borderLeftColor = type==="ok"? "var(--ok)" : type==="bad"? "var(--bad)" : "var(--brand)";
+  toast.classList.add("show"); setTimeout(()=>toast.classList.remove("show"), 3000); renderNotifs();
 }
 function showCenterToast(msg, type="ok"){
   centerToast.innerHTML = msg.replace('\n','<br>');
   centerToast.style.borderColor = type==="ok"? "var(--ok)" : "var(--bad)";
   centerToast.style.color = type==="ok"? "var(--ok)" : "var(--bad)";
-  centerToast.classList.add("show");
-  setTimeout(()=>centerToast.classList.remove("show"), 2500);
+  centerToast.classList.add("show"); setTimeout(()=>centerToast.classList.remove("show"), 2500);
 }
 function renderNotifs(){
   notifPanel.innerHTML = notifs.length? notifs.map(n=>`<div class="notif-item">${n.msg}<div class="time">${n.time}</div></div>`).join('') : `<div class="notif-item">No notifications</div>`;
 }
-document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show");
-renderNotifs();
+document.getElementById("bell").onclick = ()=>notifPanel.classList.toggle("show"); renderNotifs();
 
 function loadChart(symbol){
   document.getElementById("tradingview_chart").innerHTML = "";
-  new TradingView.widget({
-    "width": "100%", "height": 400, "symbol": "BINANCE:" + symbol.replace("/", ""),
-    "interval": "15", "theme": "dark", "style": "1", "toolbar_bg": "#1a2440",
-    "enable_publishing": false, "hide_top_toolbar": false, "container_id": "tradingview_chart"
-  });
+  const tvSymbol = ASSETS[symbol]?.tv || "BINANCE:BTCUSDT";
+  new TradingView.widget({"width": "100%", "height": 400, "symbol": tvSymbol, "interval": "15", "theme": "dark", "style": "1", "toolbar_bg": "#1a2440", "enable_publishing": false, "hide_top_toolbar": false, "container_id": "tradingview_chart"});
 }
 
 async function fetchPrices(){
   try{
     const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
-    const data = await res.json();
-    const map = {
-      "BTCUSDT":"BTC/USDT","ETHUSDT":"ETH/USDT","SOLUSDT":"SOL/USDT",
-      "BNBUSDT":"BNB/USDT","XRPUSDT":"XRP/USDT","DOGEUSDT":"DOGE/USDT",
-      "ADAUSDT":"ADA/USDT","TONUSDT":"TON/USDT"
-    };
-    prevPrices = {...prices};
-    Object.keys(map).forEach(s=>{
-      const item = data.find(d=>d.symbol===s);
-      if(item){ prices[map[s]] = parseFloat(item.lastPrice); }
+    const data = await res.json(); prevPrices = {...prices};
+    Object.values(ASSETS).forEach(asset=>{
+      if(asset.api){
+        const item = data.find(d=>d.symbol===asset.api);
+        if(item){ const pairName = Object.keys(ASSETS).find(k=>ASSETS[k].api===asset.api); prices[pairName] = parseFloat(item.lastPrice); }
+      }
     });
-    document.getElementById("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString();
-    updateUI();
+    document.getElementById("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString(); updateUI();
   }catch(e){ console.error("Price fetch failed", e); }
 }
 
 function updateUI(){
-  const price = prices[currentPair];
-  if(!price) return;
-  const prev = prevPrices[currentPair] || price;
-  const change = prev? ((price - prev) / prev) * 100 : 0;
-  document.getElementById("pairPrice").textContent = "$" + price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-  const changeEl = document.getElementById("pairChange");
-  changeEl.textContent = change.toFixed(2) + "%";
+  const price = prices[currentPair]; if(!price) return;
+  const prev = prevPrices[currentPair] || price; const change = prev? ((price - prev) / prev) * 100 : 0;
+  document.getElementById("pairPrice").textContent = "$" + price.toLocaleString(undefined,{minimumFractionDigits:4,maximumFractionDigits:4});
+  const changeEl = document.getElementById("pairChange"); changeEl.textContent = change.toFixed(2) + "%";
   changeEl.className = "pair-change " + (change >= 0? "up" : "down");
   document.getElementById("buyBtn").textContent = `Buy ${currentPair.split('/')[0]}`;
   document.getElementById("sellBtn").textContent = `Sell ${currentPair.split('/')[0]}`;
-  checkTP_SL();
-  updateEquity();
+  checkTP_SL(); updateEquity();
 }
 setInterval(fetchPrices, 3000);
 
-onAuthStateChanged(auth, (user)=>{
-  if(!user){ window.location.href="auth.html"; return; }
-  uid = user.uid;
-  document.getElementById("balCard").classList.add("loading");
-  loadChart(currentPair);
-  fetchPrices();
-  const userBalRef = ref(db, `users/${uid}/balance`);
-  const positionsRef = ref(db, `trade/${uid}/positions`);
-  onValue(userBalRef, (snap)=>{
-    balance = snap.exists()? parseFloat(snap.val()) : 0;
-    updateEquity();
-    toggleButtons();
-    document.getElementById("balCard").classList.remove("loading");
-  });
-  onValue(positionsRef, (snap)=>{
-    positions = snap.val() || {};
-    renderPositions();
-    updateEquity();
-  });
-});
-
-function toggleButtons(){
-  const disabled = balance === null;
-  document.getElementById("buyBtn").disabled = disabled;
-  document.getElementById("sellBtn").disabled = disabled;
+function calcPnL(p, currentPrice){
+  const qty = p.amount / p.entry; const priceDiff = p.side==="buy"? currentPrice - p.entry : p.entry - currentPrice;
+  const pnl = priceDiff * qty * LEVERAGE; const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
+  return {pnl, pnlPct};
 }
 
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-  t.classList.add("active");
-  orderType = t.dataset.type;
-  document.getElementById("buyBtn").style.display = orderType==="buy"?"block":"none";
-  document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none";
+onAuthStateChanged(auth, (user)=>{
+  if(!user){ window.location.href="auth.html"; return; }
+  uid = user.uid; document.getElementById("balCard").classList.add("loading"); loadChart(currentPair); fetchPrices();
+  const userBalRef = ref(db, `users/${uid}/balance`); const positionsRef = ref(db, `trade/${uid}/positions`);
+  onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); toggleButtons(); document.getElementById("balCard").classList.remove("loading"); });
+  onValue(positionsRef, (snap)=>{ positions = snap.val() || {}; renderPositions(); updateEquity(); });
 });
+
+function toggleButtons(){ const disabled = balance === null; document.getElementById("buyBtn").disabled = disabled; document.getElementById("sellBtn").disabled = disabled; }
+
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); t.classList.add("active"); orderType = t.dataset.type; document.getElementById("buyBtn").style.display = orderType==="buy"?"block":"none"; document.getElementById("sellBtn").style.display = orderType==="sell"?"block":"none"; });
 
 // ===== MANUAL ORDER =====
 async function placeOrder(){
   if(balance === null) return pushNotif("Balance loading...", "bad");
-  const amount = parseFloat(document.getElementById("orderAmount").value);
-  const tp = parseFloat(document.getElementById("tp").value);
-  const sl = parseFloat(document.getElementById("sl").value);
-  const price = prices[currentPair];
-  if(!price) return pushNotif("Price not loaded yet", "bad");
-  if(isNaN(amount) || amount < MIN_TRADE) return pushNotif(`Minimum order $${MIN_TRADE}`, "bad");
-  if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
-
-  const qty = amount / price;
-  const fee = amount * 0.001;
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{
-    const curr = parseFloat(current) || 0;
-    return curr - amount - fee;
-  });
-  await push(ref(db, `trade/${uid}/positions`), {
-    pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount,
-    tp: tp, sl: sl, type: "manual", openedAt: serverTimestamp()
-  });
-  pushNotif(`${orderType.toUpperCase()} ${qty.toFixed(6)} ${currentPair}`, "ok");
+  const amount = parseFloat(document.getElementById("orderAmount").value); const tp = parseFloat(document.getElementById("tp").value); const sl = parseFloat(document.getElementById("sl").value); const price = prices[currentPair];
+  if(!price) return pushNotif("Price not loaded yet", "bad"); if(isNaN(amount) || amount < MIN_TRADE) return pushNotif(`Minimum order $${MIN_TRADE}`, "bad"); if(amount > balance){ return pushNotif("Insufficient balance", "bad"); }
+  const qty = amount / price; const fee = amount * 0.001;
+  await runTransaction(ref(db, `users/${uid}/balance`), (current)=>{ const curr = parseFloat(current) || 0; return curr - amount - fee; });
+  await push(ref(db, `trade/${uid}/positions`), { pair: currentPair, side: orderType, qty: qty, entry: price, amount: amount, tp: tp, sl: sl, type: "manual", openedAt: serverTimestamp() });
+  pushNotif(`${orderType.toUpperCase()} ${currentPair} $${amount} @ ${LEVERAGE}x`, "ok");
 }
-document.getElementById("buyBtn").onclick = placeOrder;
-document.getElementById("sellBtn").onclick = placeOrder;
+document.getElementById("buyBtn").onclick = placeOrder; document.getElementById("sellBtn").onclick = placeOrder;
 
 // ===== SIGNAL CODE =====
 window.activateSignal = async function(){
-  const code = document.getElementById("signalCode").value.trim().toUpperCase();
-  const userAmount = parseFloat(document.getElementById("signalAmount").value);
-  if(!code) return pushNotif("Enter a signal code", "bad");
-  if(userAmount < MIN_TRADE) return pushNotif(`Minimum amount $${MIN_TRADE}`, "bad");
-  if(userAmount > balance) return pushNotif("Insufficient balance", "bad");
-
-  const signalRef = ref(db, `signals/${code}`);
-  const snap = await get(signalRef);
-  if(!snap.exists()) return pushNotif("Invalid signal code", "bad");
-  const signal = snap.val();
-  const now = Date.now();
-  if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad");
-  if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
-
-  const price = prices[signal.pair];
-  if(!price) return pushNotif("Price not loaded", "bad");
-  const qty = userAmount / price;
-  const tpPrice = signal.side === "buy"? price + (signal.tp_pips * signal.pipValue) : price - (signal.tp_pips * signal.pipValue);
-  const slPrice = signal.side === "buy"? price - (signal.sl_pips * signal.pipValue) : price + (signal.sl_pips * signal.pipValue);
-
+  const code = document.getElementById("signalCode").value.trim().toUpperCase(); const userAmount = parseFloat(document.getElementById("signalAmount").value);
+  if(!code) return pushNotif("Enter a signal code", "bad"); if(userAmount < MIN_TRADE) return pushNotif(`Minimum amount $${MIN_TRADE}`, "bad"); if(userAmount > balance) return pushNotif("Insufficient balance", "bad");
+  const signalRef = ref(db, `signals/${code}`); const snap = await get(signalRef); if(!snap.exists()) return pushNotif("Invalid signal code", "bad"); const signal = snap.val(); const now = Date.now();
+  if(now > signal.expiresAt) return pushNotif("This signal has expired", "bad"); if(signal.usedBy && signal.usedBy[uid]) return pushNotif("You already used this signal", "bad");
+  const price = prices[signal.pair]; if(!price) return pushNotif("Price not loaded", "bad");
+  const tpPct = (signal.tp_pips * signal.pipValue / price) * 100; const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
   await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
-  await push(ref(db, `trade/${uid}/positions`), {
-    pair: signal.pair, side: signal.side, qty, entry: price, amount: userAmount,
-    tp_pips: signal.tp_pips, sl_pips: signal.sl_pips, pipValue: signal.pipValue,
-    tpPrice, slPrice, type: "signal", openedAt: now, expiresAt: now + 600000, code
-  });
-  await update(signalRef, { [`usedBy/${uid}`]: true });
-  pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
-  document.getElementById("signalCode").value = "";
+  await push(ref(db, `trade/${uid}/positions`), { pair: signal.pair, side: signal.side, qty: userAmount/price, entry: price, amount: userAmount, tp: tpPct, sl: slPct, type: "signal", openedAt: now, expiresAt: now + 600000, code });
+  await update(signalRef, { [`usedBy/${uid}`]: true }); pushNotif(`Signal Activated: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount} @ ${LEVERAGE}x`, "ok"); document.getElementById("signalCode").value = "";
 }
 
-// ===== TP/SL/AUTO CLOSE =====
+// ===== TP/SL AUTO CLOSE =====
 function checkTP_SL(){
-  Object.keys(positions).forEach(id=>{
-    const p = positions[id];
-    const price = prices[p.pair];
-    if(!price) return;
+  Object.keys(positions).forEach(id=>{ const p = positions[id]; const price = prices[p.pair]; if(!price) return; const {pnl, pnlPct} = calcPnL(p, price);
     let shouldClose = false; let reason = ""; let type="info";
-
-    if(p.type === "signal"){
-      const diff = p.side==="buy"? price - p.entry : p.entry - price;
-      const pnl = (diff / p.pipValue) * p.amount;
-      if(p.side === "buy" && price >= p.tpPrice){ shouldClose = true; reason = "TAKE PROFIT"; type="ok"; }
-      if(p.side === "sell" && price <= p.tpPrice){ shouldClose = true; reason = "TAKE PROFIT"; type="ok"; }
-      if(p.side === "buy" && price <= p.slPrice){ shouldClose = true; reason = "STOP LOSS"; type="bad"; }
-      if(p.side === "sell" && price >= p.slPrice){ shouldClose = true; reason = "STOP LOSS"; type="bad"; }
-      if(Date.now() >= p.expiresAt){ shouldClose = true; reason = "TIME EXPIRED"; type="bad"; }
-      if(shouldClose) closePosition(id, `${reason}\nP&L: $${pnl.toFixed(2)}`, type);
-    } else {
-      const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-      const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
-      if(pnlPct >= p.tp){ closePosition(id, `TAKE PROFIT +${pnlPct.toFixed(2)}%`, "ok"); }
-      else if(pnlPct <= -p.sl){ closePosition(id, `STOP LOSS ${pnlPct.toFixed(2)}%`, "bad"); }
-    }
+    if(pnlPct >= p.tp){ shouldClose = true; reason = `TAKE PROFIT +${pnlPct.toFixed(2)}%`; type="ok"; }
+    else if(pnlPct <= -p.sl){ shouldClose = true; reason = `STOP LOSS ${pnlPct.toFixed(2)}%`; type="bad"; }
+    else if(p.expiresAt && Date.now() >= p.expiresAt){ shouldClose = true; reason = `TIME EXPIRED`; type="bad"; }
+    if(shouldClose) closePosition(id, `${reason}\nP&L: $${pnl.toFixed(2)}`, type);
   });
 }
 
 // ===== CLOSE POSITION =====
 window.closePosition = async function(id, reason="Manual Close", type="info"){
-  const p = positions[id];
-  if(!p) return;
-  const price = prices[p.pair];
-  if(!price) return pushNotif("Price not loaded", "bad");
-  let pnl = 0;
-  if(p.type === "signal"){
-    const diff = p.side==="buy"? price - p.entry : p.entry - price;
-    pnl = (diff / p.pipValue) * p.amount;
-  } else {
-    pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-  }
-  const returnAmount = p.amount + pnl;
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
-  await remove(ref(db, `trade/${uid}/positions/${id}`));
-  showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type);
-  pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, type);
+  const p = positions[id]; if(!p) return; const price = prices[p.pair]; if(!price) return pushNotif("Price not loaded", "bad"); const {pnl} = calcPnL(p, price);
+  const returnAmount = p.amount + pnl; await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) + returnAmount);
+  await remove(ref(db, `trade/${uid}/positions/${id}`)); showCenterToast(`${reason}\nP&L: $${pnl.toFixed(2)}`, type); pushNotif(`Closed ${p.pair}. P&L: $${pnl.toFixed(2)}`, type);
 }
 
 // ===== RENDER POSITIONS =====
 function renderPositions(){
-  const tbody = document.getElementById("positionsBody");
-  const arr = Object.entries(positions);
+  const tbody = document.getElementById("positionsBody"); const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
-
-  tbody.innerHTML = arr.map(([id, p])=>{
-    const price = prices[p.pair] || p.entry;
-    let pnl = 0; let pnlPct = 0;
-    if(p.type === "signal"){
-      const diff = p.side==="buy"? price - p.entry : p.entry - price;
-      pnl = (diff / p.pipValue) * p.amount;
-      pnlPct = (pnl / p.amount) * 100;
-    } else {
-      pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-      pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
-    }
-    const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
-    return `
-    <tr class="pos">
-      <td>${p.pair} ${p.type==="signal"?'<span class="badge-signal">SIGNAL</span>':''}</td>
-      <td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td>
-      <td>${p.qty.toFixed(6)}</td>
-      <td>$${p.entry.toFixed(2)}</td>
-      <td class="pnl ${pnl>=0?"up":"down"}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td>
-      <td>${p.type==="signal"?`$${p.tpPrice.toFixed(0)}/$${p.slPrice.toFixed(0)}<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:`${p.tp}% / ${p.sl}%`}</td>
-      <td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td>
-    </tr>`;
+  tbody.innerHTML = arr.map(([id, p])=>{ const price = prices[p.pair] || p.entry; const {pnl, pnlPct} = calcPnL(p, price); const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null; const pnlClass = pnl >= 0? "up" : "down";
+    return `<tr class="pos"><td>${p.pair} ${p.type==="signal"?'<span class="badge-signal">SIGNAL</span>':''}</td><td><span class="badge-side ${p.side}">${p.side.toUpperCase()}</span></td><td>${(p.amount / p.entry).toFixed(6)}</td><td>$${p.entry.toFixed(4)}</td><td class="pnl ${pnlClass}">$${pnl.toFixed(2)} <span style="font-size:10px">(${pnlPct.toFixed(2)}%)</span></td><td>${p.tp}% / ${p.sl}% ${timeLeft?`<br><span style="font-size:10px">${Math.floor(timeLeft/60000)}:${((timeLeft%60000)/1000).toFixed(0).padStart(2,'0')}</span>`:''}</td><td><button class="close-btn" onclick="closePosition('${id}')"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
   }).join('');
 }
 
+// ===== EQUITY =====
 function updateEquity(){
-  if(balance === null){
-    document.getElementById("balance").textContent = "--";
-    document.getElementById("equity").textContent = "--";
-    return;
-  }
-  const floatingPnL = Object.values(positions).reduce((sum,p)=>{
-    const price = prices[p.pair] || p.entry;
-    if(p.type === "signal"){
-      const diff = p.side==="buy"? price - p.entry : p.entry - price;
-      return sum + (diff / p.pipValue) * p.amount;
-    } else {
-      const pnl = p.side==="buy"? (price - p.entry)*p.qty : (p.entry - price)*p.qty;
-      return sum + pnl;
-    }
-  }, 0);
-  const equity = balance + floatingPnL;
-  document.getElementById("balance").textContent = "$" + balance.toFixed(2);
-  document.getElementById("equity").textContent = "$" + equity.toFixed(2);
+  if(balance === null){ document.getElementById("balance").textContent = "--"; document.getElementById("equity").textContent = "--"; return; }
+  const floatingPnL = Object.values(positions).reduce((sum,p)=>{ const price = prices[p.pair] || p.entry; const {pnl} = calcPnL(p, price); return sum + pnl; }, 0);
+  const equity = balance + floatingPnL; document.getElementById("balance").textContent = "$" + balance.toFixed(2); document.getElementById("equity").textContent = "$" + equity.toFixed(2);
 }
 
-document.getElementById("pairSelect").onchange = e=>{
-  currentPair = e.target.value;
-  loadChart(currentPair);
-  updateUI();
-}
+document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
 
-if(!sessionStorage.getItem("cypx_welcomed")){
-  pushNotif("Connected to CYPX TRADE", "info");
-  sessionStorage.setItem("cypx_welcomed", "true");
-}
+if(!sessionStorage.getItem("cypx_welcomed")){ pushNotif("Connected to CYPX TRADE 200x", "info"); sessionStorage.setItem("cypx_welcomed", "true"); }
 </script>
 </body>
 </html>
