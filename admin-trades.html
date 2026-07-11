@@ -254,38 +254,31 @@ function loadRealtimeData(){
     if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
     else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
   });
-
-  // FIX 2: PROPER COPIER COUNT
-  db.ref("users").on("value", snap=>{
+// FIXED COPIER COUNT - reads from copy_trading
+db.ref("copy_trading").on("value", snap=>{
     let html = "";
     traders.forEach(t=>{
       let copiers = [];
-      snap.forEach(u=>{
-        const user = u.val();
-        // Check both copiedTrader and copied_trader in case of old data
-        if(user.copiedTrader === t.id || user.copied_trader === t.id) {
-          copiers.push(user.username || u.key.substring(0,6));
+      snap.forEach(userSnap=>{
+        const uid = userSnap.key;
+        const userCopies = userSnap.val();
+        if(userCopies[t.id]){ // if this user is copying this trader
+          // get username from users node
+          db.ref("users/"+uid+"/username").once("value").then(nameSnap=>{
+            const name = nameSnap.val() || uid.substring(0,6);
+            copiers.push(name);
+          });
         }
       });
-      html += `<div class="trader-stat" onclick="this.querySelector('.copier-list').classList.toggle('hide')">
-        <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
-        <div class="copier-list hide">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
-      </div>`;
+      // small delay to let names load
+      setTimeout(()=>{
+        html += `<div class="trader-stat" onclick="this.querySelector('.copier-list').classList.toggle('hide')">
+          <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
+          <div class="copier-list hide">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
+        </div>`;
+        document.getElementById("traderStats").innerHTML = html;
+      }, 200);
     });
-    document.getElementById("traderStats").innerHTML = html || "No copiers yet";
-  });
-
-  db.ref("admin_trades").limitToLast(10).on("value", snap=>{
-    let html = "";
-    snap.forEach(traderSnap=>{
-      traderSnap.forEach(tradeSnap=>{
-        const tr = tradeSnap.val();
-        html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
-          ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
-        </div>` + html;
-      });
-    });
-    document.getElementById("tradeLog").innerHTML = html || "No trades yet";
   });
 
   // FIXED SIGNAL LISTENER WITH AUTO CLOSE
@@ -365,34 +358,51 @@ async function closeTrade(){
   if(!pnlIsProfit) profit = -Math.abs(profit);
 
   const tradeData = {...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
-  const traderId = currentOpenTrade.traderId; // FIX 1: USE LOCKED TRADER ID
+  const traderId = currentOpenTrade.traderId;
 
   try {
     await db.ref("admin_trades/" + traderId).push(tradeData);
 
-    const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(traderId).once("value");
+    // 1. Find all users copying this trader
+    const copySnap = await db.ref("copy_trading").once("value");
     const updates = {};
     const traderFee = traders.find(t=>t.id===traderId).profitShare;
+    let count = 0;
 
-    usersSnap.forEach(userSnap=>{
+    copySnap.forEach(userSnap=>{
       const uid = userSnap.key;
-      const user = userSnap.val();
-      const capitalRatio = (user.copyCapital || 100) / currentOpenTrade.adminCapital;
-      const grossProfit = profit * capitalRatio;
-      const userProfit = grossProfit * (1 - traderFee/100);
+      const userCopies = userSnap.val();
 
-      updates[`users/${uid}/balance`] = (user.balance || 0) + userProfit;
-      updates[`users/${uid}/trade/${currentOpenTrade.id}`] = null;
-      updates[`users/${uid}/history/${currentOpenTrade.id}`] = tradeData;
+      if(userCopies[traderId] && userCopies[traderId].status === "active"){
+        const copyInfo = userCopies[traderId];
+        const capitalRatio = copyInfo.amount / currentOpenTrade.adminCapital;
+        const grossProfit = profit * capitalRatio;
+        const userProfit = grossProfit * (1 - traderFee/100); // admin takes fee
+
+        // 2. Credit user balance
+        updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(userProfit);
+
+        // 3. Update copy_trading pnl
+        updates[`copy_trading/${uid}/${traderId}/pnl`] = (copyInfo.pnl || 0) + userProfit;
+        updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
+
+        // 4. Add to history
+        updates[`users/${uid}/history/trade_${tradeData.id}`] = {
+         ...tradeData,
+          userProfit,
+          traderName: traders.find(t=>t.id===traderId).name
+        };
+        count++;
+      }
     });
 
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
     await db.ref("admin_active_trade").remove();
-    showToast(`Trade Closed. P&L: $${profit}. ${usersSnap.numChildren()} Copiers Paid!`);
+    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid & Updated!`);
   } catch(e) {
     showToast("Error: " + e.message, true);
   }
-}
+     }
 
 window.generateSignal = async function(){
   if(!isAdmin) return showToast("Unauthorized", true);
