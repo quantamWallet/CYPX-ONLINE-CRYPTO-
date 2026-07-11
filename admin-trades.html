@@ -8,41 +8,43 @@
 <style>
     * { box-sizing: border-box; }
   body { font-family: 'Segoe UI', sans-serif; background: #0a0f1a; margin: 0; padding: 20px; color: #fff; }
-  .container { max-width: 1300px; margin: 0 auto; }
-  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px }
+ .container { max-width: 1300px; margin: 0 auto; }
+ .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px }
   h1 { color: #ffd700; margin:0 }
-  .btn-logout { padding:8px 16px; background:#ef4444; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:700 }
-  .tabs { display:flex; gap:10px; margin-bottom:20px }
-  .tab-btn { flex:1; padding:12px; background:#001f3f; border:1px solid #00C896; color:#00C896; border-radius:10px; cursor:pointer; font-weight:700; transition:0.2s }
-  .tab-btn.active { background:#00C896; color:#000; box-shadow:0 0 15px rgba(0,200,150,0.3) }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media(max-width:900px){ .grid{ grid-template-columns: 1fr; }
-  .card { background: linear-gradient(145deg,#0a1a2f,#0f2942); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.15); }
-  .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
-  .form-group { margin-bottom: 15px; }
-  .form-group label { font-size: 12px; color: #94e2cc; display: block; margin-bottom: 5px; }
-  .form-group input, .form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; outline:none }
-  .form-group input:focus, .form-group select:focus { border-color:#00C896 }
-  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px; transition:0.2s }
-  .btn:hover { opacity: 0.9; transform:translateY(-1px) }
-  .btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
-  .btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
-  .btn-warn { background: linear-gradient(90deg,#f59e0b,#d97706); color:#000 }
-  .btn-profit { background:linear-gradient(90deg,#16a34a,#15803d) }
-  .btn-loss { background:linear-gradient(90deg,#ef4444,#dc2626) }
-  .btn-sm { padding:6px 10px; font-size:12px; width:auto }
-  .signal-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; border-left:3px solid #f59e0b; }
-  .code { font-weight:700; color:#ffd700; font-size:14px }
-  .toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
-  .toast.show { transform: translateX(0); }
-  .toast.error { background:#ef4444 }
-  .hide { display:none }
-  .trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px; cursor:pointer }
-  .trader-stat b{color:#00C896}
-  .copier-list { margin-top:8px; padding-left:10px; border-left:2px solid #00C896; font-size:12px }
-  .open-trade-box { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px }
-  .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
-  .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
+ .btn-logout { padding:8px 16px; background:#ef4444; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:700 }
+ .tabs { display:flex; gap:10px; margin-bottom:20px }
+ .tab-btn { flex:1; padding:12px; background:#001f3f; border:1px solid #00C896; color:#00C896; border-radius:10px; cursor:pointer; font-weight:700; transition:0.2s }
+ .tab-btn.active { background:#00C896; color:#000; box-shadow:0 0 15px rgba(0,200,150,0.3) }
+ .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media(max-width:900px){.grid{ grid-template-columns: 1fr; } }
+ .card { background: linear-gradient(145deg,#0a1a2f,#0f2942); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.15); }
+ .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
+ .form-group { margin-bottom: 15px; }
+ .form-group label { font-size: 12px; color: #94e2cc; display: block; margin-bottom: 5px; }
+ .form-group input,.form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; outline:none }
+ .form-group input:focus,.form-group select:focus { border-color:#00C896 }
+ .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px; transition:0.2s }
+ .btn:hover { opacity: 0.9; transform:translateY(-1px) }
+ .btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
+ .btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
+ .btn-warn { background: linear-gradient(90deg,#f59e0b,#d97706); color:#000 }
+ .btn-profit { background:linear-gradient(90deg,#16a34a,#15803d) }
+ .btn-loss { background:linear-gradient(90deg,#ef4444,#dc2626) }
+ .btn-sm { padding:6px 10px; font-size:12px; width:auto }
+ .signal-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; border-left:3px solid #f59e0b; }
+ .signal-item.closed { border-left:3px solid #666; opacity:0.6 }
+ .code { font-weight:700; color:#ffd700; font-size:14px }
+ .toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
+ .toast.show { transform: translateX(0); }
+ .toast.error { background:#ef4444 }
+ .hide { display:none }
+ .trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px; cursor:pointer }
+ .trader-stat b{color:#00C896}
+ .copier-list { margin-top:8px; padding-left:10px; border-left:2px solid #00C896; font-size:12px }
+ .open-trade-box { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px }
+ .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
+ .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
+ .signal-stats { background:rgba(0,200,150,0.1); padding:8px; border-radius:6px; margin-top:8px; font-size:12px }
 </style>
 </head>
 <body>
@@ -116,7 +118,7 @@
       </div>
     </div>
   </div>
-  
+
   <div id="signalTab" class="hide">
     <div class="grid">
       <div class="card">
@@ -137,7 +139,7 @@
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
           <div class="form-group"><label>Side</label><select id="sigSide"><option value="buy">BUY</option><option value="sell">SELL</option></select></div>
-          <div class="form-group"><label>Amount USDT</label><input id="sigAmount" type="number" value="100"></div>
+          <div class="form-group"><label>Admin Amount USDT</label><input id="sigAmount" type="number" value="100"></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px">
           <div class="form-group"><label>TP Pips</label><input id="sigTP" type="number" value="50"></div>
@@ -192,7 +194,7 @@ let currentOpenTrade = null;
 let pnlIsProfit = true;
 let isAdmin = false;
 
-// ===== AUTO ADMIN CHECK - NO LOGIN FORM =====
+// ===== AUTO ADMIN CHECK =====
 auth.onAuthStateChanged(user=>{
   if(user){
     db.ref(`admins/${user.uid}`).once('value').then(snap=>{
@@ -212,7 +214,6 @@ auth.onAuthStateChanged(user=>{
     isAdmin = false;
     document.getElementById('mainApp').classList.add('hide');
     document.getElementById('lockScreen').classList.remove('hide');
-    showToast("Please login first", true);
   }
 });
 
@@ -222,29 +223,27 @@ function switchTab(tab, e){
   if(!isAdmin) return;
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   e.target.classList.add('active');
-  if(tab==='copy'){ 
-    document.getElementById('copyTab').classList.remove('hide'); 
-    document.getElementById('signalTab').classList.add('hide'); 
-  } else { 
-    document.getElementById('signalTab').classList.remove('hide'); 
-    document.getElementById('copyTab').classList.add('hide'); 
+  if(tab==='copy'){
+    document.getElementById('copyTab').classList.remove('hide');
+    document.getElementById('signalTab').classList.add('hide');
+  } else {
+    document.getElementById('signalTab').classList.remove('hide');
+    document.getElementById('copyTab').classList.add('hide');
   }
 }
 
 function setPnL(isProfit){
   pnlIsProfit = isProfit;
-  document.getElementById('btnProfit').style.opacity = isProfit ? '1' : '0.5';
-  document.getElementById('btnLoss').style.opacity = !isProfit ? '1' : '0.5';
+  document.getElementById('btnProfit').style.opacity = isProfit? '1' : '0.5';
+  document.getElementById('btnLoss').style.opacity =!isProfit? '1' : '0.5';
 }
 
-// ===== INIT APP AFTER ADMIN CHECK =====
 function initApp(){
   loadTraders();
   loadRealtimeData();
   setPnL(true);
 }
 
-// ===== REALTIME COPY TRADING - SAME LOGIC =====
 function loadTraders(){
   const select = document.getElementById('traderSelect');
   select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
@@ -255,7 +254,7 @@ function loadRealtimeData(){
     if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
     else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
   });
-  
+
   db.ref("users").on("value", snap=>{
     let html = "";
     traders.forEach(t=>{
@@ -268,7 +267,7 @@ function loadRealtimeData(){
     });
     document.getElementById("traderStats").innerHTML = html || "No copiers yet";
   });
-  
+
   db.ref("admin_trades").limitToLast(10).on("value", snap=>{
     let html = "";
     snap.forEach(traderSnap=>{
@@ -281,7 +280,8 @@ function loadRealtimeData(){
     });
     document.getElementById("tradeLog").innerHTML = html || "No trades yet";
   });
-  
+
+  // ===== SIGNAL LISTENER V2 =====
   db.ref("signals").on("value", snap=>{
     let html = "";
     snap.forEach(child=>{
@@ -289,44 +289,46 @@ function loadRealtimeData(){
       const timeLeft = Math.max(0, s.expiresAt - Date.now());
       const mins = Math.floor(timeLeft / 60000);
       const secs = Math.floor((timeLeft % 60000) / 1000);
-      if(timeLeft > 0){
-        html += `<div class="signal-item">
-          <div style="display:flex; justify-content:space-between; align-items:center">
-            <div class="code">${child.key}</div>
-            <button class="btn-sm btn-red" onclick="deleteSignal('${child.key}')">Delete</button>
-          </div>
-          <div>${s.side.toUpperCase()} ${s.pair} | $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL @ $${s.pipValue}</div>
-          <div style="color:#94e2cc; font-size:12px">Expires: ${mins}:${secs.toString().padStart(2,'0')} | Users: ${Object.keys(s.usedBy||{}).length}</div>
-          <div style="margin-top:8px; display:flex; gap:8px">
-            <input id="award_${child.key}" type="number" placeholder="Award P&L $" style="flex:1">
-            <button class="btn-sm btn-profit" onclick="awardSignal('${child.key}', true)">+ Award</button>
-            <button class="btn-sm btn-loss" onclick="awardSignal('${child.key}', false)">- Award</button>
-          </div>
-        </div>`;
-      } else { db.ref("signals/" + child.key).remove(); }
+      const isClosed = s.status === 'CLOSED';
+
+      html += `<div class="signal-item ${isClosed?'closed':''}">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="code">${child.key}</div>
+          ${!isClosed? `<button class="btn-sm btn-red" onclick="closeSignal('${child.key}')">Close Signal</button>` : `<span style="color:#22c55e">CLOSED</span>`}
+        </div>
+        <div>${s.side.toUpperCase()} ${s.pair} | Admin Amt: $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL</div>
+        <div style="color:#94e2cc; font-size:12px">Expires: ${mins}:${secs.toString().padStart(2,'0')} | Users: ${Object.keys(s.usedBy||{}).length}</div>
+        <div class="signal-stats">Admin P&L: <span style="color:${(s.adminPnL||0)>=0?'#22c55e':'#ef4444'}">$${(s.adminPnL||0).toFixed(2)}</span></div>
+        ${!isClosed? `
+        <div style="margin-top:8px; display:flex; gap:8px">
+          <input id="award_${child.key}" type="number" placeholder="Award P&L $" style="flex:1">
+          <button class="btn-sm btn-profit" onclick="awardSignal('${child.key}', true)">+ Award</button>
+          <button class="btn-sm btn-loss" onclick="awardSignal('${child.key}', false)">- Award</button>
+        </div>` : ''}
+      </div>`;
     });
-    document.getElementById("activeSignalsList").innerHTML = html || "No active signals";
+    document.getElementById("activeSignalsList").innerHTML = html || "No signals";
   });
 }
 
-function openTrade(){ 
+function openTrade(){
   if(!isAdmin) return showToast("Unauthorized", true);
   const entry = parseFloat(document.getElementById('entry').value);
   const tp = parseFloat(document.getElementById('tp').value);
   const sl = parseFloat(document.getElementById('sl').value);
   if(isNaN(entry) || isNaN(tp) || isNaN(sl)) return showToast("Fill Entry, TP, SL first");
-  
+
   const traderId = document.getElementById('traderSelect').value;
-  currentOpenTrade = { 
-    id: Date.now(), traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value, 
-    entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value), 
-    status: "OPEN", openedAt: Date.now() 
+  currentOpenTrade = {
+    id: Date.now(), traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value,
+    entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value),
+    status: "OPEN", openedAt: Date.now()
   };
   db.ref("admin_active_trade").set(currentOpenTrade).then(()=>showToast("Trade Opened"));
 }
 
 function showActiveTradeBox(){
-  document.getElementById('openTradeBox').style.display = 'block'; 
+  document.getElementById('openTradeBox').style.display = 'block';
   const t = traders.find(x=>x.id===currentOpenTrade.traderId);
   document.getElementById('activeTradeInfo').innerHTML = `
     <b>Trader:</b> ${t.name} <br>
@@ -335,43 +337,43 @@ function showActiveTradeBox(){
   `;
 }
 
-async function closeTrade(){ 
+async function closeTrade(){
   if(!isAdmin) return showToast("Unauthorized", true);
-  if(!currentOpenTrade) return; 
+  if(!currentOpenTrade) return;
   let profit = parseFloat(document.getElementById('closeProfit').value);
   if(isNaN(profit)) return showToast("Enter P&L amount");
   if(!pnlIsProfit) profit = -Math.abs(profit);
-  
-  const tradeData = { ...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
-  
+
+  const tradeData = {...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
+
   try {
     await db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData);
-    
+
     const usersSnap = await db.ref("users").orderByChild("copiedTrader").equalTo(currentOpenTrade.traderId).once("value");
     const updates = {};
     const traderFee = traders.find(t=>t.id===currentOpenTrade.traderId).profitShare;
-    
+
     usersSnap.forEach(userSnap=>{
       const uid = userSnap.key;
       const user = userSnap.val();
       const capitalRatio = (user.copyCapital || 100) / currentOpenTrade.adminCapital;
       const grossProfit = profit * capitalRatio;
       const userProfit = grossProfit * (1 - traderFee/100);
-      
+
       updates[`users/${uid}/balance`] = (user.balance || 0) + userProfit;
       updates[`users/${uid}/trade/${currentOpenTrade.id}`] = null;
       updates[`users/${uid}/history/${currentOpenTrade.id}`] = tradeData;
     });
-    
+
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
     await db.ref("admin_active_trade").remove();
-    showToast(`Trade Closed. P&L: $${profit}. ${usersSnap.numChildren()} Copiers Paid!`); 
+    showToast(`Trade Closed. P&L: $${profit}. ${usersSnap.numChildren()} Copiers Paid!`);
   } catch(e) {
     showToast("Error: " + e.message, true);
   }
 }
 
-// ===== SIGNAL CODE - SAME LOGIC + AWARD =====
+// ===== SIGNAL CODE V2 =====
 window.generateSignal = async function(){
   if(!isAdmin) return showToast("Unauthorized", true);
   const pair = document.getElementById("sigPair").value;
@@ -388,7 +390,7 @@ window.generateSignal = async function(){
 
   try {
     await db.ref(`signals/${code}`).set({
-      pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, createdAt: Date.now()
+      pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, adminPnL: 0, status: "OPEN", createdAt: Date.now()
     });
     document.getElementById("sigOutput").innerHTML = `Code: <span class="code">${code}</span> <br><small>Copied to clipboard</small>`;
     navigator.clipboard.writeText(code).catch(()=>{});
@@ -397,42 +399,79 @@ window.generateSignal = async function(){
     showToast("Firebase Error: " + e.message, true);
   }
 }
-
-window.deleteSignal = function(code){
+// ===== CLOSE SIGNAL - DISABLE NOT DELETE =====
+window.closeSignal = async function(code){
   if(!isAdmin) return showToast("Unauthorized", true);
-  db.ref(`signals/${code}`).remove().then(()=>showToast("Signal Deleted"));
+
+  const signalSnap = await db.ref(`signals/${code}`).once("value");
+  const signal = signalSnap.val();
+  if(!signal) return;
+
+  const updates = {};
+  // Close all user trades for this signal
+  for(const uid in signal.usedBy){
+    updates[`users/${uid}/signalTrades/${code}/status`] = "CLOSED";
+  }
+  updates[`signals/${code}/status`] = "CLOSED";
+  await db.ref().update(updates);
+  showToast("Signal Closed. All user trades closed.");
 }
 
-// ===== INTERNATIONALLY AWARD SIGNAL PROFIT/LOSS 🚥 =====
+// ===== AWARD SIGNAL WITH CORRECT FORMULA 🚥 =====
 window.awardSignal = async function(code, isProfit){
   if(!isAdmin) return showToast("Unauthorized", true);
-  let profit = parseFloat(document.getElementById(`award_${code}`).value);
-  if(isNaN(profit)) return showToast("Enter P&L amount");
-  if(!isProfit) profit = -Math.abs(profit);
-  
+  let awardedPnL = parseFloat(document.getElementById(`award_${code}`).value);
+  if(isNaN(awardedPnL)) return showToast("Enter P&L amount");
+  if(!isProfit) awardedPnL = -Math.abs(awardedPnL);
+
   const signalSnap = await db.ref(`signals/${code}`).once("value");
   if(!signalSnap.exists()) return showToast("Signal not found", true);
   const signal = signalSnap.val();
-  
+
   const updates = {};
   let count = 0;
+  const DEFAULT_MULTIPLIER = 10; // userAmount / adminCapital * 10
+
   for(const uid in signal.usedBy){
+    const userData = signal.usedBy[uid]; // {amount: 50}
+    const userAmount = userData.amount || 0;
+    const adminCapital = signal.amount; // $100
+
+    // YOUR FORMULA: userAmount / adminCapital * 10
+    const userProfit = (userAmount / adminCapital) * DEFAULT_MULTIPLIER;
+    const finalUserProfit = isProfit? userProfit : -userProfit;
+
     const userSnap = await db.ref(`users/${uid}`).once("value");
     const user = userSnap.val();
     if(user){
-      updates[`users/${uid}/balance`] = (user.balance || 0) + profit;
-      updates[`users/${uid}/history/signal_${code}`] = {...signal, profit, awardedAt: Date.now()};
+      // Add profit to balance
+      updates[`users/${uid}/balance`] = (user.balance || 0) + finalUserProfit;
+      // Save to history
+      updates[`users/${uid}/history/signal_${code}`] = {
+       ...signal,
+        awardedPnL,
+        userProfit: finalUserProfit,
+        awardedAt: Date.now()
+      };
+      // Close user signal trade
+      updates[`users/${uid}/signalTrades/${code}/status`] = "CLOSED";
+      updates[`users/${uid}/signalTrades/${code}/profit`] = finalUserProfit;
       count++;
     }
   }
+
+  // Update admin P&L and close signal
+  updates[`signals/${code}/adminPnL`] = awardedPnL;
+  updates[`signals/${code}/status`] = "CLOSED";
+
   await db.ref().update(updates);
-  showToast(`Awarded $${profit} to ${count} users for ${code}`);
+  showToast(`Awarded $${awardedPnL}. ${count} users paid. Formula: userAmt/adminAmt*10. Signal Closed.`);
 }
 
 function showToast(message, isError = false){
   const toast = document.getElementById('toast');
   toast.innerText = message;
-  toast.className = 'toast ' + (isError ? 'error show' : 'show');
+  toast.className = 'toast ' + (isError? 'error show' : 'show');
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 </script>
