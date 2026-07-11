@@ -11,17 +11,18 @@
   .container { max-width: 1300px; margin: 0 auto; }
   h1 { color: #ffd700; text-align: center; margin-bottom: 20px; }
   .tabs { display:flex; gap:10px; margin-bottom:20px }
-  .tab-btn { flex:1; padding:12px; background:#001f3f; border:1px solid #00C896; color:#00C896; border-radius:10px; cursor:pointer; font-weight:700 }
-  .tab-btn.active { background:#00C896; color:#000 }
+  .tab-btn { flex:1; padding:12px; background:#001f3f; border:1px solid #00C896; color:#00C896; border-radius:10px; cursor:pointer; font-weight:700; transition:0.2s }
+  .tab-btn.active { background:#00C896; color:#000; box-shadow:0 0 15px rgba(0,200,150,0.3) }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   @media(max-width:900px){ .grid{ grid-template-columns: 1fr; } }
-  .card { background: linear-gradient(145deg,#001f3f,#002b5c); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.15); border: 1px solid rgba(0,200,255,0.2); }
+  .card { background: linear-gradient(145deg,#0a1a2f,#0f2942); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.15); }
   .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
   .form-group { margin-bottom: 15px; }
   .form-group label { font-size: 12px; color: #94e2cc; display: block; margin-bottom: 5px; }
-  .form-group input, .form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; }
-  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px; }
-  .btn:hover { opacity: 0.9; }
+  .form-group input, .form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; outline:none }
+  .form-group input:focus, .form-group select:focus { border-color:#00C896 }
+  .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px; transition:0.2s }
+  .btn:hover { opacity: 0.9; transform:translateY(-1px) }
   .btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
   .btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
   .btn-warn { background: linear-gradient(90deg,#f59e0b,#d97706); color:#000 }
@@ -30,6 +31,9 @@
   .toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
   .toast.show { transform: translateX(0); }
   .hide { display:none }
+  .trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px }
+  .trader-stat b{color:#00C896}
+  .open-trade-box { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px }
 </style>
 </head>
 <body>
@@ -52,20 +56,35 @@
           <select id="traderSelect"></select>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Symbol</label><input id="symbol" value="EUR/USD"></div>
+          <div class="form-group"><label>Symbol</label>
+            <select id="symbol">
+              <optgroup label="Crypto">
+                <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
+                <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
+                <option>ADA/USDT</option><option>TON/USDT</option>
+              </optgroup>
+              <optgroup label="Forex">
+                <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+                <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+                <option>USD/CAD</option><option>EUR/GBP</option>
+              </optgroup>
+            </select>
+          </div>
           <div class="form-group"><label>Type</label><select id="type"><option>BUY</option><option>SELL</option></select></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001"></div>
+          <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001" placeholder="1.08500"></div>
           <div class="form-group"><label>Admin Capital $</label><input id="adminCapital" type="number" value="1000"></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-          <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001"></div>
-          <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001"></div>
+          <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001" placeholder="1.08700"></div>
+          <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001" placeholder="1.08300"></div>
         </div>
         <button class="btn btn-blue" onclick="openTrade()">1. Open Trade</button>
-        <div id="openTradeBox" style="display:none; margin-top:15px">
-          <div class="form-group"><label>Close Trade With Final P&L $</label><input id="closeProfit" type="number"></div>
+        <div id="openTradeBox" class="open-trade-box" style="display:none; margin-top:15px">
+          <h3 style="margin:0 0 10px 0; color:#3b82f6; font-size:14px"><i class="fas fa-circle" style="color:#22c55e; font-size:8px"></i> ACTIVE TRADE</h3>
+          <div id="activeTradeInfo" style="font-size:12px; margin-bottom:10px"></div>
+          <div class="form-group"><label>Close Trade With Final P&L $</label><input id="closeProfit" type="number" placeholder="250"></div>
           <button class="btn btn-red" onclick="closeTrade()">2. Close Trade & Pay Copiers</button>
         </div>
       </div>
@@ -74,9 +93,8 @@
         <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog"></div></div>
       </div>
     </div>
-  </div>
-
-  <!-- TAB 2: SIGNAL CODES -->
+   </div>
+     <!-- TAB 2: SIGNAL CODES -->
   <div id="signalTab" class="hide">
     <div class="grid">
       <div class="card">
@@ -154,6 +172,7 @@ function switchTab(tab, e){
   if(tab==='copy'){ 
     document.getElementById('copyTab').classList.remove('hide'); 
     document.getElementById('signalTab').classList.add('hide'); 
+    loadTraderStats(); loadTradeLog();
   } else { 
     document.getElementById('signalTab').classList.remove('hide'); 
     document.getElementById('copyTab').classList.add('hide'); 
@@ -161,10 +180,18 @@ function switchTab(tab, e){
   }
 }
 
-// ===== COPY TRADING CODE =====
+// ===== COPY TRADING CODE WITH FIREBASE PERSISTENCE =====
 function loadTraders(){
   const select = document.getElementById('traderSelect');
   select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
+  
+  // Load any active trade from Firebase
+  db.ref("admin_active_trade").once("value", snap=>{
+    if(snap.exists()){
+      currentOpenTrade = snap.val();
+      showActiveTradeBox();
+    }
+  });
 }
 
 function openTrade(){ 
@@ -183,8 +210,21 @@ function openTrade(){
     status: "OPEN", 
     openedAt: Date.now() 
   };
-  document.getElementById('openTradeBox').style.display = 'block'; 
+  
+  // Save to Firebase so it persists on refresh
+  db.ref("admin_active_trade").set(currentOpenTrade);
+  showActiveTradeBox();
   showToast("Trade Opened. Now close it with P&L");
+}
+
+function showActiveTradeBox(){
+  document.getElementById('openTradeBox').style.display = 'block'; 
+  const t = traders.find(x=>x.id===currentOpenTrade.traderId);
+  document.getElementById('activeTradeInfo').innerHTML = `
+    <b>Trader:</b> ${t.name} <br>
+    <b>Pair:</b> ${currentOpenTrade.symbol} ${currentOpenTrade.type} <br>
+    <b>Entry:</b> ${currentOpenTrade.entry} | <b>TP:</b> ${currentOpenTrade.tp} | <b>SL:</b> ${currentOpenTrade.sl}
+  `;
 }
 
 function closeTrade(){ 
@@ -194,9 +234,38 @@ function closeTrade(){
   
   const tradeData = { ...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
   db.ref("admin_trades/" + currentOpenTrade.traderId).push(tradeData).then(() => { 
+    db.ref("admin_active_trade").remove(); // clear active trade
     showToast(`Trade Closed. Copiers will be paid $${profit}`); 
     document.getElementById('openTradeBox').style.display = 'none'; 
     currentOpenTrade = null; 
+    loadTradeLog();
+  });
+}
+
+function loadTraderStats(){
+  let html = "";
+  traders.forEach(t=>{
+    db.ref("users").orderByChild("copiedTrader").equalTo(t.id).once("value", snap=>{
+      const copiers = snap.numChildren();
+      html += `<div class="trader-stat"><b>${t.name}</b> - ${copiers} Copiers | ${t.profitShare}% Fee</div>`;
+      document.getElementById("traderStats").innerHTML = html;
+    });
+  });
+}
+
+function loadTradeLog(){
+  db.ref("admin_trades").limitToLast(5).once("value", snap=>{
+    let html = "";
+    snap.forEach(traderSnap=>{
+      traderSnap.forEach(tradeSnap=>{
+        const tr = tradeSnap.val();
+        html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
+          ${new Date(tr.openedAt).toLocaleDateString()} - ${tr.symbol} ${tr.type} 
+          <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">$${tr.profit}</span>
+        </div>` + html;
+      });
+    });
+    document.getElementById("tradeLog").innerHTML = html || "No trades yet";
   });
 }
 
@@ -240,7 +309,7 @@ function loadActiveSignals(){
           <div style="color:#94e2cc; font-size:12px">Expires in: ${mins}:${secs.toString().padStart(2,'0')}</div>
         </div>`;
       } else {
-        db.ref("signals/" + child.key).remove(); // auto delete expired
+        db.ref("signals/" + child.key).remove();
       }
     });
     document.getElementById("activeSignalsList").innerHTML = html || "No active signals";
@@ -255,6 +324,8 @@ function showToast(message){
 }
 
 loadTraders();
+loadTraderStats();
+loadTradeLog();
 </script>
 </body>
-                                                                                </html>
+</html>
