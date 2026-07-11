@@ -247,6 +247,7 @@ function updateUI(){
 setInterval(fetchPrices, 3000);
 
 function calcPnL(p, currentPrice){
+  if(!currentPrice ||!p.entry) return {pnl:0, pnlPct:0};
   const qty = p.amount / p.entry; const priceDiff = p.side==="buy"? currentPrice - p.entry : p.entry - currentPrice;
   const pnl = priceDiff * qty * LEVERAGE; const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
   return {pnl, pnlPct};
@@ -260,7 +261,7 @@ onAuthStateChanged(auth, (user)=>{
   onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
   onValue(positionsRef, (snap)=>{ positions = snap.val() || {}; renderPositions(); updateEquity(); });
 
-  // LISTEN FOR ADMIN CLOSING TRADE
+  // LISTEN FOR ADMIN CLOSING TRADE - FIXED db.ref to ref
   onValue(ref(db, `users/${uid}/trade_notifications`), (snap)=>{
     const data = snap.val();
     if(data){
@@ -268,7 +269,7 @@ onAuthStateChanged(auth, (user)=>{
         const notif = data[key];
         showCenterToast(notif.msg, notif.type);
         saveNotif(notif.msg, notif.type);
-        db.ref(`users/${uid}/trade_notifications/${key}`).remove();
+        remove(ref(db, `users/${uid}/trade_notifications/${key}`)); // FIXED
       });
     }
   });
@@ -280,7 +281,7 @@ window.activateSignal = async function(){
   const userAmount = parseFloat(document.getElementById("signalAmount").value);
 
   if(!code) return showToast("Enter a signal code", "bad");
-  if(userAmount < MIN_TRADE) return showToast(`Minimum amount $${MIN_TRADE}`, "bad");
+  if(isNaN(userAmount) || userAmount < MIN_TRADE) return showToast(`Minimum amount $${MIN_TRADE}`, "bad");
   if(userAmount > balance) return showToast("Insufficient balance", "bad");
 
   const signalRef = ref(db, `signals/${code}`);
@@ -329,11 +330,12 @@ window.activateSignal = async function(){
   document.getElementById("signalCode").value = "";
 }
 
-// ===== RENDER POSITIONS - FIXED TYPO HERE =====
+// ===== RENDER POSITIONS - FIXED TYPO [id,p] =====
 function renderPositions(){
-  const tbody = document.getElementById("positionsBody"); const arr = Object.entries(positions);
+  const tbody = document.getElementById("positionsBody");
+  const arr = Object.entries(positions);
   if(!arr.length){ tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No open positions</td></tr>`; return; }
-  tbody.innerHTML = arr.map(([id, p])=>{ // FIXED: was [id][p]
+  tbody.innerHTML = arr.map(([id, p])=>{ // FIXED COMMA
     const price = prices[p.pair] || p.entry;
     const {pnl, pnlPct} = calcPnL(p, price);
     const timeLeft = p.expiresAt? Math.max(0, p.expiresAt - Date.now()) : null;
