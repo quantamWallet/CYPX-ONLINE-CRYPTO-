@@ -145,7 +145,6 @@ function showToast(msg, isError=false){
   setTimeout(()=>t.classList.remove('show'), 3000);
 }
 
-// AUTO COPY TO CLIPBOARD
 function copyToClipboard(text){
   navigator.clipboard.writeText(text).then(()=>{
     showToast(`Copied: ${text}`);
@@ -166,7 +165,7 @@ window.generateSignal = async function(){
   if(!amount || amount < 50) return showToast("Min admin amount $50", true);
 
   const code = `SIGNAL-${pair.split('/')[0]}-${Date.now().toString().slice(-6)}`;
-  const expiresAt = Date.now() + 30 * 60 * 1000; // 30 MIN
+  const expiresAt = Date.now() + 30 * 60 * 1000;
 
   await db.ref(`signals/${code}`).set({
     pair, side, amount, tp_pips: tp, sl_pips: sl, pipValue: pip,
@@ -174,7 +173,6 @@ window.generateSignal = async function(){
   });
 
   copyToClipboard(code);
-
   document.getElementById('sigOutput').innerHTML = `CODE: <span class="code-copy" onclick="copyToClipboard('${code}')">${code}</span> | Expires in 30min`;
   showToast("Signal Generated & Copied!");
   setTimeout(()=>document.getElementById('sigOutput').innerText = "", 10000);
@@ -217,7 +215,7 @@ function loadSignals(){
   });
 }
 
-// FIXED: DELETE POSITIONS DIRECTLY
+// FIXED: UPDATE STATUS TO CLOSED NOT DELETE
 window.closeSignal = async function(code){
   if(!isAdmin) return;
   const updates = {};
@@ -231,7 +229,7 @@ window.closeSignal = async function(code){
       positionsSnap.forEach(posSnap => {
         const pos = posSnap.val();
         if(pos.code === code){
-          updates[`trade/${uid}/positions/${posSnap.key}`] = null; // DELETE
+          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED"; // UPDATE STATUS
         }
       });
       updates[`users/${uid}/trade_notifications/${Date.now()}_${uid}`] = {
@@ -241,10 +239,10 @@ window.closeSignal = async function(code){
     }
   }
   await db.ref().update(updates);
-  showToast("Signal Closed & All Positions Deleted");
+  showToast("Signal Closed & All Positions Closed");
 }
 
-// FIXED: BULLETPROOF AWARD - DELETE POSITIONS
+// FIXED: UPDATE STATUS TO CLOSED
 window.awardSignal = async function(code, isProfit){
   if(!isAdmin) return showToast("Unauthorized", true);
   let awardedPnL = parseFloat(document.getElementById(`award_${code}`).value);
@@ -268,22 +266,18 @@ window.awardSignal = async function(code, isProfit){
     const userSnap = await db.ref(`users/${uid}`).once("value");
     const user = userSnap.val();
     if(user){
-      // 1. PAY USER
       updates[`users/${uid}/balance`] = (user.balance || 0) + finalUserProfit;
-
-      // 2. HISTORY
       updates[`users/${uid}/history/signal_${code}`] = {...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()};
 
-      // 3. DELETE POSITION COMPLETELY
+      // KEY FIX: UPDATE STATUS TO CLOSED
       const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
       positionsSnap.forEach(posSnap => {
         const pos = posSnap.val();
         if(pos.code === code){
-          updates[`trade/${uid}/positions/${posSnap.key}`] = null;
+          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED";
         }
       });
 
-      // 4. NOTIFICATION
       updates[`users/${uid}/trade_notifications/${Date.now()}_${uid}`] = {
         msg: `Trade Closed: ${isProfit?'Profit':'Loss'} $${finalUserProfit.toFixed(2)} | Refunded: $${userAmount.toFixed(2)}`,
         type: isProfit? "ok" : "bad"
@@ -300,4 +294,4 @@ window.awardSignal = async function(code, isProfit){
 }
 </script>
 </body>
-         </html>
+</html>
