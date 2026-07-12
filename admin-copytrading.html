@@ -35,9 +35,11 @@
 .active-trade-card { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px; margin-bottom:15px }
 .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
 .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
-.badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700 }
+.badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700; margin-left:5px }
+.badge-warning { background:#f59e0b; color:#000 }
 .loading { text-align:center; color:#94a3b8; padding:20px }
 .debug { font-size:10px; color:#666; margin-top:10px }
+.pending-name { color:#fbbf24 }
 </style>
 </head>
 <body>
@@ -170,7 +172,7 @@ function renderTraderStats(){
   traders.forEach(t=>{
     let copiers = [];
     for(let uid in copyData){
-      if(copyData[uid][t.id] && copyData[uid][t.id].status === "active"){
+      if(copyData[uid][t.id] && (copyData[uid][t.id].status === "active" || copyData[uid][t.id].status === "pending_close")){
         totalCopiers++;
         copiers.push(usernames[uid] || uid.substring(0,6));
       }
@@ -192,7 +194,7 @@ function renderActiveTrades(){
     let copiers = [];
     let totalCopied = 0;
     for(let uid in copyData){
-      if(copyData[uid][t.id] && copyData[uid][t.id].status === "active"){
+      if(copyData[uid][t.id] && (copyData[uid][t.id].status === "active" || copyData[uid][t.id].status === "pending_close")){
         hasTrades = true;
         const c = copyData[uid][t.id];
         copiers.push({uid,...c, username: usernames[uid] || uid.substring(0,6)});
@@ -201,21 +203,35 @@ function renderActiveTrades(){
     }
 
     if(copiers.length > 0){
+      const activeCount = copiers.filter(c => c.status === "active").length;
+      const pendingCount = copiers.filter(c => c.status === "pending_close").length;
+      const totalCount = copiers.length;
+
       html += `<div class="active-trade-card">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px">
           <div><b>${t.name}</b></div>
-          <div style="font-size:12px; color:#94a3b8">${copiers.length} Copiers | Total: $${totalCopied.toFixed(2)}</div>
+          <div style="font-size:12px; color:#94a3b8">
+            ${totalCount} Copiers 
+            ${pendingCount > 0 ? `<span class="badge badge-warning">${pendingCount} Requested Stop</span>` : ''}
+            | Total: $${totalCopied.toFixed(2)}
+          </div>
         </div>
-        <div style="font-size:12px; margin-bottom:10px">Copiers: ${copiers.map(c=>c.username).join(', ')}</div>
+        <div style="font-size:12px; margin-bottom:10px">
+          Copiers: ${copiers.map(c=> 
+            c.status === "pending_close" 
+            ? `<span class="pending-name">${c.username} ⏳</span>` 
+            : c.username
+          ).join(', ')}
+        </div>
 
-        <div class="form-group"><label>Final P&L to Award for ALL ${copiers.length} Copiers $</label>
+        <div class="form-group"><label>Final P&L to Award for ALL ${totalCount} Copiers $</label>
           <div class="pnl-buttons">
             <button type="button" class="btn btn-profit" onclick="setPnL('${t.id}', true)">+ PROFIT</button>
             <button type="button" class="btn btn-loss" onclick="setPnL('${t.id}', false)">- LOSS</button>
           </div>
           <input id="closeProfit_${t.id}" type="number" placeholder="25">
         </div>
-        <button class="btn btn-red" onclick="closeTrade('${t.id}')">Close & Pay ${copiers.length} Copiers</button>
+        <button class="btn btn-red" onclick="closeTrade('${t.id}')">Close & Pay ${totalCount} Copiers</button>
       </div>`;
     }
   });
@@ -233,7 +249,7 @@ function setPnL(traderId, isProfit){
   }
 }
 
-// FIXED: PREVENT DOUBLE PAYOUT + REFUND CAPITAL
+// UPDATED: NOW PAYS ACTIVE + PENDING_CLOSE
 async function closeTrade(traderId){
   if(!isAdmin) return showToast("Unauthorized", true);
   let profit = parseFloat(document.getElementById(`closeProfit_${traderId}`).value);
@@ -254,8 +270,8 @@ async function closeTrade(traderId){
       if(!copyData[uid][traderId]) continue;
       const copyInfo = copyData[uid][traderId];
 
-      // PREVENT DOUBLE PAYOUT: SKIP IF ALREADY CLOSED BY USER
-      if(copyInfo.status!== "active") continue;
+      // PAY BOTH ACTIVE AND PENDING_CLOSE
+      if(copyInfo.status !== "active" && copyInfo.status !== "pending_close") continue;
 
       const capital = Number(copyInfo.amount || 0);
       const grossProfit = profit * (capital / 1000);
@@ -265,7 +281,7 @@ async function closeTrade(traderId){
       updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(refundTotal);
       updates[`copy_trading/${uid}/${traderId}/status`] = "closed";
       updates[`copy_trading/${uid}/${traderId}/closedBy`] = "admin";
-      updates[`copy_trading/${uid}/${traderId}/pnl`] = (Number(copyInfo.pnl) || 0) + userProfit;
+      updates[`copy_trading/${uid}/${traderId}/pnl`] = userProfit; // OVERWRITE FAKE PNL WITH REAL
       updates[`copy_trading/${uid}/${traderId}/closedAt`] = tradeId;
       updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
       updates[`users/${uid}/history/trade_${tradeId}_${uid}`] = {...tradeData, userProfit, refundTotal, capital, traderName: trader.name };
@@ -277,7 +293,7 @@ async function closeTrade(traderId){
     }
 
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
-    showToast(`Trade Closed. ${count} Copiers Refunded!`);
+    showToast(`Trade Closed. ${count} Copiers Paid!`);
   } catch(e) { showToast("Error: " + e.message, true); }
 }
 
