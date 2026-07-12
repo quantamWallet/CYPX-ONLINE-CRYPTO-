@@ -262,8 +262,25 @@ onAuthStateChanged(auth, (user)=>{
   const positionsRef = ref(db, `trade/${uid}/positions`);
   onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
 
+  // FIXED: AUTO CLEAN CLOSED TRADES + ONLY COUNT OPEN
   onValue(positionsRef, (snap)=>{
-    positions = snap.val() || {};
+    const allPositions = snap.val() || {};
+    
+    // 1. AUTO DELETE ANY CLOSED POSITIONS
+    for(let posId in allPositions){
+      if(allPositions[posId].status === "CLOSED"){
+        remove(ref(db, `trade/${uid}/positions/${posId}`));
+      }
+    }
+
+    // 2. ONLY KEEP OPEN POSITIONS IN MEMORY
+    positions = {};
+    for(let posId in allPositions){
+      if(allPositions[posId].status === "OPEN"){
+        positions[posId] = allPositions[posId];
+      }
+    }
+
     hasOpenPosition = Object.keys(positions).length > 0;
     activateBtn.disabled = hasOpenPosition;
     activateBtn.textContent = hasOpenPosition? "Close Current Trade First" : "Activate Signal";
@@ -271,7 +288,7 @@ onAuthStateChanged(auth, (user)=>{
     updateEquity();
   });
 
-  // FIX: LISTEN FOR ADMIN CLOSING TRADE AND DELETE POSITION
+  // LISTEN FOR ADMIN NOTIFICATIONS
   onValue(ref(db, `users/${uid}/trade_notifications`), (snap)=>{
     const data = snap.val();
     if(data){
@@ -279,13 +296,6 @@ onAuthStateChanged(auth, (user)=>{
         const notif = data[key];
         showCenterToast(notif.msg, notif.type);
         saveNotif(notif.msg, notif.type);
-        
-        // NEW: IF ADMIN CLOSED TRADE, REMOVE THE POSITION
-        if(notif.msg.includes("Trade Closed")){
-          for(let posId in positions){
-            remove(ref(db, `trade/${uid}/positions/${posId}`));
-          }
-        }
         remove(ref(db, `users/${uid}/trade_notifications/${key}`));
       });
     }
@@ -336,7 +346,7 @@ window.activateSignal = async function(){
     openedAt: now,
     expiresAt: signal.expiresAt,
     code,
-    status: "OPEN"
+    status: "OPEN" // IMPORTANT
   });
 
   await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount, usedAt: now} });
@@ -346,6 +356,7 @@ window.activateSignal = async function(){
   document.getElementById("signalCode").value = "";
 }
 
+// FIXED: ONLY RENDER OPEN POSITIONS
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
@@ -366,6 +377,7 @@ function renderPositions(){
   }).join('');
 }
 
+// FIXED: ONLY CALC EQUITY FROM OPEN POSITIONS
 function updateEquity(){
   if(balance === null){ document.getElementById("balance").textContent = "--"; document.getElementById("equity").textContent = "--"; return; }
   const floatingPnL = Object.values(positions).reduce((sum,p)=>{ const price = prices[p.pair] || p.entry; const {pnl} = calcPnL(p, price); return sum + pnl; }, 0);
@@ -375,4 +387,4 @@ function updateEquity(){
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
 </script>
 </body>
-              </html>
+          </html>
