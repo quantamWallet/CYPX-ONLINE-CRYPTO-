@@ -37,6 +37,7 @@
 .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
 .badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700 }
 .loading { text-align:center; color:#94a3b8; padding:20px }
+.debug { font-size:10px; color:#666; margin-top:10px }
 </style>
 </head>
 <body>
@@ -73,13 +74,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-// FIX 1: CORRECT STORAGEBUCKET
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com", // FIXED
+  storageBucket: "quantum-rio.appspot.com",
   messagingSenderId: "805433999377",
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
@@ -102,7 +102,6 @@ let copyData = {};
 let usernames = {};
 let pnlIsProfit = true;
 let isAdmin = false;
-let dataLoaded = {users: false, copy: false};
 
 auth.onAuthStateChanged(user=>{
   if(user){
@@ -113,14 +112,12 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('mainApp').classList.remove('hide');
         initApp();
       } else {
-        isAdmin = false;
         document.getElementById('mainApp').classList.add('hide');
         document.getElementById('lockScreen').classList.remove('hide');
         showToast("Access Denied: Not an admin", true);
       }
-    }).catch(e => showToast("DB Error: " + e.message, true));
+    });
   } else {
-    isAdmin = false;
     document.getElementById('mainApp').classList.add('hide');
     document.getElementById('lockScreen').classList.remove('hide');
     showToast("Please login first", true);
@@ -133,34 +130,30 @@ function initApp(){
   loadRealtimeData();
 }
 
-// FIX 2: WAIT FOR BOTH USERS AND COPY_TRADING TO LOAD
-function checkAndRender(){
-  if(dataLoaded.users && dataLoaded.copy){
+function loadRealtimeData(){
+  // FIX: DON'T WAIT FOR USERS. LOAD COPY_TRADING FIRST
+  db.ref("copy_trading").on("value", snap=>{
+    copyData = snap.val() || {};
+    console.log("Copy Data:", copyData); // DEBUG
     renderTraderStats();
     renderActiveTrades();
-  }
-}
+  }, err => {
+    console.error("Copy load error:", err);
+    showToast("Firebase Error: " + err.message, true);
+    document.getElementById("activeTradesList").innerHTML = '<div class="loading">Error: ' + err.message + '</div>';
+  });
 
-function loadRealtimeData(){
-  // 1. LOAD USERNAMES
+  // TRY LOAD USERS BUT DON'T BLOCK
   db.ref("users").on("value", userSnap=>{
     usernames = {};
     userSnap.forEach(u=>{
       const data = u.val();
       usernames[u.key] = data.username || data.email?.split('@')[0] || u.key.substring(0,6);
     });
-    dataLoaded.users = true;
-    checkAndRender();
-  }, err => console.error("Users load error:", err));
+    renderTraderStats(); // re-render with names
+  }, err => console.log("Users blocked by rules, using UIDs"));
 
-  // 2. LOAD ALL COPIES - REALTIME
-  db.ref("copy_trading").on("value", snap=>{
-    copyData = snap.val() || {};
-    dataLoaded.copy = true;
-    checkAndRender();
-  }, err => console.error("Copy load error:", err));
-
-  // 3. TRADE HISTORY
+  // TRADE HISTORY
   db.ref("admin_trades").limitToLast(10).on("value", snap=>{
     let html = "";
     snap.forEach(traderSnap=>{
@@ -178,10 +171,12 @@ function loadRealtimeData(){
 
 function renderTraderStats(){
   let html = "";
+  let totalCopiers = 0;
   traders.forEach(t=>{
     let copiers = [];
     for(let uid in copyData){
       if(copyData[uid][t.id] && copyData[uid][t.id].status === "active"){
+        totalCopiers++;
         copiers.push(usernames[uid] || uid.substring(0,6));
       }
     }
@@ -190,7 +185,8 @@ function renderTraderStats(){
       <div class="copier-list">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
     </div>`;
   });
-  document.getElementById("traderStats").innerHTML = html || "No copiers yet";
+  if(totalCopiers === 0) html += '<div class="debug">Debug: copy_trading node is empty or no status=active</div>';
+  document.getElementById("traderStats").innerHTML = html;
 }
 
 function renderActiveTrades(){
@@ -230,7 +226,7 @@ function renderActiveTrades(){
     }
   });
 
-  if(!hasTrades) html = '<div style="text-align:center; color:#94a3b8; padding:20px">No active copiers</div>';
+  if(!hasTrades) html = '<div style="text-align:center; color:#94a3b8; padding:20px">No active copiers<br><small>Waiting for users to click "Copy Trader"</small></div>';
   container.innerHTML = html;
 }
 
