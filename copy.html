@@ -178,6 +178,7 @@ let selectedTrader = null;
 let currentUser = null;
 let userCopies = {};
 let userBalance = 0;
+let pnlInterval = null; // for fake simulation
 
 auth.onAuthStateChanged(user => {
   if(!user) return window.location.href = "signin.html";
@@ -185,7 +186,7 @@ auth.onAuthStateChanged(user => {
   loadUserBalance();
   renderTraders();
   loadUserCopies();
-  // REMOVED startPnLSimulation() - Admin controls P&L now
+  startFakePnLSimulation(); // KEEP FAKE PRICES RUNNING
 });
 
 function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
@@ -197,25 +198,23 @@ function loadUserBalance(){
   });
 }
 
-// FIX: LISTEN TO ADMIN CLOSING AND UPDATE REALTIME
+// LISTEN TO ADMIN + HANDLE PENDING
 function loadUserCopies() {
   db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
     const newData = snap.val() || {};
 
-    // CHECK IF ANY TRADE WAS CLOSED BY ADMIN
     for(let id in newData){
       const copy = newData[id];
       const oldCopy = userCopies[id];
 
-      if(copy.status === "closed" && (!oldCopy || oldCopy.status === "active")){
-        // ADMIN CLOSED IT. SHOW TOAST AND REMOVE AFTER 3s
+      if(copy.status === "closed" && (!oldCopy || oldCopy.status!== "closed")){
+        // ADMIN CLOSED IT. THIS IS FINAL PAYOUT
         const profit = copy.pnl || 0;
-        showToast(`${copy.traderName} trade closed. P&L: ${formatMoney(profit)}`, profit >= 0? "success" : "error");
+        showToast(`${copy.traderName} trade closed. Final P&L: ${formatMoney(profit)}`, profit >= 0? "success" : "error");
 
-        // Remove from UI after 3 seconds so user can see the final P&L
         setTimeout(() => {
           db.ref("copy_trading/" + currentUser.uid + "/" + id).remove();
-        }, 3000);
+        }, 4000);
       }
     }
 
@@ -228,7 +227,7 @@ function loadUserCopies() {
 function updatePortfolioSummary() {
   let totalAmount = 0, totalPnL = 0, count = 0;
   for(let id in userCopies){
-    if(userCopies[id].status === "active"){ // only count active
+    if(userCopies[id].status === "active" || userCopies[id].status === "pending_close"){
       totalAmount += userCopies[id].amount;
       totalPnL += userCopies[id].pnl || 0;
       count++;
@@ -240,14 +239,42 @@ function updatePortfolioSummary() {
   document.getElementById('activeCount').innerText = count;
 }
 
+// FAKE SIMULATION FOR UI ONLY - DOES NOT PAY
+function startFakePnLSimulation() {
+  if(pnlInterval) clearInterval(pnlInterval);
+  pnlInterval = setInterval(() => {
+    for(let id in userCopies) {
+      const copy = userCopies[id];
+      if(copy.status!== "active") continue; // stop fake if pending or closed
+
+      const change = (Math.random() - 0.45) * 15; // smaller moves
+      copy.pnl = (copy.pnl || 0) + change;
+
+      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({
+        pnl: copy.pnl,
+        lastUpdate: Date.now()
+      });
+      updatePnLDisplay(id);
+    }
+    updatePortfolioSummary();
+  }, 5000);
+}
+
 function renderTraders() {
   const grid = document.getElementById('tradersGrid');
   grid.innerHTML = traders.map(t => {
-    const isCopying = userCopies[t.id] && userCopies[t.id].status === "active";
-    const userPnL = isCopying? (userCopies[t.id].pnl || 0) : 0;
+    const copy = userCopies[t.id];
+    const isActive = copy && copy.status === "active";
+    const isPending = copy && copy.status === "pending_close";
+    const userPnL = (isActive || isPending)? (copy.pnl || 0) : 0;
     const traderEarned = userPnL > 0? (userPnL * t.profitShare / (100 - t.profitShare)) : 0;
+
+    let buttonHtml = `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`;
+    if(isActive) buttonHtml = `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`;
+    if(isPending) buttonHtml = `<button class="copy-btn" disabled>⏳ Waiting for ${t.name} to close</button>`;
+
     return `
-    <div class="trader-card ${isCopying? 'copying' : ''}">
+    <div class="trader-card ${isActive || isPending? 'copying' : ''}">
       <div class="trader-header">
         <div class="avatar"><img src="${t.avatar}" alt="${t.name}" onerror="this.src='https://ui-avatars.com/api/?name=${t.name}&background=00C896&color=fff'"></div>
         <div>
@@ -255,27 +282,18 @@ function renderTraders() {
           <div style="font-size:12px; color:#94e2cc">${t.followers} Copiers</div>
         </div>
       </div>
-
       <div class="trader-bio">${t.bio}</div>
-
       <div class="stats">
         <div class="stat"><div class="stat-label">30D ROI</div><div class="stat-value green">${t.roi}</div></div>
         <div class="stat"><div class="stat-label">Win Rate</div><div class="stat-value">${t.winRate}</div></div>
         <div class="stat"><div class="stat-label">Fee</div><div class="stat-value gold">${t.profitShare}%</div></div>
       </div>
-
-      <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
-        <div class="pnl-row"><span class="pnl-label">Your P&L</span><span class="pnl-value ${userPnL >= 0? 'green' : 'red'}" id="pnl-${t.id}">${formatMoney(userPnL)}</span></div>
-        <div class="pnl-row"><span class="pnl-label">Copied Amount</span><span class="pnl-value">${formatMoney(isCopying?.amount)}</span></div>
+      <div class="pnl-box ${isActive || isPending? 'active' : ''}" id="pnl-box-${t.id}">
+        <div class="pnl-row"><span class="pnl-label">Live P&L</span><span class="pnl-value ${userPnL >= 0? 'green' : 'red'}" id="pnl-${t.id}">${formatMoney(userPnL)}</span></div>
+        <div class="pnl-row"><span class="pnl-label">Copied Amount</span><span class="pnl-value">${formatMoney(copy?.amount)}</span></div>
         <div class="pnl-row"><span class="pnl-label">Trader Earned</span><span class="pnl-value gold">${formatMoney(traderEarned)}</span></div>
       </div>
-
-      <div class="btn-group">
-        ${isCopying
-   ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
-          : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
-        }
-      </div>
+      <div class="btn-group">${buttonHtml}</div>
     </div>
   `}).join('');
 }
@@ -320,24 +338,19 @@ function confirmCopy() {
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
-// FIX: USER STOP NOW SETS STATUS=CLOSED INSTEAD OF REMOVE
+// NEW: REQUEST STOP INSTEAD OF CLOSING
 function stopCopy(traderId) {
   const copyInfo = userCopies[traderId];
-  if(!copyInfo || copyInfo.status!== "active") return showToast("Already closed", "error");
+  if(!copyInfo || copyInfo.status!== "active") return showToast("Already requested", "error");
 
-  const refundAmount = copyInfo.amount + (copyInfo.pnl || 0);
-
-  showToast(`Stopping copy... ${formatMoney(refundAmount)} will be refunded`, 'info');
+  showToast(`Request sent. Waiting for ${copyInfo.traderName} to close trade`, 'info');
 
   const updates = {};
-  updates[`users/${currentUser.uid}/balance`] = firebase.database.ServerValue.increment(refundAmount);
-  updates[`copy_trading/${currentUser.uid}/${traderId}/status`] = "closed";
-  updates[`copy_trading/${currentUser.uid}/${traderId}/closedBy`] = "user";
-  updates[`copy_trading/${currentUser.uid}/${traderId}/closedAt`] = Date.now();
+  updates[`copy_trading/${currentUser.uid}/${traderId}/status`] = "pending_close";
+  updates[`copy_trading/${currentUser.uid}/${traderId}/stopRequestedAt`] = Date.now();
 
   db.ref().update(updates).then(() => {
-    db.ref("copy_logs/" + currentUser.uid).push({ action: "STOP_COPY", traderId, refund: refundAmount, timestamp: Date.now() });
-    showToast(`Stopped copying. ${formatMoney(refundAmount)} refunded`, "success");
+    db.ref("copy_logs/" + currentUser.uid).push({ action: "REQUEST_STOP", traderId, timestamp: Date.now() });
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
@@ -347,6 +360,6 @@ function showToast(message, type = "info"){
   toast.innerText = message;
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
-</script>
+  </script>
 </body>
   </html>
