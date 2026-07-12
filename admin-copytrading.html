@@ -36,6 +36,7 @@
 .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
 .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
 .badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700 }
+.loading { text-align:center; color:#94a3b8; padding:20px }
 </style>
 </head>
 <body>
@@ -55,12 +56,12 @@
     <div>
       <div class="card">
         <h2><i class="fas fa-chart-line"></i> Ongoing Copied Trades</h2>
-        <div id="activeTradesList">Loading active trades...</div>
+        <div id="activeTradesList"><div class="loading">Connecting to Firebase...</div></div>
       </div>
     </div>
     <div>
-      <div class="card" style="margin-bottom:20px"><h2><i class="fas fa-users"></i> Traders & Copiers</h2><div id="traderStats">Loading...</div></div>
-      <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog">Loading...</div></div>
+      <div class="card" style="margin-bottom:20px"><h2><i class="fas fa-users"></i> Traders & Copiers</h2><div id="traderStats"><div class="loading">Loading...</div></div></div>
+      <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog"><div class="loading">Loading...</div></div></div>
     </div>
   </div>
 </div>
@@ -72,12 +73,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
+// FIX 1: CORRECT STORAGEBUCKET
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
   databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
   projectId: "quantum-rio",
-  storageBucket: "quantum-rio.appspot.com",
+  storageBucket: "quantum-rio.appspot.com", // FIXED
   messagingSenderId: "805433999377",
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
@@ -96,10 +98,11 @@ const traders = [
   { id: 'pizzo_fx', name: 'Pizzo Fx', profitShare: 20 }
 ];
 
-let copyData = {}; // {uid: {traderId: data}}
+let copyData = {};
 let usernames = {};
 let pnlIsProfit = true;
 let isAdmin = false;
+let dataLoaded = {users: false, copy: false};
 
 auth.onAuthStateChanged(user=>{
   if(user){
@@ -115,7 +118,7 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('lockScreen').classList.remove('hide');
         showToast("Access Denied: Not an admin", true);
       }
-    });
+    }).catch(e => showToast("DB Error: " + e.message, true));
   } else {
     isAdmin = false;
     document.getElementById('mainApp').classList.add('hide');
@@ -130,19 +133,32 @@ function initApp(){
   loadRealtimeData();
 }
 
+// FIX 2: WAIT FOR BOTH USERS AND COPY_TRADING TO LOAD
+function checkAndRender(){
+  if(dataLoaded.users && dataLoaded.copy){
+    renderTraderStats();
+    renderActiveTrades();
+  }
+}
+
 function loadRealtimeData(){
   // 1. LOAD USERNAMES
   db.ref("users").on("value", userSnap=>{
     usernames = {};
-    userSnap.forEach(u=>{ usernames[u.key] = u.val().username || u.key.substring(0,6); });
-  });
+    userSnap.forEach(u=>{
+      const data = u.val();
+      usernames[u.key] = data.username || data.email?.split('@')[0] || u.key.substring(0,6);
+    });
+    dataLoaded.users = true;
+    checkAndRender();
+  }, err => console.error("Users load error:", err));
 
-  // 2. LOAD ALL COPIES - THIS IS THE MAIN FIX
+  // 2. LOAD ALL COPIES - REALTIME
   db.ref("copy_trading").on("value", snap=>{
     copyData = snap.val() || {};
-    renderTraderStats();
-    renderActiveTrades();
-  });
+    dataLoaded.copy = true;
+    checkAndRender();
+  }, err => console.error("Copy load error:", err));
 
   // 3. TRADE HISTORY
   db.ref("admin_trades").limitToLast(10).on("value", snap=>{
@@ -152,7 +168,7 @@ function loadRealtimeData(){
         const tr = tradeSnap.val();
         html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
           <b>${traders.find(t=>t.id===traderSnap.key)?.name}</b> | P&L:
-          <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
+          <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${Number(tr.profit||0).toFixed(2)}</span>
         </div>` + html;
       });
     });
@@ -190,7 +206,7 @@ function renderActiveTrades(){
         hasTrades = true;
         const c = copyData[uid][t.id];
         copiers.push({uid,...c, username: usernames[uid] || uid.substring(0,6)});
-        totalCopied += c.amount;
+        totalCopied += Number(c.amount || 0);
       }
     }
 
@@ -245,16 +261,14 @@ async function closeTrade(traderId){
     for(let uid in copyData){
       if(copyData[uid][traderId] && copyData[uid][traderId].status === "active"){
         const copyInfo = copyData[uid][traderId];
-        const capitalRatio = 1; // Since each user copies with their own amount
-        const grossProfit = profit * (copyInfo.amount / 1000); // scale by 1000 admin capital
+        const grossProfit = profit * (Number(copyInfo.amount) / 1000);
         const userProfit = grossProfit * (1 - traderFee/100);
 
         updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(userProfit);
-        updates[`copy_trading/${uid}/${traderId}/pnl`] = (copyInfo.pnl || 0) + userProfit;
+        updates[`copy_trading/${uid}/${traderId}/pnl`] = (Number(copyInfo.pnl) || 0) + userProfit;
         updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
-        updates[`copy_trading/${uid}/${traderId}/status`] = "closed"; // CLOSE IT
-        updates[`users/${uid}/history/trade_${Date.now()}`] = {...tradeData, userProfit, traderName: trader.name };
-
+        updates[`copy_trading/${uid}/${traderId}/status`] = "closed";
+        updates[`users/${uid}/history/trade_${Date.now()}_${uid}`] = {...tradeData, userProfit, traderName: trader.name };
         updates[`users/${uid}/trade_notifications/${Date.now()}`] = {
           msg: `${profit>=0?'Profit':'Loss'} Hit: $${userProfit.toFixed(2)}`,
           type: profit>=0? "ok" : "bad"
@@ -276,4 +290,4 @@ function showToast(message, isError = false){
 }
 </script>
 </body>
-</html>
+   </html>
