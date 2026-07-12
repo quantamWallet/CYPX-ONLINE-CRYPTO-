@@ -277,18 +277,77 @@ window.awardSignal = async function(code, isProfit){
     if(user){
       // 1. Pay user
       await db.ref(`users/${uid}/balance`).set((user.balance || 0) + finalUserProfit);
-      
+// REPLACE YOUR closeSignal WITH THIS
+window.closeSignal = async function(code){
+  if(!isAdmin) return;
+
+  await db.ref(`signals/${code}`).update({status: "CLOSED"});
+
+  const signalSnap = await db.ref(`signals/${code}`).once("value");
+  const signal = signalSnap.val();
+  if(signal && signal.usedBy){
+    for(const uid in signal.usedBy){ // <-- use for...in not forEach
+      const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
+
+      const updates = {}; // batch update is faster
+      positionsSnap.forEach(posSnap => {
+        const pos = posSnap.val();
+        if(pos.code === code && pos.status === "OPEN"){ // only close open ones
+          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED";
+        }
+      });
+      await db.ref().update(updates); // 1 write to close all
+
+      await db.ref(`users/${uid}/trade_notifications/${Date.now()}_${uid}`).set({
+        msg: `Trade Closed: Signal cancelled. Refunded.`,
+        type: "info"
+      });
+    }
+  }
+  showToast("Signal Closed & All Positions Closed");
+}
+
+// REPLACE YOUR awardSignal WITH THIS
+window.awardSignal = async function(code, isProfit){
+  if(!isAdmin) return showToast("Unauthorized", true);
+  let awardedPnL = parseFloat(document.getElementById(`award_${code}`).value);
+  if(isNaN(awardedPnL)) return showToast("Enter P&L amount", true);
+  if(!isProfit) awardedPnL = -Math.abs(awardedPnL);
+
+  const signalSnap = await db.ref(`signals/${code}`).once("value");
+  if(!signalSnap.exists()) return showToast("Signal not found", true);
+  const signal = signalSnap.val();
+
+  if(!signal.usedBy || Object.keys(signal.usedBy).length === 0) return showToast("No users used this signal yet", true);
+
+  let count = 0;
+  const adminCapital = signal.amount;
+
+  for(const uid in signal.usedBy){
+    const userData = signal.usedBy[uid];
+    const userAmount = userData.amount || 0;
+    const profitShare = userAmount / adminCapital;
+    const finalUserProfit = awardedPnL * profitShare;
+
+    const userSnap = await db.ref(`users/${uid}`).once("value");
+    const user = userSnap.val();
+    if(user){
+      // 1. Pay user
+      await db.ref(`users/${uid}/balance`).set((user.balance || 0) + finalUserProfit);
+
       // 2. History
       await db.ref(`users/${uid}/history/signal_${code}`).set({...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()});
 
-      // 3. KEY FIX: Close position directly
+      // 3. KEY FIX: Close position in trades/positions/UID
       const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
-      positionsSnap.forEach(async posSnap => {
+      const updates = {};
+      positionsSnap.forEach(posSnap => {
         const pos = posSnap.val();
-        if(pos.code === code){
-          await db.ref(`trade/${uid}/positions/${posSnap.key}`).update({status: "CLOSED"});
+        if(pos.code === code && pos.status === "OPEN"){
+          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED";
         }
       });
+      await db.ref().update(updates);
 
       // 4. Notification
       await db.ref(`users/${uid}/trade_notifications/${Date.now()}_${uid}`).set({
@@ -301,7 +360,7 @@ window.awardSignal = async function(code, isProfit){
 
   await db.ref(`signals/${code}`).update({adminPnL: awardedPnL, status: "CLOSED"});
   showToast(`Awarded $${awardedPnL}. ${count} users paid. Signal Closed.`);
-}
+   }
 </script>
 </body>
 </html>
