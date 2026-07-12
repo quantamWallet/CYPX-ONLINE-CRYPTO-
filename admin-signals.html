@@ -13,7 +13,7 @@
   h1 { color: #ffd700; margin:0 }
 .btn-logout { padding:8px 16px; background:#ef4444; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:700 }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media(max-width:900px){.grid{ grid-template-columns: 1fr; }
+  @media(max-width:900px){.grid{ grid-template-columns: 1fr; } }
 .card { background: linear-gradient(145deg,#0a1a2f,#0f2942); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.15); }
 .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
 .form-group { margin-bottom: 15px; }
@@ -223,32 +223,34 @@ function loadSignals(){
   });
 }
 
+// FIXED: UPDATE EACH POSITION INDIVIDUALLY
 window.closeSignal = async function(code){
   if(!isAdmin) return;
-  const updates = {};
-  updates[`signals/${code}/status`] = "CLOSED";
+  
+  await db.ref(`signals/${code}`).update({status: "CLOSED"});
 
   const signalSnap = await db.ref(`signals/${code}`).once("value");
   const signal = signalSnap.val();
   if(signal && signal.usedBy){
     for(const uid in signal.usedBy){
       const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
-      positionsSnap.forEach(posSnap => {
+      positionsSnap.forEach(async posSnap => {
         const pos = posSnap.val();
         if(pos.code === code){
-          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED";
+          // KEY FIX: Update directly, not in batch
+          await db.ref(`trade/${uid}/positions/${posSnap.key}`).update({status: "CLOSED"});
         }
       });
-      updates[`users/${uid}/trade_notifications/${Date.now()}_${uid}`] = {
+      await db.ref(`users/${uid}/trade_notifications/${Date.now()}_${uid}`).set({
         msg: `Trade Closed: Signal cancelled. Refunded.`,
         type: "info"
-      }
+      });
     }
   }
-  await db.ref().update(updates);
   showToast("Signal Closed & All Positions Closed");
 }
 
+// FIXED: UPDATE EACH POSITION INDIVIDUALLY
 window.awardSignal = async function(code, isProfit){
   if(!isAdmin) return showToast("Unauthorized", true);
   let awardedPnL = parseFloat(document.getElementById(`award_${code}`).value);
@@ -261,7 +263,6 @@ window.awardSignal = async function(code, isProfit){
 
   if(!signal.usedBy || Object.keys(signal.usedBy).length === 0) return showToast("No users used this signal yet", true);
 
-  const updates = {};
   let count = 0;
   const adminCapital = signal.amount;
 
@@ -274,29 +275,31 @@ window.awardSignal = async function(code, isProfit){
     const userSnap = await db.ref(`users/${uid}`).once("value");
     const user = userSnap.val();
     if(user){
-      updates[`users/${uid}/balance`] = (user.balance || 0) + finalUserProfit;
-      updates[`users/${uid}/history/signal_${code}`] = {...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()};
+      // 1. Pay user
+      await db.ref(`users/${uid}/balance`).set((user.balance || 0) + finalUserProfit);
+      
+      // 2. History
+      await db.ref(`users/${uid}/history/signal_${code}`).set({...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()});
 
+      // 3. KEY FIX: Close position directly
       const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
-      positionsSnap.forEach(posSnap => {
+      positionsSnap.forEach(async posSnap => {
         const pos = posSnap.val();
         if(pos.code === code){
-          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED";
+          await db.ref(`trade/${uid}/positions/${posSnap.key}`).update({status: "CLOSED"});
         }
       });
 
-      updates[`users/${uid}/trade_notifications/${Date.now()}_${uid}`] = {
+      // 4. Notification
+      await db.ref(`users/${uid}/trade_notifications/${Date.now()}_${uid}`).set({
         msg: `Trade Closed: ${isProfit?'Profit':'Loss'} $${finalUserProfit.toFixed(2)} | Refunded: $${userAmount.toFixed(2)}`,
         type: isProfit? "ok" : "bad"
-      }
+      });
       count++;
     }
   }
 
-  updates[`signals/${code}/adminPnL`] = awardedPnL;
-  updates[`signals/${code}/status`] = "CLOSED";
-
-  await db.ref().update(updates);
+  await db.ref(`signals/${code}`).update({adminPnL: awardedPnL, status: "CLOSED"});
   showToast(`Awarded $${awardedPnL}. ${count} users paid. Signal Closed.`);
 }
 </script>
