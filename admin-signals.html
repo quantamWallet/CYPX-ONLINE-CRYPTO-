@@ -13,7 +13,7 @@
   h1 { color: #ffd700; margin:0 }
 .btn-logout { padding:8px 16px; background:#ef4444; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:700 }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media(max-width:900px){.grid{ grid-template-columns: 1fr; } }
+  @media(max-width:900px){.grid{ grid-template-columns: 1fr; }
 .card { background: linear-gradient(145deg,#0a1a2f,#0f2942); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.15); }
 .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
 .form-group { margin-bottom: 15px; }
@@ -38,6 +38,7 @@
 .hide { display:none }
 .signal-stats { background:rgba(0,200,150,0.1); padding:8px; border-radius:6px; margin-top:8px; font-size:12px }
 .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
+.user-list { background:rgba(0,0,0,0.4); padding:6px; border-radius:6px; margin-top:6px; font-size:11px }
 </style>
 </head>
 <body>
@@ -188,9 +189,15 @@ function loadSignals(){
       const isClosed = s.status === 'CLOSED';
       const mins = Math.floor(Math.max(0, timeLeft) / 60000);
       const secs = Math.floor((Math.max(0, timeLeft) % 60000) / 1000);
+      const users = s.usedBy || {};
 
       if(isExpired &&!isClosed){
         db.ref(`signals/${child.key}`).update({status: 'CLOSED'});
+      }
+
+      let userListHTML = "";
+      if(Object.keys(users).length > 0){
+        userListHTML = `<div class="user-list">Users: ${Object.keys(users).map(uid => `${uid.slice(0,6)}... $${users[uid].amount}`).join(', ')}</div>`
       }
 
       html += `<div class="signal-item ${isClosed?'closed':''}">
@@ -200,8 +207,9 @@ function loadSignals(){
         </div>
         <div>${s.side.toUpperCase()} ${s.pair} | Admin Amt: $${s.amount} | ${s.tp_pips}p TP / ${s.sl_pips}p SL</div>
         <div style="color:#94e2cc; font-size:12px">
-          ${isClosed? 'Status: CLOSED' : `Expires: ${mins}:${secs.toString().padStart(2,'0')}`} | Users: ${Object.keys(s.usedBy||{}).length}
+          ${isClosed? 'Status: CLOSED' : `Expires: ${mins}:${secs.toString().padStart(2,'0')}`} | Users: ${Object.keys(users).length}
         </div>
+        ${userListHTML}
         <div class="signal-stats">Admin P&L: <span style="color:${(s.adminPnL||0)>=0?'#22c55e':'#ef4444'}">$${(s.adminPnL||0).toFixed(2)}</span></div>
         ${!isClosed? `
         <div style="margin-top:8px; display:flex; gap:8px">
@@ -215,7 +223,6 @@ function loadSignals(){
   });
 }
 
-// FIXED: UPDATE STATUS TO CLOSED NOT DELETE
 window.closeSignal = async function(code){
   if(!isAdmin) return;
   const updates = {};
@@ -229,7 +236,7 @@ window.closeSignal = async function(code){
       positionsSnap.forEach(posSnap => {
         const pos = posSnap.val();
         if(pos.code === code){
-          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED"; // UPDATE STATUS
+          updates[`trade/${uid}/positions/${posSnap.key}/status`] = "CLOSED";
         }
       });
       updates[`users/${uid}/trade_notifications/${Date.now()}_${uid}`] = {
@@ -242,7 +249,6 @@ window.closeSignal = async function(code){
   showToast("Signal Closed & All Positions Closed");
 }
 
-// FIXED: UPDATE STATUS TO CLOSED
 window.awardSignal = async function(code, isProfit){
   if(!isAdmin) return showToast("Unauthorized", true);
   let awardedPnL = parseFloat(document.getElementById(`award_${code}`).value);
@@ -252,6 +258,8 @@ window.awardSignal = async function(code, isProfit){
   const signalSnap = await db.ref(`signals/${code}`).once("value");
   if(!signalSnap.exists()) return showToast("Signal not found", true);
   const signal = signalSnap.val();
+
+  if(!signal.usedBy || Object.keys(signal.usedBy).length === 0) return showToast("No users used this signal yet", true);
 
   const updates = {};
   let count = 0;
@@ -269,7 +277,6 @@ window.awardSignal = async function(code, isProfit){
       updates[`users/${uid}/balance`] = (user.balance || 0) + finalUserProfit;
       updates[`users/${uid}/history/signal_${code}`] = {...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()};
 
-      // KEY FIX: UPDATE STATUS TO CLOSED
       const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
       positionsSnap.forEach(posSnap => {
         const pos = posSnap.val();
