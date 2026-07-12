@@ -116,7 +116,7 @@ auth.onAuthStateChanged(user=>{
         document.getElementById('lockScreen').classList.remove('hide');
         showToast("Access Denied: Not an admin", true);
       }
-    });
+    }).catch(e => showToast("Auth Error: " + e.message, true));
   } else {
     document.getElementById('mainApp').classList.add('hide');
     document.getElementById('lockScreen').classList.remove('hide');
@@ -131,29 +131,24 @@ function initApp(){
 }
 
 function loadRealtimeData(){
-  // FIX: DON'T WAIT FOR USERS. LOAD COPY_TRADING FIRST
   db.ref("copy_trading").on("value", snap=>{
     copyData = snap.val() || {};
-    console.log("Copy Data:", copyData); // DEBUG
     renderTraderStats();
     renderActiveTrades();
   }, err => {
     console.error("Copy load error:", err);
     showToast("Firebase Error: " + err.message, true);
-    document.getElementById("activeTradesList").innerHTML = '<div class="loading">Error: ' + err.message + '</div>';
   });
 
-  // TRY LOAD USERS BUT DON'T BLOCK
   db.ref("users").on("value", userSnap=>{
     usernames = {};
     userSnap.forEach(u=>{
       const data = u.val();
       usernames[u.key] = data.username || data.email?.split('@')[0] || u.key.substring(0,6);
     });
-    renderTraderStats(); // re-render with names
+    renderTraderStats();
   }, err => console.log("Users blocked by rules, using UIDs"));
 
-  // TRADE HISTORY
   db.ref("admin_trades").limitToLast(10).on("value", snap=>{
     let html = "";
     snap.forEach(traderSnap=>{
@@ -185,8 +180,7 @@ function renderTraderStats(){
       <div class="copier-list">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
     </div>`;
   });
-  if(totalCopiers === 0) html += '<div class="debug">Debug: copy_trading node is empty or no status=active</div>';
-  document.getElementById("traderStats").innerHTML = html;
+  document.getElementById("traderStats").innerHTML = html || "No data";
 }
 
 function renderActiveTrades(){
@@ -239,31 +233,60 @@ function setPnL(traderId, isProfit){
   }
 }
 
-function startPnLSimulation() {
-  setInterval(() => {
-    for(let id in userCopies) {
-      const copy = userCopies[id];
+// FIXED: PREVENT DOUBLE PAYOUT + REFUND CAPITAL
+async function closeTrade(traderId){
+  if(!isAdmin) return showToast("Unauthorized", true);
+  let profit = parseFloat(document.getElementById(`closeProfit_${traderId}`).value);
+  if(isNaN(profit)) return showToast("Enter P&L amount");
+  if(!pnlIsProfit) profit = -Math.abs(profit);
 
-      // FIX: STOP SIMULATION IF CLOSED BY ADMIN
-      if(copy.status!== "active") continue;
+  const trader = traders.find(t=>t.id===traderId);
+  const tradeData = { traderId, profit, status: "CLOSED", closedAt: Date.now() };
+  const traderFee = trader.profitShare;
+  const tradeId = Date.now();
 
-      const change = (Math.random() - 0.45) * 25;
-      if(change > 0) {
-        const traderFee = change * (copy.profitShare / 100);
-        const userProfit = change - traderFee;
-        copy.pnl = (copy.pnl || 0) + userProfit;
-        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + userProfit);
-        logTrade(id, userProfit, traderFee, copy.amount);
-      } else {
-        copy.pnl = (copy.pnl || 0) + change;
-        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + change);
+  try {
+    await db.ref("admin_trades/" + traderId).push({...tradeData, id: tradeId});
+    const updates = {};
+    let count = 0;
+
+    for(let uid in copyData){
+      if(!copyData[uid][traderId]) continue;
+      const copyInfo = copyData[uid][traderId];
+
+      // PREVENT DOUBLE PAYOUT: SKIP IF ALREADY CLOSED BY USER
+      if(copyInfo.status!== "active") continue;
+
+      const capital = Number(copyInfo.amount || 0);
+      const grossProfit = profit * (capital / 1000);
+      const userProfit = grossProfit * (1 - traderFee/100);
+      const refundTotal = capital + userProfit;
+
+      updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(refundTotal);
+      updates[`copy_trading/${uid}/${traderId}/status`] = "closed";
+      updates[`copy_trading/${uid}/${traderId}/closedBy`] = "admin";
+      updates[`copy_trading/${uid}/${traderId}/pnl`] = (Number(copyInfo.pnl) || 0) + userProfit;
+      updates[`copy_trading/${uid}/${traderId}/closedAt`] = tradeId;
+      updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
+      updates[`users/${uid}/history/trade_${tradeId}_${uid}`] = {...tradeData, userProfit, refundTotal, capital, traderName: trader.name };
+      updates[`users/${uid}/trade_notifications/${tradeId}`] = {
+        msg: `Trade Closed: ${profit>=0?'+':''}$${userProfit.toFixed(2)} | Refunded: $${refundTotal.toFixed(2)}`,
+        type: profit>=0? "ok" : "bad"
       }
-      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({ pnl: copy.pnl, lastUpdate: Date.now() });
-      updatePnLDisplay(id);
+      count++;
     }
-    updatePortfolioSummary();
-  }, 5000);
+
+    if(Object.keys(updates).length > 0) await db.ref().update(updates);
+    showToast(`Trade Closed. ${count} Copiers Refunded!`);
+  } catch(e) { showToast("Error: " + e.message, true); }
 }
-   <script>
-   <body>
-   <html>
+
+function showToast(message, isError = false){
+  const toast = document.getElementById('toast');
+  toast.innerText = message;
+  toast.className = 'toast ' + (isError? 'error show' : 'show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
