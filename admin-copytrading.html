@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CYPX Admin - Copy Trading</title>
+<title>CYPX Admin - Copy Trading Control</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <style>
     * { box-sizing: border-box; }
@@ -18,24 +18,26 @@
 .card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
 .form-group { margin-bottom: 15px; }
 .form-group label { font-size: 12px; color: #94e2cc; display: block; margin-bottom: 5px; }
-.form-group input,.form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; outline:none }
-.form-group input:focus,.form-group select:focus { border-color:#00C896 }
+.form-group input { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; outline:none }
+.form-group input:focus { border-color:#00C896 }
 .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px; transition:0.2s }
 .btn:hover { opacity: 0.9; transform:translateY(-1px) }
 .btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
-.btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
 .btn-profit { background:linear-gradient(90deg,#16a34a,#15803d) }
 .btn-loss { background:linear-gradient(90deg,#ef4444,#dc2626) }
 .toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
 .toast.show { transform: translateX(0); }
 .toast.error { background:#ef4444 }
 .hide { display:none }
-.trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px; cursor:pointer }
+.trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px }
 .trader-stat b{color:#00C896}
 .copier-list { margin-top:8px; padding-left:10px; border-left:2px solid #00C896; font-size:12px }
-.open-trade-box { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px }
+.active-trade-card { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px; margin-bottom:15px }
 .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
 .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
+.badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700 }
+.badge.buy { background:rgba(22,163,74,.2); color:#16a34a }
+.badge.sell { background:rgba(220,38,38,.2); color:#ef4444 }
 </style>
 </head>
 <body>
@@ -47,54 +49,15 @@
 
 <div id="mainApp" class="container hide">
   <div class="header">
-    <h1><i class="fas fa-copy"></i> CYPX Admin - Copy Trading</h1>
+    <h1><i class="fas fa-copy"></i> CYPX Admin - Copy Trading Control</h1>
     <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 
   <div class="grid">
-    <div class="card">
-      <h2><i class="fas fa-paper-plane"></i> Push New Trade</h2>
-      <div class="form-group">
-        <label>Select Trader</label>
-        <select id="traderSelect"></select>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-        <div class="form-group"><label>Symbol</label>
-          <select id="symbol">
-            <optgroup label="Crypto">
-              <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
-              <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
-              <option>ADA/USDT</option><option>TON/USDT</option>
-            </optgroup>
-            <optgroup label="Forex">
-              <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
-              <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
-              <option>USD/CAD</option><option>EUR/GBP</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-group"><label>Type</label><select id="type"><option>BUY</option><option>SELL</option></select></div>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-        <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001" placeholder="63500"></div>
-        <div class="form-group"><label>Admin Capital $</label><input id="adminCapital" type="number" value="1000"></div>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-        <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001" placeholder="65250"></div>
-        <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001" placeholder="603100"></div>
-      </div>
-      <button class="btn btn-blue" onclick="openTrade()">1. Open Trade</button>
-      <div id="openTradeBox" class="open-trade-box" style="display:none; margin-top:15px">
-        <h3 style="margin:0 0 10px 0; color:#3b82f6; font-size:14px"><i class="fas fa-circle" style="color:#22c55e; font-size:8px"></i> ACTIVE TRADE</h3>
-        <div id="activeTradeInfo" style="font-size:12px; margin-bottom:10px"></div>
-        <div class="form-group"><label>Close Trade With Final P&L $</label>
-          <div class="pnl-buttons">
-            <button type="button" class="btn btn-profit" id="btnProfit" onclick="setPnL(true)">+ PROFIT</button>
-            <button type="button" class="btn btn-loss" id="btnLoss" onclick="setPnL(false)">- LOSS</button>
-          </div>
-          <input id="closeProfit" type="number" placeholder="25">
-        </div>
-        <button class="btn btn-red" onclick="closeTrade()">2. Close Trade & Pay Copiers</button>
+    <div>
+      <div class="card">
+        <h2><i class="fas fa-chart-line"></i> Ongoing Copied Trades</h2>
+        <div id="activeTradesList">Loading active trades...</div>
       </div>
     </div>
     <div>
@@ -135,7 +98,7 @@ const traders = [
   { id: 'pizzo_fx', name: 'Pizzo Fx', profitShare: 20 }
 ];
 
-let currentOpenTrade = null;
+let activeTrades = {};
 let pnlIsProfit = true;
 let isAdmin = false;
 
@@ -163,34 +126,24 @@ auth.onAuthStateChanged(user=>{
 });
 
 function logout(){ auth.signOut(); }
-function setPnL(isProfit){
-  pnlIsProfit = isProfit;
-  document.getElementById('btnProfit').style.opacity = isProfit? '1' : '0.5';
-  document.getElementById('btnLoss').style.opacity =!isProfit? '1' : '0.5';
-}
 
 function initApp(){
-  loadTraders();
   loadRealtimeData();
-  setPnL(true);
-}
-
-function loadTraders(){
-  const select = document.getElementById('traderSelect');
-  select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
 }
 
 function loadRealtimeData(){
-  db.ref("admin_active_trade").on("value", snap=>{
-    if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
-    else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
-  });
-
   let usernames = {};
   db.ref("users").on("value", userSnap=>{
     userSnap.forEach(u=>{ usernames[u.key] = u.val().username || u.key.substring(0,6); });
   });
 
+  // 1. LOAD ALL ACTIVE TRADES FROM TRADERS
+  db.ref("admin_active_trades").on("value", snap=>{
+    activeTrades = snap.val() || {};
+    renderActiveTrades(usernames);
+  });
+
+  // 2. TRADERS & COPIERS
   db.ref("copy_trading").on("value", snap=>{
     const copyData = snap.val() || {};
     let html = "";
@@ -207,13 +160,15 @@ function loadRealtimeData(){
     document.getElementById("traderStats").innerHTML = html || "No copiers yet";
   });
 
+  // 3. TRADE HISTORY
   db.ref("admin_trades").limitToLast(10).on("value", snap=>{
     let html = "";
     snap.forEach(traderSnap=>{
       traderSnap.forEach(tradeSnap=>{
         const tr = tradeSnap.val();
         html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
-          ${traders.find(t=>t.id===traderSnap.key)?.name} | ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
+          <b>${traders.find(t=>t.id===traderSnap.key)?.name}</b> | ${tr.symbol} <span class="badge ${tr.type.toLowerCase()}">${tr.type}</span>
+          <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
         </div>` + html;
       });
     });
@@ -221,41 +176,63 @@ function loadRealtimeData(){
   });
 }
 
-function openTrade(){
-  if(!isAdmin) return showToast("Unauthorized", true);
-  const entry = parseFloat(document.getElementById('entry').value);
-  const tp = parseFloat(document.getElementById('tp').value);
-  const sl = parseFloat(document.getElementById('sl').value);
-  if(isNaN(entry) || isNaN(tp) || isNaN(sl)) return showToast("Fill Entry, TP, SL first");
+function renderActiveTrades(usernames){
+  const container = document.getElementById('activeTradesList');
+  if(Object.keys(activeTrades).length === 0){
+    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px">No ongoing trades</div>';
+    return;
+  }
 
-  const traderId = document.getElementById('traderSelect').value;
-  currentOpenTrade = {
-    id: Date.now(), traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value,
-    entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value),
-    status: "OPEN", openedAt: Date.now()
-  };
-  db.ref("admin_active_trade").set(currentOpenTrade).then(()=>showToast("Trade Opened for " + traders.find(t=>t.id===traderId).name));
+  let html = '';
+  for(const tradeId in activeTrades){
+    const trade = activeTrades[tradeId];
+    const trader = traders.find(t=>t.id===trade.traderId);
+    const copierCount = trade.copiers || 0;
+
+    html += `<div class="active-trade-card">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+        <div><b>${trader.name}</b> <span class="badge ${trade.type.toLowerCase()}">${trade.type}</span></div>
+        <div style="font-size:12px; color:#94a3b8">${copierCount} Copiers</div>
+      </div>
+      <div style="font-size:13px; margin-bottom:10px">
+        <b>Pair:</b> ${trade.symbol} |
+        <b>Entry:</b> ${trade.entry} |
+        <b>TP:</b> ${trade.tp} |
+        <b>SL:</b> ${trade.sl}
+      </div>
+
+      <div class="form-group"><label>Final P&L to Award $</label>
+        <div class="pnl-buttons">
+          <button type="button" class="btn btn-profit" onclick="setPnL(${tradeId}, true)">+ PROFIT</button>
+          <button type="button" class="btn btn-loss" onclick="setPnL(${tradeId}, false)">- LOSS</button>
+        </div>
+        <input id="closeProfit_${tradeId}" type="number" placeholder="25">
+      </div>
+      <button class="btn btn-red" onclick="closeTrade('${tradeId}')">Close Trade & Pay ${copierCount} Copiers</button>
+    </div>`;
+  }
+  container.innerHTML = html;
 }
 
-function showActiveTradeBox(){
-  document.getElementById('openTradeBox').style.display = 'block';
-  const t = traders.find(x=>x.id===currentOpenTrade.traderId);
-  document.getElementById('activeTradeInfo').innerHTML = `
-    <b>Trader:</b> ${t.name} <br>
-    <b>Pair:</b> ${currentOpenTrade.symbol} ${currentOpenTrade.type} <br>
-    <b>Entry:</b> ${currentOpenTrade.entry} | <b>TP:</b> ${currentOpenTrade.tp} | <b>SL:</b> ${currentOpenTrade.sl}
-  `;
+function setPnL(tradeId, isProfit){
+  pnlIsProfit = isProfit;
+  document.querySelectorAll(`#closeProfit_${tradeId}`).forEach(el=>{
+    el.parentElement.querySelector('.btn-profit').style.opacity = isProfit? '1' : '0.5';
+    el.parentElement.querySelector('.btn-loss').style.opacity =!isProfit? '1' : '0.5';
+  });
 }
 
-async function closeTrade(){
+async function closeTrade(tradeId){
   if(!isAdmin) return showToast("Unauthorized", true);
-  if(!currentOpenTrade) return;
-  let profit = parseFloat(document.getElementById('closeProfit').value);
+  const trade = activeTrades[tradeId];
+  if(!trade) return;
+
+  let profit = parseFloat(document.getElementById(`closeProfit_${tradeId}`).value);
   if(isNaN(profit)) return showToast("Enter P&L amount");
   if(!pnlIsProfit) profit = -Math.abs(profit);
 
-  const tradeData = {...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
-  const traderId = currentOpenTrade.traderId;
+  const tradeData = {...trade, profit, status: "CLOSED", closedAt: Date.now() };
+  const traderId = trade.traderId;
 
   try {
     await db.ref("admin_trades/" + traderId).push(tradeData);
@@ -269,20 +246,27 @@ async function closeTrade(){
       const userCopies = userSnap.val();
       if(userCopies[traderId] && userCopies[traderId].status === "active"){
         const copyInfo = userCopies[traderId];
-        const capitalRatio = copyInfo.amount / currentOpenTrade.adminCapital;
+        const capitalRatio = copyInfo.amount / trade.adminCapital;
         const grossProfit = profit * capitalRatio;
         const userProfit = grossProfit * (1 - traderFee/100);
+
         updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(userProfit);
         updates[`copy_trading/${uid}/${traderId}/pnl`] = (copyInfo.pnl || 0) + userProfit;
         updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
         updates[`users/${uid}/history/trade_${tradeData.id}`] = {...tradeData, userProfit, traderName: traders.find(t=>t.id===traderId).name };
+
+        // SEND POPUP TO USER
+        updates[`users/${uid}/trade_notifications/${Date.now()}`] = {
+          msg: `${profit>=0?'Profit':'Loss'} Hit: $${userProfit.toFixed(2)} on ${trade.symbol}`,
+          type: profit>=0? "ok" : "bad"
+        }
         count++;
       }
     });
 
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
-    await db.ref("admin_active_trade").remove();
-    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid & Updated!`);
+    await db.ref(`admin_active_trades/${tradeId}`).remove(); // Remove this specific trade
+    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid!`);
   } catch(e) { showToast("Error: " + e.message, true); }
 }
 
@@ -294,4 +278,4 @@ function showToast(message, isError = false){
 }
 </script>
 </body>
-   </html>
+</html>
