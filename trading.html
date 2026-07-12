@@ -30,8 +30,10 @@ body{background:var(--bg);color:var(--text)}
 .input-group{margin-bottom:10px}
 .input-group label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
 .input-group input{width:100%;padding:12px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:16px;outline:none}
-.btn-signal{width:100%;padding:14px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px}
+.btn-signal{width:100%;padding:14px;background:var(--warn);border:none;border-radius:10px;color:#000;font-weight:700;font-size:16px;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-signal:disabled{opacity:.4;cursor:not-allowed}
+.spinner{border:2px solid rgba(0,0,0,.2);border-top:2px solid #000;border-radius:50%;width:16px;height:16px;animation:spin 1s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
 .positions table{width:100%;border-collapse:collapse;font-size:12px}
 .positions th{text-align:left;color:var(--muted);padding:8px 4px;border-bottom:1px solid var(--line)}
 .positions td{padding:8px 4px}
@@ -123,7 +125,10 @@ body{background:var(--bg);color:var(--text)}
         <label>Amount to Risk <span style="color:var(--warn)">Min $50</span></label>
         <input type="number" id="signalAmount" placeholder="100" value="100" min="50">
       </div>
-      <button class="btn-signal" id="activateBtn" onclick="activateSignal()">Activate Signal</button>
+      <button class="btn-signal" id="activateBtn" onclick="activateSignal()">
+        <span id="btnText">Activate Signal</span>
+        <div class="spinner" id="btnSpinner"></div>
+      </button>
     </div>
   </div>
 </div>
@@ -167,6 +172,8 @@ const centerToast = document.getElementById("centerToast");
 const notifPanel = document.getElementById("notifPanel");
 const notifCount = document.getElementById("notifCount");
 const activateBtn = document.getElementById("activateBtn");
+const btnText = document.getElementById("btnText");
+const btnSpinner = document.getElementById("btnSpinner");
 
 const ASSETS = {
   "BTC/USDT": {tv: "BINANCE:BTCUSDT", api: "BTCUSDT"},
@@ -235,6 +242,7 @@ async function fetchPrices(){
       }
     });
     document.getElementById("lastUpdated").textContent = "Updated " + new Date().toLocaleTimeString(); updateUI();
+    checkAutoClose(); // CHECK TP/SL EVERY PRICE UPDATE
   }catch(e){ console.error("Price fetch failed", e); }
 }
 
@@ -253,6 +261,31 @@ function calcPnL(p, currentPrice){
   const qty = p.amount / p.entry; const priceDiff = p.side==="buy"? currentPrice - p.entry : p.entry - currentPrice;
   const pnl = priceDiff * qty * LEVERAGE; const pnlPct = p.amount > 0? (pnl / p.amount) * 100 : 0;
   return {pnl, pnlPct};
+}
+
+// NEW: AUTO CLOSE TP/SL AND EXPIRED
+async function checkAutoClose(){
+  for(const posId in positions){
+    const p = positions[posId];
+    const price = prices[p.pair];
+    if(!price) continue;
+
+    const {pnlPct} = calcPnL(p, price);
+    const now = Date.now();
+    const hitTP = pnlPct >= p.tp;
+    const hitSL = pnlPct <= -p.sl;
+    const expired = p.expiresAt && now > p.expiresAt;
+
+    if(hitTP || hitSL || expired){
+      let reason = hitTP? "Take Profit" : hitSL? "Stop Loss" : "Expired";
+      await update(ref(db, `trade/${uid}/positions/${posId}`), {status: "CLOSED"});
+      await set(ref(db, `users/${uid}/trade_notifications/${Date.now()}`), {
+        msg: `Trade Auto Closed: ${reason} | P&L: $${calcPnL(p,price).pnl.toFixed(2)}`,
+        type: hitTP? "ok" : "bad"
+      });
+      showCenterToast(`Auto Closed: ${reason}`, hitTP? "ok" : "bad");
+    }
+  }
 }
 
 onAuthStateChanged(auth, (user)=>{
@@ -277,7 +310,7 @@ onAuthStateChanged(auth, (user)=>{
     }
     hasOpenPosition = Object.keys(positions).length > 0;
     activateBtn.disabled = hasOpenPosition;
-    activateBtn.textContent = hasOpenPosition? "Close Current Trade First" : "Activate Signal";
+    btnText.textContent = hasOpenPosition? "Close Current Trade First" : "Activate Signal";
     renderPositions();
     updateEquity();
   });
@@ -305,18 +338,47 @@ window.activateSignal = async function(){
   if(isNaN(userAmount) || userAmount < MIN_TRADE) return showToast(`Minimum amount $${MIN_TRADE}`, "bad");
   if(userAmount > balance) return showToast("Insufficient balance", "bad");
 
+  btnSpinner.style.display = "block";
+  btnText.textContent = "Activating...";
+  activateBtn.disabled = true;
+
   const signalRef = ref(db, `signals/${code}`);
   const snap = await get(signalRef);
-  if(!snap.exists()) return showToast("Invalid signal code", "bad");
+  if(!snap.exists()) {
+    btnSpinner.style.display = "none";
+    btnText.textContent = "Activate Signal";
+    activateBtn.disabled = false;
+    return showToast("Invalid signal code", "bad");
+  }
   const signal = snap.val();
   const now = Date.now();
 
-  if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
-  if(signal.status === "CLOSED") return showToast("This signal is already closed", "bad");
-  if(signal.usedBy && signal.usedBy[uid]){ return showToast(`Signal Already Used By You`, "bad"); }
+  if(now > signal.expiresAt) {
+    btnSpinner.style.display = "none";
+    btnText.textContent = "Activate Signal";
+    activateBtn.disabled = false;
+    return showToast("This signal has expired", "bad");
+  }
+  if(signal.status === "CLOSED") {
+    btnSpinner.style.display = "none";
+    btnText.textContent = "Activate Signal";
+    activateBtn.disabled = false;
+    return showToast("This signal is already closed", "bad");
+  }
+  if(signal.usedBy && signal.usedBy[uid]){
+    btnSpinner.style.display = "none";
+    btnText.textContent = "Activate Signal";
+    activateBtn.disabled = false;
+    return showToast(`Signal Already Used By You`, "bad");
+  }
 
   const price = prices[signal.pair];
-  if(!price) return showToast("Price not loaded", "bad");
+  if(!price) {
+    btnSpinner.style.display = "none";
+    btnText.textContent = "Activate Signal";
+    activateBtn.disabled = false;
+    return showToast("Price not loaded", "bad");
+  }
 
   const tpPct = (signal.tp_pips * signal.pipValue / price) * 100;
   const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
@@ -338,6 +400,9 @@ window.activateSignal = async function(){
   } catch(e) {
     console.error("Activate Error:", e);
     showToast("Error: " + e.message, "bad");
+  } finally {
+    btnSpinner.style.display = "none";
+    btnText.textContent = "Activate Signal";
   }
 }
 function renderPositions(){
@@ -361,12 +426,4 @@ function renderPositions(){
 }
 
 function updateEquity(){
-  if(balance === null){ document.getElementById("balance").textContent = "--"; document.getElementById("equity").textContent = "--"; return; }
-  const floatingPnL = Object.values(positions).reduce((sum,p)=>{ const price = prices[p.pair] || p.entry; const {pnl} = calcPnL(p, price); return sum + pnl; }, 0);
-  const equity = balance + floatingPnL; document.getElementById("balance").textContent = "$" + balance.toFixed(2); document.getElementById("equity").textContent = "$" + equity.toFixed(2);
-}
-
-document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
-</script>
-</body>
-     </html>
+  if(balance === null){ document.getElementById("balance").textCont
