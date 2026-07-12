@@ -239,51 +239,31 @@ function setPnL(traderId, isProfit){
   }
 }
 
-async function closeTrade(traderId){
-  if(!isAdmin) return showToast("Unauthorized", true);
-  let profit = parseFloat(document.getElementById(`closeProfit_${traderId}`).value);
-  if(isNaN(profit)) return showToast("Enter P&L amount");
-  if(!pnlIsProfit) profit = -Math.abs(profit);
+function startPnLSimulation() {
+  setInterval(() => {
+    for(let id in userCopies) {
+      const copy = userCopies[id];
 
-  const trader = traders.find(t=>t.id===traderId);
-  const tradeData = { traderId, profit, status: "CLOSED", closedAt: Date.now() };
-  const traderFee = trader.profitShare;
+      // FIX: STOP SIMULATION IF CLOSED BY ADMIN
+      if(copy.status!== "active") continue;
 
-  try {
-    await db.ref("admin_trades/" + traderId).push(tradeData);
-    const updates = {};
-    let count = 0;
-
-    for(let uid in copyData){
-      if(copyData[uid][traderId] && copyData[uid][traderId].status === "active"){
-        const copyInfo = copyData[uid][traderId];
-        const grossProfit = profit * (Number(copyInfo.amount) / 1000);
-        const userProfit = grossProfit * (1 - traderFee/100);
-
-        updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(userProfit);
-        updates[`copy_trading/${uid}/${traderId}/pnl`] = (Number(copyInfo.pnl) || 0) + userProfit;
-        updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
-        updates[`copy_trading/${uid}/${traderId}/status`] = "closed";
-        updates[`users/${uid}/history/trade_${Date.now()}_${uid}`] = {...tradeData, userProfit, traderName: trader.name };
-        updates[`users/${uid}/trade_notifications/${Date.now()}`] = {
-          msg: `${profit>=0?'Profit':'Loss'} Hit: $${userProfit.toFixed(2)}`,
-          type: profit>=0? "ok" : "bad"
-        }
-        count++;
+      const change = (Math.random() - 0.45) * 25;
+      if(change > 0) {
+        const traderFee = change * (copy.profitShare / 100);
+        const userProfit = change - traderFee;
+        copy.pnl = (copy.pnl || 0) + userProfit;
+        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + userProfit);
+        logTrade(id, userProfit, traderFee, copy.amount);
+      } else {
+        copy.pnl = (copy.pnl || 0) + change;
+        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + change);
       }
+      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({ pnl: copy.pnl, lastUpdate: Date.now() });
+      updatePnLDisplay(id);
     }
-
-    if(Object.keys(updates).length > 0) await db.ref().update(updates);
-    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid & Closed!`);
-  } catch(e) { showToast("Error: " + e.message, true); }
+    updatePortfolioSummary();
+  }, 5000);
 }
-
-function showToast(message, isError = false){
-  const toast = document.getElementById('toast');
-  toast.innerText = message;
-  toast.className = 'toast ' + (isError? 'error show' : 'show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
-</script>
-</body>
+   <script>
+   </body>
    </html>
