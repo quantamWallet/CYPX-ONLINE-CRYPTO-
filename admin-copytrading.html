@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX Admin - Copy Trading</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+    * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0f1a; margin: 0; padding: 20px; color: #fff; }
+.container { max-width: 1300px; margin: 0 auto; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px }
+  h1 { color: #ffd700; margin:0 }
+.btn-logout { padding:8px 16px; background:#ef4444; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:700 }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media(max-width:900px){.grid{ grid-template-columns: 1fr; } }
+.card { background: linear-gradient(145deg,#0a1a2f,#0f2942); padding: 20px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.15); }
+.card h2 { color: #00C896; margin-top: 0; font-size: 18px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { font-size: 12px; color: #94e2cc; display: block; margin-bottom: 5px; }
+.form-group input,.form-group select { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 14px; outline:none }
+.form-group input:focus,.form-group select:focus { border-color:#00C896 }
+.btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; background: linear-gradient(90deg,#00C896,#007A54); color: white; font-size: 15px; transition:0.2s }
+.btn:hover { opacity: 0.9; transform:translateY(-1px) }
+.btn-red { background: linear-gradient(90deg,#ef4444,#dc2626); }
+.btn-blue { background: linear-gradient(90deg,#3b82f6,#2563eb); }
+.btn-profit { background:linear-gradient(90deg,#16a34a,#15803d) }
+.btn-loss { background:linear-gradient(90deg,#ef4444,#dc2626) }
+.toast { position: fixed; top: 20px; right: 20px; background: #00C896; color: white; padding: 14px 18px; border-radius: 10px; transform: translateX(400px); transition: 0.3s; z-index: 9999; }
+.toast.show { transform: translateX(0); }
+.toast.error { background:#ef4444 }
+.hide { display:none }
+.trader-stat { background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px; cursor:pointer }
+.trader-stat b{color:#00C896}
+.copier-list { margin-top:8px; padding-left:10px; border-left:2px solid #00C896; font-size:12px }
+.open-trade-box { background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:15px; border-radius:10px }
+.pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
+.lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
+</style>
+</head>
+<body>
+
+<div id="lockScreen" class="lock-screen hide">
+  <h1><i class="fas fa-lock"></i> Access Denied</h1>
+  <p>You are not an admin. Please login with an admin account.</p>
+</div>
+
+<div id="mainApp" class="container hide">
+  <div class="header">
+    <h1><i class="fas fa-copy"></i> CYPX Admin - Copy Trading</h1>
+    <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2><i class="fas fa-paper-plane"></i> Push New Trade</h2>
+      <div class="form-group">
+        <label>Select Trader</label>
+        <select id="traderSelect"></select>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div class="form-group"><label>Symbol</label>
+          <select id="symbol">
+            <optgroup label="Crypto">
+              <option>BTC/USDT</option><option>ETH/USDT</option><option>SOL/USDT</option>
+              <option>BNB/USDT</option><option>XRP/USDT</option><option>DOGE/USDT</option>
+              <option>ADA/USDT</option><option>TON/USDT</option>
+            </optgroup>
+            <optgroup label="Forex">
+              <option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option>
+              <option>USD/CHF</option><option>AUD/USD</option><option>NZD/USD</option>
+              <option>USD/CAD</option><option>EUR/GBP</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group"><label>Type</label><select id="type"><option>BUY</option><option>SELL</option></select></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div class="form-group"><label>Entry Price</label><input id="entry" type="number" step="0.00001" placeholder="63500"></div>
+        <div class="form-group"><label>Admin Capital $</label><input id="adminCapital" type="number" value="1000"></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div class="form-group"><label>Take Profit</label><input id="tp" type="number" step="0.00001" placeholder="65250"></div>
+        <div class="form-group"><label>Stop Loss</label><input id="sl" type="number" step="0.00001" placeholder="603100"></div>
+      </div>
+      <button class="btn btn-blue" onclick="openTrade()">1. Open Trade</button>
+      <div id="openTradeBox" class="open-trade-box" style="display:none; margin-top:15px">
+        <h3 style="margin:0 0 10px 0; color:#3b82f6; font-size:14px"><i class="fas fa-circle" style="color:#22c55e; font-size:8px"></i> ACTIVE TRADE</h3>
+        <div id="activeTradeInfo" style="font-size:12px; margin-bottom:10px"></div>
+        <div class="form-group"><label>Close Trade With Final P&L $</label>
+          <div class="pnl-buttons">
+            <button type="button" class="btn btn-profit" id="btnProfit" onclick="setPnL(true)">+ PROFIT</button>
+            <button type="button" class="btn btn-loss" id="btnLoss" onclick="setPnL(false)">- LOSS</button>
+          </div>
+          <input id="closeProfit" type="number" placeholder="25">
+        </div>
+        <button class="btn btn-red" onclick="closeTrade()">2. Close Trade & Pay Copiers</button>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:20px"><h2><i class="fas fa-users"></i> Traders & Copiers</h2><div id="traderStats">Loading...</div></div>
+      <div class="card"><h2><i class="fas fa-history"></i> Trade History</h2><div id="tradeLog">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.appspot.com",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+const traders = [
+  { id: 'kenyan_prince', name: 'Kenyan Prince', profitShare: 20 },
+  { id: 'alpha_trader', name: 'Alpha Trader', profitShare: 15 },
+  { id: 'states_ke', name: 'States Ke', profitShare: 25 },
+  { id: 'vidollar', name: 'Vidollar', profitShare: 18 },
+  { id: 'ziwa_fx', name: 'Ziwa Fx', profitShare: 12 },
+  { id: 'pizzo_fx', name: 'Pizzo Fx', profitShare: 20 }
+];
+
+let currentOpenTrade = null;
+let pnlIsProfit = true;
+let isAdmin = false;
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    db.ref(`admins/${user.uid}`).once('value').then(snap=>{
+      if(snap.exists() && (snap.val().role === 'admin' || snap.val().role === 'superadmin')){
+        isAdmin = true;
+        document.getElementById('lockScreen').classList.add('hide');
+        document.getElementById('mainApp').classList.remove('hide');
+        initApp();
+      } else {
+        isAdmin = false;
+        document.getElementById('mainApp').classList.add('hide');
+        document.getElementById('lockScreen').classList.remove('hide');
+        showToast("Access Denied: Not an admin", true);
+      }
+    });
+  } else {
+    isAdmin = false;
+    document.getElementById('mainApp').classList.add('hide');
+    document.getElementById('lockScreen').classList.remove('hide');
+    showToast("Please login first", true);
+  }
+});
+
+function logout(){ auth.signOut(); }
+function setPnL(isProfit){
+  pnlIsProfit = isProfit;
+  document.getElementById('btnProfit').style.opacity = isProfit? '1' : '0.5';
+  document.getElementById('btnLoss').style.opacity =!isProfit? '1' : '0.5';
+}
+
+function initApp(){
+  loadTraders();
+  loadRealtimeData();
+  setPnL(true);
+}
+
+function loadTraders(){
+  const select = document.getElementById('traderSelect');
+  select.innerHTML = traders.map(t => `<option value="${t.id}">${t.name} - ${t.profitShare}% Fee</option>`).join('');
+}
+
+function loadRealtimeData(){
+  db.ref("admin_active_trade").on("value", snap=>{
+    if(snap.exists()){ currentOpenTrade = snap.val(); showActiveTradeBox(); }
+    else { currentOpenTrade = null; document.getElementById('openTradeBox').style.display = 'none'; }
+  });
+
+  let usernames = {};
+  db.ref("users").on("value", userSnap=>{
+    userSnap.forEach(u=>{ usernames[u.key] = u.val().username || u.key.substring(0,6); });
+  });
+
+  db.ref("copy_trading").on("value", snap=>{
+    const copyData = snap.val() || {};
+    let html = "";
+    traders.forEach(t=>{
+      let copiers = [];
+      for(let uid in copyData){
+        if(copyData[uid][t.id]){ copiers.push(usernames[uid] || uid.substring(0,6)); }
+      }
+      html += `<div class="trader-stat">
+        <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
+        <div class="copier-list">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
+      </div>`;
+    });
+    document.getElementById("traderStats").innerHTML = html || "No copiers yet";
+  });
+
+  db.ref("admin_trades").limitToLast(10).on("value", snap=>{
+    let html = "";
+    snap.forEach(traderSnap=>{
+      traderSnap.forEach(tradeSnap=>{
+        const tr = tradeSnap.val();
+        html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
+          ${traders.find(t=>t.id===traderSnap.key)?.name} | ${tr.symbol} ${tr.type} <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
+        </div>` + html;
+      });
+    });
+    document.getElementById("tradeLog").innerHTML = html || "No trades yet";
+  });
+}
+
+function openTrade(){
+  if(!isAdmin) return showToast("Unauthorized", true);
+  const entry = parseFloat(document.getElementById('entry').value);
+  const tp = parseFloat(document.getElementById('tp').value);
+  const sl = parseFloat(document.getElementById('sl').value);
+  if(isNaN(entry) || isNaN(tp) || isNaN(sl)) return showToast("Fill Entry, TP, SL first");
+
+  const traderId = document.getElementById('traderSelect').value;
+  currentOpenTrade = {
+    id: Date.now(), traderId, symbol: document.getElementById('symbol').value, type: document.getElementById('type').value,
+    entry, tp, sl, adminCapital: parseFloat(document.getElementById('adminCapital').value),
+    status: "OPEN", openedAt: Date.now()
+  };
+  db.ref("admin_active_trade").set(currentOpenTrade).then(()=>showToast("Trade Opened for " + traders.find(t=>t.id===traderId).name));
+}
+
+function showActiveTradeBox(){
+  document.getElementById('openTradeBox').style.display = 'block';
+  const t = traders.find(x=>x.id===currentOpenTrade.traderId);
+  document.getElementById('activeTradeInfo').innerHTML = `
+    <b>Trader:</b> ${t.name} <br>
+    <b>Pair:</b> ${currentOpenTrade.symbol} ${currentOpenTrade.type} <br>
+    <b>Entry:</b> ${currentOpenTrade.entry} | <b>TP:</b> ${currentOpenTrade.tp} | <b>SL:</b> ${currentOpenTrade.sl}
+  `;
+}
+
+async function closeTrade(){
+  if(!isAdmin) return showToast("Unauthorized", true);
+  if(!currentOpenTrade) return;
+  let profit = parseFloat(document.getElementById('closeProfit').value);
+  if(isNaN(profit)) return showToast("Enter P&L amount");
+  if(!pnlIsProfit) profit = -Math.abs(profit);
+
+  const tradeData = {...currentOpenTrade, profit, status: "CLOSED", closedAt: Date.now() };
+  const traderId = currentOpenTrade.traderId;
+
+  try {
+    await db.ref("admin_trades/" + traderId).push(tradeData);
+    const copySnap = await db.ref("copy_trading").once("value");
+    const updates = {};
+    const traderFee = traders.find(t=>t.id===traderId).profitShare;
+    let count = 0;
+
+    copySnap.forEach(userSnap=>{
+      const uid = userSnap.key;
+      const userCopies = userSnap.val();
+      if(userCopies[traderId] && userCopies[traderId].status === "active"){
+        const copyInfo = userCopies[traderId];
+        const capitalRatio = copyInfo.amount / currentOpenTrade.adminCapital;
+        const grossProfit = profit * capitalRatio;
+        const userProfit = grossProfit * (1 - traderFee/100);
+        updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(userProfit);
+        updates[`copy_trading/${uid}/${traderId}/pnl`] = (copyInfo.pnl || 0) + userProfit;
+        updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
+        updates[`users/${uid}/history/trade_${tradeData.id}`] = {...tradeData, userProfit, traderName: traders.find(t=>t.id===traderId).name };
+        count++;
+      }
+    });
+
+    if(Object.keys(updates).length > 0) await db.ref().update(updates);
+    await db.ref("admin_active_trade").remove();
+    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid & Updated!`);
+  } catch(e) { showToast("Error: " + e.message, true); }
+}
+
+function showToast(message, isError = false){
+  const toast = document.getElementById('toast');
+  toast.innerText = message;
+  toast.className = 'toast ' + (isError? 'error show' : 'show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+</body>
+   </html>
