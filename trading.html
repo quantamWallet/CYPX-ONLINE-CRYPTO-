@@ -134,7 +134,7 @@ body{background:var(--bg);color:var(--text)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, onValue, push, remove, runTransaction, get, update, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"; // ADDED set
+import { getDatabase, ref, onValue, push, remove, runTransaction, get, update, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -264,20 +264,17 @@ onAuthStateChanged(auth, (user)=>{
 
   onValue(positionsRef, (snap)=>{
     const allPositions = snap.val() || {};
-
     for(let posId in allPositions){
       if(allPositions[posId].status === "CLOSED"){
         remove(ref(db, `trade/${uid}/positions/${posId}`));
       }
     }
-
     positions = {};
     for(let posId in allPositions){
       if(allPositions[posId].status === "OPEN"){
         positions[posId] = allPositions[posId];
       }
     }
-
     hasOpenPosition = Object.keys(positions).length > 0;
     activateBtn.disabled = hasOpenPosition;
     activateBtn.textContent = hasOpenPosition? "Close Current Trade First" : "Activate Signal";
@@ -298,7 +295,6 @@ onAuthStateChanged(auth, (user)=>{
   });
 });
 
-// ===== FIXED: GUARANTEED WRITE TO usedBy =====
 window.activateSignal = async function(){
   if(hasOpenPosition) return showToast("You already have an open trade. Wait for it to close.", "bad");
 
@@ -373,4 +369,4 @@ function updateEquity(){
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
 </script>
 </body>
-  </html>
+                                                   </html>
