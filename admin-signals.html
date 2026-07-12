@@ -173,45 +173,7 @@ function loadSignals(){
     document.getElementById("activeSignalsList").innerHTML = html || "No signals";
   });
 }
-
-window.generateSignal = async function(){
-  if(!isAdmin) return showToast("Unauthorized", true);
-  const pair = document.getElementById("sigPair").value;
-  const side = document.getElementById("sigSide").value;
-  const amount = parseFloat(document.getElementById("sigAmount").value);
-  const tp_pips = parseFloat(document.getElementById("sigTP").value);
-  const sl_pips = parseFloat(document.getElementById("sigSL").value);
-  const pipValue = parseFloat(document.getElementById("sigPip").value);
-  if(isNaN(amount) || isNaN(tp_pips) || isNaN(sl_pips) || isNaN(pipValue)) return showToast("Fill all fields");
-
-  const code = `SIGNAL-${pair.split('/')[0]}-${Date.now()}`;
-  const expiresAt = Date.now() + 600000;
-
-  try {
-    await db.ref(`signals/${code}`).set({
-      pair, side, amount, tp_pips, sl_pips, pipValue, expiresAt, usedBy: {}, adminPnL: 0, status: "OPEN", createdAt: Date.now()
-    });
-    document.getElementById("sigOutput").innerHTML = `Code: <span class="code">${code}</span> <br><small>Copied to clipboard</small>`;
-    navigator.clipboard.writeText(code).catch(()=>{});
-    showToast("Signal Created: " + code);
-  } catch(e) { showToast("Firebase Error: " + e.message, true); }
-}
-
-window.closeSignal = async function(code){
-  if(!isAdmin) return showToast("Unauthorized", true);
-  const signalSnap = await db.ref(`signals/${code}`).once("value");
-  const signal = signalSnap.val();
-  if(!signal) return;
-  const updates = {};
-  for(const uid in signal.usedBy){
-    updates[`users/${uid}/signalTrades/${code}/status`] = "CLOSED";
-    // SEND POPUP TO USER
-    updates[`users/${uid}/trade_notifications/${Date.now()}`] = {msg: `Trade Closed: ${signal.pair}`, type: "info"}
-  }
-  updates[`signals/${code}/status`] = "CLOSED";
-  await db.ref().update(updates);
-  showToast("Signal Closed. All user trades closed.");
-}
+//... keep everything else same...
 
 window.awardSignal = async function(code, isProfit){
   if(!isAdmin) return showToast("Unauthorized", true);
@@ -237,12 +199,26 @@ window.awardSignal = async function(code, isProfit){
     const userSnap = await db.ref(`users/${uid}`).once("value");
     const user = userSnap.val();
     if(user){
+      // 1. Pay user
       updates[`users/${uid}/balance`] = (user.balance || 0) + finalUserProfit;
+
+      // 2. Add to history
       updates[`users/${uid}/history/signal_${code}`] = {...signal, awardedPnL, userProfit: finalUserProfit, awardedAt: Date.now()};
+
+      // 3. Close in signalTrades
       updates[`users/${uid}/signalTrades/${code}/status`] = "CLOSED";
       updates[`users/${uid}/signalTrades/${code}/profit`] = finalUserProfit;
 
-      // FIX: SEND POPUP TO USER WHEN ADMIN AWARDS
+      // 4. FIX: FIND AND DELETE THE OPEN POSITION IN trade/{uid}/positions
+      const positionsSnap = await db.ref(`trade/${uid}/positions`).once("value");
+      positionsSnap.forEach(posSnap => {
+        const pos = posSnap.val();
+        if(pos.code === code && pos.status === "OPEN"){ // match by signal code
+          updates[`trade/${uid}/positions/${posSnap.key}`] = null; // DELETE POSITION
+        }
+      });
+
+      // 5. SEND POPUP TO USER WHEN ADMIN AWARDS
       updates[`users/${uid}/trade_notifications/${Date.now()}`] = {
         msg: `${isProfit?'Profit Hit':'Loss Hit'} $${finalUserProfit.toFixed(2)}`,
         type: isProfit? "ok" : "bad"
@@ -255,15 +231,11 @@ window.awardSignal = async function(code, isProfit){
   updates[`signals/${code}/status`] = "CLOSED";
 
   await db.ref().update(updates);
-  showToast(`Awarded $${awardedPnL}. ${count} users paid. Signal Closed.`);
+  showToast(`Awarded $${awardedPnL}. ${count} users paid & positions closed. Signal Closed.`);
 }
 
-function showToast(message, isError = false){
-  const toast = document.getElementById('toast');
-  toast.innerText = message;
-  toast.className = 'toast ' + (isError? 'error show' : 'show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
+//... rest of code same...
+</script>
 </script>
 </body>
   </html>
