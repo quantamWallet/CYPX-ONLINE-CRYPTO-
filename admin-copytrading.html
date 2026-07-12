@@ -36,8 +36,6 @@
 .pnl-buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px }
 .lock-screen { text-align:center; margin-top:150px; color:#ef4444 }
 .badge { padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700 }
-.badge.buy { background:rgba(22,163,74,.2); color:#16a34a }
-.badge.sell { background:rgba(220,38,38,.2); color:#ef4444 }
 </style>
 </head>
 <body>
@@ -98,7 +96,8 @@ const traders = [
   { id: 'pizzo_fx', name: 'Pizzo Fx', profitShare: 20 }
 ];
 
-let activeTrades = {};
+let copyData = {}; // {uid: {traderId: data}}
+let usernames = {};
 let pnlIsProfit = true;
 let isAdmin = false;
 
@@ -132,32 +131,17 @@ function initApp(){
 }
 
 function loadRealtimeData(){
-  let usernames = {};
+  // 1. LOAD USERNAMES
   db.ref("users").on("value", userSnap=>{
+    usernames = {};
     userSnap.forEach(u=>{ usernames[u.key] = u.val().username || u.key.substring(0,6); });
   });
 
-  // 1. LOAD ALL ACTIVE TRADES FROM TRADERS
-  db.ref("admin_active_trades").on("value", snap=>{
-    activeTrades = snap.val() || {};
-    renderActiveTrades(usernames);
-  });
-
-  // 2. TRADERS & COPIERS
+  // 2. LOAD ALL COPIES - THIS IS THE MAIN FIX
   db.ref("copy_trading").on("value", snap=>{
-    const copyData = snap.val() || {};
-    let html = "";
-    traders.forEach(t=>{
-      let copiers = [];
-      for(let uid in copyData){
-        if(copyData[uid][t.id]){ copiers.push(usernames[uid] || uid.substring(0,6)); }
-      }
-      html += `<div class="trader-stat">
-        <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
-        <div class="copier-list">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
-      </div>`;
-    });
-    document.getElementById("traderStats").innerHTML = html || "No copiers yet";
+    copyData = snap.val() || {};
+    renderTraderStats();
+    renderActiveTrades();
   });
 
   // 3. TRADE HISTORY
@@ -167,7 +151,7 @@ function loadRealtimeData(){
       traderSnap.forEach(tradeSnap=>{
         const tr = tradeSnap.val();
         html = `<div style="font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #222">
-          <b>${traders.find(t=>t.id===traderSnap.key)?.name}</b> | ${tr.symbol} <span class="badge ${tr.type.toLowerCase()}">${tr.type}</span>
+          <b>${traders.find(t=>t.id===traderSnap.key)?.name}</b> | P&L:
           <span style="color:${tr.profit>=0?'#22c55e':'#ef4444'}">${tr.profit>=0?'+':''}$${tr.profit.toFixed(2)}</span>
         </div>` + html;
       });
@@ -176,97 +160,111 @@ function loadRealtimeData(){
   });
 }
 
-function renderActiveTrades(usernames){
-  const container = document.getElementById('activeTradesList');
-  if(Object.keys(activeTrades).length === 0){
-    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px">No ongoing trades</div>';
-    return;
-  }
-
-  let html = '';
-  for(const tradeId in activeTrades){
-    const trade = activeTrades[tradeId];
-    const trader = traders.find(t=>t.id===trade.traderId);
-    const copierCount = trade.copiers || 0;
-
-    html += `<div class="active-trade-card">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px">
-        <div><b>${trader.name}</b> <span class="badge ${trade.type.toLowerCase()}">${trade.type}</span></div>
-        <div style="font-size:12px; color:#94a3b8">${copierCount} Copiers</div>
-      </div>
-      <div style="font-size:13px; margin-bottom:10px">
-        <b>Pair:</b> ${trade.symbol} |
-        <b>Entry:</b> ${trade.entry} |
-        <b>TP:</b> ${trade.tp} |
-        <b>SL:</b> ${trade.sl}
-      </div>
-
-      <div class="form-group"><label>Final P&L to Award $</label>
-        <div class="pnl-buttons">
-          <button type="button" class="btn btn-profit" onclick="setPnL(${tradeId}, true)">+ PROFIT</button>
-          <button type="button" class="btn btn-loss" onclick="setPnL(${tradeId}, false)">- LOSS</button>
-        </div>
-        <input id="closeProfit_${tradeId}" type="number" placeholder="25">
-      </div>
-      <button class="btn btn-red" onclick="closeTrade('${tradeId}')">Close Trade & Pay ${copierCount} Copiers</button>
+function renderTraderStats(){
+  let html = "";
+  traders.forEach(t=>{
+    let copiers = [];
+    for(let uid in copyData){
+      if(copyData[uid][t.id] && copyData[uid][t.id].status === "active"){
+        copiers.push(usernames[uid] || uid.substring(0,6));
+      }
+    }
+    html += `<div class="trader-stat">
+      <b>${t.name}</b> - ${copiers.length} Copiers | ${t.profitShare}% Fee
+      <div class="copier-list">${copiers.length? copiers.join(', ') : 'No copiers yet'}</div>
     </div>`;
-  }
+  });
+  document.getElementById("traderStats").innerHTML = html || "No copiers yet";
+}
+
+function renderActiveTrades(){
+  const container = document.getElementById('activeTradesList');
+  let html = '';
+  let hasTrades = false;
+
+  traders.forEach(t=>{
+    let copiers = [];
+    let totalCopied = 0;
+    for(let uid in copyData){
+      if(copyData[uid][t.id] && copyData[uid][t.id].status === "active"){
+        hasTrades = true;
+        const c = copyData[uid][t.id];
+        copiers.push({uid,...c, username: usernames[uid] || uid.substring(0,6)});
+        totalCopied += c.amount;
+      }
+    }
+
+    if(copiers.length > 0){
+      html += `<div class="active-trade-card">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px">
+          <div><b>${t.name}</b></div>
+          <div style="font-size:12px; color:#94a3b8">${copiers.length} Copiers | Total: $${totalCopied.toFixed(2)}</div>
+        </div>
+        <div style="font-size:12px; margin-bottom:10px">Copiers: ${copiers.map(c=>c.username).join(', ')}</div>
+
+        <div class="form-group"><label>Final P&L to Award for ALL ${copiers.length} Copiers $</label>
+          <div class="pnl-buttons">
+            <button type="button" class="btn btn-profit" onclick="setPnL('${t.id}', true)">+ PROFIT</button>
+            <button type="button" class="btn btn-loss" onclick="setPnL('${t.id}', false)">- LOSS</button>
+          </div>
+          <input id="closeProfit_${t.id}" type="number" placeholder="25">
+        </div>
+        <button class="btn btn-red" onclick="closeTrade('${t.id}')">Close & Pay ${copiers.length} Copiers</button>
+      </div>`;
+    }
+  });
+
+  if(!hasTrades) html = '<div style="text-align:center; color:#94a3b8; padding:20px">No active copiers</div>';
   container.innerHTML = html;
 }
 
-function setPnL(tradeId, isProfit){
+function setPnL(traderId, isProfit){
   pnlIsProfit = isProfit;
-  document.querySelectorAll(`#closeProfit_${tradeId}`).forEach(el=>{
+  const el = document.getElementById(`closeProfit_${traderId}`);
+  if(el){
     el.parentElement.querySelector('.btn-profit').style.opacity = isProfit? '1' : '0.5';
     el.parentElement.querySelector('.btn-loss').style.opacity =!isProfit? '1' : '0.5';
-  });
+  }
 }
 
-async function closeTrade(tradeId){
+async function closeTrade(traderId){
   if(!isAdmin) return showToast("Unauthorized", true);
-  const trade = activeTrades[tradeId];
-  if(!trade) return;
-
-  let profit = parseFloat(document.getElementById(`closeProfit_${tradeId}`).value);
+  let profit = parseFloat(document.getElementById(`closeProfit_${traderId}`).value);
   if(isNaN(profit)) return showToast("Enter P&L amount");
   if(!pnlIsProfit) profit = -Math.abs(profit);
 
-  const tradeData = {...trade, profit, status: "CLOSED", closedAt: Date.now() };
-  const traderId = trade.traderId;
+  const trader = traders.find(t=>t.id===traderId);
+  const tradeData = { traderId, profit, status: "CLOSED", closedAt: Date.now() };
+  const traderFee = trader.profitShare;
 
   try {
     await db.ref("admin_trades/" + traderId).push(tradeData);
-    const copySnap = await db.ref("copy_trading").once("value");
     const updates = {};
-    const traderFee = traders.find(t=>t.id===traderId).profitShare;
     let count = 0;
 
-    copySnap.forEach(userSnap=>{
-      const uid = userSnap.key;
-      const userCopies = userSnap.val();
-      if(userCopies[traderId] && userCopies[traderId].status === "active"){
-        const copyInfo = userCopies[traderId];
-        const capitalRatio = copyInfo.amount / trade.adminCapital;
-        const grossProfit = profit * capitalRatio;
+    for(let uid in copyData){
+      if(copyData[uid][traderId] && copyData[uid][traderId].status === "active"){
+        const copyInfo = copyData[uid][traderId];
+        const capitalRatio = 1; // Since each user copies with their own amount
+        const grossProfit = profit * (copyInfo.amount / 1000); // scale by 1000 admin capital
         const userProfit = grossProfit * (1 - traderFee/100);
 
         updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(userProfit);
         updates[`copy_trading/${uid}/${traderId}/pnl`] = (copyInfo.pnl || 0) + userProfit;
         updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
-        updates[`users/${uid}/history/trade_${tradeData.id}`] = {...tradeData, userProfit, traderName: traders.find(t=>t.id===traderId).name };
+        updates[`copy_trading/${uid}/${traderId}/status`] = "closed"; // CLOSE IT
+        updates[`users/${uid}/history/trade_${Date.now()}`] = {...tradeData, userProfit, traderName: trader.name };
 
-        // SEND POPUP TO USER
         updates[`users/${uid}/trade_notifications/${Date.now()}`] = {
-          msg: `${profit>=0?'Profit':'Loss'} Hit: $${userProfit.toFixed(2)} on ${trade.symbol}`,
+          msg: `${profit>=0?'Profit':'Loss'} Hit: $${userProfit.toFixed(2)}`,
           type: profit>=0? "ok" : "bad"
         }
         count++;
       }
-    });
+    }
 
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
-    await db.ref(`admin_active_trades/${tradeId}`).remove(); // Remove this specific trade
-    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid!`);
+    showToast(`Trade Closed. P&L: $${profit}. ${count} Copiers Paid & Closed!`);
   } catch(e) { showToast("Error: " + e.message, true); }
 }
 
