@@ -317,9 +317,7 @@ window.activateSignal = async function(){
 
   if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
   if(signal.status === "CLOSED") return showToast("This signal is already closed", "bad");
-  if(signal.usedBy && signal.usedBy[uid]){
-    return showToast(`Signal Already Used By You`, "bad");
-  }
+  if(signal.usedBy && signal.usedBy[uid]){ return showToast(`Signal Already Used By You`, "bad"); }
 
   const price = prices[signal.pair];
   if(!price) return showToast("Price not loaded", "bad");
@@ -327,27 +325,25 @@ window.activateSignal = async function(){
   const tpPct = (signal.tp_pips * signal.pipValue / price) * 100;
   const slPct = (signal.sl_pips * signal.pipValue / price) * 100;
 
-  await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
+  try {
+    await runTransaction(ref(db, `users/${uid}/balance`), (current)=> (parseFloat(current)||0) - userAmount);
 
-  await push(ref(db, `trade/${uid}/positions`), {
-    pair: signal.pair, side: signal.side, qty: userAmount/price, entry: price,
-    amount: userAmount, tp: tpPct, sl: slPct, type: "signal",
-    openedAt: now, expiresAt: signal.expiresAt, code, status: "OPEN"
-  });
+    await push(ref(db, `trade/${uid}/positions`), {
+      pair: signal.pair, side: signal.side, qty: userAmount/price, entry: price,
+      amount: userAmount, tp: tpPct, sl: slPct, type: "signal",
+      openedAt: now, expiresAt: signal.expiresAt, code, status: "OPEN"
+    });
 
-  // DEBUG WRITE
-  try{
     await set(ref(db, `signals/${code}/usedBy/${uid}`), {amount: userAmount, usedAt: now});
-    console.log("SUCCESS: Wrote to usedBy", code, uid);
-    showToast("Signal Activated + Registered", "ok");
-  }catch(e){
-    console.error("FAILED TO WRITE usedBy:", e);
-    showToast("Error: Could not register signal. Check rules.", "bad");
-  }
 
-  saveNotif(`🟢 Trade Opened: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
-  document.getElementById("signalCode").value = "";
-      }
+    saveNotif(`🟢 Trade Opened: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
+    showToast(`Signal Activated: $${userAmount}`, "ok");
+    document.getElementById("signalCode").value = "";
+  } catch(e) {
+    console.error("Activate Error:", e);
+    showToast("Error: " + e.message, "bad");
+  }
+}
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
