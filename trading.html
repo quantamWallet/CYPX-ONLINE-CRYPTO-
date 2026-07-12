@@ -134,7 +134,7 @@ body{background:var(--bg);color:var(--text)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, onValue, push, remove, runTransaction, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, push, remove, runTransaction, get, update, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"; // ADDED set
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -262,18 +262,15 @@ onAuthStateChanged(auth, (user)=>{
   const positionsRef = ref(db, `trade/${uid}/positions`);
   onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
 
-  // FIXED: AUTO CLEAN CLOSED TRADES + ONLY COUNT OPEN
   onValue(positionsRef, (snap)=>{
     const allPositions = snap.val() || {};
-    
-    // 1. AUTO DELETE ANY CLOSED POSITIONS
+
     for(let posId in allPositions){
       if(allPositions[posId].status === "CLOSED"){
         remove(ref(db, `trade/${uid}/positions/${posId}`));
       }
     }
 
-    // 2. ONLY KEEP OPEN POSITIONS IN MEMORY
     positions = {};
     for(let posId in allPositions){
       if(allPositions[posId].status === "OPEN"){
@@ -288,7 +285,6 @@ onAuthStateChanged(auth, (user)=>{
     updateEquity();
   });
 
-  // LISTEN FOR ADMIN NOTIFICATIONS
   onValue(ref(db, `users/${uid}/trade_notifications`), (snap)=>{
     const data = snap.val();
     if(data){
@@ -302,7 +298,7 @@ onAuthStateChanged(auth, (user)=>{
   });
 });
 
-// ===== SIGNAL CODE ONLY - 1 TRADE PER USER RULE =====
+// ===== FIXED: GUARANTEED WRITE TO usedBy =====
 window.activateSignal = async function(){
   if(hasOpenPosition) return showToast("You already have an open trade. Wait for it to close.", "bad");
 
@@ -321,7 +317,6 @@ window.activateSignal = async function(){
 
   if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
   if(signal.status === "CLOSED") return showToast("This signal is already closed", "bad");
-
   if(signal.usedBy && signal.usedBy[uid]){
     return showToast(`Signal Already Used By You`, "bad");
   }
@@ -346,17 +341,17 @@ window.activateSignal = async function(){
     openedAt: now,
     expiresAt: signal.expiresAt,
     code,
-    status: "OPEN" // IMPORTANT
+    status: "OPEN"
   });
 
-  await update(signalRef, { [`usedBy/${uid}`]: {amount: userAmount, usedAt: now} });
+  // KEY FIX: Use set() to force write. This will create usedBy if it doesn't exist
+  await set(ref(db, `signals/${code}/usedBy/${uid}`), {amount: userAmount, usedAt: now});
 
   saveNotif(`🟢 Trade Opened: ${signal.side.toUpperCase()} ${signal.pair} - $${userAmount}`, "ok");
   showToast(`Signal Activated: $${userAmount}`, "ok");
   document.getElementById("signalCode").value = "";
 }
 
-// FIXED: ONLY RENDER OPEN POSITIONS
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
@@ -377,7 +372,6 @@ function renderPositions(){
   }).join('');
 }
 
-// FIXED: ONLY CALC EQUITY FROM OPEN POSITIONS
 function updateEquity(){
   if(balance === null){ document.getElementById("balance").textContent = "--"; document.getElementById("equity").textContent = "--"; return; }
   const floatingPnL = Object.values(positions).reduce((sum,p)=>{ const price = prices[p.pair] || p.entry; const {pnl} = calcPnL(p, price); return sum + pnl; }, 0);
@@ -387,4 +381,4 @@ function updateEquity(){
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
 </script>
 </body>
-          </html>
+  </html>
