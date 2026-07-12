@@ -112,8 +112,7 @@ body{background:var(--bg);color:var(--text)}
     <div class="card order-panel">
       <h3><i class="fa-solid fa-key"></i> Signal Trading Only</h3>
       <div class="info-box">
-        <i class="fa-solid fa-info-circle"></i> Manual trading disabled.
-        Get signal codes from Admin to trade.
+        <i class="fa-solid fa-info-circle"></i> Manual trading disabled. Enter signal code to continue trading.
       </div>
 
       <div class="input-group">
@@ -161,7 +160,7 @@ let currentPair = "BTC/USDT";
 let prices = {};
 let prevPrices = {};
 let notifs = JSON.parse(localStorage.getItem("cypx_notifs") || "[]");
-let hasOpenPosition = false; // NEW: track if user has open trade
+let hasOpenPosition = false;
 
 const toast = document.getElementById("toast");
 const centerToast = document.getElementById("centerToast");
@@ -263,7 +262,6 @@ onAuthStateChanged(auth, (user)=>{
   const positionsRef = ref(db, `trade/${uid}/positions`);
   onValue(userBalRef, (snap)=>{ balance = snap.exists()? parseFloat(snap.val()) : 0; updateEquity(); document.getElementById("balCard").classList.remove("loading"); });
 
-  // FIX 1: Check if user has open position and disable button
   onValue(positionsRef, (snap)=>{
     positions = snap.val() || {};
     hasOpenPosition = Object.keys(positions).length > 0;
@@ -273,7 +271,7 @@ onAuthStateChanged(auth, (user)=>{
     updateEquity();
   });
 
-  // FIX 2: LISTEN FOR ADMIN CLOSING TRADE POPUP
+  // FIX: LISTEN FOR ADMIN CLOSING TRADE AND DELETE POSITION
   onValue(ref(db, `users/${uid}/trade_notifications`), (snap)=>{
     const data = snap.val();
     if(data){
@@ -281,6 +279,13 @@ onAuthStateChanged(auth, (user)=>{
         const notif = data[key];
         showCenterToast(notif.msg, notif.type);
         saveNotif(notif.msg, notif.type);
+        
+        // NEW: IF ADMIN CLOSED TRADE, REMOVE THE POSITION
+        if(notif.msg.includes("Trade Closed")){
+          for(let posId in positions){
+            remove(ref(db, `trade/${uid}/positions/${posId}`));
+          }
+        }
         remove(ref(db, `users/${uid}/trade_notifications/${key}`));
       });
     }
@@ -289,7 +294,7 @@ onAuthStateChanged(auth, (user)=>{
 
 // ===== SIGNAL CODE ONLY - 1 TRADE PER USER RULE =====
 window.activateSignal = async function(){
-  if(hasOpenPosition) return showToast("You already have an open trade. Wait for Admin to close it.", "bad");
+  if(hasOpenPosition) return showToast("You already have an open trade. Wait for it to close.", "bad");
 
   const code = document.getElementById("signalCode").value.trim().toUpperCase();
   const userAmount = parseFloat(document.getElementById("signalAmount").value);
@@ -307,7 +312,6 @@ window.activateSignal = async function(){
   if(now > signal.expiresAt) return showToast("This signal has expired", "bad");
   if(signal.status === "CLOSED") return showToast("This signal is already closed", "bad");
 
-  // FIX 3: Check if this specific user already used this code
   if(signal.usedBy && signal.usedBy[uid]){
     return showToast(`Signal Already Used By You`, "bad");
   }
@@ -342,7 +346,6 @@ window.activateSignal = async function(){
   document.getElementById("signalCode").value = "";
 }
 
-// ===== RENDER POSITIONS =====
 function renderPositions(){
   const tbody = document.getElementById("positionsBody");
   const arr = Object.entries(positions);
@@ -363,7 +366,6 @@ function renderPositions(){
   }).join('');
 }
 
-// ===== EQUITY =====
 function updateEquity(){
   if(balance === null){ document.getElementById("balance").textContent = "--"; document.getElementById("equity").textContent = "--"; return; }
   const floatingPnL = Object.values(positions).reduce((sum,p)=>{ const price = prices[p.pair] || p.entry; const {pnl} = calcPnL(p, price); return sum + pnl; }, 0);
@@ -373,4 +375,4 @@ function updateEquity(){
 document.getElementById("pairSelect").onchange = e=>{ currentPair = e.target.value; loadChart(currentPair); updateUI(); }
 </script>
 </body>
-  </html>
+              </html>
