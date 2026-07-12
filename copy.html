@@ -166,48 +166,12 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 const traders = [
-  {
-    id: 'kenyan_prince',
-    name: 'Kenyan Prince',
-    bio: 'Nairobi based. Specialist in Gold & Indices. 6+ years trading experience.',
-    roi: '+142.3%', winRate: '78%', followers: '2.4k', risk: 'Medium',
-    avatar: 'Kenyan Prince.jpg', profitShare: 20
-  },
-  {
-    id: 'alpha_trader',
-    name: 'Alpha Snique',
-    bio: 'Conservative trader. Low risk scalper on EURUSD & GBPUSD. Consistent monthly gains.',
-    roi: '+98.7%', winRate: '82%', followers: '5.1k', risk: 'Low',
-    avatar: 'alpha Snique.jpg', profitShare: 15
-  },
-  {
-    id: 'states_ke',
-    name: 'States Ke',
-    bio: 'High risk, high reward. NY session trader. Known for big wins on US30 & NAS100.',
-    roi: '+210.5%', winRate: '71%', followers: '1.8k', risk: 'High',
-    avatar: 'stateske.jpg', profitShare: 25
-  },
-  {
-    id: 'vidollar',
-    name: 'Vidollar',
-    bio: 'Mombasa trader. Swing trader on majors. Disciplined risk management and TP/SL.',
-    roi: '+165.2%', winRate: '75%', followers: '3.2k', risk: 'Medium',
-    avatar: 'vidollar.jpg', profitShare: 18
-  },
-  {
-    id: 'ziwa_fx',
-    name: 'Ziwa Fx',
-    bio: 'Kisumu based. Low risk strategy. 85% win rate on scalping London session.',
-    roi: '+89.4%', winRate: '85%', followers: '4.7k', risk: 'Low',
-    avatar: 'ziwa.jpg', profitShare: 12
-  },
-  {
-    id: 'pizzo_fx',
-    name: 'Pizzo Fx',
-    bio: 'Eldoret trader. Crypto + Forex hybrid. Aggressive but calculated entries.',
-    roi: '+134.8%', winRate: '73%', followers: '2.9k', risk: 'Medium',
-    avatar: 'pizzo.jpg', profitShare: 20
-  }
+  { id: 'kenyan_prince', name: 'Kenyan Prince', bio: 'Nairobi based. Specialist in Gold & Indices. 6+ years trading experience.', roi: '+142.3%', winRate: '78%', followers: '2.4k', risk: 'Medium', avatar: 'Kenyan Prince.jpg', profitShare: 20 },
+  { id: 'alpha_trader', name: 'Alpha Snique', bio: 'Conservative trader. Low risk scalper on EURUSD & GBPUSD. Consistent monthly gains.', roi: '+98.7%', winRate: '82%', followers: '5.1k', risk: 'Low', avatar: 'alpha Snique.jpg', profitShare: 15 },
+  { id: 'states_ke', name: 'States Ke', bio: 'High risk, high reward. NY session trader. Known for big wins on US30 & NAS100.', roi: '+210.5%', winRate: '71%', followers: '1.8k', risk: 'High', avatar: 'stateske.jpg', profitShare: 25 },
+  { id: 'vidollar', name: 'Vidollar', bio: 'Mombasa trader. Swing trader on majors. Disciplined risk management and TP/SL.', roi: '+165.2%', winRate: '75%', followers: '3.2k', risk: 'Medium', avatar: 'vidollar.jpg', profitShare: 18 },
+  { id: 'ziwa_fx', name: 'Ziwa Fx', bio: 'Kisumu based. Low risk strategy. 85% win rate on scalping London session.', roi: '+89.4%', winRate: '85%', followers: '4.7k', risk: 'Low', avatar: 'ziwa.jpg', profitShare: 12 },
+  { id: 'pizzo_fx', name: 'Pizzo Fx', bio: 'Eldoret trader. Crypto + Forex hybrid. Aggressive but calculated entries.', roi: '+134.8%', winRate: '73%', followers: '2.9k', risk: 'Medium', avatar: 'pizzo.jpg', profitShare: 20 }
 ];
 
 let selectedTrader = null;
@@ -221,7 +185,7 @@ auth.onAuthStateChanged(user => {
   loadUserBalance();
   renderTraders();
   loadUserCopies();
-  startPnLSimulation();
+  // REMOVED startPnLSimulation() - Admin controls P&L now
 });
 
 function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
@@ -233,9 +197,29 @@ function loadUserBalance(){
   });
 }
 
+// FIX: LISTEN TO ADMIN CLOSING AND UPDATE REALTIME
 function loadUserCopies() {
   db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
-    userCopies = snap.val() || {};
+    const newData = snap.val() || {};
+
+    // CHECK IF ANY TRADE WAS CLOSED BY ADMIN
+    for(let id in newData){
+      const copy = newData[id];
+      const oldCopy = userCopies[id];
+
+      if(copy.status === "closed" && (!oldCopy || oldCopy.status === "active")){
+        // ADMIN CLOSED IT. SHOW TOAST AND REMOVE AFTER 3s
+        const profit = copy.pnl || 0;
+        showToast(`${copy.traderName} trade closed. P&L: ${formatMoney(profit)}`, profit >= 0? "success" : "error");
+
+        // Remove from UI after 3 seconds so user can see the final P&L
+        setTimeout(() => {
+          db.ref("copy_trading/" + currentUser.uid + "/" + id).remove();
+        }, 3000);
+      }
+    }
+
+    userCopies = newData;
     updatePortfolioSummary();
     renderTraders();
   });
@@ -244,9 +228,11 @@ function loadUserCopies() {
 function updatePortfolioSummary() {
   let totalAmount = 0, totalPnL = 0, count = 0;
   for(let id in userCopies){
-    totalAmount += userCopies[id].amount;
-    totalPnL += userCopies[id].pnl || 0;
-    count++;
+    if(userCopies[id].status === "active"){ // only count active
+      totalAmount += userCopies[id].amount;
+      totalPnL += userCopies[id].pnl || 0;
+      count++;
+    }
   }
   document.getElementById('totalCopied').innerText = formatMoney(totalAmount);
   document.getElementById('totalPnL').innerText = formatMoney(totalPnL);
@@ -254,39 +240,11 @@ function updatePortfolioSummary() {
   document.getElementById('activeCount').innerText = count;
 }
 
-function startPnLSimulation() {
-  setInterval(() => {
-    for(let id in userCopies) {
-      const copy = userCopies[id];
-      const change = (Math.random() - 0.45) * 25;
-      if(change > 0) {
-        const traderFee = change * (copy.profitShare / 100);
-        const userProfit = change - traderFee;
-        copy.pnl = (copy.pnl || 0) + userProfit;
-        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + userProfit);
-        logTrade(id, userProfit, traderFee, copy.amount);
-      } else {
-        copy.pnl = (copy.pnl || 0) + change;
-        db.ref("users/" + currentUser.uid + "/balance").transaction(b => (b||0) + change);
-      }
-      db.ref("copy_trading/" + currentUser.uid + "/" + id).update({ pnl: copy.pnl, lastUpdate: Date.now() });
-      updatePnLDisplay(id);
-    }
-    updatePortfolioSummary();
-  }, 5000);
-}
-
-function logTrade(traderId, userProfit, traderFee, amount) {
-  db.ref("copy_logs/" + currentUser.uid).push({
-    traderId, userProfit: userProfit.toFixed(2), traderFee: traderFee.toFixed(2), amount, timestamp: Date.now()
-  });
-}
-
 function renderTraders() {
   const grid = document.getElementById('tradersGrid');
   grid.innerHTML = traders.map(t => {
-    const isCopying = userCopies[t.id];
-    const userPnL = isCopying?.pnl || 0;
+    const isCopying = userCopies[t.id] && userCopies[t.id].status === "active";
+    const userPnL = isCopying? (userCopies[t.id].pnl || 0) : 0;
     const traderEarned = userPnL > 0? (userPnL * t.profitShare / (100 - t.profitShare)) : 0;
     return `
     <div class="trader-card ${isCopying? 'copying' : ''}">
@@ -307,24 +265,27 @@ function renderTraders() {
       </div>
 
       <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
-        <div class="pnl-row"><span class="pnl-label">Your P&L</span><span class="pnl-value green" id="pnl-${t.id}">${formatMoney(userPnL)}</span></div>
+        <div class="pnl-row"><span class="pnl-label">Your P&L</span><span class="pnl-value ${userPnL >= 0? 'green' : 'red'}" id="pnl-${t.id}">${formatMoney(userPnL)}</span></div>
         <div class="pnl-row"><span class="pnl-label">Copied Amount</span><span class="pnl-value">${formatMoney(isCopying?.amount)}</span></div>
         <div class="pnl-row"><span class="pnl-label">Trader Earned</span><span class="pnl-value gold">${formatMoney(traderEarned)}</span></div>
       </div>
 
       <div class="btn-group">
         ${isCopying
-    ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
+   ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
           : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
         }
       </div>
     </div>
   `}).join('');
-  }
+}
 
 function updatePnLDisplay(id){
   const el = document.getElementById('pnl-'+id);
-  if(el) el.innerText = formatMoney(userCopies[id].pnl);
+  if(el && userCopies[id]) {
+    el.innerText = formatMoney(userCopies[id].pnl);
+    el.className = `pnl-value ${userCopies[id].pnl >= 0? 'green' : 'red'}`;
+  }
 }
 
 function openModal(traderId) {
@@ -359,18 +320,24 @@ function confirmCopy() {
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
+// FIX: USER STOP NOW SETS STATUS=CLOSED INSTEAD OF REMOVE
 function stopCopy(traderId) {
-  // REMOVED confirm() - now uses toast notification
-  const refundAmount = userCopies[traderId].amount;
+  const copyInfo = userCopies[traderId];
+  if(!copyInfo || copyInfo.status!== "active") return showToast("Already closed", "error");
 
-  showToast(`Stopping copy... $${refundAmount} will be refunded`, 'info');
+  const refundAmount = copyInfo.amount + (copyInfo.pnl || 0);
 
-  db.ref("users/" + currentUser.uid + "/balance").transaction(current => (current||0) + refundAmount)
-.then(() => {
-    return db.ref("copy_trading/" + currentUser.uid + "/" + traderId).remove();
-  }).then(() => {
+  showToast(`Stopping copy... ${formatMoney(refundAmount)} will be refunded`, 'info');
+
+  const updates = {};
+  updates[`users/${currentUser.uid}/balance`] = firebase.database.ServerValue.increment(refundAmount);
+  updates[`copy_trading/${currentUser.uid}/${traderId}/status`] = "closed";
+  updates[`copy_trading/${currentUser.uid}/${traderId}/closedBy`] = "user";
+  updates[`copy_trading/${currentUser.uid}/${traderId}/closedAt`] = Date.now();
+
+  db.ref().update(updates).then(() => {
     db.ref("copy_logs/" + currentUser.uid).push({ action: "STOP_COPY", traderId, refund: refundAmount, timestamp: Date.now() });
-    showToast(`Stopped copying. $${refundAmount} refunded`, "success");
+    showToast(`Stopped copying. ${formatMoney(refundAmount)} refunded`, "success");
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
