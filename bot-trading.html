@@ -277,8 +277,14 @@ auth.onAuthStateChanged(user=>{
     loadUserData();
   }
 })
-
+function saveBotData(path, data){
+  db.ref('bot_trading/'+userId+'/'+path).set(data);
+}
+function updateBotData(path, data){
+  db.ref('bot_trading/'+userId+'/'+path).update(data);
+}
 function loadUserData(){
+  // Load user balance
   db.ref('users/'+userId).on('value', snap=>{
     const data = snap.val();
     if(data){
@@ -294,11 +300,24 @@ function loadUserData(){
     updateBotUI();
     updateStats();
   })
-}
-
-function saveUserData(updates){
-  db.ref('users/'+userId).update(updates);
-}
+  
+  // Load bot trading state and resume trade if running
+  db.ref('bot_trading/'+userId).on('value', snap=>{
+    const data = snap.val();
+    if(data && data.active_trade && data.active_trade.status === 'running'){
+      isTrading = true;
+      selectedBot = data.active_trade.botName;
+      selectedAsset = {pair: data.active_trade.pair, symbol: data.active_trade.symbol};
+      duration = data.active_trade.duration;
+      const timeLeft = data.active_trade.duration - Math.floor((Date.now() - data.active_trade.startedAt)/1000);
+      if(timeLeft > 0){
+        resumeTrade(timeLeft);
+      }else{
+        finishTrade(data.active_trade.amount);
+      }
+    }
+  })
+                       }
 
 // TRADINGVIEW WIDGET - loaded after DOM
 window.onload = function(){
@@ -364,6 +383,7 @@ document.querySelectorAll('.duration-btn[data-type]').forEach(b=>{
     b.classList.add('active');
     let val = Number(b.dataset.val);
     let type = b.dataset.type;
+    if(type === 'sec') duration = val; // <-- ADD THIS
     if(type === 'min') duration = val * 60;
     if(type === 'day') duration = val * 86400;
     durationText = b.textContent;
@@ -411,10 +431,17 @@ function updateBotUI(){
   document.querySelectorAll('.bot-card').forEach(card=>{
     const bot = card.dataset.bot;
     const btn = card.querySelector('.bot-btn');
+    
     if(activatedBots.includes(bot)){
-      btn.textContent = 'Select Bot';
-      btn.classList.add('select');
+      if(selectedBot === bot){
+        btn.textContent = 'Bot Selected';
+        btn.style.background = '#00ff88';
+      }else{
+        btn.textContent = 'Select Bot';
+        btn.classList.add('select');
+      }
     }
+    
     if(isTrading){
       card.classList.add('disabled');
       btn.disabled = true;
@@ -424,8 +451,7 @@ function updateBotUI(){
     }
     document.getElementById(`run-${bot}`).textContent = `Runs: ${botRuns[bot]}`;
   });
-}
-
+  }
 // CAN'T SELECT BOT UNTIL ACTIVATED
 function selectBot(botName, btn){
   if(!activatedBots.includes(botName)) return showToast('Activate bot first', '#ff3b30');
@@ -467,7 +493,10 @@ function startTrade(){
   if(amount > balance) return showToast('Insufficient balance', '#ff3b30');
 
   isTrading = true;
-  updateBotUI(); // deactivate bots
+  balance -= amount; // <-- DEDUCT NOW
+  saveUserData({balance: balance});
+  
+  updateBotUI();
   document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=true);
 
   document.getElementById('startBtn').disabled = true;
@@ -476,20 +505,50 @@ function startTrade(){
   document.getElementById('tradeModal').style.display = 'flex';
 
   sessions++;
+  const tradeData = {
+    botName: selectedBot,
+    pair: selectedAsset.pair,
+    symbol: selectedAsset.symbol,
+    amount: amount,
+    duration: duration,
+    leverage: leverage,
+    startedAt: Date.now(),
+    status: 'running'
+  };
+  saveBotData('active_trade', tradeData);
+  
   saveUserData({sessions: sessions});
-  addLog(`SESSION STARTED - ${selectedBot} on ${selectedAsset.pair}`);
+  addLog(`SESSION STARTED - ${selectedBot} on ${selectedAsset.pair} - $${amount}`);
 
   let timeLeft = duration;
   const interval = setInterval(()=>{
     timeLeft--;
     if(timeLeft <= 0){ clearInterval(interval); finishTrade(amount); }
   },1000);
+  
+  window.currentTradeInterval = interval; // so we can clear on refresh
+     }
+
+function resumeTrade(timeLeft){
+  updateBotUI();
+  document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=true);
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').innerHTML = `<i class="fas fa-spinner fa-spin"></i> Trading...`;
+  addLog(`RESUMED TRADE - ${timeLeft}s remaining`);
+  
+  const interval = setInterval(()=>{
+    timeLeft--;
+    if(timeLeft <= 0){ clearInterval(interval); finishTrade(0); }
+  },1000);
+  window.currentTradeInterval = interval;
 }
 
 function finishTrade(amount){
   isTrading = false;
+  clearInterval(window.currentTradeInterval);
   document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=false);
-  updateBotUI(); // reactivate bots
+  updateBotUI();
+  saveBotData('active_trade', null); // clear active trade
 
   const isWin = determineResult(selectedBot);
   let profit = 0;
@@ -497,30 +556,38 @@ function finishTrade(amount){
 
   if(isWin){
     wins++;
-    profit = (amount * 0.4098).toFixed(2);
-    balance += Number(profit);
+    profit = (amount * 0.4098);
+    balance += Number(profit); // ADD PROFIT
     updates.wins = wins; updates.balance = balance;
     document.getElementById('resultIcon').style.color = '#00ff88';
     document.getElementById('resultTitle').textContent = 'Session Win';
     document.getElementById('profitText').style.color = '#00ff88';
     document.getElementById('profitText').textContent = `+$${Number(profit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - WIN +$${profit}`);
+    addLog(`TRADE CLOSED - WIN +$${profit.toFixed(2)}`);
   }else{
     losses++;
-    profit = amount;
-    balance -= Number(profit);
+    // amount already deducted
     updates.losses = losses; updates.balance = balance;
     document.getElementById('resultIcon').style.color = '#ff3b30';
     document.getElementById('resultTitle').textContent = 'Session Loss';
     document.getElementById('profitText').style.color = '#ff3b30';
-    document.getElementById('profitText').textContent = `-$${Number(profit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - LOSS -$${profit}`);
+    document.getElementById('profitText').textContent = `-$${Number(amount).toLocaleString()}`;
+    addLog(`TRADE CLOSED - LOSS -$${amount}`);
   }
+  
+  // SAVE TO HISTORY
+  const tradeId = Date.now();
+  saveBotData(`trade_history/${tradeId}`, {
+    botName: selectedBot, pair: selectedAsset.pair, amount: amount, 
+    duration: duration, result: isWin ? 'win' : 'loss', 
+    pnl: isWin ? profit : -amount, timestamp: Date.now()
+  });
+  
   saveUserData(updates);
   document.getElementById('startBtn').disabled = false;
   document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
   document.getElementById('resultModal').style.display = 'flex';
-}
+  }
 
 function closeTradeModal(){ document.getElementById('tradeModal').style.display = 'none'; }
 function closeResultModal(){ document.getElementById('resultModal').style.display = 'none'; }
