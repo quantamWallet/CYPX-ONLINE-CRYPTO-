@@ -2,30 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CYPX Admin - Send Notification</title>
+  <title>CYPX Admin - In-App Notifications</title>
   <style>
     body { font-family: Arial; background: #0a0a0a; color: #fff; padding: 20px; }
-    input, textarea, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; }
+    input, textarea, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #222; color: #fff; }
     button { background: #00d4ff; color: #000; font-weight: bold; cursor: pointer; }
-    button:disabled { background: #333; color: #777; }
+    button:hover { background: #00aacc; }
    .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
    .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; }
+   .templates button { background: #333; color: #fff; margin: 5px 0; }
   </style>
 </head>
 <body>
   <div class="box">
-    <h2>📢 CYPX Admin Panel</h2>
+    <h2>📢 CYPX In-App Admin Panel</h2>
     
+    <label>Quick Templates</label>
+    <div class="templates">
+      <button onclick="fillTemplate('deposit')">Deposit Successful</button>
+      <button onclick="fillTemplate('withdraw')">Withdrawal Processed</button>
+      <button onclick="fillTemplate('vip')">VIP Unlocked</button>
+      <button onclick="fillTemplate('copy')">New Copy Trade</button>
+    </div>
+
     <label>UID of User</label>
-    <input type="text" id="uid" placeholder="Paste user UID here">
+    <input type="text" id="uid" placeholder="Paste user UID or 'all' for everyone">
     
     <label>Title</label>
-    <input type="text" id="title" value="CYPX Update">
+    <input type="text" id="title" value="CYPX HOLDINGS">
     
     <label>Message</label>
     <textarea id="body" rows="3" placeholder="Your message here"></textarea>
     
-    <button id="sendBtn">Send Notification</button>
+    <button id="sendBtn">Send In-App Notification</button>
     
     <h3>Log</h3>
     <div class="log" id="log"></div>
@@ -33,8 +42,7 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import { getFunctions, httpsCallable, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+  import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -49,8 +57,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const functions = getFunctions(app, 'us-central1'); // IMPORTANT: add region
-  const sendNotification = httpsCallable(functions, 'sendNotification');
   const logEl = document.getElementById('log');
 
   function log(msg) {
@@ -58,37 +64,56 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
 
+  window.fillTemplate = (type) => {
+    if(type === 'deposit') {
+      document.getElementById('title').value = "Deposit Successful ✅";
+      document.getElementById('body').value = "KSH 5,000 has been added to your CYPX wallet.";
+    }
+    if(type === 'withdraw') {
+      document.getElementById('title').value = "Withdrawal Processed 💸";
+      document.getElementById('body').value = "Your withdrawal of KSH 2,000 is on the way to M-PESA.";
+    }
+    if(type === 'vip') {
+      document.getElementById('title').value = "VIP Level Unlocked 🔓";
+      document.getElementById('body').value = "Congrats! You are now VIP 3. Higher returns unlocked.";
+    }
+    if(type === 'copy') {
+      document.getElementById('title').value = "New Copy Trade 📈";
+      document.getElementById('body').value = "Pro Trader 'AlphaFX' just opened a BTC trade. Auto-copied.";
+    }
+  }
+
   document.getElementById('sendBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('sendBtn');
     const uid = document.getElementById('uid').value.trim();
     const title = document.getElementById('title').value.trim();
     const body = document.getElementById('body').value.trim();
-    const url = "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html";
     
     if(!uid ||!title ||!body) return log("❌ Fill all fields");
-    btn.disabled = true;
-    log("1. Fetching token for UID...");
     
+    const notification = {
+      title,
+      body,
+      read: false,
+      timestamp: Date.now(),
+      url: "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html"
+    };
+
     try {
-      const snap = await get(ref(db, `users/${uid}/fcmToken`));
-      if(!snap.exists()) {
-        log("❌ No fcmToken found for this UID");
-        btn.disabled = false;
-        return;
+      if(uid === 'all') {
+        log("Sending to ALL users...");
+        const usersSnap = await get(ref(db, 'users'));
+        usersSnap.forEach(userSnap => {
+          push(ref(db, `notifications/${userSnap.key}`), notification);
+        });
+        log("✅ Sent to all users");
+      } else {
+        await push(ref(db, `notifications/${uid}`), notification);
+        log("✅ Sent to " + uid);
       }
-      
-      const token = snap.val();
-      log("2. Token found: " + token.substring(0,20) + "...");
-      log("3. Calling Cloud Function...");
-      
-      const result = await sendNotification({ token, title, body, url });
-      log("✅ Sent Successfully! Response: " + result.data.response);
-    } catch (err) {
-      log("❌ ERROR: " + err.code + " - " + err.message); // This will tell us the real error
-      console.error(err);
+    } catch(err) {
+      log("❌ Error: " + err.message);
     }
-    btn.disabled = false;
   });
-                                          </script>
+  </script>
 </body>
-  </html>
+</html>
