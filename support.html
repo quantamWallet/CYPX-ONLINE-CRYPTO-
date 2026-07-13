@@ -7,16 +7,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
 *{box-sizing:border-box;}
-body{background:#001f3f;color:#fff;font-family:Arial;margin:0;display:flex;flex-direction:column;height:100vh;padding-bottom:70px; /* space for bottom nav */}
+body{background:#001f3f;color:#fff;font-family:Arial;margin:0;display:flex;flex-direction:column;height:100vh;padding-bottom:70px;}
 header{background:#002f6c;padding:15px;text-align:center;font-weight:bold;position:sticky;top:0;z-index:10;}
 .chat-box{flex:1;overflow-y:auto;padding:15px;background:rgba(0,0,0,0.2);padding-bottom:80px;}
-.msg{margin:8px 0;padding:12px 15px;border-radius:16px;max-width:80%;word-wrap:break-word;font-size:14px;}
+.msg{margin:8px 0;padding:12px 15px;border-radius:16px;max-width:80%;word-wrap:break-word;font-size:14px;animation:fadeIn 0.3s;}
 .user{background:#00d4ff;color:#000;margin-left:auto;border-bottom-right-radius:4px;}
 .admin{background:#2a2a2a;color:#fff;margin-right:auto;border-bottom-left-radius:4px;}
 .input-box{display:flex;gap:8px;padding:10px 15px;background:#001a33;position:fixed;bottom:70px;left:0;right:0;border-top:1px solid #002f6c;}
 .input-box input{flex:1;padding:14px;border-radius:25px;border:none;background:#222;color:#fff;outline:none;font-size:15px;}
 .input-box button{width:50px;height:50px;border:none;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#fff;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .time{font-size:10px;color:#aaa;margin-top:4px;opacity:0.8;}
+@keyframes fadeIn {from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -49,12 +50,25 @@ auth.onAuthStateChanged(user=>{
   if(!user) location.href="auth.html";
   const chatRef = db.ref("support_chats/"+user.uid);
   
+  // 1. CHECK IF FIRST TIME AND SEND WELCOME
+  chatRef.once("value").then(snap=>{
+    if(!snap.exists()){
+      chatRef.push({
+        sender: "admin",
+        message: "Welcome to Cypx Holdings\nHi there! I’m Cyra, your Cypx assistant. How can I help you today with investments, support, or account questions?",
+        timestamp: Date.now(),
+        read: true
+      });
+    }
+  });
+
+  // 2. LISTEN FOR MESSAGES
   chatRef.on("value", snap=>{
     chatBox.innerHTML="";
     snap.forEach(child=>{
       const m = child.val();
       const div = document.createElement("div");
-      div.className = "msg " + m.sender;
+      div.className = "msg " + m.sender; // will be "msg user" or "msg admin"
       const time = new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       div.innerHTML = `${m.message}<div class="time">${time}</div>`;
       chatBox.appendChild(div);
@@ -78,4 +92,4 @@ auth.onAuthStateChanged(user=>{
 })
 </script>
 </body>
-</html>
+  </html>
