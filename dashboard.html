@@ -931,36 +931,35 @@ firebase.auth()
   }
 
 });
-import { getFCMToken } from './js/notifications.js';
-const token = await getFCMToken();
-console.log("MY TOKEN:", token);
-alert("Token: " + token); // so you can see it on mobile
-/* Direct notifications */
-messaging.onMessage(payload => {
+import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  navigator.serviceWorker
-  .getRegistration()
-  .then(registration => {
+// Assuming you have userUID and db already
+const notifRef = ref(db, `notifications/${userUID}`);
 
-    if (registration) {
-      registration.showNotification(
-        payload.notification.title,
-        {
-          body:
-          payload.notification.body,
-
-          icon:
-          "cypx_icon_192x192.png",
-
-          badge:
-          "cypx_icon_192x192.png"
-        }
-      );
-    }
-
-  });
-
+onChildAdded(notifRef, (snapshot) => {
+  const notif = snapshot.val();
+  if(notif.read) return; // skip old ones
+  
+  // 1. Show Toast
+  showToast(notif.title, notif.body);
+  
+  // 2. Add to bell icon
+  addToBell(notif);
+  
+  // 3. Mark as read after 3 sec
+  setTimeout(() => {
+    update(ref(db, `notifications/${userUID}/${snapshot.key}`), {read: true});
+  }, 3000);
 });
+
+function showToast(title, body) {
+  // Simple toast. Replace with your UI lib
+  const toast = document.createElement('div');
+  toast.style = "position:fixed;top:20px;right:20px;background:#00d4ff;color:#000;padding:15px;border-radius:8px;z-index:9999;";
+  toast.innerHTML = `<b>${title}</b><br>${body}`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+  }
 </script>
     <script>
     </script>
