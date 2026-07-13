@@ -2,20 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>CYPX Support</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
-body{background:#001f3f;color:#fff;font-family:Arial;margin:0;display:flex;flex-direction:column;height:100vh;}
-header{background:#002f6c;padding:15px;text-align:center;font-weight:bold;}
-.chat-box{flex:1;overflow-y:auto;padding:15px;background:rgba(0,0,0,0.2);}
-.msg{margin:8px 0;padding:12px 15px;border-radius:16px;max-width:75%;word-wrap:break-word;font-size:14px;}
+*{box-sizing:border-box;}
+body{background:#001f3f;color:#fff;font-family:Arial;margin:0;display:flex;flex-direction:column;height:100vh;padding-bottom:70px; /* space for bottom nav */}
+header{background:#002f6c;padding:15px;text-align:center;font-weight:bold;position:sticky;top:0;z-index:10;}
+.chat-box{flex:1;overflow-y:auto;padding:15px;background:rgba(0,0,0,0.2);padding-bottom:80px;}
+.msg{margin:8px 0;padding:12px 15px;border-radius:16px;max-width:80%;word-wrap:break-word;font-size:14px;}
 .user{background:#00d4ff;color:#000;margin-left:auto;border-bottom-right-radius:4px;}
 .admin{background:#2a2a2a;color:#fff;margin-right:auto;border-bottom-left-radius:4px;}
-.input-box{display:flex;gap:8px;padding:10px;background:#001a33;}
-.input-box input{flex:1;padding:12px;border-radius:10px;border:none;background:#222;color:#fff;outline:none;}
-.input-box button{padding:12px 18px;border:none;border-radius:10px;background:#00d4ff;color:#000;font-weight:bold;cursor:pointer;}
-.time{font-size:10px;color:#aaa;margin-top:4px;}
+.input-box{display:flex;gap:8px;padding:10px 15px;background:#001a33;position:fixed;bottom:70px;left:0;right:0;border-top:1px solid #002f6c;}
+.input-box input{flex:1;padding:14px;border-radius:25px;border:none;background:#222;color:#fff;outline:none;font-size:15px;}
+.input-box button{width:50px;height:50px;border:none;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#fff;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.time{font-size:10px;color:#aaa;margin-top:4px;opacity:0.8;}
 </style>
 </head>
 <body>
@@ -54,7 +55,7 @@ auth.onAuthStateChanged(user=>{
       const m = child.val();
       const div = document.createElement("div");
       div.className = "msg " + m.sender;
-      const time = new Date(m.timestamp).toLocaleTimeString();
+      const time = new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       div.innerHTML = `${m.message}<div class="time">${time}</div>`;
       chatBox.appendChild(div);
     });
