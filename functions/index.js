@@ -1,61 +1,38 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-
 admin.initializeApp();
 
-exports.approveDeposit = functions.database
-.ref("/deposits/{uid}/{depositId}/status")
-.onUpdate(async (change, context) => {
+// Your FCM Server Key from Project Settings > Cloud Messaging
+const SERVER_KEY = "PASTE_YOUR_SERVER_KEY_HERE"; 
 
-    const before = String(change.before.val()).toLowerCase();
-    const after = String(change.after.val()).toLowerCase();
+exports.sendNotification = functions.https.onCall(async (data, context) => {
+  const { token, title, body, url } = data;
+  
+  if (!token) {
+    throw new functions.https.HttpsError('invalid-argument', 'Missing token');
+  }
 
-    // Only trigger when changing to approved
-    if (before === "approved" || after !== "approved") {
-        return null;
+  const message = {
+    to: token,
+    notification: {
+      title: title,
+      body: body,
+    },
+    data: {
+      url: url,
+    },
+    webpush: {
+      fcm_options: {
+        link: url,
+      }
     }
+  };
 
-    const uid = context.params.uid;
-    const depositId = context.params.depositId;
-
-    const depositRef = admin.database().ref(
-        `deposits/${uid}/${depositId}`
-    );
-
-    const userRef = admin.database().ref(
-        `users/${uid}`
-    );
-
-    const depositSnap = await depositRef.once("value");
-
-    if (!depositSnap.exists()) return null;
-
-    const deposit = depositSnap.val();
-
-    // Prevent duplicate credits
-    if (deposit.balanceCredited === true) {
-        return null;
-    }
-
-    const amount = Number(deposit.amount || 0);
-
-    await userRef.transaction(user => {
-
-        if (!user) return user;
-
-        user.balance = Number(user.balance || 0) + amount;
-
-        return user;
-
-    });
-
-    await depositRef.update({
-        balanceCredited: true
-    });
-
-    console.log(
-        `Credited ${amount} to ${uid}`
-    );
-
-    return null;
+  try {
+    const response = await admin.messaging().send(message);
+    return { success: true, response };
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw new functions.https.HttpsError('internal', error.message);
+  }
 });
