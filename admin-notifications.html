@@ -9,18 +9,20 @@
     button { background: #00d4ff; color: #000; font-weight: bold; cursor: pointer; }
     button:hover { background: #00aacc; }
     button:disabled { background: #333; color: #777; cursor: not-allowed; }
-  .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
-  .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; border: 1px solid #222; }
-  .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
-  .templates button:hover { background: #444; }
+ .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
+ .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; border: 1px solid #222; }
+ .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+ .templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
+ .templates button:hover { background: #444; }
    label { font-size: 13px; color: #aaa; }
-  .user-count { font-size: 12px; color: #00d4ff; }
+ .user-count { font-size: 12px; color: #00d4ff; }
+ .admin-info { background: #111; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; border: 1px solid #00d4ff; }
   </style>
 </head>
 <body>
   <div class="box">
     <h2>📢 CYPX In-App Admin Panel</h2>
+    <div class="admin-info" id="adminInfo">Checking login...</div>
 
     <label>Quick Templates</label>
     <div class="templates">
@@ -50,7 +52,8 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -65,50 +68,69 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const auth = getAuth(app);
   const logEl = document.getElementById('log');
   const sendBtn = document.getElementById('sendBtn');
   const uidSelect = document.getElementById('uid');
   const userCountEl = document.getElementById('userCount');
+  const adminInfoEl = document.getElementById('adminInfo');
 
   function log(msg) {
     logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  // REALTIME: Load all users from users/UID and auto-update
-  const usersRef = ref(db, 'users'); // <-- This reads users/UID
-  onValue(usersRef, (snapshot) => {
-    uidSelect.innerHTML = `<option value="">-- Select User --</option><option value="all">📢 ALL USERS - Broadcast</option>`;
-    let count = 0;
-
-    if(snapshot.exists()) {
-      snapshot.forEach(userSnap => {
-        count++;
-        const uid = userSnap.key; // This is the UID
-        const data = userSnap.val() || {};
-        // Try multiple possible fields
-        const name = data.fullName || data.name || data.email || data.phone || uid;
-        const option = document.createElement('option');
-        option.value = uid;
-        option.textContent = `${name} | ${uid}`;
-        uidSelect.appendChild(option);
-      });
-      log(`✅ Loaded ${count} users from users/`);
-    } else {
-      log(`❌ No data found at /users. Check your DB structure and rules.`);
+  // 1. CHECK LOGIN AND ADMIN ROLE FROM admins/UID
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) {
+      adminInfoEl.innerHTML = `❌ Not logged in. Login with your admin account first.`;
+      sendBtn.disabled = true;
+      uidSelect.disabled = true;
+      return;
     }
-    userCountEl.innerText = `(${count} users)`;
-  }, (error) => {
-    log(`❌ Firebase Read Error: ${error.message}. Check DB rules.`);
+
+    const adminSnap = await get(ref(db, `admins/${user.uid}`)); // <-- reads from admins/UID
+    if(adminSnap.exists() && (adminSnap.val().role === 'admin' || adminSnap.val().role === 'superadmin')){
+      adminInfoEl.innerHTML = `✅ ${user.email} | Role: ${adminSnap.val().role}`;
+      loadUsers();
+    } else {
+      adminInfoEl.innerHTML = `❌ Access Denied. UID ${user.uid} not found in /admins`;
+      sendBtn.disabled = true;
+      uidSelect.disabled = true;
+    }
   });
 
-  // REUSABLE FUNCTION
+  // 2. REALTIME: Load all users from users/UID
+  function loadUsers(){
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+      uidSelect.innerHTML = `<option value="">-- Select User --</option><option value="all">📢 ALL USERS - Broadcast</option>`;
+      let count = 0;
+      if(snapshot.exists()) {
+        snapshot.forEach(userSnap => {
+          count++;
+          const uid = userSnap.key;
+          const data = userSnap.val() || {};
+          const name = data.fullName || data.name || data.email || data.phone || uid;
+          const option = document.createElement('option');
+          option.value = uid;
+          option.textContent = `${name} | ${uid}`;
+          uidSelect.appendChild(option);
+        });
+        log(`✅ Loaded ${count} users from users/`);
+      } else {
+        log(`❌ No data found at /users.`);
+      }
+      userCountEl.innerText = `(${count} users)`;
+    }, (error) => {
+      log(`❌ Firebase Read Error: ${error.message}`);
+    });
+  }
+
+  // 3. SEND NOTIFICATION FUNCTION
   window.sendInAppNotification = async (uid, title, body, type = "manual") => {
     const notification = {
-      title,
-      body,
-      type,
-      read: false,
+      title, body, type, read: false,
       timestamp: Date.now(),
       url: "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html"
     };
@@ -132,7 +154,6 @@
     const uid = document.getElementById('uid').value.trim();
     const title = document.getElementById('title').value.trim();
     const body = document.getElementById('body').value.trim();
-
     if(!uid ||!title ||!body) return log("❌ Fill all fields");
 
     sendBtn.disabled = true;
@@ -141,9 +162,8 @@
     try {
       if(uid.toLowerCase() === 'all') {
         log("Broadcasting to ALL users...");
-        const snap = await new Promise(resolve => onValue(usersRef, resolve, {onlyOnce: true}));
+        const snap = await get(ref(db, 'users'));
         if(!snap.exists()) return log("❌ No users found");
-
         const promises = [];
         snap.forEach(userSnap => {
           promises.push(window.sendInAppNotification(userSnap.key, title, body, "broadcast"));
@@ -156,11 +176,10 @@
       }
     } catch(err) {
       log("❌ Error: " + err.message);
-      console.error(err);
     }
     sendBtn.disabled = false;
     sendBtn.innerText = "Send In-App Notification";
   });
   </script>
 </body>
-  </html>
+</html>
