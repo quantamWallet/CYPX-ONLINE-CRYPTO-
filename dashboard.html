@@ -960,6 +960,15 @@ function showToast(title, body) {
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 5000);
   }
+
+  import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+onChildAdded(ref(db, `notifications/${currentUser.uid}`), (snap) => {
+  const n = snap.val();
+  if(n.read) return;
+  alert(`${n.title}\n\n${n.body}`); // replace with your toast later
+  update(ref(db, `notifications/${currentUser.uid}/${snap.key}`), {read: true});
+});
 </script>
     <script>
     </script>
