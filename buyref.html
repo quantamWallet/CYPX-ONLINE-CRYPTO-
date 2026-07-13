@@ -158,8 +158,8 @@ footer{margin-top:25px;font-size:12px;color:#7a91a8;text-align:center;letter-spa
 <p><b>Payment Details</b></p>
 <div class="payment-box">
   <div class="payment-row">
-    <span>0708557123</span>
-    <button class="copy-btn" onclick="navigator.clipboard.writeText('0708557123')">Copy</button>
+    <span>254708557123</span>
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('254708557123')">Copy</button>
   </div>
   <div class="payment-row">
     <span>Joyce Rotich</span>
@@ -223,7 +223,7 @@ document.getElementById("packageInfo").innerText = "You selected " + group;
 onAuthStateChanged(auth, (user) => {
 document.getElementById("loading").style.display = "none";
 if (user) uid = user.uid;
-else window.location.href = "landing.html";
+else window.location.href = "auth.html";
 });
 
 document.getElementById("submitBtn").addEventListener("click", async () => {
