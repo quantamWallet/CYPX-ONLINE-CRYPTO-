@@ -204,8 +204,6 @@ Logout
 </div>  
   
   
-  
-  
 <div class="container">  
   
   
@@ -214,8 +212,6 @@ Logout
 Checking admin...  
   
 </div>  
-  
-  
   
 <div class="cards">  
   
@@ -231,8 +227,6 @@ Checking admin...
 </h2>  
   
 </div>  
-  
-  
   
   
 <div class="card">  
@@ -267,11 +261,11 @@ $0.00
   
 <div class="card">  
   
-<i class="fas fa-id-card"></i>  
+<i class="fas fa-headset"></i>  
   
-<small>Pending KYC</small>  
+<small>Pending Support Requests</small>  
   
-<h2 id="pendingKyc">  
+<h2 id="pendingSupport">  
 0  
 </h2>  
   
@@ -281,10 +275,7 @@ $0.00
 </div>  
   
   
-  
-  
 <div class="menu">
-
 
 <a href="admin-users.html">
 
@@ -294,8 +285,6 @@ User Management
 
 </a>
 
-
-
 <a href="admin-deposits.html">
 
 <i class="fas fa-wallet"></i>
@@ -303,9 +292,6 @@ User Management
 Deposit Management
 
 </a>
-
-
-
 
 <a href="admin-withdrawals.html">
 
@@ -315,9 +301,6 @@ Withdrawal Management
 
 </a>
 
-
-
-
 <a href="admin-support.html">
 
 <i class="fas fa-clock-rotate-left"></i>
@@ -326,9 +309,6 @@ Support page
 
 </a>
 
-
-
-
 <a href="admin-vip.html">
 
 <i class="fas fa-crown"></i>
@@ -336,9 +316,6 @@ Support page
 VIP Management
 
 </a>
-
-
-
 
 <a href="admin-referrals.html">
 
@@ -356,7 +333,6 @@ Notifications
 
 </a>
 
-
 <a href="admin-financial.html">
 
 <i class="fas fa-money-bill-trend-up"></i>
@@ -364,9 +340,6 @@ Notifications
 Financial Control
 
 </a>
-
-
-
 
 <a href="admin-transactions.html">
 
@@ -376,9 +349,6 @@ Transaction Audit
 
 </a>
 
-
-
-
 <a href="admin-settings.html">
 
 <i class="fas fa-cog"></i>
@@ -387,8 +357,6 @@ System Settings
 
 </a>
 
-
-
 <a href="admin-copytrading.html">
 
 <i class="fas fa-clock-rotate-left"></i>
@@ -396,7 +364,6 @@ System Settings
 Admin Copy trading 
 
 </a>
-
 
 </div>
   
@@ -437,8 +404,6 @@ appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
 measurementId: "G-4RSQXZJX44"  
   
 };  
-  
-  
   
 if(!firebase.apps.length){
     firebase.initializeApp(firebaseConfig);
@@ -529,8 +494,6 @@ auth.onAuthStateChanged(user => {
 });  
   
   
-  
-  
 // ===============================  
 // DASHBOARD DATA  
 // ===============================  
@@ -601,11 +564,7 @@ db.ref("deposits").on("value", snap=>{
   
         });  
   
-  
-  
     });  
-  
-  
   
     document.getElementById("totalDeposits").textContent =  
   
@@ -618,12 +577,6 @@ db.ref("deposits").on("value", snap=>{
   
   
 });  
-  
-  
-  
-  
-  
-  
   
   
 // TOTAL WITHDRAWALS  
@@ -643,8 +596,6 @@ db.ref("withdrawals").on("value", snap=>{
   
   
             let w=request.val();  
-  
-  
   
             if(  
                 w.status &&  
@@ -683,57 +634,24 @@ db.ref("withdrawals").on("value", snap=>{
   
   
   
+// PENDING SUPPORT REQUESTS - COUNTS TOTAL UNREAD USER MESSAGES  
   
-  
-  
-  
-  
-  
-// PENDING KYC  
-  
-  
-db.ref("users").on("value", snap=>{  
-  
-  
-let pending = 0;  
-  
-  
-  
-snap.forEach(user=>{  
-  
-  
-    let data=user.val();  
-  
-  
-  
-    if(  
-        data.kycStatus &&  
-        data.kycStatus.toLowerCase()=="pending"  
-    ){  
-  
+db.ref("support_chats").on("value", snap=>{  
+  let pending = 0;  
+
+  snap.forEach(userChat=>{  
+    userChat.forEach(msg=>{  
+      const m = msg.val();  
+      if(m.sender === "user" && !m.read){  
         pending++;  
-  
-    }  
-  
-  
-  
+      }  
+    });  
+  });  
+
+  document.getElementById("pendingSupport").textContent=pending;  
 });  
-  
-  
-  
-document.getElementById("pendingKyc").textContent=pending;  
-  
-  
-  
-});  
-  
-  
   
 }  
-  
-  
-  
-  
   
   
 // ===============================  
