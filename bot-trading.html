@@ -539,11 +539,16 @@ function resumeTrade(timeLeft){
   document.getElementById('startBtn').innerHTML = `<i class="fas fa-spinner fa-spin"></i> Trading...`;
   addLog(`RESUMED TRADE - ${timeLeft}s remaining`);
   
-  const interval = setInterval(()=>{
-    timeLeft--;
-    if(timeLeft <= 0){ clearInterval(interval); finishTrade(0); }
-  },1000);
-  window.currentTradeInterval = interval;
+  // GET AMOUNT FROM FIREBASE SO IT DOESN'T BECOME 0
+  db.ref('bot_trading/'+userId+'/active_trade/amount').once('value').then(snap=>{
+    const tradeAmount = snap.val() || 0;
+    
+    const interval = setInterval(()=>{
+      timeLeft--;
+      if(timeLeft <= 0){ clearInterval(interval); finishTrade(tradeAmount); } // <-- USE tradeAmount
+    },1000);
+    window.currentTradeInterval = interval;
+  })
 }
 
 function finishTrade(amount){
