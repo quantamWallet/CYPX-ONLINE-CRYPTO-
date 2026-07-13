@@ -248,7 +248,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
-
+  
 let userId = null;
 let selectedAsset = {pair:"EURUSD", symbol:"FX:EURUSD"};
 let selectedBot = null;
@@ -260,7 +260,8 @@ let wins = 0; let losses = 0; let sessions = 0;
 let activatedBots = [];
 let botRuns = {"SCALPER": 0, "SWING": 0, "AI QUANT": 0};
 let isTrading = false;
-
+let currentTradeAmount = 0;
+  
 function showToast(msg, color='#00d4ff'){
   const t = document.getElementById('toast');
   t.style.borderColor = color;
@@ -498,6 +499,7 @@ function startTrade(){
   isTrading = true;
   balance -= amount; // <-- DEDUCT NOW
   saveUserData({balance: balance});
+  currentTradeAmount = amount;
   
   updateBotUI();
   document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=true);
@@ -562,27 +564,27 @@ function finishTrade(amount){
   let profit = 0;
   let updates = {botRuns: botRuns};
 
-  if(isWin){
+  const potentialProfit = amount * 0.4098;
+
+if(isWin){
     wins++;
-    profit = (amount * 0.4098);
-    balance += Number(profit); // ADD PROFIT
+    balance = balance + amount + potentialProfit; // RETURN $100 CAPITAL + $40.98 PROFIT
     updates.wins = wins; updates.balance = balance;
     document.getElementById('resultIcon').style.color = '#00ff88';
     document.getElementById('resultTitle').textContent = 'Session Win';
     document.getElementById('profitText').style.color = '#00ff88';
-    document.getElementById('profitText').textContent = `+$${Number(profit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - WIN +$${profit.toFixed(2)}`);
+    document.getElementById('profitText').textContent = `+$${Number(potentialProfit).toLocaleString()}`;
+    addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
   }else{
     losses++;
-    // amount already deducted
+    balance = balance - potentialProfit; // DEDUCT PROFIT ON TOP OF CAPITAL ALREADY LOST
     updates.losses = losses; updates.balance = balance;
     document.getElementById('resultIcon').style.color = '#ff3b30';
     document.getElementById('resultTitle').textContent = 'Session Loss';
     document.getElementById('profitText').style.color = '#ff3b30';
-    document.getElementById('profitText').textContent = `-$${Number(amount).toLocaleString()}`;
-    addLog(`TRADE CLOSED - LOSS -$${amount}`);
-  }
-  
+    document.getElementById('profitText').textContent = `-$${Number(potentialProfit).toLocaleString()}`;
+    addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
+      }
   // SAVE TO HISTORY
   const tradeId = Date.now();
   saveBotData(`trade_history/${tradeId}`, {
