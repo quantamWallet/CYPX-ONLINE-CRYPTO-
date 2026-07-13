@@ -345,14 +345,14 @@ nav{
   
       /* small helper for style */  
       .small-muted { color: #9fb0cf; font-size:13px; }  
-      /* TELEGRAM FLOAT BUTTON */
-.telegram-float {
+      /* SUPPORT FLOAT BUTTON */
+.support-float {
     position: fixed;
     bottom: 85px; /* above bottom nav */
     right: 18px;
-    width: 62px;
-    height: 62px;
-    background: linear-gradient(145deg, #27A5E7, #0088cc);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -360,49 +360,47 @@ nav{
     text-decoration: none;
     z-index: 9999;
 
-    /* Premium shadow */
+    /* Glass + glow effect */
     box-shadow:
-        0 6px 18px rgba(0, 136, 204, 0.45),
-        inset 0 2px 6px rgba(255,255,255,0.25);
+        0 6px 20px rgba(0, 212, 255, 0.4),
+        inset 0 2px 6px rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
 
-    transition: all 0.25s ease;
-    animation: telegramPulse 2s infinite;
+    transition: all 0.3s ease;
+    animation: supportPulse 2.5s infinite;
 }
 
-/* Telegram Icon */
-.telegram-float i {
+/* Support Icon */
+.support-float i {
     color: white;
-    font-size: 30px;
-    transform: translateX(-2px);
+    font-size: 26px;
 }
 
 /* Hover / tap effect */
-.telegram-float:hover {
-    transform: scale(1.08);
+.support-float:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
 }
 
 /* Mobile tap effect */
-.telegram-float:active {
-    transform: scale(0.95);
+.support-float:active {
+    transform: scale(0.92);
 }
 
 /* Soft pulse animation */
-@keyframes telegramPulse {
+@keyframes supportPulse {
     0% {
-        box-shadow:
-        0 0 0 0 rgba(0,136,204,0.5);
+        box-shadow: 0 0 0 0 rgba(0,212,255,0.5);
     }
-
     70% {
-        box-shadow:
-        0 0 0 14px rgba(0,136,204,0);
+        box-shadow: 0 0 0 15px rgba(0,212,255,0);
     }
-
     100% {
-        box-shadow:
-        0 0 0 0 rgba(0,136,204,0);
+        box-shadow: 0 0 0 0 rgba(0,212,255,0);
     }
-      }
+          }
       
     </style>  
   </head>  
@@ -829,9 +827,10 @@ auth.onAuthStateChanged(function(user) {
 };
   
         </script>
-    <!-- support Floating Button -->
-<a href="support.html"><i class="fas fa-headset"></i><br>Support</a> 
-  <!-- Install App Button -->
+    <a href="support.html" class="support-float">
+  <i class="fas fa-headset"></i>
+    </a>
+<!-- Install App Button -->
 <button id="installBtn" style="
 display:none;
 position:fixed;
