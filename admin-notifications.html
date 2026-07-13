@@ -5,12 +5,16 @@
   <title>CYPX Admin - In-App Notifications</title>
   <style>
     body { font-family: Arial; background: #0a0a0a; color: #fff; padding: 20px; }
-    input, textarea, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #222; color: #fff; }
+    input, textarea, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #222; color: #fff; box-sizing: border-box; }
     button { background: #00d4ff; color: #000; font-weight: bold; cursor: pointer; }
     button:hover { background: #00aacc; }
+    button:disabled { background: #333; color: #777; cursor: not-allowed; }
    .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
-   .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; }
-   .templates button { background: #333; color: #fff; margin: 5px 0; }
+   .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; border: 1px solid #222; }
+   .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+   .templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
+   .templates button:hover { background: #444; }
+   label { font-size: 13px; color: #aaa; }
   </style>
 </head>
 <body>
@@ -19,14 +23,14 @@
     
     <label>Quick Templates</label>
     <div class="templates">
-      <button onclick="fillTemplate('deposit')">Deposit Successful</button>
-      <button onclick="fillTemplate('withdraw')">Withdrawal Processed</button>
-      <button onclick="fillTemplate('vip')">VIP Unlocked</button>
-      <button onclick="fillTemplate('copy')">New Copy Trade</button>
+      <button type="button" onclick="fillTemplate('deposit')">Deposit ✅</button>
+      <button type="button" onclick="fillTemplate('withdraw')">Withdraw 💸</button>
+      <button type="button" onclick="fillTemplate('vip')">VIP 🔓</button>
+      <button type="button" onclick="fillTemplate('copy')">Copy Trade 📈</button>
     </div>
 
-    <label>UID of User</label>
-    <input type="text" id="uid" placeholder="Paste user UID or 'all' for everyone">
+    <label>UID of User - use 'all' for broadcast</label>
+    <input type="text" id="uid" placeholder="Paste user UID or 'all'">
     
     <label>Title</label>
     <input type="text" id="title" value="CYPX HOLDINGS">
@@ -42,7 +46,7 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, push, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -58,10 +62,24 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const logEl = document.getElementById('log');
+  const sendBtn = document.getElementById('sendBtn');
 
   function log(msg) {
     logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
     logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // REUSABLE FUNCTION - USE THIS IN YOUR OTHER PAGES TOO
+  window.sendInAppNotification = async (uid, title, body, type = "manual") => {
+    const notification = {
+      title,
+      body,
+      type,
+      read: false,
+      timestamp: Date.now(),
+      url: "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html"
+    };
+    await push(ref(db, `notifications/${uid}`), notification);
   }
 
   window.fillTemplate = (type) => {
@@ -83,36 +101,38 @@
     }
   }
 
-  document.getElementById('sendBtn').addEventListener('click', async () => {
+  sendBtn.addEventListener('click', async () => {
     const uid = document.getElementById('uid').value.trim();
     const title = document.getElementById('title').value.trim();
     const body = document.getElementById('body').value.trim();
     
     if(!uid ||!title ||!body) return log("❌ Fill all fields");
     
-    const notification = {
-      title,
-      body,
-      read: false,
-      timestamp: Date.now(),
-      url: "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html"
-    };
+    sendBtn.disabled = true;
+    sendBtn.innerText = "Sending...";
 
     try {
-      if(uid === 'all') {
-        log("Sending to ALL users...");
+      if(uid.toLowerCase() === 'all') {
+        log("Broadcasting to ALL users...");
         const usersSnap = await get(ref(db, 'users'));
+        if(!usersSnap.exists()) return log("❌ No users found");
+        
+        const promises = [];
         usersSnap.forEach(userSnap => {
-          push(ref(db, `notifications/${userSnap.key}`), notification);
+          promises.push(window.sendInAppNotification(userSnap.key, title, body, "broadcast"));
         });
-        log("✅ Sent to all users");
+        await Promise.all(promises);
+        log(`✅ Sent to ${promises.length} users`);
       } else {
-        await push(ref(db, `notifications/${uid}`), notification);
+        await window.sendInAppNotification(uid, title, body, "manual");
         log("✅ Sent to " + uid);
       }
     } catch(err) {
       log("❌ Error: " + err.message);
+      console.error(err);
     }
+    sendBtn.disabled = false;
+    sendBtn.innerText = "Send In-App Notification";
   });
   </script>
 </body>
