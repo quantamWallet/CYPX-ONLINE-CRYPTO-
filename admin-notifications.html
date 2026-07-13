@@ -15,6 +15,7 @@
    .templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
    .templates button:hover { background: #444; }
    label { font-size: 13px; color: #aaa; }
+   .user-count { font-size: 12px; color: #00d4ff; }
   </style>
 </head>
 <body>
@@ -29,8 +30,11 @@
       <button type="button" onclick="fillTemplate('copy')">Copy Trade 📈</button>
     </div>
 
-    <label>UID of User - use 'all' for broadcast</label>
-    <input type="text" id="uid" placeholder="Paste user UID or 'all'">
+    <label>Select User <span class="user-count" id="userCount"></span></label>
+    <select id="uid">
+      <option value="">-- Loading users... --</option>
+      <option value="all">📢 ALL USERS - Broadcast</option>
+    </select>
     
     <label>Title</label>
     <input type="text" id="title" value="CYPX HOLDINGS">
@@ -46,7 +50,7 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -63,11 +67,34 @@
   const db = getDatabase(app);
   const logEl = document.getElementById('log');
   const sendBtn = document.getElementById('sendBtn');
+  const uidSelect = document.getElementById('uid');
+  const userCountEl = document.getElementById('userCount');
 
   function log(msg) {
     logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
     logEl.scrollTop = logEl.scrollHeight;
   }
+
+  // REALTIME: Load all users and auto-update
+  onValue(ref(db, 'users'), (snapshot) => {
+    uidSelect.innerHTML = `<option value="">-- Select User --</option><option value="all">📢 ALL USERS - Broadcast</option>`;
+    let count = 0;
+    
+    if(snapshot.exists()) {
+      snapshot.forEach(userSnap => {
+        count++;
+        const uid = userSnap.key;
+        const data = userSnap.val();
+        const name = data.name || data.email || uid.substring(0,8);
+        const option = document.createElement('option');
+        option.value = uid;
+        option.textContent = `${name} - ${uid.substring(0,10)}...`;
+        uidSelect.appendChild(option);
+      });
+    }
+    userCountEl.innerText = `(${count} users loaded)`;
+    log(`✅ Loaded ${count} users from Firebase`);
+  });
 
   // REUSABLE FUNCTION - USE THIS IN YOUR OTHER PAGES TOO
   window.sendInAppNotification = async (uid, title, body, type = "manual") => {
@@ -114,15 +141,17 @@
     try {
       if(uid.toLowerCase() === 'all') {
         log("Broadcasting to ALL users...");
-        const usersSnap = await get(ref(db, 'users'));
-        if(!usersSnap.exists()) return log("❌ No users found");
-        
-        const promises = [];
-        usersSnap.forEach(userSnap => {
-          promises.push(window.sendInAppNotification(userSnap.key, title, body, "broadcast"));
-        });
-        await Promise.all(promises);
-        log(`✅ Sent to ${promises.length} users`);
+        const usersRef = ref(db, 'users');
+        onValue(usersRef, async (usersSnap) => {
+          if(!usersSnap.exists()) return log("❌ No users found");
+          
+          const promises = [];
+          usersSnap.forEach(userSnap => {
+            promises.push(window.sendInAppNotification(userSnap.key, title, body, "broadcast"));
+          });
+          await Promise.all(promises);
+          log(`✅ Sent to ${promises.length} users`);
+        }, { onlyOnce: true });
       } else {
         await window.sendInAppNotification(uid, title, body, "manual");
         log("✅ Sent to " + uid);
@@ -136,4 +165,4 @@
   });
   </script>
 </body>
-</html>
+                    </html>
