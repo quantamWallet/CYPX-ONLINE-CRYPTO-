@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Withdraw - CYPX ONLINE CRYPTO</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+:root{
+  --bg:#061426;
+  --bg2:#0b1f3a;
+  --card:#10294d;
+  --gold:#d4af37;
+  --gold2:#f5d06f;
+  --blue:#0f52ba;
+  --text:#ffffff;
+  --muted:#c7d6ea;
+  --success:#1fbf75;
+  --danger:#ff5a5a;
+  --radius:20px;
+  --shadow:0 15px 45px rgba(0,0,0,0.45);
+}
+*{box-sizing:border-box;font-family:'Poppins',system-ui,sans-serif;}
+html,body{
+  margin:0;padding:0;
+  background:radial-gradient(circle at top right, rgba(212,175,55,.12), transparent 25%),
+    radial-gradient(circle at top left, rgba(15,82,186,.18), transparent 30%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  color:var(--text);min-height:100%;
+}
+body{display:flex;justify-content:center;align-items:flex-start;padding:90px 14px 100px;}
+header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding:18px 16px;font-size:20px;font-weight:700;letter-spacing:.6px;color:#fff;background:linear-gradient(90deg,#082041,#103b72,#082041);border-bottom:1px solid rgba(212,175,55,.25);box-shadow:0 6px 30px rgba(0,0,0,.35);}
+.container{width:100%;max-width:450px;}
+.card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(16,41,77,.96),rgba(9,28,56,.98));border:1px solid rgba(212,175,55,.18);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow);backdrop-filter:blur(18px);}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));}
+h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:center;}
+h2 i{margin-right:8px;}
+#balanceBox{display:inline-flex;align-items:center;justify-content:center;min-width:200px;background:linear-gradient(135deg,rgba(212,175,55,.16),rgba(15,82,186,.20));border:1px solid rgba(212,175,55,.25);border-radius:18px;padding:15px 22px;margin-top:10px;font-size:19px;font-weight:700;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 25px rgba(0,0,0,.2);}
+.label{display:block;margin:16px 0 8px;color:#dce9ff;font-size:14px;font-weight:600;}
+.input,select{width:100%;border:none;outline:none;padding:15px 16px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);color:#fff;font-size:15px;transition:.25s ease;}
+.input::placeholder{color:#95aac7;}
+.input:focus,select:focus{border-color:rgba(212,175,55,.45);box-shadow:0 0 0 4px rgba(212,175,55,.12);transform:translateY(-1px);}
+.btn{width:100%;border:none;outline:none;cursor:pointer;margin-top:26px;padding:16px;border-radius:16px;font-size:16px;font-weight:700;color:#071426;background:linear-gradient(135deg,var(--gold2),var(--gold));transition:.25s ease;box-shadow:0 12px 30px rgba(212,175,55,.25);letter-spacing:.3px;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 20px rgba(212,175,55,.4);}
+.btn:active{transform:scale(.98);}
+.btn:disabled{opacity:.7;cursor:not-allowed;}
+.small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
+.small strong{color:var(--gold2);}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade.25s ease;}
+.popup.success{background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
+.popup.error{background:linear-gradient(145deg,rgba(90,22,22,.95),rgba(55,12,12,.96));border:1px solid rgba(255,90,90,.20);color:#ffe1e1;}
+.popup.confirm{background:linear-gradient(145deg,rgba(18,41,76,.98),rgba(8,24,48,.98));border:1px solid rgba(212,175,55,.18);color:#eaf3ff;}
+#confirmBtn{margin-top:14px;border:none;cursor:pointer;padding:12px 24px;border-radius:14px;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#071426;}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:74px;display:flex;justify-content:space-around;align-items:center;background:linear-gradient(180deg,#0b2347,#07182f);border-top:1px solid rgba(212,175,55,.18);backdrop-filter:blur(14px);}
+nav a{color:#dce7f7;text-decoration:none;text-align:center;font-size:12px;font-weight:600;transition:.25s;}
+nav a:hover{color:var(--gold2);transform:translateY(-2px);}
+nav i{display:block;margin-bottom:5px;font-size:20px;}
+select option{background:#10294d;color:white;}
+@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
+@media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
+/* SUCCESS TICK ANIMATION */
+.tick{width:70px;height:70px;border-radius:50%;border:3px solid var(--success);margin:0 auto 14px;position:relative;animation:scaleIn.4s ease;}
+.tick::after{content:"";position:absolute;left:18px;top:32px;width:15px;height:3px;background:var(--success);transform:rotate(45deg);animation:draw.3s.3s forwards;opacity:0;}
+.tick::before{content:"";position:absolute;left:28px;top:24px;width:3px;height:28px;background:var(--success);transform:rotate(-45deg);animation:draw.3s.5s forwards;opacity:0;}
+@keyframes scaleIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes draw{to{opacity:1}}
+.masked-phone{color:var(--gold2);font-weight:700}
+</style>
+</head>
+<body>
+<header>Withdraw Funds</header>
+<div class="container">
+  <div class="card">
+    <h2><i class="fa-solid fa-wallet"></i> Make a Withdrawal</h2>
+    <div style="text-align:center; margin-bottom:10px;">
+      <div style="font-size:12px;color:#cfe3ff">Available Balance</div>
+      <div id="balanceBox">$ <span id="balance">—</span></div>
+    </div>
+    <form id="withdrawForm">
+      <label class="label" for="method">Select Method</label>
+      <select id="method" class="input">
+        <option value="mpesa">Mobile Money</option>
+        <option value="airtel">Mobile Money</option>
+        <option value="paypal">PayPal</option>
+        <option value="btc">Bitcoin (BTC)</option>
+        <option value="usdt_erc20">USDT (ERC20)</option>
+      </select>
+      <div id="phoneBox">
+        <label class="label" for="phone">Phone Number</label>
+        <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" />
+      </div>
+      <div id="paypalBox" style="display:none;">
+        <label class="label" for="paypalEmail">PayPal Email</label>
+        <input id="paypalEmail" class="input" type="email" placeholder="example@gmail.com" />
+      </div>
+      <div id="cryptoBox" style="display:none;">
+        <label class="label" id="cryptoLabel" for="cryptoAddress">Address</label>
+        <input id="cryptoAddress" class="input" type="text" placeholder="Enter address (BTC or ERC20)" />
+        <div class="small" id="cryptoHint">Enter a valid address for the selected crypto.</div>
+      </div>
+
+      <label class="label" for="amount">Withdrawal Amount ($)</label>
+      <input id="amount" class="input" type="number" min="10" placeholder="e.g. 10" required />
+      <div class="small">Minimum withdrawal <strong>$10</strong></div>
+
+      <button id="submitBtn" class="btn" type="submit">Submit Withdrawal</button>
+    </form>
+  </div>
+</div>
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
+
+<div id="popup" class="popup"></div>
+<script>
+// === Firebase Config ===
+const firebaseConfig = {
+  apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain:"quantum-rio.firebaseapp.com",
+  databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId:"quantum-rio",
+  storageBucket:"quantum-rio.appspot.com",
+  messagingSenderId:"805433999377",
+  appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const balanceEl = document.getElementById('balance');
+const amountInput = document.getElementById('amount');
+const phoneInput = document.getElementById('phone');
+const methodInput = document.getElementById('method');
+const paypalEmailInput = document.getElementById('paypalEmail');
+const phoneBox = document.getElementById('phoneBox');
+const paypalBox = document.getElementById('paypalBox');
+const cryptoBox = document.getElementById('cryptoBox');
+const cryptoLabel = document.getElementById('cryptoLabel');
+const cryptoAddressInput = document.getElementById('cryptoAddress');
+const cryptoHint = document.getElementById('cryptoHint');
+const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById('withdrawForm');
+const popup = document.getElementById('popup');
+
+// === Popup ===
+function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
+  popup.innerHTML = msg;
+  popup.className = 'popup ' + type;
+  popup.style.display = 'block';
+  if (type === 'confirm') {
+    popup.innerHTML += `<br><br><button id="confirmBtn">Go</button>`;
+    document.getElementById('confirmBtn').onclick = () => {
+      popup.style.display = 'none';
+      window.location.href = redirect || 'select.html';
+    };
+  } else {
+    setTimeout(() => popup.style.display = 'none', timeout);
+  }
+}
+
+let currentUser = null;
+
+// === Auth ===
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  if (user) {
+    submitBtn.disabled = false;
+    db.ref(`users/${user.uid}/balance`).on('value', snap => {
+      balanceEl.textContent = (Number(snap.val()) || 0).toLocaleString('en-US');
+    });
+  } else {
+    balanceEl.textContent = '—';
+    submitBtn.disabled = true;
+  }
+});
+
+// === Phone validation ===
+const mpesaPrefixes = ["070","071","072","074","075","076","079","011"];
+const airtelPrefixes = ["073","078","076","075"];
+
+function isValidNumber(phone, method) {
+  if (!/^07\d{8}$/.test(phone)) return false;
+  const prefix = phone.substring(0,3);
+  return method === 'mpesa'? mpesaPrefixes.includes(prefix) : airtelPrefixes.includes(prefix);
+}
+
+// === BTC validation ===
+function isValidBTC(address){return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(address);}
+
+// === ERC20 validation ===
+function isValidERC20(address){return /^0x[a-fA-F0-9]{40}$/.test(address);}
+
+// === UI Switch ===
+methodInput.addEventListener("change", () => {
+  const m = methodInput.value;
+  if (m === "paypal") {
+    phoneBox.style.display = "none";paypalBox.style.display = "block";cryptoBox.style.display = "none";
+  } else if (m === "btc" || m === "usdt_erc20") {
+    phoneBox.style.display = "none";paypalBox.style.display = "none";cryptoBox.style.display = "block";
+    if (m === "btc") {cryptoLabel.textContent = "Bitcoin Address";cryptoHint.textContent = "Valid BTC address required.";}
+    else {cryptoLabel.textContent = "USDT ERC20 Address";cryptoHint.textContent = "0x + 40 hex characters required.";}
+  } else {
+    phoneBox.style.display = "block";paypalBox.style.display = "none";cryptoBox.style.display = "none";
+  }
+});
+methodInput.dispatchEvent(new Event('change'));
+
+function maskPhone(phone){if(!phone || phone.length < 6) return phone;return phone.slice(0,4) + '***' + phone.slice(-2);}
+
+// === Submit ===
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentUser) {showPopup("Not authenticated", "error");return;}
+
+  const amount = Math.floor(Number(amountInput.value));
+  const method = methodInput.value;
+  const phone = phoneInput.value.trim();
+  const paypalEmail = paypalEmailInput.value.trim();
+  const cryptoAddress = cryptoAddressInput.value.trim();
+
+  if (!amount || amount < 10) {showPopup("Minimum withdrawal is $10", "error");return;}
+
+  // Method validation
+  if (method === "mpesa" || method === "airtel") {
+    if (!isValidNumber(phone, method)) {showPopup("Invalid Mobile Money number", "error");return;}
+  }
+  if (method === "paypal") {
+    if (!/^\S+@\S+\.\S+$/.test(paypalEmail)) {showPopup("Invalid PayPal email", "error");return;}
+  }
+  if (method === "btc") {
+    if (!isValidBTC(cryptoAddress)) {showPopup("Invalid BTC address", "error");return;}
+  }
+  if (method === "usdt_erc20") {
+    if (!isValidERC20(cryptoAddress)) {showPopup("Invalid ERC20 address", "error");return;}
+  }
+
+  const balSnap = await db.ref(`users/${currentUser.uid}/balance`).once('value');
+  const balance = Number(balSnap.val()) || 0;
+  if (balance < amount) {showPopup("Insufficient balance", "error");return;}
+
+  /*
+  REFERRAL CHECK BYPASSED FOR NOW
+  UNCOMMENT BELOW TO RE-ENABLE
+  const refSnap = await db.ref(`users/${currentUser.uid}/referrals`).once('value');
+  let validRefs = 0;
+  refSnap.forEach(r => {if (Number(r.child('deposited').val()) >= 3000) validRefs++;});
+  if (validRefs < 2) {
+    showPopup("You need at least 2 referrals with $50 deposits","confirm",0,"select.html");
+    return;
+  }
+  */
+
+  submitBtn.disabled = true;submitBtn.textContent = "Processing...";
+  const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+
+  balanceRef.transaction((bal) => {
+    bal = Number(bal) || 0;
+    if (bal < amount) return;
+    return bal - amount;
+  }, async (error, committed) => {
+    submitBtn.disabled = false;submitBtn.textContent = "Submit Withdrawal";
+    if (error ||!committed) {showPopup("Transaction failed", "error");return;}
+
+    try {
+      const methodNames = {mpesa:"Mobile Money",airtel:"Mobile Money",paypal:"PayPal",btc:"Bitcoin (BTC)",usdt_erc20:"USDT (ERC20)"};
+      const payload = {amount: amount,method: methodNames[method],methodKey: method,status: "pending",timestamp: Date.now(),createdAt: Date.now()};
+      if (method === "mpesa" || method === "airtel") {payload.phone = phone;}
+      else if (method === "paypal") {payload.paypalEmail = paypalEmail;}
+      else if (method === "btc") {payload.btcAddress = cryptoAddress;}
+      else if (method === "usdt_erc20") {payload.usdtAddress = cryptoAddress;payload.network = "ERC20";}
+
+      await db.ref(`withdrawals/${currentUser.uid}`).push(payload);
+
+      amountInput.value = '';phoneInput.value = '';paypalEmailInput.value = '';cryptoAddressInput.value = '';
+
+      const phoneSnap = await db.ref(`users/${currentUser.uid}/phone`).once('value');
+      const regPhone = phoneSnap.val() || phone;
+      const masked = maskPhone(regPhone);
+
+      showPopup(`<div class="tick"></div>Withdrawal of $ ${amount.toLocaleString()} submitted<br>Method: ${methodNames[method]}<br>To: <span class="masked-phone">${masked}</span>`,"success",4000);
+      setTimeout(() => {window.location.href = "financial.html";}, 2000);
+
+    } catch (e) {
+      console.error(e);
+      showPopup("Saved but failed to sync history", "error");
+    }
+  });
+});
+</script>
+<script src="js/app-back.js"></script>
+</body>
+  </html>
