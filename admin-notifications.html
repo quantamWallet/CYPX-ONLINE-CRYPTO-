@@ -32,61 +32,63 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getFunctions, httpsCallable, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const functions = getFunctions(app);
-    const sendNotification = httpsCallable(functions, 'sendNotification');
-    const logEl = document.getElementById('log');
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const functions = getFunctions(app, 'us-central1'); // IMPORTANT: add region
+  const sendNotification = httpsCallable(functions, 'sendNotification');
+  const logEl = document.getElementById('log');
 
-    function log(msg) {
-      logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
-      logEl.scrollTop = logEl.scrollHeight;
-    }
+  function log(msg) {
+    logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
 
-    document.getElementById('sendBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('sendBtn');
-      const uid = document.getElementById('uid').value.trim();
-      const title = document.getElementById('title').value.trim();
-      const body = document.getElementById('body').value.trim();
-      const url = "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html";
-      
-      if(!uid ||!title ||!body) return log("❌ Fill all fields");
-      btn.disabled = true;
-      log("1. Fetching token for UID...");
-      
+  document.getElementById('sendBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('sendBtn');
+    const uid = document.getElementById('uid').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const body = document.getElementById('body').value.trim();
+    const url = "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html";
+    
+    if(!uid ||!title ||!body) return log("❌ Fill all fields");
+    btn.disabled = true;
+    log("1. Fetching token for UID...");
+    
+    try {
       const snap = await get(ref(db, `users/${uid}/fcmToken`));
       if(!snap.exists()) {
-        log("❌ No fcmToken found for this UID. User must login first.");
+        log("❌ No fcmToken found for this UID");
         btn.disabled = false;
         return;
       }
       
       const token = snap.val();
-      log("2. Token found. Sending...");
+      log("2. Token found: " + token.substring(0,20) + "...");
+      log("3. Calling Cloud Function...");
       
-      try {
-        const result = await sendNotification({ token, title, body, url });
-        log("✅ Sent Successfully! " + JSON.stringify(result.data));
-      } catch (err) {
-        log("❌ Error: " + err.message);
-      }
-      btn.disabled = false;
-    });
-  </script>
+      const result = await sendNotification({ token, title, body, url });
+      log("✅ Sent Successfully! Response: " + result.data.response);
+    } catch (err) {
+      log("❌ ERROR: " + err.code + " - " + err.message); // This will tell us the real error
+      console.error(err);
+    }
+    btn.disabled = false;
+  });
+                                          </script>
 </body>
   </html>
