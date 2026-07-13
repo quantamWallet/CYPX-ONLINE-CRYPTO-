@@ -6,152 +6,136 @@
 <title>CYPX HOLDINGS - Secure P2P</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root{
+  --bg1:#020b16;
+  --bg2:#0a1f35;
+  --card:#0f2b4a;
+  --gold:#d4af37;
+  --gold2:#f5d06f;
+  --accent:#00d4ff;
+  --success:#00ff88;
+  --danger:#ff4d4d;
+  --text:#ffffff;
+  --muted:#a8c6e0;
+  --radius:20px;
+}
+
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+  margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',Arial,sans-serif;
 }
 
 body{
-min-height:100vh;
-background: linear-gradient(135deg,#050b18,#061a33,#000814);
-color:#fff;
-display:flex;
-flex-direction:column;
-align-items:center;
-padding:20px;
+  min-height:100vh;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(212,175,55,.10), transparent 30%),
+    radial-gradient(circle at 80% 80%, rgba(0,212,255,.12), transparent 30%),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
 }
 
 .loading-screen{
-position:fixed;
-inset:0;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#000814;
-z-index:9999;
-font-size:14px;
-color:#00e0ff;
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:#000814;z-index:9999;font-size:14px;color:var(--accent);font-weight:600;
 }
 
 header{
-font-size:22px;
-font-weight:bold;
-color:#00e0ff;
-margin-top:10px;
-text-align:center;
+  font-size:24px;font-weight:700;margin-top:10px;text-align:center;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:.8px;
 }
 
 .card{
-width:100%;
-max-width:440px;
-background:#0b1f35;
-border:1px solid rgba(0,224,255,0.15);
-border-radius:18px;
-padding:20px;
-margin-top:18px;
-box-shadow:0 10px 35px rgba(0,0,0,0.6);
+  width:100%;max-width:460px;
+  background:linear-gradient(145deg,rgba(15,43,74,.95),rgba(9,28,52,.98));
+  border:1px solid rgba(212,175,55,.18);
+  border-radius:var(--radius);padding:24px;margin-top:22px;
+  box-shadow:0 15px 45px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,.04);
+  position:relative;overflow:hidden;
+}
+
+.card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));
 }
 
 h2{
-color:#ffd700;
-font-size:18px;
-margin-bottom:8px;
+  color:var(--gold2);font-size:20px;margin-bottom:10px;font-weight:700;
 }
 
 .price{
-font-size:22px;
-font-weight:bold;
-color:#00ff88;
-margin-bottom:12px;
+  font-size:26px;font-weight:800;color:var(--success);margin-bottom:14px;
+  text-shadow:0 0 12px rgba(0,255,136,0.25);
 }
+.price span{font-size:13px;color:var(--muted);font-weight:500;}
 
 .verified{
-display:inline-block;
-margin-top:8px;
-padding:6px 12px;
-border-radius:20px;
-background:rgba(0,224,255,0.15);
-color:#00e0ff;
-font-size:12px;
-font-weight:bold;
-border:1px solid rgba(0,224,255,0.3);
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;
+  border-radius:20px;background:rgba(0,212,255,0.12);color:var(--accent);
+  font-size:12px;font-weight:700;border:1px solid rgba(0,212,255,0.25);
 }
 
 .info{
-background:#071a2e;
-padding:12px;
-border-radius:12px;
-font-size:14px;
-line-height:1.6;
-margin-bottom:12px;
-color:#cfe6ff;
+  background:rgba(7,26,46,.7);padding:16px;border-radius:14px;font-size:14px;
+  line-height:1.7;margin:18px 0;color:var(--muted);border:1px solid rgba(255,255,255,.05);
 }
 
-.mpesa{
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:linear-gradient(90deg,#004aad,#007bff);
-padding:12px;
-border-radius:10px;
-font-weight:bold;
-margin:12px 0;
+.payment-box{
+  display:flex;flex-direction:column;gap:10px;
+  background:linear-gradient(90deg,rgba(0,74,173,.25),rgba(0,123,255,.25));
+  padding:14px;border-radius:12px;font-weight:600;margin:14px 0;
+  border:1px solid rgba(0,212,255,.2);
 }
+
+.payment-row{
+  display:flex;justify-content:space-between;align-items:center;
+}
+
+.payment-row span{font-size:15px;color:#fff;}
 
 .copy-btn{
-background:#00e0ff;
-border:none;
-padding:6px 10px;
-border-radius:6px;
-cursor:pointer;
-font-weight:bold;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  border:none;padding:7px 12px;border-radius:8px;cursor:pointer;
+  font-weight:700;font-size:12px;color:#071426;transition:.2s;
 }
+.copy-btn:hover{transform:translateY(-2px);}
+
+.whatsapp-link{
+  display:inline-flex;align-items:center;gap:6px;color:var(--success);
+  text-decoration:none;font-weight:600;font-size:13px;margin-top:4px;
+}
+.whatsapp-link:hover{text-decoration:underline;}
+
+label{display:block;margin:12px 0 6px;font-size:13px;color:var(--muted);font-weight:600;}
 
 input{
-width:100%;
-padding:13px;
-margin-top:10px;
-border:1px solid rgba(255,255,255,0.2);
-border-radius:10px;
-background:#081a2f;
-color:#fff;
-outline:none;
-font-size:14px;
+  width:100%;padding:14px;margin-top:6px;border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;background:rgba(8,26,47,.8);color:#fff;outline:none;font-size:15px;
+  transition:.25s;
 }
+input:focus{border-color:rgba(212,175,55,.45);box-shadow:0 0 0 3px rgba(212,175,55,.12);}
 
 button{
-width:100%;
-padding:14px;
-margin-top:15px;
-border:none;
-border-radius:12px;
-font-weight:bold;
-font-size:15px;
-cursor:pointer;
-background:linear-gradient(90deg,#00e0ff,#007bff);
-color:#001a33;
+  width:100%;padding:15px;margin-top:18px;border:none;border-radius:14px;
+  font-weight:700;font-size:16px;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));color:#071426;
+  box-shadow:0 10px 25px rgba(212,175,55,.25);transition:.25s;
 }
+button:hover{transform:translateY(-2px);box-shadow:0 0 20px rgba(212,175,55,.45);}
 
 .toast{
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-background:#28a745;
-padding:10px 15px;
-border-radius:8px;
-display:none;
-font-weight:bold;
+  position:fixed;bottom:25px;left:50%;transform:translateX(-50%);
+  padding:12px 20px;border-radius:10px;display:none;font-weight:700;z-index:9999;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);color:#fff;
 }
 
-footer{
-margin-top:20px;
-font-size:12px;
-color:#7f93ad;
-text-align:center;
-}
+footer{margin-top:25px;font-size:12px;color:#7a91a8;text-align:center;letter-spacing:.3px;}
 </style>
 </head>
 
@@ -164,21 +148,26 @@ text-align:center;
 <div class="card">
 
 <h2 id="packageTitle"></h2>
-<div class="price" id="packagePrice"></div>
+<div class="price" id="packagePrice"><span>USD</span></div>
 
 <div class="verified">✔ Verified P2P Trader</div>
 
 <div class="info">
 <p id="packageInfo"></p>
 
-<p><b>Pay To:</b></p>
-
-<div class="mpesa">
-<span>0707207201</span>
-<button class="copy-btn" onclick="navigator.clipboard.writeText('0707207201')">Copy</button>
+<p><b>Payment Details</b></p>
+<div class="payment-box">
+  <div class="payment-row">
+    <span>0708557123</span>
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('0708557123')">Copy</button>
+  </div>
+  <div class="payment-row">
+    <span>Joyce Rotich</span>
+  </div>
+  <a href="https://wa.me/254708557123" target="_blank" class="whatsapp-link">
+    <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+  </a>
 </div>
-
-<p><b>Account Name:</b> LANGAT ROBERT</p>
 </div>
 
 <label>Phone Number</label>
@@ -192,6 +181,7 @@ text-align:center;
 
 <div id="toast" class="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -227,19 +217,16 @@ const group = url.searchParams.get("group") || "Unknown Package";
 const price = parseInt(url.searchParams.get("price") || "0");
 
 document.getElementById("packageTitle").innerText = group;
-document.getElementById("packagePrice").innerText = price.toLocaleString() + " KSH";
-document.getElementById("packageInfo").innerText =
-"You selected " + group;
+document.getElementById("packagePrice").innerHTML = price.toLocaleString() + " <span>USD</span>";
+document.getElementById("packageInfo").innerText = "You selected " + group;
 
 onAuthStateChanged(auth, (user) => {
 document.getElementById("loading").style.display = "none";
-
 if (user) uid = user.uid;
 else window.location.href = "landing.html";
 });
 
 document.getElementById("submitBtn").addEventListener("click", async () => {
-
 if (!uid) return showToast("Session not ready", false);
 
 const phone = document.getElementById("phone").value.trim();
@@ -248,9 +235,7 @@ if (!/^(07\d{8}|01\d{8})$/.test(phone))
 return showToast("Invalid phone number", false);
 
 try {
-
 const newRef = push(ref(db, "referralPurchases/" + uid));
-
 await set(newRef, {
   group,
   price,
@@ -259,7 +244,6 @@ await set(newRef, {
   status: "pending",
   createdAt: Date.now()
 });
-
 showToast("Payment submitted");
 
 setTimeout(() => {
@@ -270,13 +254,12 @@ window.location.href = "financial.html?group=" + encodeURIComponent(group);
 console.error(e);
 showToast(e.message, false);
 }
-
 });
 
 function showToast(msg, ok = true) {
 const t = document.getElementById("toast");
 t.innerText = msg;
-t.style.background = ok ? "#28a745" : "#e53935";
+t.style.background = ok ? "linear-gradient(135deg,#00c853,#009624)" : "linear-gradient(135deg,#e53935,#b71c1c)";
 t.style.display = "block";
 setTimeout(() => t.style.display = "none", 2000);
 }
@@ -284,4 +267,4 @@ setTimeout(() => t.style.display = "none", 2000);
 </script>
 
 </body>
-</html>
+                           </html>
