@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CYPX Bot Trading</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<script src="https://s3.tradingview.com/tv.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
@@ -13,48 +12,46 @@
 body{background:#0a0f1a;color:#fff;height:100vh;overflow-x:hidden;}
 header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #002f6c;}
 .live-badge{background:#ff3b30;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:6px;}
-.live-badge .dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite;}
+.live-badge.dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .container{padding:15px;}
 .stats{display:flex;gap:10px;margin-bottom:15px;}
 .stat-card{flex:1;background:#001a33;padding:15px;border-radius:12px;text-align:center;}
 .stat-card small{color:#aaa;font-size:11px;}
 .stat-card h2{margin-top:5px;font-size:20px;}
-.stat-card .wins{color:#00ff88;}
-.stat-card .loss{color:#ff3b30;}
+.stat-card.wins{color:#00ff88;}
+.stat-card.loss{color:#ff3b30;}
 .balance-card{background:linear-gradient(135deg,#001f3f,#003566);padding:20px;border-radius:16px;margin-bottom:15px;}
 .balance-card small{color:#aaa;}
 .balance-card h1{font-size:32px;color:#00d4ff;margin:8px 0;}
 .section-title{font-size:14px;margin:15px 0 8px;color:#aaa;font-weight:600;}
 .assets-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:15px 0;max-height:240px;overflow-y:auto;padding-right:5px;}
-.assets-grid::-webkit-scrollbar{width:4px;}
-.assets-grid::-webkit-scrollbar-thumb{background:#00d4ff;border-radius:10px;}
 .asset{background:#001a33;padding:12px;border-radius:12px;border:2px solid transparent;cursor:pointer;transition:0.2s;}
 .asset.active{border-color:#00d4ff;background:#002b5c;}
-.asset .pair{font-weight:bold;font-size:14px;}
-.asset .tag{font-size:9px;padding:2px 6px;background:#00d4ff;color:#000;border-radius:4px;float:right;}
+.asset.pair{font-weight:bold;font-size:14px;}
+.asset.tag{font-size:9px;padding:2px 6px;background:#00d4ff;color:#000;border-radius:4px;float:right;}
 
 /* BOT CARDS */
 .bots-grid{display:grid;gap:12px;margin:15px 0;}
-.bot-card{background:#001a33;padding:15px;border-radius:14px;border:2px solid #002f6c;transition:0.3s;}
-.bot-card.active{border-color:#00ff88;background:rgba(0,255,136,0.05);}
+.bot-card{background:#001a33;padding:15px;border-radius:14px;border:2px solid #002f6c;transition:0.3s;position:relative;}
+.bot-card.expired{opacity:0.4;}
 .bot-card.selected{border-color:#00d4ff;box-shadow:0 0 15px rgba(0,212,255,0.3);}
 .bot-card h3{display:flex;justify-content:space-between;align-items:center;font-size:16px;}
 .bot-price{color:#00d4ff;font-size:14px;}
 .bot-desc{font-size:12px;color:#aaa;margin:8px 0;}
-.bot-stats{display:flex;gap:10px;font-size:11px;margin:8px 0;}
+.bot-stats{display:flex;gap:10px;font-size:11px;margin:8px 0;flex-wrap:wrap;}
 .bot-stats span{color:#00ff88;}
 .bot-run{font-size:10px;color:#00d4ff;}
+.bot-expire{font-size:9px;color:#ffaa00;}
 .bot-btn{width:100%;padding:10px;border:none;border-radius:8px;background:#00d4ff;color:#000;font-weight:bold;cursor:pointer;margin-top:8px;transition:0.2s;}
 .bot-btn.select{background:#00ff88;}
-.bot-btn.activated{background:#444;color:#888;cursor:default;}
+.bot-btn:disabled{background:#333;color:#666;cursor:not-allowed;}
 
 .live-price{font-size:24px;font-weight:bold;color:#00d4ff;margin:10px 0;display:flex;align-items:center;gap:8px;}
 .live-dot{width:8px;height:8px;background:#00ff88;border-radius:50%;animation:pulse 1.5s infinite;}
 .input-group{background:#001a33;padding:15px;border-radius:12px;margin:10px 0;}
 .input-group label{font-size:12px;color:#aaa;}
 .input-group input{width:100%;background:#0a0f1a;border:1px solid #002f6c;color:#fff;padding:12px;border-radius:8px;margin-top:5px;font-size:16px;}
-.percent-note{font-size:10px;color:#00d4ff;margin-top:5px;}
 .duration-grid{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
 .duration-btn{padding:8px 12px;background:#001a33;border:1px solid #002f6c;border-radius:8px;color:#fff;cursor:pointer;font-size:12px;}
 .duration-btn.active{background:#00d4ff;color:#000;border-color:#00d4ff;}
@@ -68,16 +65,12 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 .start-btn:disabled{background:#333;color:#666;cursor:not-allowed;}
 .logs{background:#001a33;padding:12px;border-radius:12px;margin-top:15px;max-height:200px;overflow-y:auto;font-size:11px;}
 .log-line{margin:4px 0;color:#aaa;}
-
-/* TOAST */
 .toast{position:fixed;top:80px;right:15px;background:#001a33;padding:12px 16px;border-radius:10px;border-left:4px solid #00d4ff;display:none;z-index:1000;animation:slideIn 0.3s;}
 @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-
-/* MODALS */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:999;}
 .modal-box{background:#001a33;padding:30px;border-radius:20px;text-align:center;border:2px solid #00d4ff;max-width:320px;}
 .modal-box h2{color:#00d4ff;margin:10px 0;}
-.modal-box .profit{font-size:32px;color:#00ff88;font-weight:bold;}
+.modal-box.profit{font-size:32px;color:#00ff88;font-weight:bold;}
 </style>
 </head>
 <body>
@@ -98,129 +91,77 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 
   <div class="balance-card">
     <small>CURRENT BALANCE</small>
-    <h1 id="balance">$6,612.32</h1>
+    <h1 id="balance">$0.00</h1>
   </div>
 
-  <div class="section-title">Select Trading Asset - 30+ Pairs - Scroll ↓</div>
+  <div class="section-title">Select Trading Asset</div>
   <div class="assets-grid" id="assets">
-    <!-- 30+ ASSETS -->
-    <div class="asset active" data-pair="EURUSD" data-symbol="FX:EURUSD"><div class="pair">EUR/USD <span class="tag">MAJOR</span></div></div>
-    <div class="asset" data-pair="GBPUSD" data-symbol="FX:GBPUSD"><div class="pair">GBP/USD <span class="tag">MAJOR</span></div></div>
-    <div class="asset" data-pair="USDJPY" data-symbol="FX:USDJPY"><div class="pair">USD/JPY <span class="tag">MAJOR</span></div></div>
-    <div class="asset" data-pair="USDCHF" data-symbol="FX:USDCHF"><div class="pair">USD/CHF <span class="tag">MAJOR</span></div></div>
-    <div class="asset" data-pair="AUDUSD" data-symbol="FX:AUDUSD"><div class="pair">AUD/USD <span class="tag">MAJOR</span></div></div>
-    <div class="asset" data-pair="USDCAD" data-symbol="FX:USDCAD"><div class="pair">USD/CAD <span class="tag">MAJOR</span></div></div>
-    <div class="asset" data-pair="EURGBP" data-symbol="FX:EURGBP"><div class="pair">EUR/GBP</div></div>
-    <div class="asset" data-pair="EURJPY" data-symbol="FX:EURJPY"><div class="pair">EUR/JPY</div></div>
-    <div class="asset" data-pair="GBPJPY" data-symbol="FX:GBPJPY"><div class="pair">GBP/JPY</div></div>
-    <div class="asset" data-pair="AUDJPY" data-symbol="FX:AUDJPY"><div class="pair">AUD/JPY</div></div>
-    <div class="asset" data-pair="NZDUSD" data-symbol="FX:NZDUSD"><div class="pair">NZD/USD</div></div>
-    <div class="asset" data-pair="XAUUSD" data-symbol="OANDA:XAUUSD"><div class="pair">XAU/USD <span class="tag">GOLD</span></div></div>
-    <div class="asset" data-pair="XAGUSD" data-symbol="OANDA:XAGUSD"><div class="pair">XAG/USD <span class="tag">SILVER</span></div></div>
-    <div class="asset" data-pair="WTIUSD" data-symbol="TVC:USOIL"><div class="pair">USOIL <span class="tag">OIL</span></div></div>
-    <div class="asset" data-pair="BTCUSD" data-symbol="BINANCE:BTCUSDT"><div class="pair">BTC/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="ETHUSD" data-symbol="BINANCE:ETHUSDT"><div class="pair">ETH/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="SOLUSD" data-symbol="BINANCE:SOLUSDT"><div class="pair">SOL/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="BNBUSDT" data-symbol="BINANCE:BNBUSDT"><div class="pair">BNB/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="XRPUSDT" data-symbol="BINANCE:XRPUSDT"><div class="pair">XRP/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="DOGEUSDT" data-symbol="BINANCE:DOGEUSDT"><div class="pair">DOGE/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="ADAUSDT" data-symbol="BINANCE:ADAUSDT"><div class="pair">ADA/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="DOTUSDT" data-symbol="BINANCE:DOTUSDT"><div class="pair">DOT/USD <span class="tag">CRYPTO</span></div></div>
-    <div class="asset" data-pair="SPX500" data-symbol="TVC:SPX"><div class="pair">S&P 500</div></div>
-    <div class="asset" data-pair="NAS100" data-symbol="TVC:NDX"><div class="pair">NASDAQ</div></div>
-    <div class="asset" data-pair="DJI30" data-symbol="TVC:DJI"><div class="pair">DOW JONES</div></div>
+    <div class="asset active" data-pair="EURUSD"><div class="pair">EUR/USD <span class="tag">MAJOR</span></div></div>
+    <div class="asset" data-pair="GBPUSD"><div class="pair">GBP/USD <span class="tag">MAJOR</span></div></div>
+    <div class="asset" data-pair="BTCUSD"><div class="pair">BTC/USD <span class="tag">CRYPTO</span></div></div>
+    <div class="asset" data-pair="ETHUSD"><div class="pair">ETH/USD <span class="tag">CRYPTO</span></div></div>
+    <div class="asset" data-pair="XAUUSD"><div class="pair">XAU/USD <span class="tag">GOLD</span></div></div>
   </div>
 
-  <div class="section-title">Select Bot - Paid Access</div>
+  <div class="section-title">Select Bot - 3 Day Access - 7 Uses/Day</div>
   <div class="bots-grid">
     <div class="bot-card" data-bot="SCALPER" data-price="296">
       <h3>SCALPER BOT <span class="bot-price">$296</span></h3>
-      <div class="bot-desc">Fast trades 30s - 5min. Best for Majors + Gold. 82% Winrate</div>
-      <div class="bot-stats"><span><i class="fas fa-bolt"></i> High Frequency</span><span><i class="fas fa-chart-line"></i> Low Risk</span></div>
-      <div class="bot-run" id="run-SCALPER">Runs: 0</div>
+      <div class="bot-desc">Fast trades 30s - 5min. 82% Winrate</div>
+      <div class="bot-stats">
+        <span id="run-SCALPER">Runs: 0/7</span>
+        <span id="expire-SCALPER" class="bot-expire"></span>
+      </div>
       <button class="bot-btn" onclick="handleBot('SCALPER', 296, this)">Activate Bot</button>
     </div>
     <div class="bot-card" data-bot="SWING" data-price="382">
       <h3>SWING BOT <span class="bot-price">$382</span></h3>
-      <div class="bot-desc">1hr - 1 day trades. Best for Majors + Crypto. 76% Winrate</div>
-      <div class="bot-stats"><span><i class="fas fa-wave-square"></i> Trend Catcher</span><span><i class="fas fa-shield"></i> Medium Risk</span></div>
-      <div class="bot-run" id="run-SWING">Runs: 0</div>
+      <div class="bot-desc">1hr - 1 day trades. 76% Winrate</div>
+      <div class="bot-stats">
+        <span id="run-SWING">Runs: 0/7</span>
+        <span id="expire-SWING" class="bot-expire"></span>
+      </div>
       <button class="bot-btn" onclick="handleBot('SWING', 382, this)">Activate Bot</button>
     </div>
     <div class="bot-card" data-bot="AI QUANT" data-price="696">
       <h3>AI QUANT BOT <span class="bot-price">$696</span></h3>
-      <div class="bot-desc">1 day - 1 month. AI powered. Works on all assets. 88% Winrate</div>
-      <div class="bot-stats"><span><i class="fas fa-brain"></i> AI Powered</span><span><i class="fas fa-crown"></i> VIP</span></div>
-      <div class="bot-run" id="run-AI QUANT">Runs: 0</div>
+      <div class="bot-desc">1 day - 1 month. AI Powered. 88% Winrate</div>
+      <div class="bot-stats">
+        <span id="run-AI QUANT">Runs: 0/7</span>
+        <span id="expire-AI QUANT" class="bot-expire"></span>
+      </div>
       <button class="bot-btn" onclick="handleBot('AI QUANT', 696, this)">Activate Bot</button>
     </div>
   </div>
 
-  <div class="live-price"><span class="live-dot"></span><span id="livePrice">$ 1.1424</span></div>
+  <div class="live-price"><span class="live-dot"></span><span id="livePrice">$ 0.00</span></div>
 
   <div class="input-group">
     <label>TRADE AMOUNT (USD) - MIN $100</label>
-    <input type="number" id="amount" value="6612" min="100">
-    <div style="display:flex;gap:5px;margin-top:8px;">
-      <button class="duration-btn" onclick="setPercent(25)">25%</button>
-      <button class="duration-btn" onclick="setPercent(50)">50%</button>
-      <button class="duration-btn" onclick="setPercent(75)">75%</button>
-      <button class="duration-btn" onclick="setPercent(100)">100%</button>
-    </div>
-    <div class="percent-note"><i class="fas fa-info-circle"></i> Use % to set trade amount based on your current balance</div>
+    <input type="number" id="amount" value="100" min="100">
   </div>
 
   <label style="font-size:12px;color:#aaa;">SESSION DURATION</label>
   <div class="duration-grid">
-    <div class="duration-btn" data-type="sec" data-val="30">30s</div>
     <div class="duration-btn active" data-type="min" data-val="1">1 min</div>
     <div class="duration-btn" data-type="min" data-val="5">5 min</div>
-    <div class="duration-btn" data-type="hr" data-val="1">1 hr</div>
-    <div class="duration-btn" data-type="day" data-val="1">1 day</div>
-  </div>
-
-  <label style="font-size:12px;color:#aaa;">LEVERAGE</label>
-  <div class="leverage-grid">
-    <div class="lev-btn" data-lev="10">10x</div>
-    <div class="lev-btn active" data-lev="50">50x</div>
-    <div class="lev-btn" data-lev="100">100x</div>
   </div>
 
   <div class="summary">
     <div class="sum-card"><small>BOT</small><div id="sumBot">None</div></div>
     <div class="sum-card"><small>MARKET</small><div id="sumMarket">EUR/USD</div></div>
-    <div class="sum-card"><small>AMOUNT</small><div id="sumAmount">$6,612.00</div></div>
+    <div class="sum-card"><small>AMOUNT</small><div id="sumAmount">$100.00</div></div>
     <div class="sum-card"><small>DURATION</small><div id="sumDur">1 min</div></div>
   </div>
 
   <button class="start-btn" id="startBtn" onclick="startTrade()" disabled><i class="fas fa-lock"></i> Select a Bot First</button>
-
   <div class="logs" id="logs"></div>
 </div>
 
-<!-- Trade Started Modal -->
-<div class="modal" id="tradeModal">
-  <div class="modal-box">
-    <i class="fas fa-robot" style="font-size:50px;color:#00d4ff;"></i>
-    <h2>Bot Activated</h2>
-    <p id="tradeInfo">SCALPER BOT is trading EUR/USD</p>
-    <button class="start-btn" style="margin-top:15px;" onclick="closeTradeModal()">Watch Trade</button>
-  </div>
-</div>
-
-<!-- Result Modal -->
-<div class="modal" id="resultModal">
-  <div class="modal-box">
-    <i class="fas fa-check-circle" style="font-size:50px;color:#00ff88;" id="resultIcon"></i>
-    <h2 id="resultTitle">Session Complete</h2>
-    <div class="profit" id="profitText">+$2,709.74</div>
-    <small>Updated to your balance</small>
-    <button class="start-btn" style="margin-top:15px;" onclick="closeResultModal()">Continue Trading</button>
-  </div>
-</div>
+<div class="modal" id="tradeModal"><div class="modal-box"><i class="fas fa-robot" style="font-size:50px;color:#00d4ff;"></i><h2>Bot Activated</h2><p id="tradeInfo"></p><button class="start-btn" onclick="closeTradeModal()">Watch Trade</button></div></div>
+<div class="modal" id="resultModal"><div class="modal-box"><i class="fas fa-check-circle" style="font-size:50px;color:#00ff88;" id="resultIcon"></i><h2 id="resultTitle">Session Complete</h2><div class="profit" id="profitText"></div><button class="start-btn" onclick="closeResultModal()">Continue</button></div></div>
 
 <script>
-// FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -228,25 +169,24 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const userId = "demoUser"; // change to real user ID later
+const userId = "demoUser";
 
-let selectedAsset = {pair:"EURUSD", symbol:"FX:EURUSD"};
+let selectedAsset = {pair:"EURUSD"};
 let selectedBot = null;
 let duration = 60;
-let durationText = "1 min";
-let leverage = 50;
-let balance = 6612.32;
-let wins = 0;
-let losses = 0;
-let sessions = 0;
-let activatedBots = [];
-let botRuns = {"SCALPER": 0, "SWING": 0, "AI QUANT": 0};
+let balance = 0;
+let wins = 0; let losses = 0; let sessions = 0;
+let activatedBots = {}; // {botName: {activatedAt: timestamp}}
+let botUsage = {}; // {botName: {date: "2026-04-21", count: 3}}
 let isTrading = false;
+let allPrices = {};
+
+const BOT_DURATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+const DAILY_LIMIT = 7;
 
 function showToast(msg, color='#00d4ff'){
   const t = document.getElementById('toast');
@@ -256,131 +196,201 @@ function showToast(msg, color='#00d4ff'){
   setTimeout(()=>t.style.display='none', 3000);
 }
 
-// LOAD DATA FROM FIREBASE
+function getToday(){
+  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+// INIT
+db.ref('users/'+userId).once('value').then(snap=>{
+  if(!snap.exists()){
+    db.ref('users/'+userId).set({
+      balance: 6612.32, wins: 0, losses: 0, sessions: 0,
+      activatedBots: {}, botUsage: {}
+    })
+  }
+})
+
+// REAL TIME LOAD
 db.ref('users/'+userId).on('value', (snapshot)=>{
   const data = snapshot.val();
   if(data){
-    balance = data.balance || balance;
-    wins = data.wins || 0;
-    losses = data.losses || 0;
-    sessions = data.sessions || 0;
-    botRuns = data.botRuns || botRuns;
-    activatedBots = data.activatedBots || [];
-    document.getElementById('balance').textContent = '$'+balance.toLocaleString();
-    updateStats();
+    balance = data.balance || 0;
+    wins = data.wins || 0; losses = data.losses || 0; sessions = data.sessions || 0;
+    activatedBots = data.activatedBots || {};
+    botUsage = data.botUsage || {};
+    document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
+    checkBotExpiry();
     updateBotUI();
+    updateStats();
   }
 });
 
-// LOAD PRICES FROM FIREBASE
+// REAL TIME PRICES
 db.ref('prices').on('value', (snapshot)=>{
-  const prices = snapshot.val();
-  if(prices && prices[selectedAsset.pair]){
-    document.getElementById('livePrice').textContent = `$ ${Number(prices[selectedAsset.pair]).toLocaleString()}`;
+  allPrices = snapshot.val() || {};
+  if(allPrices[selectedAsset.pair]){
+    document.getElementById('livePrice').textContent = `$ ${Number(allPrices[selectedAsset.pair]).toLocaleString(undefined,{minimumFractionDigits:4})}`;
   }
 });
 
-// SAVE TO FIREBASE
-function saveToFirebase(){
-  db.ref('users/'+userId).update({
-    balance, wins, losses, sessions, botRuns, activatedBots
-  });
-}
-
-function getLivePrice(symbol){
-  let base = Math.random() * 5000 + 1000;
-  if(symbol.includes('EURUSD')) base = 1.08 + Math.random()*0.02;
-  if(symbol.includes('GBPUSD')) base = 1.26 + Math.random()*0.02;
-  if(symbol.includes('BTC')) base = 62000 + Math.random()*500;
-  if(symbol.includes('ETH')) base = 3200 + Math.random()*50;
-  if(symbol.includes('XAU')) base = 4000 + Math.random()*20;
-  return base.toFixed(4);
-}
-
+// SIMULATE PRICES
+const allPairs = ["EURUSD","GBPUSD","BTCUSD","ETHUSD","XAUUSD"];
 setInterval(()=>{
-  const price = getLivePrice(selectedAsset.symbol);
-  db.ref('prices/'+selectedAsset.pair).set(Number(price));
-}, 2000);
+  allPairs.forEach(pair=>{
+    let base = pair=='EURUSD'?1.08: pair=='BTCUSD'?62000:4000;
+    db.ref('prices/'+pair).set(Number((base + Math.random()*10).toFixed(4)));
+  });
+}, 3000);
 
-document.querySelectorAll('.asset').forEach(a=>{
-  a.onclick = ()=>{
-    if(isTrading) return showToast('Cannot change asset while bot is running', '#ff3b30');
-    document.querySelectorAll('.asset').forEach(x=>x.classList.remove('active'));
-    a.classList.add('active');
-    selectedAsset = {pair:a.dataset.pair, symbol:a.dataset.symbol};
-    let displayPair = a.dataset.pair.replace('USD','/USD').replace('USDT','/USDT');
-    document.getElementById('sumMarket').textContent = displayPair;
-  }
-})
-
-document.querySelectorAll('.duration-btn[data-type]').forEach(b=>{
-  b.onclick = ()=>{
-    document.querySelectorAll('.duration-btn[data-type]').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    let val = Number(b.dataset.val);
-    let type = b.dataset.type;
-    if(type === 'sec') duration = val;
-    if(type === 'min') duration = val * 60;
-    if(type === 'hr') duration = val * 3600;
-    if(type === 'day') duration = val * 86400;
-    durationText = b.textContent;
-    document.getElementById('sumDur').textContent = durationText;
-  }
-})
-
-document.querySelectorAll('.lev-btn').forEach(b=>{
-  b.onclick = ()=>{
-    document.querySelectorAll('.lev-btn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    leverage = b.dataset.lev;
-  }
-})
-
-document.getElementById('amount').oninput = e=>{
-  document.getElementById('sumAmount').textContent = '$'+Number(e.target.value).toLocaleString();
+function updateFirebase(updates){
+  db.ref('users/'+userId).update(updates);
 }
 
-function setPercent(p){
-  document.getElementById('amount').value = Math.floor(balance * p / 100);
-  document.getElementById('sumAmount').textContent = '$'+Number(document.getElementById('amount').value).toLocaleString();
+function checkBotExpiry(){
+  const now = Date.now();
+  let changed = false;
+  Object.keys(activatedBots).forEach(bot=>{
+    if(now - activatedBots[bot].activatedAt > BOT_DURATION_MS){
+      delete activatedBots[bot];
+      changed = true;
+    }
+  });
+  if(changed) updateFirebase({activatedBots});
+}
+
+function canUseBot(botName){
+  const today = getToday();
+  if(!botUsage[botName] || botUsage[botName].date!== today){
+    return true; // new day
+  }
+  return botUsage[botName].count < DAILY_LIMIT;
 }
 
 function handleBot(botName, price, btn){
-  if(activatedBots.includes(botName)){
+  // Check if already activated and not expired
+  if(activatedBots[botName]){
     selectBot(botName, btn);
     return;
   }
+
+  // Check balance
   if(balance < price) return showToast('Insufficient balance to activate bot', '#ff3b30');
-  balance -= price;
-  activatedBots.push(botName);
-  saveToFirebase();
+
+  // Deduct and activate for 3 days
+  const newBalance = balance - price;
+  const newActivated = {...activatedBots};
+  newActivated[botName] = {activatedAt: Date.now()};
+  updateFirebase({balance: newBalance, activatedBots: newActivated});
+
   btn.textContent = 'Select Bot';
   btn.classList.add('select');
   selectBot(botName, btn);
-  showToast(`${botName} Activated for $${price}`);
+  showToast(`${botName} Activated for 3 days. $${price} deducted`);
 }
 
 function updateBotUI(){
-  activatedBots.forEach(bot=>{
-    const card = document.querySelector(`.bot-card[data-bot="${bot}"]`);
-    if(card){
-      card.querySelector('.bot-btn').textContent = 'Select Bot';
-      card.querySelector('.bot-btn').classList.add('select');
+  document.querySelectorAll('.bot-card').forEach(card=>{
+    const bot = card.dataset.bot;
+    const btn = card.querySelector('.bot-btn');
+    const expireEl = document.getElementById(`expire-${bot}`);
+
+    if(activatedBots[bot]){
+      card.classList.remove('expired');
+      btn.textContent = 'Select Bot';
+      btn.classList.add('select');
+      const expiresIn = BOT_DURATION_MS - (Date.now() - activatedBots[bot].activatedAt);
+      const daysLeft = Math.ceil(expiresIn / (24*60*60*1000));
+      expireEl.textContent = `Expires in ${daysLeft}d`;
+    }else{
+      card.classList.add('expired');
+      btn.textContent = 'Activate Bot';
+      btn.classList.remove('select');
+      expireEl.textContent = '';
     }
-    document.getElementById(`run-${bot}`).textContent = `Runs: ${botRuns[bot]}`;
+
+    const today = getToday();
+    const count = botUsage[bot] && botUsage[bot].date === today? botUsage[bot].count : 0;
+    document.getElementById(`run-${bot}`).textContent = `Runs: ${count}/${DAILY_LIMIT}`;
   });
 }
 
 function selectBot(botName, btn){
+  if(!activatedBots[botName]) return showToast('Activate bot first', '#ff3b30');
   document.querySelectorAll('.bot-card').forEach(c=>c.classList.remove('selected'));
-  document.querySelectorAll('.bot-btn.select').forEach(b=>b.textContent = 'Select Bot');
-  selectedBot = botName;
-  btn.textContent = 'Selected';
   btn.closest('.bot-card').classList.add('selected');
+  selectedBot = botName;
   document.getElementById('sumBot').textContent = botName;
   document.getElementById('startBtn').disabled = false;
   document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${botName}`;
-  showToast(`${botName} Selected`);
+}
+
+document.querySelectorAll('.asset').forEach(a=>{
+  a.onclick = ()=>{
+    if(isTrading) return;
+    document.querySelectorAll('.asset').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
+    selectedAsset = {pair:a.dataset.pair};
+    document.getElementById('sumMarket').textContent = a.dataset.pair.replace('USD','/USD');
+  }
+})
+
+function startTrade(){
+  if(!selectedBot) return showToast('Select a bot first', '#ff3b30');
+  if(!canUseBot(selectedBot)) return showToast(`${selectedBot} daily limit of ${DAILY_LIMIT} reached`, '#ff3b30');
+
+  const amount = Number(document.getElementById('amount').value);
+  if(amount < 100 || amount > balance) return showToast('Invalid amount', '#ff3b30');
+
+  isTrading = true;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').innerHTML = `<i class="fas fa-spinner fa-spin"></i> Trading...`;
+  document.getElementById('tradeInfo').textContent = `${selectedBot} is trading ${selectedAsset.pair}`;
+  document.getElementById('tradeModal').style.display = 'flex';
+
+  updateFirebase({sessions: sessions + 1});
+  addLog(`SESSION STARTED - ${selectedBot}`);
+
+  setTimeout(()=>{ // simulate trade duration
+    finishTrade(amount);
+  }, duration*1000);
+}
+
+function finishTrade(amount){
+  isTrading = false;
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
+
+  // Update daily usage
+  const today = getToday();
+  const newUsage = {...botUsage};
+  if(!newUsage[selectedBot] || newUsage[selectedBot].date!== today){
+    newUsage[selectedBot] = {date: today, count: 1};
+  }else{
+    newUsage[selectedBot].count++;
+  }
+  updateFirebase({botUsage: newUsage});
+
+  const isWin = Math.random() > 0.3;
+  let profit = 0; let updates = {};
+
+  if(isWin){
+    profit = (amount * 0.4098).toFixed(2);
+    updates = {wins: wins + 1, balance: balance + Number(profit)};
+    document.getElementById('profitText').textContent = `+$${Number(profit).toLocaleString()}`;
+  }else{
+    profit = amount;
+    updates = {losses: losses + 1, balance: balance - Number(profit)};
+    document.getElementById('profitText').textContent = `-$${Number(profit).toLocaleString()}`;
+  }
+  updateFirebase(updates);
+  document.getElementById('resultModal').style.display = 'flex';
+  updateBotUI();
+}
+
+function updateStats(){
+  document.getElementById('wins').textContent = wins;
+  document.getElementById('losses').textContent = losses;
+  document.getElementById('sessions').textContent = sessions;
 }
 
 function addLog(msg){
@@ -390,87 +400,8 @@ function addLog(msg){
   document.getElementById('logs').prepend(log);
 }
 
-function updateStats(){
-  document.getElementById('wins').textContent = wins;
-  document.getElementById('losses').textContent = losses;
-  document.getElementById('sessions').textContent = sessions;
-}
-
-function determineResult(botName){
-  botRuns[botName]++;
-  document.getElementById(`run-${botName}`).textContent = `Runs: ${botRuns[botName]}`;
-  if(botName === "SCALPER"){ let runInCycle = botRuns[botName] % 5; if(runInCycle === 4 || runInCycle === 0) return false; return true; }
-  if(botName === "SWING"){ let runInCycle = botRuns[botName] % 5; if(runInCycle === 2) return false; return true; }
-  if(botName === "AI QUANT"){ return true; }
-  return Math.random() > 0.3;
-}
-
-function startTrade(){
-  if(!selectedBot) return showToast('Please select a bot first', '#ff3b30');
-  const amount = Number(document.getElementById('amount').value);
-  if(amount < 100) return showToast('Min trade $100', '#ff3b30');
-  if(amount > balance) return showToast('Insufficient balance', '#ff3b30');
-
-  isTrading = true;
-  document.getElementById('startBtn').disabled = true;
-  document.getElementById('startBtn').innerHTML = `<i class="fas fa-spinner fa-spin"></i> Trading...`;
-
-  document.getElementById('tradeInfo').textContent = `${selectedBot} is trading ${selectedAsset.pair}`;
-  document.getElementById('tradeModal').style.display = 'flex';
-  sessions++;
-  addLog(`SESSION STARTED - ${selectedBot} on ${selectedAsset.pair} | Run #${botRuns[selectedBot]+1}`);
-
-  let timeLeft = duration;
-  const interval = setInterval(()=>{
-    timeLeft--;
-    if(timeLeft % 5 === 0) addLog(`Running... settles in ${timeLeft}s`);
-    if(timeLeft <= 0){
-      clearInterval(interval);
-      finishTrade(amount);
-    }
-  },1000);
-}
-
-function finishTrade(amount){
-  isTrading = false;
-  document.getElementById('startBtn').disabled = false;
-  document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
-
-  const isWin = determineResult(selectedBot);
-  let profit = 0;
-  if(isWin){
-    wins++;
-    profit = (amount * 0.4098).toFixed(2);
-    balance += Number(profit);
-    document.getElementById('resultIcon').style.color = '#00ff88';
-    document.getElementById('resultTitle').textContent = 'Session Win';
-    document.getElementById('profitText').style.color = '#00ff88';
-    document.getElementById('profitText').textContent = `+$${Number(profit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - WIN +$${profit} | Run #${botRuns[selectedBot]}`);
-  }else{
-    losses++;
-    profit = amount;
-    balance -= Number(profit);
-    document.getElementById('resultIcon').style.color = '#ff3b30';
-    document.getElementById('resultTitle').textContent = 'Session Loss';
-    document.getElementById('profitText').style.color = '#ff3b30';
-    document.getElementById('profitText').textContent = `-$${Number(profit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - LOSS -$${profit} | Run #${botRuns[selectedBot]}`);
-  }
-  saveToFirebase();
-  updateStats();
-  document.getElementById('resultModal').style.display = 'flex';
-}
-
-function closeTradeModal(){
-  document.getElementById('tradeModal').style.display = 'none';
-}
-
-function closeResultModal(){
-  document.getElementById('resultModal').style.display = 'none';
-}
-
-updateStats();
+function closeTradeModal(){document.getElementById('tradeModal').style.display = 'none';}
+function closeResultModal(){document.getElementById('resultModal').style.display = 'none';}
 </script>
 </body>
-</html>
+                                                                      </html>
