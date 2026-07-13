@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CYPX Bot Trading</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-<script src="https://s3.tradingview.com/tv.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
@@ -34,11 +34,15 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 .asset .pair{font-weight:bold;font-size:14px;}
 .asset .tag{font-size:9px;padding:2px 6px;background:#00d4ff;color:#000;border-radius:4px;float:right;}
 
+/* TRADINGVIEW CHART */
+#tv_chart{height:220px;margin:15px 0;border-radius:12px;overflow:hidden;border:1px solid #002f6c;}
+
 /* BOT CARDS */
 .bots-grid{display:grid;gap:12px;margin:15px 0;}
 .bot-card{background:#001a33;padding:15px;border-radius:14px;border:2px solid #002f6c;transition:0.3s;}
 .bot-card.active{border-color:#00ff88;background:rgba(0,255,136,0.05);}
 .bot-card.selected{border-color:#00d4ff;box-shadow:0 0 15px rgba(0,212,255,0.3);}
+.bot-card.disabled{opacity:0.4;pointer-events:none;}
 .bot-card h3{display:flex;justify-content:space-between;align-items:center;font-size:16px;}
 .bot-price{color:#00d4ff;font-size:14px;}
 .bot-desc{font-size:12px;color:#aaa;margin:8px 0;}
@@ -47,7 +51,7 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 .bot-run{font-size:10px;color:#00d4ff;}
 .bot-btn{width:100%;padding:10px;border:none;border-radius:8px;background:#00d4ff;color:#000;font-weight:bold;cursor:pointer;margin-top:8px;transition:0.2s;}
 .bot-btn.select{background:#00ff88;}
-.bot-btn.activated{background:#444;color:#888;cursor:default;}
+.bot-btn:disabled{background:#444;color:#888;cursor:not-allowed;}
 
 .live-price{font-size:24px;font-weight:bold;color:#00d4ff;margin:10px 0;display:flex;align-items:center;gap:8px;}
 .live-dot{width:8px;height:8px;background:#00ff88;border-radius:50%;animation:pulse 1.5s infinite;}
@@ -58,6 +62,7 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 .duration-grid{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
 .duration-btn{padding:8px 12px;background:#001a33;border:1px solid #002f6c;border-radius:8px;color:#fff;cursor:pointer;font-size:12px;}
 .duration-btn.active{background:#00d4ff;color:#000;border-color:#00d4ff;}
+.duration-btn:disabled{opacity:0.4;cursor:not-allowed;}
 .leverage-grid{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
 .lev-btn{padding:8px 12px;background:#001a33;border:1px solid #002f6c;border-radius:8px;color:#fff;cursor:pointer;font-size:12px;}
 .lev-btn.active{background:#00d4ff;color:#000;border-color:#00d4ff;}
@@ -100,6 +105,9 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
     <small>CURRENT BALANCE</small>
     <h1 id="balance">$0.00</h1>
   </div>
+
+  <!-- TRADINGVIEW CHART -->
+  <div id="tv_chart"></div>
 
   <div class="section-title">Select Trading Asset - 30+ Pairs - Scroll ↓</div>
   <div class="assets-grid" id="assets">
@@ -155,12 +163,15 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
     </div>
   </div>
 
-  <div class="live-price"><span class="live-dot"></span><span id="livePrice">$ 1.1424</span></div>
+ <div class="live-price"><span class="live-dot"></span><span id="livePrice">$ 1.1424</span></div>
 
   <div class="input-group">
     <label>TRADE AMOUNT (USD) - MIN $100</label>
     <input type="number" id="amount" value="100" min="100">
-    <div style="display:flex;gap:5px;margin-top:8px;">
+    <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;">
+      <button class="duration-btn" onclick="setPercent(10)">10%</button>
+      <button class="duration-btn" onclick="setPercent(15)">15%</button>
+      <button class="duration-btn" onclick="setPercent(20)">20%</button>
       <button class="duration-btn" onclick="setPercent(25)">25%</button>
       <button class="duration-btn" onclick="setPercent(50)">50%</button>
       <button class="duration-btn" onclick="setPercent(75)">75%</button>
@@ -171,11 +182,11 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 
   <label style="font-size:12px;color:#aaa;">SESSION DURATION</label>
   <div class="duration-grid">
-    <div class="duration-btn" data-type="sec" data-val="30">30s</div>
-    <div class="duration-btn active" data-type="min" data-val="1">1 min</div>
-    <div class="duration-btn" data-type="min" data-val="5">5 min</div>
-    <div class="duration-btn" data-type="hr" data-val="1">1 hr</div>
-    <div class="duration-btn" data-type="day" data-val="1">1 day</div>
+    <div class="duration-btn" data-type="min" data-val="15">15 min</div>
+    <div class="duration-btn" data-type="min" data-val="30">30 min</div>
+    <div class="duration-btn active" data-type="min" data-val="60">1 hr</div>
+    <div class="duration-btn" data-type="min" data-val="240">4 hr</div>
+    <div class="duration-btn" data-type="day" data-val="30">1 month</div>
   </div>
 
   <label style="font-size:12px;color:#aaa;">LEVERAGE</label>
@@ -189,7 +200,7 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
     <div class="sum-card"><small>BOT</small><div id="sumBot">None</div></div>
     <div class="sum-card"><small>MARKET</small><div id="sumMarket">EUR/USD</div></div>
     <div class="sum-card"><small>AMOUNT</small><div id="sumAmount">$100.00</div></div>
-    <div class="sum-card"><small>DURATION</small><div id="sumDur">1 min</div></div>
+    <div class="sum-card"><small>DURATION</small><div id="sumDur">1 hr</div></div>
   </div>
 
   <button class="start-btn" id="startBtn" onclick="startTrade()" disabled><i class="fas fa-lock"></i> Select a Bot First</button>
@@ -218,8 +229,9 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
   </div>
 </div>
 
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-// FIREBASE CONFIG
+// FIREBASE CONFIG - Replace with yours
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -227,28 +239,23 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const userId = "demoUser"; // change to real user ID later
+const auth = firebase.auth();
 
+let userId = null;
 let selectedAsset = {pair:"EURUSD", symbol:"FX:EURUSD"};
 let selectedBot = null;
-let duration = 60;
-let durationText = "1 min";
+let duration = 3600;
+let durationText = "1 hr";
 let leverage = 50;
-let balance = 0; // now only from firebase
-let wins = 0;
-let losses = 0;
-let sessions = 0;
-let activatedBots = {}; // changed to object {bot: activatedAt}
-let botUsage = {}; // {bot: {date: "2026-04-21", count: 3}}
+let balance = 0;
+let wins = 0; let losses = 0; let sessions = 0;
+let activatedBots = [];
+let botRuns = {"SCALPER": 0, "SWING": 0, "AI QUANT": 0};
 let isTrading = false;
-
-const BOT_LIFETIME = 3 * 24 * 60 * 60 * 1000; // 3 days
-const DAILY_LIMIT = 5;
 
 function showToast(msg, color='#00d4ff'){
   const t = document.getElementById('toast');
@@ -258,94 +265,102 @@ function showToast(msg, color='#00d4ff'){
   setTimeout(()=>t.style.display='none', 3000);
 }
 
-function getToday(){ return new Date().toISOString().split('T')[0]; }
-
-// INIT USER IF NOT EXISTS
-db.ref('users/'+userId).once('value').then(snap=>{
-  if(!snap.exists()){
-    db.ref('users/'+userId).set({
-      balance: 6612.32, wins: 0, losses: 0, sessions: 0,
-      activatedBots: {}, botUsage: {}
-    })
+// AUTH + REALTIME SYNC
+auth.signInAnonymously().catch(e=>console.log(e));
+auth.onAuthStateChanged(user=>{
+  if(user){
+    userId = user.uid;
+    loadUserData();
   }
 })
 
-// REAL TIME LOAD - FULL SYNC FROM users/UID
-db.ref('users/'+userId).on('value', (snapshot)=>{
-  const data = snapshot.val();
-  if(data){
-    balance = data.balance || 0;
-    wins = data.wins || 0;
-    losses = data.losses || 0;
-    sessions = data.sessions || 0;
-    activatedBots = data.activatedBots || {};
-    botUsage = data.botUsage || {};
+function loadUserData(){
+  db.ref('users/'+userId).on('value', snap=>{
+    const data = snap.val();
+    if(data){
+      balance = data.balance || 0;
+      wins = data.wins || 0; losses = data.losses || 0; sessions = data.sessions || 0;
+      activatedBots = data.activatedBots || [];
+      botRuns = data.botRuns || botRuns;
+    }else{
+      db.ref('users/'+userId).set({balance:6612.32,wins:0,losses:0,sessions:0,activatedBots:[],botRuns:botRuns});
+      balance = 6612.32;
+    }
     document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
-    checkBotExpiry();
     updateBotUI();
     updateStats();
-  }
-});
+  })
+}
 
-// REAL TIME PRICES FOR ALL PAIRS
-const allPairs = ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","USDCAD","EURGBP","EURJPY","GBPJPY","AUDJPY","NZDUSD","XAUUSD","XAGUSD","WTIUSD","BTCUSD","ETHUSD","SOLUSD","BNBUSDT","XRPUSDT","DOGEUSDT","ADAUSDT","DOTUSDT","SPX500","NAS100","DJI30"];
-db.ref('prices').on('value', (snapshot)=>{
-  const prices = snapshot.val();
-  if(prices && prices[selectedAsset.pair]){
-    document.getElementById('livePrice').textContent = `$ ${Number(prices[selectedAsset.pair]).toLocaleString(undefined,{minimumFractionDigits:4})}`;
-  }
-});
-
-setInterval(()=>{
-  allPairs.forEach(pair=>{
-    let base = 1.08;
-    if(pair.includes('GBP')) base=1.26; if(pair.includes('BTC')) base=62000; if(pair.includes('ETH')) base=3200; if(pair.includes('XAU')) base=4000;
-    db.ref('prices/'+pair).set(Number((base + Math.random()*0.5).toFixed(4)));
-  });
-}, 3000);
-
-function updateFirebase(updates){
+function saveUserData(updates){
   db.ref('users/'+userId).update(updates);
 }
 
-function checkBotExpiry(){
-  const now = Date.now();
-  let changed = false;
-  Object.keys(activatedBots).forEach(bot=>{
-    if(now - activatedBots[bot] > BOT_LIFETIME){
-      delete activatedBots[bot];
-      changed = true;
-    }
+// TRADINGVIEW WIDGET - loaded after DOM
+window.onload = function(){
+  new TradingView.widget({
+    "width": "100%",
+    "height": 220,
+    "symbol": "FX:EURUSD",
+    "interval": "5",
+    "theme": "dark",
+    "style": "1",
+    "container_id": "tv_chart",
+    "hide_top_toolbar": true,
+    "hide_legend": true
   });
-  if(changed) updateFirebase({activatedBots});
 }
 
-function getBotUsageToday(bot){
-  const today = getToday();
-  if(botUsage[bot] && botUsage[bot].date === today) return botUsage[bot].count;
-  return 0;
+// Update chart when asset changes
+function updateChart(symbol){
+  document.getElementById('tv_chart').innerHTML = '';
+  new TradingView.widget({
+    "width": "100%", "height": 220, "symbol": symbol, "interval": "5",
+    "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true
+  });
+}
+  // LIVE PRICE SIMULATOR
+function getLivePrice(symbol){
+  let base = 1.08;
+  if(symbol.includes('GBPUSD')) base = 1.26;
+  if(symbol.includes('USDJPY')) base = 150;
+  if(symbol.includes('BTC')) base = 62000;
+  if(symbol.includes('ETH')) base = 3200;
+  if(symbol.includes('XAU')) base = 4000;
+  if(symbol.includes('SPX')) base = 5200;
+  if(symbol.includes('NAS')) base = 18000;
+  if(symbol.includes('DJI')) base = 39000;
+  // add small random movement
+  return (base + (Math.random() - 0.5) * 0.02).toFixed(4);
 }
 
+function updateLivePrice(){
+  const price = getLivePrice(selectedAsset.symbol);
+  document.getElementById('livePrice').textContent = `$ ${Number(price).toLocaleString(undefined,{minimumFractionDigits:4})}`;
+}
+
+// update every 2 seconds
+setInterval(updateLivePrice, 2000);
 document.querySelectorAll('.asset').forEach(a=>{
   a.onclick = ()=>{
-    if(isTrading) return showToast('Cannot change asset while bot is running', '#ff3b30');
+    if(isTrading) return showToast('Cannot change asset while trade is running', '#ff3b30');
     document.querySelectorAll('.asset').forEach(x=>x.classList.remove('active'));
     a.classList.add('active');
     selectedAsset = {pair:a.dataset.pair, symbol:a.dataset.symbol};
-    let displayPair = a.dataset.pair.replace('USD','/USD').replace('USDT','/USDT');
-    document.getElementById('sumMarket').textContent = displayPair;
+    document.getElementById('sumMarket').textContent = a.dataset.pair.replace('USD','/USD').replace('USDT','/USDT');
+    updateChart(a.dataset.symbol);
+    updateLivePrice(); // <-- ADD THIS LINE
   }
 })
 
 document.querySelectorAll('.duration-btn[data-type]').forEach(b=>{
   b.onclick = ()=>{
+    if(isTrading) return;
     document.querySelectorAll('.duration-btn[data-type]').forEach(x=>x.classList.remove('active'));
     b.classList.add('active');
     let val = Number(b.dataset.val);
     let type = b.dataset.type;
-    if(type === 'sec') duration = val;
     if(type === 'min') duration = val * 60;
-    if(type === 'hr') duration = val * 3600;
     if(type === 'day') duration = val * 86400;
     durationText = b.textContent;
     document.getElementById('sumDur').textContent = durationText;
@@ -364,6 +379,7 @@ document.getElementById('amount').oninput = e=>{
   document.getElementById('sumAmount').textContent = '$'+Number(e.target.value).toLocaleString();
 }
 
+// ADDED 10% 15% 20%
 function setPercent(p){
   const amt = Math.floor(balance * p / 100);
   document.getElementById('amount').value = amt < 100 ? 100 : amt;
@@ -371,44 +387,47 @@ function setPercent(p){
 }
 
 function handleBot(botName, price, btn){
-  if(activatedBots[botName]){ // already active
+  if(activatedBots.includes(botName)){
     selectBot(botName, btn);
     return;
   }
   if(balance < price) return showToast('Insufficient balance to activate bot', '#ff3b30');
   
-  const newActivated = {...activatedBots};
-  newActivated[botName] = Date.now();
-  updateFirebase({balance: balance - price, activatedBots: newActivated});
+  balance -= price;
+  activatedBots.push(botName);
+  saveUserData({balance: balance, activatedBots: activatedBots});
   
   btn.textContent = 'Select Bot';
   btn.classList.add('select');
   selectBot(botName, btn);
-  showToast(`${botName} Activated for $${price}`);
+  showToast(`${botName} Activated! $${price} deducted`, '#00ff88');
 }
 
 function updateBotUI(){
   document.querySelectorAll('.bot-card').forEach(card=>{
     const bot = card.dataset.bot;
     const btn = card.querySelector('.bot-btn');
-    if(activatedBots[bot]){
+    if(activatedBots.includes(bot)){
       btn.textContent = 'Select Bot';
       btn.classList.add('select');
-    }else{
-            btn.textContent = 'Activate Bot';
-      btn.classList.remove('select');
     }
-    document.getElementById(`run-${bot}`).textContent = `Runs: ${getBotUsageToday(bot)}`;
+    if(isTrading){
+      card.classList.add('disabled');
+      btn.disabled = true;
+    }else{
+      card.classList.remove('disabled');
+      btn.disabled = false;
+    }
+    document.getElementById(`run-${bot}`).textContent = `Runs: ${botRuns[bot]}`;
   });
 }
 
+// CAN'T SELECT BOT UNTIL ACTIVATED
 function selectBot(botName, btn){
-  if(!activatedBots[botName]) return;
+  if(!activatedBots.includes(botName)) return showToast('Activate bot first', '#ff3b30');
   document.querySelectorAll('.bot-card').forEach(c=>c.classList.remove('selected'));
-  document.querySelectorAll('.bot-btn.select').forEach(b=>b.textContent = 'Select Bot');
-  selectedBot = botName;
-  btn.textContent = 'Selected';
   btn.closest('.bot-card').classList.add('selected');
+  selectedBot = botName;
   document.getElementById('sumBot').textContent = botName;
   document.getElementById('startBtn').disabled = false;
   document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${botName}`;
@@ -429,68 +448,54 @@ function updateStats(){
 }
 
 function determineResult(botName){
-  if(botName === "SCALPER"){ let r = getBotUsageToday(botName) % 5; return!(r === 4 || r === 0); }
-  if(botName === "SWING"){ let r = getBotUsageToday(botName) % 5; return!(r === 2); }
+  botRuns[botName]++;
+  document.getElementById(`run-${botName}`).textContent = `Runs: ${botRuns[botName]}`;
+  if(botName === "SCALPER"){ let r = botRuns[botName] % 5; if(r === 4 || r === 0) return false; return true; }
+  if(botName === "SWING"){ let r = botRuns[botName] % 5; if(r === 2) return false; return true; }
   if(botName === "AI QUANT"){ return true; }
   return Math.random() > 0.3;
 }
 
 function startTrade(){
   if(!selectedBot) return showToast('Please select a bot first', '#ff3b30');
-  if(!activatedBots[selectedBot]) return showToast('Bot not active', '#ff3b30');
-
-  const today = getToday();
-  const currentCount = getBotUsageToday(selectedBot);
-  if(currentCount >= DAILY_LIMIT) return; // silently block after 5 uses
-
   const amount = Number(document.getElementById('amount').value);
   if(amount < 100) return showToast('Min trade $100', '#ff3b30');
   if(amount > balance) return showToast('Insufficient balance', '#ff3b30');
 
   isTrading = true;
+  updateBotUI(); // deactivate bots
+  document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=true);
+
   document.getElementById('startBtn').disabled = true;
   document.getElementById('startBtn').innerHTML = `<i class="fas fa-spinner fa-spin"></i> Trading...`;
-
   document.getElementById('tradeInfo').textContent = `${selectedBot} is trading ${selectedAsset.pair}`;
   document.getElementById('tradeModal').style.display = 'flex';
 
-  updateFirebase({sessions: sessions + 1});
+  sessions++;
+  saveUserData({sessions: sessions});
   addLog(`SESSION STARTED - ${selectedBot} on ${selectedAsset.pair}`);
 
   let timeLeft = duration;
   const interval = setInterval(()=>{
     timeLeft--;
-    if(timeLeft % 5 === 0) addLog(`Running... settles in ${timeLeft}s`);
-    if(timeLeft <= 0){
-      clearInterval(interval);
-      finishTrade(amount);
-    }
+    if(timeLeft <= 0){ clearInterval(interval); finishTrade(amount); }
   },1000);
 }
 
 function finishTrade(amount){
   isTrading = false;
-  document.getElementById('startBtn').disabled = false;
-  document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
-
-  // update usage
-  const today = getToday();
-  const newUsage = {...botUsage};
-  if(!newUsage[selectedBot] || newUsage[selectedBot].date!== today){
-    newUsage[selectedBot] = {date: today, count: 1};
-  }else{
-    newUsage[selectedBot].count++;
-  }
+  document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=false);
+  updateBotUI(); // reactivate bots
 
   const isWin = determineResult(selectedBot);
   let profit = 0;
-  let updates = {botUsage: newUsage};
+  let updates = {botRuns: botRuns};
 
   if(isWin){
     wins++;
     profit = (amount * 0.4098).toFixed(2);
-    updates.balance = balance + Number(profit);
-    updates.wins = wins;
+    balance += Number(profit);
+    updates.wins = wins; updates.balance = balance;
     document.getElementById('resultIcon').style.color = '#00ff88';
     document.getElementById('resultTitle').textContent = 'Session Win';
     document.getElementById('profitText').style.color = '#00ff88';
@@ -499,26 +504,22 @@ function finishTrade(amount){
   }else{
     losses++;
     profit = amount;
-    updates.balance = balance - Number(profit);
-    updates.losses = losses;
+    balance -= Number(profit);
+    updates.losses = losses; updates.balance = balance;
     document.getElementById('resultIcon').style.color = '#ff3b30';
     document.getElementById('resultTitle').textContent = 'Session Loss';
     document.getElementById('profitText').style.color = '#ff3b30';
     document.getElementById('profitText').textContent = `-$${Number(profit).toLocaleString()}`;
     addLog(`TRADE CLOSED - LOSS -$${profit}`);
   }
-  updateFirebase(updates);
-  updateBotUI();
+  saveUserData(updates);
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
   document.getElementById('resultModal').style.display = 'flex';
 }
 
-function closeTradeModal(){
-  document.getElementById('tradeModal').style.display = 'none';
-}
-
-function closeResultModal(){
-  document.getElementById('resultModal').style.display = 'none';
-}
+function closeTradeModal(){ document.getElementById('tradeModal').style.display = 'none'; }
+function closeResultModal(){ document.getElementById('resultModal').style.display = 'none'; }
 </script>
 </body>
 </html>
