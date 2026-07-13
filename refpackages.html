@@ -6,136 +6,182 @@
 <title>CYPX HOLDINGS - Referral Packages</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root{
+  --bg1:#020b16;
+  --bg2:#0a1f35;
+  --card:#0f2b4a;
+  --gold:#d4af37;
+  --gold2:#f5d06f;
+  --accent:#00d4ff;
+  --accent2:#0f52ba;
+  --success:#00ff88;
+  --text:#ffffff;
+  --muted:#a8c6e0;
+  --radius:20px;
+}
+
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, sans-serif;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins', Arial, sans-serif;
 }
 
 body{
-min-height:100vh;
-background: radial-gradient(circle at top,#0b2b4d,#061a2e,#030f1c);
-color:#fff;
-padding:25px;
-text-align:center;
+  min-height:100vh;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(212,175,55,.10), transparent 30%),
+    radial-gradient(circle at 80% 80%, rgba(0,212,255,.12), transparent 30%),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  padding:35px 18px 80px;
+  text-align:center;
 }
 
 h1{
-font-size:24px;
-color:#00e0ff;
-margin-bottom:8px;
-text-shadow:0 0 12px rgba(0,224,255,0.5);
+  font-size:28px;
+  font-weight:700;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+  letter-spacing:.8px;
 }
 
 .brand{
-font-size:13px;
-color:#ffd700;
-letter-spacing:2px;
-margin-bottom:15px;
+  font-size:12px;
+  color:var(--accent);
+  letter-spacing:3px;
+  font-weight:600;
+  margin-bottom:22px;
 }
 
 .explanation{
-max-width:700px;
-margin:0 auto 30px;
-padding:18px;
-background:rgba(255,255,255,0.05);
-border:1px solid rgba(255,255,255,0.08);
-border-radius:14px;
-font-size:14px;
-line-height:1.6;
-color:#cfe6ff;
-backdrop-filter:blur(12px);
-box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  max-width:720px;
+  margin:0 auto 40px;
+  padding:20px 24px;
+  background:linear-gradient(145deg,rgba(15,43,74,.85),rgba(8,25,45,.9));
+  border:1px solid rgba(212,175,55,.18);
+  border-radius:var(--radius);
+  font-size:14px;
+  line-height:1.7;
+  color:var(--muted);
+  backdrop-filter:blur(14px);
+  box-shadow:0 12px 35px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,.04);
 }
 
 .packages{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-gap:20px;
-max-width:900px;
-margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:24px;
+  max-width:980px;
+  margin:0 auto;
 }
 
 .package{
-background:linear-gradient(145deg,#0e3a66,#07233f);
-border-radius:16px;
-padding:22px;
-border:1px solid rgba(255,255,255,0.08);
-box-shadow:0 12px 30px rgba(0,0,0,0.5);
-transition:0.25s ease;
-position:relative;
-overflow:hidden;
+  background:linear-gradient(145deg,rgba(15,43,74,.95),rgba(9,28,52,.98));
+  border-radius:var(--radius);
+  padding:26px 22px;
+  border:1px solid rgba(212,175,55,.15);
+  box-shadow:0 15px 40px rgba(0,0,0,0.55);
+  transition:0.3s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.package::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));
+  opacity:.6;
 }
 
 .package:hover{
-transform:translateY(-6px);
-box-shadow:0 0 25px rgba(0,224,255,0.25);
+  transform:translateY(-8px);
+  border-color:rgba(212,175,55,.35);
+  box-shadow:0 0 35px rgba(0,212,255,0.18);
 }
 
 .package h2{
-color:#ffd700;
-font-size:18px;
-margin-bottom:10px;
+  color:var(--gold2);
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:12px;
 }
 
 .package p{
-font-size:13px;
-color:#d6e6ff;
-margin-bottom:12px;
-line-height:1.5;
+  font-size:14px;
+  color:var(--muted);
+  margin-bottom:18px;
+  line-height:1.6;
+  min-height:50px;
 }
 
 .price{
-font-size:20px;
-font-weight:bold;
-color:#00ff88;
-margin-bottom:15px;
-text-shadow:0 0 8px rgba(0,255,136,0.4);
+  font-size:26px;
+  font-weight:800;
+  color:var(--success);
+  margin-bottom:18px;
+  text-shadow:0 0 12px rgba(0,255,136,0.25);
+}
+
+.price span{
+  font-size:13px;
+  font-weight:500;
+  color:var(--muted);
 }
 
 .select-btn{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-cursor:pointer;
-font-weight:bold;
-font-size:14px;
-color:#001a2e;
-background:linear-gradient(145deg,#00e0ff,#007bff);
-transition:0.2s;
-box-shadow:0 8px 18px rgba(0,0,0,0.4);
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:15px;
+  color:#071426;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  transition:0.25s;
+  box-shadow:0 10px 25px rgba(212,175,55,.25);
+  letter-spacing:.3px;
 }
 
 .select-btn:hover:enabled{
-transform:translateY(-3px);
-box-shadow:0 0 15px rgba(0,224,255,0.6);
+  transform:translateY(-3px);
+  box-shadow:0 0 20px rgba(212,175,55,.45);
 }
 
 .select-btn:disabled{
-background:#555;
-cursor:not-allowed;
+  background:#3a3a3a;
+  color:#888;
+  cursor:not-allowed;
+  box-shadow:none;
 }
 
 .toast{
-position:fixed;
-bottom:25px;
-left:50%;
-transform:translateX(-50%);
-background:#00c853;
-padding:12px 20px;
-border-radius:10px;
-font-weight:bold;
-display:none;
-z-index:9999;
-box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#00c853,#009624);
+  padding:14px 24px;
+  border-radius:12px;
+  font-weight:700;
+  display:none;
+  z-index:9999;
+  box-shadow:0 12px 35px rgba(0,0,0,0.5);
+  color:#fff;
 }
 
 footer{
-margin-top:35px;
-font-size:12px;
-color:#8ea2b5;
+  margin-top:45px;
+  font-size:12px;
+  color:#7a91a8;
+  letter-spacing:.3px;
 }
 </style>
 </head>
@@ -143,34 +189,34 @@ color:#8ea2b5;
 <body>
 
 <h1>CYPX HOLDINGS</h1>
-<div class="brand">REFERRAL PACKAGES</div>
+<div class="brand">PREMIUM REFERRAL PACKAGES</div>
 
 <div class="explanation">
 Grow your network instantly with verified referral packages from CYPX HOLDINGS.  
-Each package gives you active referrals designed to boost engagement and earnings safely inside the system.
+Each package delivers active referrals designed to boost your engagement and earnings securely within the system.
 </div>
 
 <div class="packages">
 
 <div class="package">
-<h2>Group 1</h2>
+<h2>Starter Pack</h2>
 <p>Get <b>2 active referrals</b> instantly to begin your growth journey.</p>
-<div class="price">4,500 KSH</div>
-<button class="select-btn" onclick="selectPackage('Group 1', 4500)">Select Package</button>
+<div class="price">$40 <span>USD</span></div>
+<button class="select-btn" onclick="selectPackage('Starter Pack', 40)">Select Package</button>
 </div>
 
 <div class="package">
-<h2>Group 2</h2>
+<h2>Growth Pack</h2>
 <p>Unlock <b>4 referrals</b> for faster and stronger network expansion.</p>
-<div class="price">8,000 KSH</div>
-<button class="select-btn" onclick="selectPackage('Group 2', 8000)">Select Package</button>
+<div class="price">$70 <span>USD</span></div>
+<button class="select-btn" onclick="selectPackage('Growth Pack', 70)">Select Package</button>
 </div>
 
 <div class="package">
-<h2>Group 3</h2>
+<h2>Pro Pack</h2>
 <p>Receive <b>8 high-quality referrals</b> for maximum earning potential.</p>
-<div class="price">12,000 KSH</div>
-<button class="select-btn" onclick="selectPackage('Group 3', 12000)">Select Package</button>
+<div class="price">$105 <span>USD</span></div>
+<button class="select-btn" onclick="selectPackage('Pro Pack', 105)">Select Package</button>
 </div>
 
 </div>
