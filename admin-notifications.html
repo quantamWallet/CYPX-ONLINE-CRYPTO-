@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CYPX Admin - Send Notification</title>
+  <style>
+    body { font-family: Arial; background: #0a0a0a; color: #fff; padding: 20px; }
+    input, textarea, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; }
+    button { background: #00d4ff; color: #000; font-weight: bold; cursor: pointer; }
+    button:disabled { background: #333; color: #777; }
+   .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
+   .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>📢 CYPX Admin Panel</h2>
+    
+    <label>UID of User</label>
+    <input type="text" id="uid" placeholder="Paste user UID here">
+    
+    <label>Title</label>
+    <input type="text" id="title" value="CYPX Update">
+    
+    <label>Message</label>
+    <textarea id="body" rows="3" placeholder="Your message here"></textarea>
+    
+    <button id="sendBtn">Send Notification</button>
+    
+    <h3>Log</h3>
+    <div class="log" id="log"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const functions = getFunctions(app);
+    const sendNotification = httpsCallable(functions, 'sendNotification');
+    const logEl = document.getElementById('log');
+
+    function log(msg) {
+      logEl.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('sendBtn');
+      const uid = document.getElementById('uid').value.trim();
+      const title = document.getElementById('title').value.trim();
+      const body = document.getElementById('body').value.trim();
+      const url = "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html";
+      
+      if(!uid ||!title ||!body) return log("❌ Fill all fields");
+      btn.disabled = true;
+      log("1. Fetching token for UID...");
+      
+      const snap = await get(ref(db, `users/${uid}/fcmToken`));
+      if(!snap.exists()) {
+        log("❌ No fcmToken found for this UID. User must login first.");
+        btn.disabled = false;
+        return;
+      }
+      
+      const token = snap.val();
+      log("2. Token found. Sending...");
+      
+      try {
+        const result = await sendNotification({ token, title, body, url });
+        log("✅ Sent Successfully! " + JSON.stringify(result.data));
+      } catch (err) {
+        log("❌ Error: " + err.message);
+      }
+      btn.disabled = false;
+    });
+  </script>
+</body>
+  </html>
