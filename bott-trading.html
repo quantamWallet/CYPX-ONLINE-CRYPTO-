@@ -187,8 +187,8 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
     <div class="duration-btn" data-type="min" data-val="5">5 min</div>
     <div class="duration-btn" data-type="min" data-val="15">15 min</div>
     <div class="duration-btn" data-type="min" data-val="30">30 min</div>
-  <div class="duration-btn active" data-type="min" data-val="60">1 hr</div>
-    <div class="duration-btn active" data-type="min" data-val="120">2 hr</div>
+    <div class="duration-btn active" data-type="min" data-val="60">1 hr</div>
+    <div class="duration-btn" data-type="min" data-val="120">2 hr</div>
     <div class="duration-btn" data-type="min" data-val="240">4 hr</div>
     <div class="duration-btn" data-type="day" data-val="30">1 month</div>
   </div>
@@ -280,6 +280,9 @@ auth.onAuthStateChanged(user=>{
 function saveBotData(path, data){
   db.ref('bot_trading/'+userId+'/'+path).set(data);
 }
+  function saveUserData(updates){
+  db.ref('users/'+userId).update(updates);
+  }
 function updateBotData(path, data){
   db.ref('bot_trading/'+userId+'/'+path).update(data);
 }
@@ -383,7 +386,7 @@ document.querySelectorAll('.duration-btn[data-type]').forEach(b=>{
     b.classList.add('active');
     let val = Number(b.dataset.val);
     let type = b.dataset.type;
-    if(type === 'sec') duration = val; // <-- ADD THIS
+    if(type === 'sec') duration = val; // FIX: 30sec works now
     if(type === 'min') duration = val * 60;
     if(type === 'day') duration = val * 86400;
     durationText = b.textContent;
