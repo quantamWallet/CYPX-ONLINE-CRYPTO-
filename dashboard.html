@@ -931,7 +931,10 @@ firebase.auth()
   }
 
 });
-
+import { getFCMToken } from './js/notifications.js';
+const token = await getFCMToken();
+console.log("MY TOKEN:", token);
+alert("Token: " + token); // so you can see it on mobile
 /* Direct notifications */
 messaging.onMessage(payload => {
 
