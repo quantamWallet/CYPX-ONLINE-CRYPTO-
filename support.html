@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX Support</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+body{background:#001f3f;color:#fff;font-family:Arial;margin:0;display:flex;flex-direction:column;height:100vh;}
+header{background:#002f6c;padding:15px;text-align:center;font-weight:bold;}
+.chat-box{flex:1;overflow-y:auto;padding:15px;background:rgba(0,0,0,0.2);}
+.msg{margin:8px 0;padding:12px 15px;border-radius:16px;max-width:75%;word-wrap:break-word;font-size:14px;}
+.user{background:#00d4ff;color:#000;margin-left:auto;border-bottom-right-radius:4px;}
+.admin{background:#2a2a2a;color:#fff;margin-right:auto;border-bottom-left-radius:4px;}
+.input-box{display:flex;gap:8px;padding:10px;background:#001a33;}
+.input-box input{flex:1;padding:12px;border-radius:10px;border:none;background:#222;color:#fff;outline:none;}
+.input-box button{padding:12px 18px;border:none;border-radius:10px;background:#00d4ff;color:#000;font-weight:bold;cursor:pointer;}
+.time{font-size:10px;color:#aaa;margin-top:4px;}
+</style>
+</head>
+<body>
+<header><i class="fas fa-headset"></i> CYPX Live Support</header>
+<div class="chat-box" id="chatBox"></div>
+<div class="input-box">
+  <input type="text" id="msgInput" placeholder="Type your message...">
+  <button onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+<script>
+const firebaseConfig = {  
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
+  authDomain: "quantum-rio.firebaseapp.com",  
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
+  projectId: "quantum-rio",  
+  storageBucket: "quantum-rio.firebasestorage.app",  
+  messagingSenderId: "805433999377",  
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",  
+  measurementId: "G-4RSQXZJX44"  
+};  
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+const chatBox = document.getElementById('chatBox');
+const msgInput = document.getElementById('msgInput');
+
+auth.onAuthStateChanged(user=>{
+  if(!user) location.href="auth.html";
+  const chatRef = db.ref("support_chats/"+user.uid);
+  
+  chatRef.on("value", snap=>{
+    chatBox.innerHTML="";
+    snap.forEach(child=>{
+      const m = child.val();
+      const div = document.createElement("div");
+      div.className = "msg " + m.sender;
+      const time = new Date(m.timestamp).toLocaleTimeString();
+      div.innerHTML = `${m.message}<div class="time">${time}</div>`;
+      chatBox.appendChild(div);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  window.sendMsg = ()=>{
+    const text = msgInput.value.trim();
+    if(!text) return;
+    chatRef.push({
+      sender: "user",
+      message: text,
+      timestamp: Date.now(),
+      read: false
+    });
+    msgInput.value="";
+  }
+
+  msgInput.addEventListener("keypress", e=>{ if(e.key==="Enter") sendMsg() })
+})
+</script>
+</body>
+</html>
