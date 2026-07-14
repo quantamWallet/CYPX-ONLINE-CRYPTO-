@@ -257,7 +257,7 @@ form.addEventListener('submit', async (e) => {
 
   if (isNaN(amount) || amount < 50) return showPopup("Minimum sell is $50", 'error');
   if (!buyer) return showPopup("Please choose a buyer", 'error');
-  if (!/^07\d{8}$/.test(phone)) return showPopup("Enter valid phone", 'error');
+  if (!/^(07\d{8}|2547\d{8})$/.test(phone)) return showPopup("Enter valid phone: 0712345678 or 254712345678", 'error');
 
   submitBtn.disabled = true; submitBtn.textContent = "Processing...";
   const balanceRef = db.ref(`users/${uid}/balance`);
