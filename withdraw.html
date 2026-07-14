@@ -64,7 +64,7 @@ nav i{display:block;margin-bottom:5px;font-size:20px;}
 select option{background:#10294d;color:white;}
 @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
 @media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
-/* SUCCESS TICK ANIMATION - FIXED */
+/* SUCCESS TICK ANIMATION - FINAL FIX */
 .tick{
   width:80px;
   height:80px;
@@ -79,11 +79,12 @@ select option{background:#10294d;color:white;}
   content:"";
   position:absolute;
   left:22px;
-  top:40px;
-  width:16px;
+  top:42px;
+  width:18px;
   height:4px;
   background:var(--success);
   transform:rotate(45deg);
+  transform-origin:left center;
   border-radius:2px;
   animation:drawTick .3s .2s forwards;
   opacity:0;
@@ -91,12 +92,13 @@ select option{background:#10294d;color:white;}
 .tick::before{
   content:"";
   position:absolute;
-  left:32px;
-  top:30px;
+  left:35px;
+  top:32px;
   width:4px;
-  height:24px;
+  height:26px;
   background:var(--success);
   transform:rotate(-45deg);
+  transform-origin:left bottom;
   border-radius:2px;
   animation:drawTick .3s .4s forwards;
   opacity:0;
@@ -108,6 +110,12 @@ select option{background:#10294d;color:white;}
 @keyframes drawTick{
   to{opacity:1}
 }
+
+/* PHONE NUMBER COLOR */
+.masked-phone{
+  color: var(--gold2); /* Gold color */
+  font-weight:700;
+                                                        }
 </style>
 </head>
 <body>
