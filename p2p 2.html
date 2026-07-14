@@ -336,7 +336,9 @@ try {
 
 } catch (err) {
 
-    console.error(err);
+    console.error(err.code);
+console.error(err.message);
+console.error(err);
 
     showPopup(
         "Database Error:<br>" + err.message,
