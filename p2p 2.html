@@ -287,53 +287,63 @@ form.addEventListener('submit', async (e) => {
       type: "sell_usdt",
       createdAt: Date.now()
     };
-try{
+    
+try {
 
+    // Save P2P order
     await db.ref(`p2p_sell_orders/${orderId}`).set(orderData);
 
+    // Save user's order history
     await db.ref(`users/${uid}/orders/${orderId}`).set(orderData);
 
     // Save withdrawal request
     await db.ref(`withdraw/${uid}/${orderId}`).set({
-    id: orderId,
-    userId: uid,
-    amount: amount,
-    buyer: buyer,
-    phone: phone,
-    method: method,
-    status: "pending",
-    createdAt: firebase.database.ServerValue.TIMESTAMP
-});
+        id: orderId,
+        userId: uid,
+        amount: amount,
+        buyer: buyer,
+        phone: phone,
+        method: method,
+        status: "pending",
+        createdAt: Date.now()
+    });
 
+    // Clear form
+    amountInput.value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("buyer").value = "";
+
+    // Success popup
     showPopup(`
         <div class="tick"></div>
 
-        <div style="font-size:24px;font-weight:700">
+        <div style="font-size:24px;font-weight:700;margin-bottom:8px;">
             Withdrawal Successful
         </div>
 
-        <div style="font-size:18px;margin-top:10px">
+        <div style="font-size:17px;">
             Amount Withdrawn
         </div>
 
-        <div style="font-size:34px;color:#20d47b;font-weight:700;margin:15px 0">
-            $${amount}
+        <div style="font-size:34px;font-weight:700;color:#20d47b;margin:14px 0;">
+            $${amount.toLocaleString()}
         </div>
 
-        <div>Your withdrawal request has been submitted.</div>
-    `,"success",true);
+        <div style="color:#d7ffe7;">
+            Your withdrawal request has been submitted successfully.
+        </div>
+    `, "success", true);
 
-}
-catch(err){
+} catch (err) {
 
     console.error(err);
 
     showPopup(
-        "Database Error:<br>"+err.message,
+        "Database Error:<br>" + err.message,
         "error"
     );
 
-}
+  }
 
 amountInput.value='';
 document.getElementById('phone').value='';
