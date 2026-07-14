@@ -286,7 +286,7 @@ form.addEventListener('submit', async (e) => {
       const masked = maskPhone(regPhone);
 
       showPopup(`<div class="tick"></div>Withdrawal of $ ${amount.toLocaleString()} submitted<br>Method: ${methodNames[method]}<br>To: <span class="masked-phone">${masked}</span>`,"success",4000);
-      setTimeout(() => {window.location.href = "financial.html";}, 3500);
+      setTimeout(() => {window.location.href = "financial.html";}, 4500);
 
     } catch (e) {
       console.error(e);
