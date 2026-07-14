@@ -28,12 +28,13 @@
   const auth = getAuth(app);
   const db = getDatabase(app);
 
-  let uid = null;
+  // Make uid global so submitWithdrawal can access it
+  window.uid = null;
 
   onAuthStateChanged(auth, user => {
     if(!user) window.location.href = "auth.html";
     else {
-      uid = user.uid;
+      window.uid = user.uid;
       const balRef = ref(db, `users/${user.uid}/balance`);
       onValue(balRef, snap => {
         const bal = snap.exists()? parseFloat(snap.val()) : 0;
@@ -42,7 +43,7 @@
     }
   });
 
-  window.submitWithdrawal = submitWithdrawal;
+  // Expose firebase functions to window
   window.db = db; window.ref = ref; window.push = push;
   window.runTransaction = runTransaction; window.serverTimestamp = serverTimestamp;
 </script>
@@ -68,9 +69,24 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding
 .btn{width:100%;margin-top:22px;padding:15px;border:none;border-radius:14px;font-weight:700;font-size:16px;background:linear-gradient(135deg,var(--brand),#1d4ed8);color:#fff;cursor:pointer;transition:.3s}
 .btn:hover{transform:translateY(-2px)}
 .btn:disabled{opacity:.6;cursor:not-allowed}
-.popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);padding:22px 26px;border-radius:16px;border-left:4px solid var(--ok);display:none;z-index:999;text-align:center;font-weight:600;min-width:300px}
-.tick{width:70px;height:70px;border:5px solid var(--ok);border-radius:50%;margin:0 auto 12px;position:relative}
-.tick::before{content:"";position:absolute;left:18px;top:14px;width:18px;height:35px;border-right:5px solid var(--ok);border-bottom:5px solid var(--ok);transform:rotate(45deg)}
+
+/* POPUP + TICK ANIMATION FIX */
+.popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);padding:22px 26px;border-radius:16px;border-left:4px solid var(--ok);display:none;z-index:999;text-align:center;font-weight:600;min-width:300px;animation:popupFade.25s ease}
+.popup.success{border-left-color:var(--ok)}
+.popup.error{border-left-color:var(--bad)}
+@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%)}to{opacity:1;transform:translate(-50%,-50%)}}
+
+.tick{
+  width:80px;height:80px;border:5px solid var(--ok);border-radius:50%;
+  margin:0 auto 15px;position:relative;animation:scaleIn.35s ease;
+}
+.tick::before{
+  content:"";position:absolute;left:20px;top:16px;width:20px;height:40px;
+  border-right:5px solid var(--ok);border-bottom:5px solid var(--ok);
+  transform:rotate(45deg) scale(0);animation:tickDraw.45s.3s forwards;
+}
+@keyframes scaleIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes tickDraw{from{transform:rotate(45deg) scale(0);opacity:0}to{transform:rotate(45deg) scale(1);opacity:1}}
 </style>
 </head>
 <body>
@@ -120,30 +136,10 @@ const submitBtn = document.getElementById("submitBtn");
 const popup = document.getElementById("popup");
 
 const assetConfig = {
-  btc: {
-    label: "Bitcoin Wallet Address",
-    placeholder: "bc1... or 1... or 3...",
-    hint: "Send only BTC. Wrong network = funds lost.",
-    name: "Bitcoin (BTC)"
-  },
-  usdt_erc20: {
-    label: "USDT ERC20 Wallet Address",
-    placeholder: "0x...",
-    hint: "Send only USDT on Ethereum ERC20 network.",
-    name: "USDT (ERC20)"
-  },
-  usdt_bep20: {
-    label: "USDT BEP20 Wallet Address",
-    placeholder: "0x...",
-    hint: "Send only USDT on BNB Smart Chain BEP20 network.",
-    name: "USDT (BEP20)"
-  },
-  usdt_trc20: {
-    label: "USDT TRC20 Wallet Address",
-    placeholder: "T...",
-    hint: "Send only USDT on Tron TRC20 network.",
-    name: "USDT (TRC20)"
-  }
+  btc: {label: "Bitcoin Wallet Address",placeholder: "bc1... or 1... or 3...",hint: "Send only BTC. Wrong network = funds lost.",name: "Bitcoin (BTC)"},
+  usdt_erc20: {label: "USDT ERC20 Wallet Address",placeholder: "0x...",hint: "Send only USDT on Ethereum ERC20 network.",name: "USDT (ERC20)"},
+  usdt_bep20: {label: "USDT BEP20 Wallet Address",placeholder: "0x...",hint: "Send only USDT on BNB Smart Chain BEP20 network.",name: "USDT (BEP20)"},
+  usdt_trc20: {label: "USDT TRC20 Wallet Address",placeholder: "T...",hint: "Send only USDT on Tron TRC20 network.",name: "USDT (TRC20)"}
 }
 
 assetSelect.addEventListener("change", () => {
@@ -155,29 +151,21 @@ assetSelect.addEventListener("change", () => {
 assetSelect.dispatchEvent(new Event('change'));
 
 function showPopup(msg, type="success"){
+  popup.className = "popup " + type;
   popup.innerHTML = type==="success"? `<div class="tick"></div>${msg}` : msg;
-  popup.style.borderLeftColor = type==="success"? "var(--ok)" : "var(--bad)";
   popup.style.display = "block";
   setTimeout(()=>popup.style.display="none", 3500);
 }
 
 // VALIDATION FUNCTIONS
-function isValidBTC(address){
-  return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(address);
-}
-function isValidERC20(address){
-  return /^0x[a-fA-F0-9]{40}$/.test(address);
-}
-function isValidBEP20(address){
-  return /^0x[a-fA-F0-9]{40}$/.test(address); // Same as ERC20
-}
-function isValidTRC20(address){
-  return /^T[a-zA-Z0-9]{33}$/.test(address);
-}
+function isValidBTC(address){return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(address);}
+function isValidERC20(address){return /^0x[a-fA-F0-9]{40}$/.test(address);}
+function isValidBEP20(address){return /^0x[a-fA-F0-9]{40}$/.test(address);}
+function isValidTRC20(address){return /^T[a-zA-Z0-9]{33}$/.test(address);}
 
 async function submitWithdrawal(e){
   e.preventDefault();
-  if(!uid) return showPopup("Please login", "error");
+  if(!window.uid) return showPopup("Please login", "error");
 
   const asset = assetSelect.value;
   const address = walletAddress.value.trim();
@@ -186,7 +174,6 @@ async function submitWithdrawal(e){
   const cfg = assetConfig[asset];
 
   if(isNaN(amount) || amount < 10) return showPopup("Minimum withdrawal is $10", "error");
-
   if(asset === "btc" &&!isValidBTC(address)) return showPopup("Invalid BTC address", "error");
   if(asset === "usdt_erc20" &&!isValidERC20(address)) return showPopup("Invalid ERC20 address", "error");
   if(asset === "usdt_bep20" &&!isValidBEP20(address)) return showPopup("Invalid BEP20 address", "error");
@@ -194,15 +181,16 @@ async function submitWithdrawal(e){
 
   submitBtn.disabled = true; submitBtn.textContent = "Processing...";
 
-  const balanceRef = ref(db, `users/${uid}/balance`);
+  const balanceRef = ref(db, `users/${window.uid}/balance`);
 
   runTransaction(balanceRef, (bal) => {
     bal = Number(bal) || 0;
     if(bal < amount) return; // abort
-    return bal - amount;
+    return bal - amount; // deduct
   }, async (error, committed) => {
     submitBtn.disabled = false; submitBtn.textContent = "Submit Withdrawal";
-    if(error ||!committed) return showPopup("Insufficient balance", "error");
+    if(error) return showPopup("Transaction failed", "error");
+    if(!committed) return showPopup("Insufficient balance", "error");
 
     const withdrawalData = {
       asset: cfg.name,
@@ -216,9 +204,9 @@ async function submitWithdrawal(e){
       createdAt: serverTimestamp()
     };
 
-    await push(ref(db, `withdrawals/${uid}`), withdrawalData);
+    await push(ref(db, `withdrawals/${window.uid}`), withdrawalData);
 
-    showPopup(`Withdrawal of $${amount.toFixed(2)} submitted<br>Asset: ${cfg.name}`);
+    showPopup(`Withdrawal of $${amount.toFixed(2)} submitted<br>Asset: ${cfg.name}`, "success");
     document.getElementById("withdrawForm").reset();
     assetSelect.dispatchEvent(new Event('change'));
 
