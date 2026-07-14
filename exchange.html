@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Withdraw to Exchange - CYPX TRADE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase v9 -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import { getDatabase, ref, onValue, push, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  let uid = null;
+
+  onAuthStateChanged(auth, user => {
+    if(!user) window.location.href = "auth.html";
+    else {
+      uid = user.uid;
+      const balRef = ref(db, `users/${user.uid}/balance`);
+      onValue(balRef, snap => {
+        const bal = snap.exists()? parseFloat(snap.val()) : 0;
+        document.getElementById("balance").textContent = bal.toFixed(2);
+      })
+    }
+  });
+
+  window.submitWithdrawal = submitWithdrawal;
+  window.db = db; window.ref = ref; window.push = push;
+  window.runTransaction = runTransaction; window.serverTimestamp = serverTimestamp;
+</script>
+
+<style>
+:root{
+  --bg:#0b1120;--card:#121a2b;--card2:#1a2440;--brand:#2563eb;--ok:#16a34a;--bad:#dc2626;
+  --text:#e2e8f0;--muted:#94a3b8;--line:#24324f;--gold:#f59e0b
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:linear-gradient(180deg,#0b1120 0%, #0f172a 100%);color:var(--text);min-height:100vh;padding:90px 16px 40px;display:flex;justify-content:center}
+header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding:18px;font-size:20px;font-weight:700;background:linear-gradient(90deg,#0b1120,#1a2440,#0b1120);border-bottom:1px solid var(--line)}
+.container{width:100%;max-width:480px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 15px 45px rgba(0,0,0,.4)}
+.card h2{color:var(--brand);font-size:22px;margin-bottom:16px;text-align:center}
+.balance-box{background:linear-gradient(135deg,var(--brand),#1d4ed8);border-radius:16px;padding:16px;text-align:center;margin-bottom:20px}
+.balance-label{font-size:12px;opacity:.9}
+.balance-value{font-size:26px;font-weight:700}
+.label{display:block;margin:14px 0 8px;color:var(--muted);font-size:13px;font-weight:600}
+.input,select{width:100%;padding:14px;border-radius:12px;background:var(--card2);border:1px solid var(--line);color:var(--text);font-size:15px;outline:none}
+.input:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.2)}
+.network-info{font-size:11px;color:var(--gold);margin-top:4px}
+.btn{width:100%;margin-top:22px;padding:15px;border:none;border-radius:14px;font-weight:700;font-size:16px;background:linear-gradient(135deg,var(--brand),#1d4ed8);color:#fff;cursor:pointer;transition:.3s}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);padding:22px 26px;border-radius:16px;border-left:4px solid var(--ok);display:none;z-index:999;text-align:center;font-weight:600;min-width:300px}
+.tick{width:70px;height:70px;border:5px solid var(--ok);border-radius:50%;margin:0 auto 12px;position:relative}
+.tick::before{content:"";position:absolute;left:18px;top:14px;width:18px;height:35px;border-right:5px solid var(--ok);border-bottom:5px solid var(--ok);transform:rotate(45deg)}
+</style>
+</head>
+<body>
+
+<header><i class="fa-solid fa-building-columns"></i> Withdraw to Exchange</header>
+
+<div class="container">
+  <div class="card">
+    <h2><i class="fa-solid fa-wallet"></i> Crypto Withdrawal</h2>
+
+    <div class="balance-box">
+      <div class="balance-label">Available USDT Balance</div>
+      <div class="balance-value">$<span id="balance">0.00</span></div>
+    </div>
+
+    <form id="withdrawForm" onsubmit="submitWithdrawal(event)">
+
+      <label class="label">Select Network / Asset</label>
+      <select id="asset" class="input">
+        <option value="btc">Bitcoin (BTC)</option>
+        <option value="usdt_erc20">USDT - ERC20 Ethereum</option>
+        <option value="usdt_bep20">USDT - BEP20 BNB Smart Chain</option>
+        <option value="usdt_trc20">USDT - TRC20 Tron</option>
+      </select>
+
+      <label class="label" id="addressLabel">Bitcoin Wallet Address</label>
+      <input id="walletAddress" class="input" type="text" placeholder="Enter your exchange wallet address" required />
+      <div class="network-info" id="networkHint">Send only BTC to this address</div>
+
+      <label class="label">Withdrawal Amount (USDT)</label>
+      <input id="amount" class="input" type="number" min="10" step="0.01" placeholder="Min $10" required />
+      <div class="network-info">Network fee: $2.00. Min withdrawal: $10</div>
+
+      <button id="submitBtn" class="btn" type="submit">Submit Withdrawal</button>
+    </form>
+  </div>
+</div>
+
+<div id="popup" class="popup"></div>
+
+<script>
+const assetSelect = document.getElementById("asset");
+const addressLabel = document.getElementById("addressLabel");
+const walletAddress = document.getElementById("walletAddress");
+const networkHint = document.getElementById("networkHint");
+const submitBtn = document.getElementById("submitBtn");
+const popup = document.getElementById("popup");
+
+const assetConfig = {
+  btc: {
+    label: "Bitcoin Wallet Address",
+    placeholder: "bc1... or 1... or 3...",
+    hint: "Send only BTC. Wrong network = funds lost.",
+    name: "Bitcoin (BTC)"
+  },
+  usdt_erc20: {
+    label: "USDT ERC20 Wallet Address",
+    placeholder: "0x...",
+    hint: "Send only USDT on Ethereum ERC20 network.",
+    name: "USDT (ERC20)"
+  },
+  usdt_bep20: {
+    label: "USDT BEP20 Wallet Address",
+    placeholder: "0x...",
+    hint: "Send only USDT on BNB Smart Chain BEP20 network.",
+    name: "USDT (BEP20)"
+  },
+  usdt_trc20: {
+    label: "USDT TRC20 Wallet Address",
+    placeholder: "T...",
+    hint: "Send only USDT on Tron TRC20 network.",
+    name: "USDT (TRC20)"
+  }
+}
+
+assetSelect.addEventListener("change", () => {
+  const cfg = assetConfig[assetSelect.value];
+  addressLabel.textContent = cfg.label;
+  walletAddress.placeholder = cfg.placeholder;
+  networkHint.textContent = cfg.hint;
+});
+assetSelect.dispatchEvent(new Event('change'));
+
+function showPopup(msg, type="success"){
+  popup.innerHTML = type==="success"? `<div class="tick"></div>${msg}` : msg;
+  popup.style.borderLeftColor = type==="success"? "var(--ok)" : "var(--bad)";
+  popup.style.display = "block";
+  setTimeout(()=>popup.style.display="none", 3500);
+}
+
+// VALIDATION FUNCTIONS
+function isValidBTC(address){
+  return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(address);
+}
+function isValidERC20(address){
+  return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+function isValidBEP20(address){
+  return /^0x[a-fA-F0-9]{40}$/.test(address); // Same as ERC20
+}
+function isValidTRC20(address){
+  return /^T[a-zA-Z0-9]{33}$/.test(address);
+}
+
+async function submitWithdrawal(e){
+  e.preventDefault();
+  if(!uid) return showPopup("Please login", "error");
+
+  const asset = assetSelect.value;
+  const address = walletAddress.value.trim();
+  const amount = parseFloat(document.getElementById("amount").value);
+  const fee = 2.00;
+  const cfg = assetConfig[asset];
+
+  if(isNaN(amount) || amount < 10) return showPopup("Minimum withdrawal is $10", "error");
+
+  if(asset === "btc" &&!isValidBTC(address)) return showPopup("Invalid BTC address", "error");
+  if(asset === "usdt_erc20" &&!isValidERC20(address)) return showPopup("Invalid ERC20 address", "error");
+  if(asset === "usdt_bep20" &&!isValidBEP20(address)) return showPopup("Invalid BEP20 address", "error");
+  if(asset === "usdt_trc20" &&!isValidTRC20(address)) return showPopup("Invalid TRC20 address", "error");
+
+  submitBtn.disabled = true; submitBtn.textContent = "Processing...";
+
+  const balanceRef = ref(db, `users/${uid}/balance`);
+
+  runTransaction(balanceRef, (bal) => {
+    bal = Number(bal) || 0;
+    if(bal < amount) return; // abort
+    return bal - amount;
+  }, async (error, committed) => {
+    submitBtn.disabled = false; submitBtn.textContent = "Submit Withdrawal";
+    if(error ||!committed) return showPopup("Insufficient balance", "error");
+
+    const withdrawalData = {
+      asset: cfg.name,
+      assetKey: asset,
+      address: address,
+      amount: amount,
+      fee: fee,
+      netAmount: amount - fee,
+      status: "pending",
+      type: "exchange_withdrawal",
+      createdAt: serverTimestamp()
+    };
+
+    await push(ref(db, `withdrawals/${uid}`), withdrawalData);
+
+    showPopup(`Withdrawal of $${amount.toFixed(2)} submitted<br>Asset: ${cfg.name}`);
+    document.getElementById("withdrawForm").reset();
+    assetSelect.dispatchEvent(new Event('change'));
+
+    setTimeout(()=>{window.location.href = "financial.html"}, 2500);
+  });
+}
+</script>
+</body>
+</html>
