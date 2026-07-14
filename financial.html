@@ -106,12 +106,12 @@ let purchases = [];
 
 // LOCALSTORAGE TO REMEMBER SHOWN POPUPS FOREVER
 function getShownAlerts(){
-  return new Set(JSON.parse(localStorage.getItem('cypx_shownAlerts') || '[]'));
+  return new Set(JSON.parse(localStorage.getItem('cypx_shownAlerts_v2') || '[]'));
 }
 function saveShownAlert(id){
   const shown = getShownAlerts();
   shown.add(id);
-  localStorage.setItem('cypx_shownAlerts', JSON.stringify([...shown]));
+  localStorage.setItem('cypx_shownAlerts_v2', JSON.stringify([...shown]));
 }
 
 function showPopup(msg, type = 'success', timeout = 3500) {
@@ -156,24 +156,24 @@ function checkAndShowAlerts() {
   all.sort((a,b)=> b.createdAt - a.createdAt);
   const shown = getShownAlerts();
   
-  // Check latest 5 transactions
+  // Check latest 5 transactions for status changes
   all.slice(0,5).forEach(r => {
     const id = r.id;
-    if(shown.has(id)) return; // already shown this one
+    if(shown.has(id)) return; // already shown this one before
     
     const status = (r.status || "").toLowerCase();
     
-    // PENDING = Submitted
+    // 1. SUBMITTED / PENDING
     if(status === "pending"){
       saveShownAlert(id);
       showPopup(`<b><i class="fa fa-clock"></i> ${r.type} Submitted</b><br>$${parseFloat(r.amount).toFixed(2)} - Waiting for approval.`, "success");
     }
-    // COMPLETED
+    // 2. SUCCESSFUL
     else if(status === "completed" || status === "approved"){
       saveShownAlert(id);
       showPopup(`<div class="tick"></div><b>${r.type} Successful</b><br>$${parseFloat(r.amount).toFixed(2)} has been ${r.type === "Deposit" ? "credited to your account" : "sent"}.`, "success");
     }
-    // REJECTED
+    // 3. REJECTED
     else if(status === "rejected" || status === "failed"){
       saveShownAlert(id);
       showPopup(`<b><i class="fa fa-times-circle"></i> ${r.type} Rejected</b><br>$${parseFloat(r.amount).toFixed(2)} was not processed. Please contact support.`, "error");
@@ -188,7 +188,7 @@ auth.onAuthStateChanged(user => {
   }
   const uid = user.uid;
 
-  /* DEPOSITS */
+  /* DEPOSITS - REALTIME */
   db.ref("deposits/" + uid).on("value", snap => {
     deposits = [];
     snap.forEach(child => {
@@ -206,7 +206,7 @@ auth.onAuthStateChanged(user => {
     checkAndShowAlerts();
   });
 
-  /* WITHDRAWALS */
+  /* WITHDRAWALS - REALTIME */
   db.ref("withdrawals/" + uid).on("value", snap => {
     withdrawals = [];
     snap.forEach(child => {
@@ -230,7 +230,7 @@ auth.onAuthStateChanged(user => {
     checkAndShowAlerts();
   });
 
-  /* REFERRAL PURCHASES */
+  /* REFERRAL PURCHASES - REALTIME */
   db.ref("referralPurchases/" + uid).on("value", snap => {
     purchases = [];
     snap.forEach(child => {
@@ -259,4 +259,4 @@ tabs.forEach(tab => {
 </script>
 <script src="js/app-back.js"></script>
 </body>
-    </html>
+</html>
