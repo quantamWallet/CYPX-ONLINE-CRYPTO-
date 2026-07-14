@@ -1,91 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sell USDT - CYPX HOLDINGS</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CYPX HOLDINGS - Profile</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-:root{
-  --bg:#061426;--bg2:#0b1f3a;--card:#10294d;--gold:#d4af37;--gold2:#f5d06f;
-  --blue:#0f52ba;--text:#ffffff;--muted:#c7d6ea;--success:#1fbf75;--danger:#ff5a5a;
-  --radius:20px;--shadow:0 15px 45px rgba(0,0,0,0.45);
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  padding-bottom: 80px;
+
+  background:
+    linear-gradient(rgba(0,8,20,0.65), rgba(0,29,61,0.65)),
+    url("Screenshot_20260701-191309.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
-*{box-sizing:border-box;font-family:'Poppins',system-ui,sans-serif;}
-body{
-  margin:0;padding:90px 14px 100px;
-  background:radial-gradient(circle at top right, rgba(212,175,55,.12), transparent 25%),
-    radial-gradient(circle at top left, rgba(15,82,186,.18), transparent 30%),
-    linear-gradient(180deg,var(--bg),var(--bg2));
-  color:var(--text);min-height:100%;display:flex;justify-content:center;
+/* LOADER */
+.loader {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000814;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
 }
-header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding:18px 16px;font-size:20px;font-weight:700;letter-spacing:.6px;color:#fff;background:linear-gradient(90deg,#082041,#103b72,#082041);border-bottom:1px solid rgba(212,175,55,.25);}
-.container{width:100%;max-width:450px;}
-.card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(16,41,77,.96),rgba(9,28,56,.98));border:1px solid rgba(212,175,55,.18);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow);}
-.card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));}
-h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:center;}
-#balanceBox{display:inline-flex;align-items:center;justify-content:center;width:100%;background:linear-gradient(135deg,rgba(212,175,55,.16),rgba(15,82,186,.20));border:1px solid rgba(212,175,55,.25);border-radius:18px;padding:15px 22px;margin-bottom:18px;font-size:19px;font-weight:700;color:#fff;}
-.label{display:block;margin:16px 0 8px;color:#dce9ff;font-size:14px;font-weight:600;}
-.input,select{width:100%;border:none;outline:none;padding:15px 16px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);color:#fff;font-size:15px;}
-.input:focus,select:focus{border-color:rgba(212,175,55,.45);box-shadow:0 0 0 4px rgba(212,175,55,.12);}
-.btn{width:100%;border:none;outline:none;cursor:pointer;margin-top:26px;padding:16px;border-radius:16px;font-size:16px;font-weight:700;color:#071426;background:linear-gradient(135deg,var(--gold2),var(--gold));box-shadow:0 12px 30px rgba(212,175,55,.25);}
-.btn:disabled{opacity:.7;cursor:not-allowed;}
-.small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
-.verified-tag{font-size:11px;color:var(--success);margin-left:8px}
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
-@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
+
+.spinner {
+  width:50px;
+  height:50px;
+  border:4px solid rgba(255,255,255,0.1);
+  border-top:4px solid #00e5ff;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* HEADER */
+.top-bar {
+  padding:15px;
+  background: linear-gradient(90deg,#001d3d,#003566);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:bold;
+}
+
+/* PROFILE CARD */
+.profile-card {
+  margin:15px;
+  padding:15px;
+  border-radius:16px;
+  background: linear-gradient(145deg,#007BFF,#007A54);
+  box-shadow: 0 0 20px rgba(0,150,255,0.25);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* VIP VISIBILITY */
+.vip {
+  padding:6px 14px;
+  border-radius:12px;
+  font-size:13px;
+  margin-top:5px;
+  display:inline-block;
+  font-weight:bold;
+  letter-spacing:0.5px;
+  backdrop-filter: blur(6px);
+}
+
+.vip.vip0 { background:#555; color:#fff; }
+.vip.vip1 { background:linear-gradient(90deg,#e0e0e0,#bf); color:#000;}
+.vip.vip2 { background:linear-gradient(90deg,#ffd700,#ffcc00); color:#000;}
+.vip.vip3 { background:linear-gradient(90deg,#7c54ff,#3ad1d1); color:#fff;}
+.vip.vip4 { background:linear-gradient(90deg,#ff7a7a,#ff3d3d); color:#fff;}
+
+.vip.glow {
+  box-shadow:0 0 25px rgba(255,215,0,0.9);
+  transform:scale(1.08);
+}
+
+/* BALANCE CARD */
+.balance-card {
+  margin:15px;
+  padding:20px;
+  border-radius:16px;
+  background: linear-gradient(145deg,#002b5c,#001f3f);
+  box-shadow: 0 0 25px rgba(0,200,255,0.25);
+}
+
+.balance-main {
+  font-size:28px;
+  color:#ffd700;
+  margin-bottom:15px;
+}
+
+.balance-grid {
+  display:flex;
+  gap:10px;
+}
+
+.balance-grid div {
+  flex:1;
+  background: rgba(255,255,255,0.05);
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+}
+
+/* MENU */
+.menu {
+  margin:15px;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.menu-item {
+  display:flex;
+  align-items:center;
+  padding:15px;
+  background:#001a33;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  text-decoration:none;
+  color:white;
+}
+
+.menu-item:hover {
+  background:#002b5c;
+}
+
+.menu-item i {
+  width:25px;
+  margin-right:10px;
+}
+#adminPanelBtn{
+    display:none;
+    background:linear-gradient(90deg,#7c3aed,#2563eb);
+    font-weight:bold;
+}
+
+#adminPanelBtn:hover{
+    background:linear-gradient(90deg,#6d28d9,#1d4ed8);
+  }
+nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#002244;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+nav a {
+  color:white;
+  text-decoration:none;
+  text-align:center;
+}
+
+nav i { font-size:20px; }
 </style>
 </head>
+
 <body>
-<header><i class="fa-solid fa-arrow-trend-down"></i> Sell USDT</header>
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" style="
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+z-index:10000;
+justify-content:center;
+align-items:center;
+">
 
-<div class="container">
-  <div class="card">
-    <h2><i class="fa-solid fa-wallet"></i> Sell USDT for KES</h2>
-    
-    <div style="text-align:center;">
-      <div style="font-size:12px;color:#cfe3ff">Your USDT Balance</div>
-      <div id="balanceBox">$ <span id="balance">—</span></div>
+  <div style="
+  width:300px;
+  max-width:90%;
+  background:#001d3d;
+  border-radius:18px;
+  padding:25px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(0,0,0,.5);
+  ">
+
+    <h3 style="margin:0 0 15px;color:#fff;">
+      Logout
+    </h3>
+
+    <p style="color:#ddd;margin-bottom:25px;">
+      Are you sure you want to logout?
+    </p>
+
+    <div style="
+    display:flex;
+    gap:12px;
+    ">
+
+      <button id="cancelLogout" style="
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#444;
+      color:#fff;
+      font-weight:bold;
+      ">
+        Cancel
+      </button>
+
+      <button id="confirmLogout" style="
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#ff3b30;
+      color:#fff;
+      font-weight:bold;
+      ">
+        Exit
+      </button>
+
     </div>
 
-    <div style="text-align:center;margin-bottom:10px;">
-      <div style="font-size:12px;color:#cfe3ff">Current Rate</div>
-      <div style="font-size:18px;font-weight:700;color:var(--success)" id="rate">KES 0.00 / 1 USDT</div>
-    </div>
-
-    <form id="sellForm">
-      <label class="label" for="amount">Amount to Sell (USDT)</label>
-      <input id="amount" class="input" type="number" min="50" placeholder="e.g. 100" required />
-      <div class="small">You will receive: <strong id="kesAmount">KES 0.00</strong></div>
-
-      <!-- NEW: CHOOSE BUYER -->
-      <label class="label" for="buyer">Choose Buyer <span class="verified-tag"><i class="fa fa-check-circle"></i> Verified</span></label>
-      <select id="buyer" class="input" required>
-        <option value="">Select a trader</option>
-        <option value="Jane">Jane</option>
-        <option value="Hassan">Hassan</option>
-      </select>
-
-      <label class="label" for="method">Receive Via</label>
-      <select id="method" class="input">
-        <option value="mpesa">Safaricom Mpesa</option>
-        <option value="airtel">Airtel Money</option>
-      </select>
-
-      <label class="label" for="phone">Phone Number</label>
-      <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" required />
-
-      <button id="submitBtn" class="btn" type="submit">Sell Now</button>
-    </form>
   </div>
 </div>
 
-<div id="popup" class="popup"></div>
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+</div>
+
+<div class="top-bar">
+  <i class="fas fa-user"></i> Profile
+</div>
+
+<div class="profile-card">
+    <div>
+        <div id="user-email">user@email.com</div>
+        <div id="user-vip" class="vip">VIP0</div>
+    </div>
+    <i class="fas fa-user-circle" style="font-size:50px;"></i>
+</div>
+
+<div class="balance-card">
+  <div class="balance-main"><span id="balance">$0.00</span></div>
+  <div class="balance-grid">
+    <div>
+      <small>Total Deposit</small>
+      <div id="deposit">0.00</div>
+    </div>
+    <div>
+      <small>Total Earnings</small>
+      <div id="earnings">0.00</div>
+    </div>
+  </div>
+</div>
+
+<div class="menu">
+
+  <!-- KYC REMOVED, REPLACED WITH COPY TRADING -->
+  <a href="copy.html" class="menu-item">
+    <i class="fas fa-copy"></i>
+    Copy Trading
+  </a>
+  <a href="deposit.html" class="menu-item"><i class="fas fa-wallet"></i>Deposit</a>
+  <a href="withdraw.html" class="menu-item"><i class="fas fa-money-bill"></i>Withdraw</a>
+  <a href="financial.html" class="menu-item"><i class="fas fa-file"></i>Transaction History</a>
+
+  <a href="p2p 2.html" id="adminPanelBtn" class="menu-item">
+    <i class="fas fa-user-shield"></i>
+    Admin Panel
+  </a>
+
+  <a href="javascript:void(0)" class="menu-item" onclick="logout(event)">
+    <i class="fas fa-sign-out-alt"></i>
+    Logout
+  </a>
+
+</div>
+
+<nav>
+  <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>
+  <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>
+  <a href="team.html"><i class="fas fa-users"></i><br>Team</a>
+  <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
+  <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -99,104 +320,167 @@ const firebaseConfig = {
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
 };
-firebase.initializeApp(firebaseConfig);
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const auth = firebase.auth();
 const db = firebase.database();
 
-const balanceEl = document.getElementById('balance');
-const amountInput = document.getElementById('amount');
-const kesAmountEl = document.getElementById('kesAmount');
-const submitBtn = document.getElementById('submitBtn');
-const form = document.getElementById('sellForm');
-const popup = document.getElementById('popup');
-let uid = null;
-let usdToKes = 150;
-
-function showPopup(msg) {
-  popup.innerHTML = msg;
-  popup.style.display = 'block';
-  setTimeout(() => popup.style.display = 'none', 3000);
-}
-
-async function fetchRate(){
-  try{
-    const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
-    const data = await res.json();
-    usdToKes = parseFloat(data.rates.KES);
-    document.getElementById("rate").textContent = "KES " + usdToKes.toFixed(2) + " / 1 USDT";
-  }catch(e){}
-}
-fetchRate();
-
-amountInput.addEventListener('input', ()=>{
-  const usdt = parseFloat(amountInput.value) || 0;
-  kesAmountEl.textContent = "KES " + (usdt * usdToKes).toLocaleString('en-US', {minimumFractionDigits:2});
-})
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    uid = user.uid;
-    db.ref(`users/${user.uid}/balance`).on('value', snap => {
-      balanceEl.textContent = (Number(snap.val()) || 0).toLocaleString('en-US');
-    });
-  } else {
-    window.location.href = "auth.html";
-  }
-});
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const amount = parseFloat(amountInput.value);
-  const buyer = document.getElementById('buyer').value; // NEW
-  const method = document.getElementById('method').value;
-  const phone = document.getElementById('phone').value.trim();
-
-  if (isNaN(amount) || amount < 50) return showPopup("Minimum sell is $50");
-  if (!buyer) return showPopup("Please choose a buyer"); // NEW
-  if (!/^07\d{8}$/.test(phone)) return showPopup("Enter valid phone");
-
-  submitBtn.disabled = true; submitBtn.textContent = "Processing...";
-  const balanceRef = db.ref(`users/${uid}/balance`);
-
-  // 1. DEDUCT IMMEDIATELY
-  balanceRef.transaction((bal) => {
-    bal = Number(bal) || 0;
-    if (bal < amount) {
-      showPopup("Insufficient balance");
-      return; // abort
-    }
-    return bal - amount;
-  }, async (error, committed) => {
-    submitBtn.disabled = false; submitBtn.textContent = "Sell Now";
-    if (error || !committed) return;
-
-    // 2. CREATE SELL ORDER
-    const orderId = db.ref().push().key;
-    const orderData = {
-      id: orderId,
-      userId: uid,
-      buyer: buyer, // NEW: saves which trader
-      amountUSDT: amount,
-      amountKES: parseFloat((amount * usdToKes).toFixed(2)),
-      rate: usdToKes,
-      method: method,
-      phone: phone,
-      status: "pending", // admin/trader approves then pays
-      type: "sell_usdt",
-      createdAt: Date.now()
-    };
-
-    await db.ref(`p2p_sell_orders/${orderId}`).set(orderData);
-    await db.ref(`users/${uid}/orders/${orderId}`).set(orderData);
-
-    showPopup(`<i class="fa fa-check-circle"></i> Sell order to ${buyer}<br>$${amount} deducted from balance`);
-    amountInput.value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('buyer').value = '';
-    
-    setTimeout(()=>{window.location.href = "financial.html"}, 2500);
+/* FORMAT */
+function formatMoney(num){
+  return "$" + Number(num || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
+}
+
+/* VIP */
+function getVip(data){
+  let max = 0;
+  if(data.vipLevels){
+    Object.keys(data.vipLevels).forEach(k=>{
+      if(data.vipLevels[k]){
+        const lvl = parseInt(k);
+        if(lvl > max) max = lvl;
+      }
+    });
+  }
+  return "VIP"+max;
+}
+
+/* STATE */
+let userData = {};
+let depositUser = 0;
+let earningsUser = 0;
+
+/* SUM FUNCTION */
+function sumSnapshot(snapshot){
+  let total = 0;
+  snapshot.forEach(child=>{
+    const d = child.val();
+    if(typeof d === "number"){
+      total += d;
+      return;
+    }
+    if(d){
+      total += Number(d.amount || d.depositAmount || d.price || d.value || 0);
+    }
+  });
+  return total;
+}
+
+/* RENDER */
+function render(){
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("balance").textContent = formatMoney(userData.balance);
+  document.getElementById("deposit").textContent = formatMoney(depositUser);
+  document.getElementById("earnings").textContent = formatMoney(earningsUser);
+
+  const vip = getVip(userData);
+  const el = document.getElementById("user-vip");
+  el.className = "vip " + vip.toLowerCase();
+  el.textContent = vip;
+}
+
+/* AUTH */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "signin.html";
+    return;
+  }
+  const uid = user.uid;
+
+  db.ref("admins/" + uid).once("value").then(snap => {
+    if (!snap.exists()) return;
+    const admin = snap.val();
+    if (admin.role === "admin" && admin.status === "active") {
+        document.getElementById("adminPanelBtn").style.display = "flex";
+    }
+  }).catch(console.error);
+
+  document.getElementById("user-email").textContent = user.email;
+
+  /* EARNINGS */
+  function loadEarnings() {
+    let total = 0;
+    db.ref("referralPurchases/" + uid).once("value").then(refSnap => {
+      if (refSnap.exists()) {
+        refSnap.forEach(child => {
+          const e = child.val();
+          if (e.status && e.status.toLowerCase() === "approved") {
+            total += Number(e.price || e.amount || 0);
+          }
+        });
+      }
+      return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
+    }).then(bonusSnap => {
+      if (bonusSnap.val() === true) {
+        total += 100;
+      }
+      return db.ref("users/" + uid + "/vipEarnings").once("value");
+    }).then(vipSnap => {
+      if (vipSnap.exists()) {
+        vipSnap.forEach(child => {
+          const v = child.val();
+          total += Number(v.totalEarned || 0);
+        });
+      }
+      earningsUser = total;
+      render();
+    }).catch(err => {
+      console.error("Earnings error:", err);
+      render();
+    });
+  }
+
+  loadEarnings();
+  db.ref("referralPurchases/" + uid).on("value", loadEarnings);
+  db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
+  db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
+
+  /* USER DATA - KYC LOGIC REMOVED */
+  db.ref("users/" + uid).on("value", snap => {
+    userData = snap.val() || {};
+    render();
+  });
+
+  /* DEPOSITS */
+  db.ref("deposits/" + uid).on("value", snap => {
+    depositUser = sumSnapshot(snap);
+    render();
+  });
+
 });
+
+/* LOGOUT */
+function logout(event) {
+    if (event) event.preventDefault();
+    document.getElementById("logoutModal").style.display = "flex";
+}
+
+document.getElementById("cancelLogout").addEventListener("click", function (e) {
+    e.stopPropagation();
+    document.getElementById("logoutModal").style.display = "none";
+});
+
+document.getElementById("confirmLogout").addEventListener("click", function (e) {
+    e.stopPropagation();
+    auth.signOut().then(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "auth.html";
+    }).catch(error => {
+        console.error("Logout error:", error);
+        document.getElementById("logoutModal").style.display = "none";
+    });
+});
+
+/* SAFETY */
+setTimeout(()=>{
+  document.getElementById("loader").style.display = "none";
+}, 4000);
 </script>
 </body>
-</html>
+  <script src="js/app-back.js"></script>
+      </html>
