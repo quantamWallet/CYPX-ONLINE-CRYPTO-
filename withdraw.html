@@ -64,7 +64,7 @@ nav i{display:block;margin-bottom:5px;font-size:20px;}
 select option{background:#10294d;color:white;}
 @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
 @media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
-/* SUCCESS TICK ANIMATION - FINAL FIX */
+/* SUCCESS TICK ANIMATION - WORKING */
 .tick{
   width:80px;
   height:80px;
@@ -79,42 +79,36 @@ select option{background:#10294d;color:white;}
   content:"";
   position:absolute;
   left:22px;
-  top:42px;
-  width:18px;
+  top:44px;
+  width:0; /* start at 0 */
   height:4px;
   background:var(--success);
   transform:rotate(45deg);
   transform-origin:left center;
   border-radius:2px;
-  animation:drawTick .3s .2s forwards;
-  opacity:0;
+  animation:drawShort .3s .3s forwards;
 }
 .tick::before{
   content:"";
   position:absolute;
   left:35px;
-  top:32px;
+  top:34px;
   width:4px;
-  height:26px;
+  height:0; /* start at 0 */
   background:var(--success);
   transform:rotate(-45deg);
   transform-origin:left bottom;
   border-radius:2px;
-  animation:drawTick .3s .4s forwards;
-  opacity:0;
+  animation:drawLong .3s .5s forwards;
 }
 @keyframes scaleIn{
  0%{transform:scale(0)}
  100%{transform:scale(1)}
 }
-@keyframes drawTick{
-  to{opacity:1}
-}
-
-/* PHONE NUMBER COLOR */
-.masked-phone{
-  color: var(--gold2); /* Gold color */
-  font-weight:700;
+@keyframes drawShort{
+  to{width:18px; opacity:1}
+@keyframes drawLong{
+  to{height:26px; opacity:1}
                                                         }
 </style>
 </head>
@@ -318,7 +312,7 @@ form.addEventListener('submit', async (e) => {
     if (error ||!committed) {showPopup("Transaction failed", "error");return;}
 
     try {
-      const methodNames = {mpesa:"Mobile Money",airtel:"Mobile Money",paypal:"PayPal",btc:"Bitcoin (BTC)",usdt_erc20:"USDT (ERC20)"};
+      const methodNames = {mpesa:"Mpesa",airtel:"Airtel Money",paypal:"PayPal",btc:"Bitcoin (BTC)",usdt_erc20:"USDT (ERC20)"};
       const payload = {amount: amount,method: methodNames[method],methodKey: method,status: "pending",timestamp: Date.now(),createdAt: Date.now()};
       if (method === "mpesa" || method === "airtel") {payload.phone = phone;}
       else if (method === "paypal") {payload.paypalEmail = paypalEmail;}
