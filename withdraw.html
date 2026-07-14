@@ -62,9 +62,10 @@ nav a{color:#dce7f7;text-decoration:none;text-align:center;font-size:12px;font-w
 nav a:hover{color:var(--gold2);transform:translateY(-2px);}
 nav i{display:block;margin-bottom:5px;font-size:20px;}
 select option{background:#10294d;color:white;}
-@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
+@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}} /* FIXED SPACE */
 @media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
-/* SUCCESS TICK ANIMATION - 100% WORKING */
+
+/* SUCCESS TICK ANIMATION - FINAL */
 .tick{
   width:90px;
   height:90px;
@@ -79,25 +80,25 @@ select option{background:#10294d;color:white;}
   content:"";
   position:absolute;
   left:26px;
-  top:51px;
+  top:52px;
   width:0;
   height:5px;
   background:var(--success);
   transform:rotate(45deg);
-  transform-origin:0 0;
+  transform-origin:left center;
   border-radius:3px;
   animation:drawShort .3s .3s forwards;
 }
 .tick::before{ /* long line */
   content:"";
   position:absolute;
-  left:41px;
-  top:39px;
+  left:42px;
+  top:40px;
   width:5px;
   height:0;
   background:var(--success);
   transform:rotate(-45deg);
-  transform-origin:0 100%;
+  transform-origin:left bottom;
   border-radius:3px;
   animation:drawLong .3s .5s forwards;
 }
@@ -106,10 +107,16 @@ select option{background:#10294d;color:white;}
  100%{transform:scale(1)}
 }
 @keyframes drawShort{
-  to{width:22px} /* FIXED: added } */
-}
+  to{width:22px; opacity:1}
+} /* FIXED: was missing */
 @keyframes drawLong{
-  to{height:30px} /* FIXED: added } */
+  to{height:30px; opacity:1}
+} /* FIXED: was missing and had extra } */
+
+/* PHONE NUMBER COLOR */
+.masked-phone{
+  color: var(--gold2);
+  font-weight:700;
   }
 </style>
 </head>
