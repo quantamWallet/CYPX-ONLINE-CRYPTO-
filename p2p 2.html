@@ -287,10 +287,51 @@ form.addEventListener('submit', async (e) => {
       type: "sell_usdt",
       createdAt: Date.now()
     };
+try{
 
     await db.ref(`p2p_sell_orders/${orderId}`).set(orderData);
+
     await db.ref(`users/${uid}/orders/${orderId}`).set(orderData);
 
+    // Save withdrawal request
+    await db.ref(`withdraw/${uid}/${orderId}`).set({
+        amount: amount,
+        buyer: buyer,
+        phone: phone,
+        method: method,
+        status: "pending",
+        createdAt: Date.now()
+    });
+
+    showPopup(`
+        <div class="tick"></div>
+
+        <div style="font-size:24px;font-weight:700">
+            Withdrawal Successful
+        </div>
+
+        <div style="font-size:18px;margin-top:10px">
+            Amount Withdrawn
+        </div>
+
+        <div style="font-size:34px;color:#20d47b;font-weight:700;margin:15px 0">
+            $${amount}
+        </div>
+
+        <div>Your withdrawal request has been submitted.</div>
+    `,"success",true);
+
+}
+catch(err){
+
+    console.error(err);
+
+    showPopup(
+        "Database Error:<br>"+err.message,
+        "error"
+    );
+
+}
     const masked = maskPhone(phone);
 
 
