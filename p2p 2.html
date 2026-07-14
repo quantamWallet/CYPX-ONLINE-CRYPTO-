@@ -36,6 +36,7 @@ h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:
 .btn{width:100%;border:none;outline:none;cursor:pointer;margin-top:26px;padding:16px;border-radius:16px;font-size:16px;font-weight:700;color:#071426;background:linear-gradient(135deg,var(--gold2),var(--gold));box-shadow:0 12px 30px rgba(212,175,55,.25);}
 .btn:disabled{opacity:.7;cursor:not-allowed;}
 .small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
+.verified-tag{font-size:11px;color:var(--success);margin-left:8px}
 .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
 @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
 </style>
@@ -62,6 +63,14 @@ h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:
       <input id="amount" class="input" type="number" min="50" placeholder="e.g. 100" required />
       <div class="small">You will receive: <strong id="kesAmount">KES 0.00</strong></div>
 
+      <!-- NEW: CHOOSE BUYER -->
+      <label class="label" for="buyer">Choose Buyer <span class="verified-tag"><i class="fa fa-check-circle"></i> Verified</span></label>
+      <select id="buyer" class="input" required>
+        <option value="">Select a trader</option>
+        <option value="Jane">Jane</option>
+        <option value="Hassan">Hassan</option>
+      </select>
+
       <label class="label" for="method">Receive Via</label>
       <select id="method" class="input">
         <option value="mpesa">Safaricom Mpesa</option>
@@ -79,16 +88,14 @@ h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:
 <div id="popup" class="popup"></div>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain:"quantum-rio.firebaseapp.com",
+  databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId:"quantum-rio",
+  storageBucket:"quantum-rio.appspot.com",
+  messagingSenderId:"805433999377",
+  appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -138,10 +145,12 @@ auth.onAuthStateChanged(user => {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const amount = parseFloat(amountInput.value);
+  const buyer = document.getElementById('buyer').value; // NEW
   const method = document.getElementById('method').value;
   const phone = document.getElementById('phone').value.trim();
 
   if (isNaN(amount) || amount < 50) return showPopup("Minimum sell is $50");
+  if (!buyer) return showPopup("Please choose a buyer"); // NEW
   if (!/^07\d{8}$/.test(phone)) return showPopup("Enter valid phone");
 
   submitBtn.disabled = true; submitBtn.textContent = "Processing...";
@@ -164,12 +173,13 @@ form.addEventListener('submit', async (e) => {
     const orderData = {
       id: orderId,
       userId: uid,
+      buyer: buyer, // NEW: saves which trader
       amountUSDT: amount,
       amountKES: parseFloat((amount * usdToKes).toFixed(2)),
       rate: usdToKes,
       method: method,
       phone: phone,
-      status: "pending", // admin approves then pays
+      status: "pending", // admin/trader approves then pays
       type: "sell_usdt",
       createdAt: Date.now()
     };
@@ -177,9 +187,10 @@ form.addEventListener('submit', async (e) => {
     await db.ref(`p2p_sell_orders/${orderId}`).set(orderData);
     await db.ref(`users/${uid}/orders/${orderId}`).set(orderData);
 
-    showPopup(`<i class="fa fa-check-circle"></i> Sell order submitted<br>$${amount} deducted from balance`);
+    showPopup(`<i class="fa fa-check-circle"></i> Sell order to ${buyer}<br>$${amount} deducted from balance`);
     amountInput.value = '';
     document.getElementById('phone').value = '';
+    document.getElementById('buyer').value = '';
     
     setTimeout(()=>{window.location.href = "financial.html"}, 2500);
   });
