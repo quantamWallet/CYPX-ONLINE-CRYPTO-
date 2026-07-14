@@ -64,7 +64,7 @@ nav i{display:block;margin-bottom:5px;font-size:20px;}
 select option{background:#10294d;color:white;}
 @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
 @media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
-/* SUCCESS TICK ANIMATION - PERFECT */
+/* SUCCESS TICK ANIMATION - 100% WORKING */
 .tick{
   width:90px;
   height:90px;
@@ -78,26 +78,26 @@ select option{background:#10294d;color:white;}
 .tick::after{ /* short line */
   content:"";
   position:absolute;
-  left:25px;
-  top:50px;
+  left:26px;
+  top:51px;
   width:0;
   height:5px;
   background:var(--success);
   transform:rotate(45deg);
-  transform-origin:0% 50%;
+  transform-origin:0 0;
   border-radius:3px;
   animation:drawShort .3s .3s forwards;
 }
 .tick::before{ /* long line */
   content:"";
   position:absolute;
-  left:40px;
-  top:38px;
+  left:41px;
+  top:39px;
   width:5px;
   height:0;
   background:var(--success);
   transform:rotate(-45deg);
-  transform-origin:0% 100%;
+  transform-origin:0 100%;
   border-radius:3px;
   animation:drawLong .3s .5s forwards;
 }
@@ -106,10 +106,11 @@ select option{background:#10294d;color:white;}
  100%{transform:scale(1)}
 }
 @keyframes drawShort{
-  to{width:22px; opacity:1}
-@keyframes drawLong{
-  to{height:30px; opacity:1}
+  to{width:22px} /* FIXED: added } */
 }
+@keyframes drawLong{
+  to{height:30px} /* FIXED: added } */
+  }
 </style>
 </head>
 <body>
