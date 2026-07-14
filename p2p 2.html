@@ -133,12 +133,29 @@ const popup = document.getElementById('popup');
 let uid = null;
 let usdToKes = 150;
 
-function showPopup(msg, type='success') {
-  popup.className = 'popup ' + type; // MUST set class first for CSS to work
+function showPopup(msg, type='success', showButton=false){
+  popup.className = 'popup ' + type;
   popup.innerHTML = msg;
+
+  if(showButton){
+    popup.innerHTML += `
+      <br><br>
+      <button id="okBtn" class="btn" style="margin-top:15px;padding:12px 30px;">
+        OK
+      </button>
+    `;
+  }
+
   popup.style.display = 'block';
-  setTimeout(() => popup.style.display = 'none', 3500);
-}
+
+  if(showButton){
+    document.getElementById("okBtn").onclick = () => {
+      window.location.href = "financial.html";
+    };
+  }else{
+    setTimeout(()=>popup.style.display='none',3500);
+  }
+                                            }
 
 function maskPhone(phone){
   if(!phone || phone.length < 10) return phone;
@@ -217,20 +234,30 @@ form.addEventListener('submit', async (e) => {
 
     const masked = maskPhone(phone);
 
-    showPopup(`
-<div class="tick"></div>
-Sell order submitted successfully!<br><br>
-Buyer: <strong>${buyer}</strong><br>
-Amount: <strong>${amount} USDT</strong><br>
-To: <span class="masked-phone">${masked}</span><br>
-Status: <span style="color:#20d47b;font-weight:700;">Pending</span>
-`, 'success');
 
-    amountInput.value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('buyer').value = '';
-    
-    setTimeout(()=>{window.location.href = "financial.html"}, 2500);
+showPopup(`
+<div class="tick"></div>
+
+<div style="font-size:22px;font-weight:700;margin-bottom:8px;">
+Sell Successful
+</div>
+
+<div style="font-size:17px;">
+You have successfully sold
+</div>
+
+<div style="font-size:32px;font-weight:700;color:#20d47b;margin:12px 0;">
+${amount.toLocaleString()} USDT
+</div>
+
+<div style="color:#d7ffe7;">
+Your order has been submitted successfully.
+</div>
+`, 'success', true);
+
+amountInput.value='';
+document.getElementById('phone').value='';
+document.getElementById('buyer').value='';
   });
 });
 </script>
