@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sell USDT - CYPX HOLDINGS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+:root{
+  --bg:#061426;--bg2:#0b1f3a;--card:#10294d;--gold:#d4af37;--gold2:#f5d06f;
+  --blue:#0f52ba;--text:#ffffff;--muted:#c7d6ea;--success:#1fbf75;--danger:#ff5a5a;
+  --radius:20px;--shadow:0 15px 45px rgba(0,0,0,0.45);
+}
+*{box-sizing:border-box;font-family:'Poppins',system-ui,sans-serif;}
+body{
+  margin:0;padding:90px 14px 100px;
+  background:radial-gradient(circle at top right, rgba(212,175,55,.12), transparent 25%),
+    radial-gradient(circle at top left, rgba(15,82,186,.18), transparent 30%),
+    linear-gradient(180deg,var(--bg),var(--bg2));
+  color:var(--text);min-height:100%;display:flex;justify-content:center;
+}
+header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding:18px 16px;font-size:20px;font-weight:700;letter-spacing:.6px;color:#fff;background:linear-gradient(90deg,#082041,#103b72,#082041);border-bottom:1px solid rgba(212,175,55,.25);}
+.container{width:100%;max-width:450px;}
+.card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(16,41,77,.96),rgba(9,28,56,.98));border:1px solid rgba(212,175,55,.18);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow);}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));}
+h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:center;}
+#balanceBox{display:inline-flex;align-items:center;justify-content:center;width:100%;background:linear-gradient(135deg,rgba(212,175,55,.16),rgba(15,82,186,.20));border:1px solid rgba(212,175,55,.25);border-radius:18px;padding:15px 22px;margin-bottom:18px;font-size:19px;font-weight:700;color:#fff;}
+.label{display:block;margin:16px 0 8px;color:#dce9ff;font-size:14px;font-weight:600;}
+.input,select{width:100%;border:none;outline:none;padding:15px 16px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);color:#fff;font-size:15px;}
+.input:focus,select:focus{border-color:rgba(212,175,55,.45);box-shadow:0 0 0 4px rgba(212,175,55,.12);}
+.btn{width:100%;border:none;outline:none;cursor:pointer;margin-top:26px;padding:16px;border-radius:16px;font-size:16px;font-weight:700;color:#071426;background:linear-gradient(135deg,var(--gold2),var(--gold));box-shadow:0 12px 30px rgba(212,175,55,.25);}
+.btn:disabled{opacity:.7;cursor:not-allowed;}
+.small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
+@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
+</style>
+</head>
+<body>
+<header><i class="fa-solid fa-arrow-trend-down"></i> Sell USDT</header>
+
+<div class="container">
+  <div class="card">
+    <h2><i class="fa-solid fa-wallet"></i> Sell USDT for KES</h2>
+    
+    <div style="text-align:center;">
+      <div style="font-size:12px;color:#cfe3ff">Your USDT Balance</div>
+      <div id="balanceBox">$ <span id="balance">—</span></div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:10px;">
+      <div style="font-size:12px;color:#cfe3ff">Current Rate</div>
+      <div style="font-size:18px;font-weight:700;color:var(--success)" id="rate">KES 0.00 / 1 USDT</div>
+    </div>
+
+    <form id="sellForm">
+      <label class="label" for="amount">Amount to Sell (USDT)</label>
+      <input id="amount" class="input" type="number" min="50" placeholder="e.g. 100" required />
+      <div class="small">You will receive: <strong id="kesAmount">KES 0.00</strong></div>
+
+      <label class="label" for="method">Receive Via</label>
+      <select id="method" class="input">
+        <option value="mpesa">Safaricom Mpesa</option>
+        <option value="airtel">Airtel Money</option>
+      </select>
+
+      <label class="label" for="phone">Phone Number</label>
+      <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" required />
+
+      <button id="submitBtn" class="btn" type="submit">Sell Now</button>
+    </form>
+  </div>
+</div>
+
+<div id="popup" class="popup"></div>
+
+<script>
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+const balanceEl = document.getElementById('balance');
+const amountInput = document.getElementById('amount');
+const kesAmountEl = document.getElementById('kesAmount');
+const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById('sellForm');
+const popup = document.getElementById('popup');
+let uid = null;
+let usdToKes = 150;
+
+function showPopup(msg) {
+  popup.innerHTML = msg;
+  popup.style.display = 'block';
+  setTimeout(() => popup.style.display = 'none', 3000);
+}
+
+async function fetchRate(){
+  try{
+    const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+    const data = await res.json();
+    usdToKes = parseFloat(data.rates.KES);
+    document.getElementById("rate").textContent = "KES " + usdToKes.toFixed(2) + " / 1 USDT";
+  }catch(e){}
+}
+fetchRate();
+
+amountInput.addEventListener('input', ()=>{
+  const usdt = parseFloat(amountInput.value) || 0;
+  kesAmountEl.textContent = "KES " + (usdt * usdToKes).toLocaleString('en-US', {minimumFractionDigits:2});
+})
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    uid = user.uid;
+    db.ref(`users/${user.uid}/balance`).on('value', snap => {
+      balanceEl.textContent = (Number(snap.val()) || 0).toLocaleString('en-US');
+    });
+  } else {
+    window.location.href = "auth.html";
+  }
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const amount = parseFloat(amountInput.value);
+  const method = document.getElementById('method').value;
+  const phone = document.getElementById('phone').value.trim();
+
+  if (isNaN(amount) || amount < 50) return showPopup("Minimum sell is $50");
+  if (!/^07\d{8}$/.test(phone)) return showPopup("Enter valid phone");
+
+  submitBtn.disabled = true; submitBtn.textContent = "Processing...";
+  const balanceRef = db.ref(`users/${uid}/balance`);
+
+  // 1. DEDUCT IMMEDIATELY
+  balanceRef.transaction((bal) => {
+    bal = Number(bal) || 0;
+    if (bal < amount) {
+      showPopup("Insufficient balance");
+      return; // abort
+    }
+    return bal - amount;
+  }, async (error, committed) => {
+    submitBtn.disabled = false; submitBtn.textContent = "Sell Now";
+    if (error || !committed) return;
+
+    // 2. CREATE SELL ORDER
+    const orderId = db.ref().push().key;
+    const orderData = {
+      id: orderId,
+      userId: uid,
+      amountUSDT: amount,
+      amountKES: parseFloat((amount * usdToKes).toFixed(2)),
+      rate: usdToKes,
+      method: method,
+      phone: phone,
+      status: "pending", // admin approves then pays
+      type: "sell_usdt",
+      createdAt: Date.now()
+    };
+
+    await db.ref(`p2p_sell_orders/${orderId}`).set(orderData);
+    await db.ref(`users/${uid}/orders/${orderId}`).set(orderData);
+
+    showPopup(`<i class="fa fa-check-circle"></i> Sell order submitted<br>$${amount} deducted from balance`);
+    amountInput.value = '';
+    document.getElementById('phone').value = '';
+    
+    setTimeout(()=>{window.location.href = "financial.html"}, 2500);
+  });
+});
+</script>
+</body>
+  </html>
