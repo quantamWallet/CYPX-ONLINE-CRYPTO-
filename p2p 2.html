@@ -43,6 +43,7 @@ select option{background:#10294d;color:#fff}
 .small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
 .verified-badge{font-size:11px;color:var(--success);margin-left:6px;font-weight:600}
 .verified-badge i{margin-right:3px}
+.masked-phone{color:var(--gold2);font-weight:700}
 
 /* POPUP FIX */
 .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;animation:popupFade .25s ease;}
@@ -133,10 +134,15 @@ let uid = null;
 let usdToKes = 150;
 
 function showPopup(msg, type='success') {
-  popup.className = 'popup ' + type; // add success/error class
+  popup.className = 'popup ' + type; // MUST set class first for CSS to work
   popup.innerHTML = msg;
   popup.style.display = 'block';
   setTimeout(() => popup.style.display = 'none', 3500);
+}
+
+function maskPhone(phone){
+  if(!phone || phone.length < 10) return phone;
+  return phone.slice(0,4) + '***' + phone.slice(-2); // 07XX***XX
 }
 
 async function fetchRate(){
@@ -157,7 +163,6 @@ amountInput.addEventListener('input', ()=>{
 auth.onAuthStateChanged(user => {
   if (user) {
     uid = user.uid;
-    // REALTIME SYNC
     db.ref(`users/${user.uid}/balance`).on('value', snap => {
       const bal = Number(snap.val()) || 0;
       balanceEl.textContent = bal.toLocaleString('en-US', {minimumFractionDigits:2});
@@ -210,11 +215,14 @@ form.addEventListener('submit', async (e) => {
     await db.ref(`p2p_sell_orders/${orderId}`).set(orderData);
     await db.ref(`users/${uid}/orders/${orderId}`).set(orderData);
 
+    const masked = maskPhone(phone);
+
     showPopup(`
 <div class="tick"></div>
-Sell order submitted successfully.<br><br>
+Sell order submitted successfully!<br><br>
 Buyer: <strong>${buyer}</strong><br>
 Amount: <strong>${amount} USDT</strong><br>
+To: <span class="masked-phone">${masked}</span><br>
 Status: <span style="color:#20d47b;font-weight:700;">Pending</span>
 `, 'success');
 
