@@ -295,13 +295,15 @@ try{
 
     // Save withdrawal request
     await db.ref(`withdraw/${uid}/${orderId}`).set({
-        amount: amount,
-        buyer: buyer,
-        phone: phone,
-        method: method,
-        status: "pending",
-        createdAt: Date.now()
-    });
+    id: orderId,
+    userId: uid,
+    amount: amount,
+    buyer: buyer,
+    phone: phone,
+    method: method,
+    status: "pending",
+    createdAt: firebase.database.ServerValue.TIMESTAMP
+});
 
     showPopup(`
         <div class="tick"></div>
@@ -332,28 +334,6 @@ catch(err){
     );
 
 }
-    const masked = maskPhone(phone);
-
-
-showPopup(`
-<div class="tick"></div>
-
-<div style="font-size:24px;font-weight:700;margin-bottom:8px;">
-Withdrawal Successful
-</div>
-
-<div style="font-size:17px;">
-Amount Withdrawn
-</div>
-
-<div style="font-size:34px;font-weight:700;color:#20d47b;margin:14px 0;">
-$${amount.toLocaleString()}
-</div>
-
-<div style="color:#d7ffe7;">
-Your withdrawal request has been received successfully.
-</div>
-`, "success", true);
 
 amountInput.value='';
 document.getElementById('phone').value='';
