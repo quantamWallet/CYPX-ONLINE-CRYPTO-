@@ -19,12 +19,15 @@
 *{box-sizing:border-box;font-family:'Poppins',system-ui,sans-serif;}
 body{
   margin:0;padding:90px 14px 100px;
-  background:radial-gradient(circle at top right, rgba(212,175,55,.12), transparent 25%),
-    radial-gradient(circle at top left, rgba(15,82,186,.18), transparent 30%),
+  /* NICER BACKGROUND */
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(212,175,55,.15), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(15,82,186,.20), transparent 40%),
     linear-gradient(180deg,var(--bg),var(--bg2));
+  background-attachment: fixed;
   color:var(--text);min-height:100%;display:flex;justify-content:center;
 }
-header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding:18px 16px;font-size:20px;font-weight:700;letter-spacing:.6px;color:#fff;background:linear-gradient(90deg,#082041,#103b72,#082041);border-bottom:1px solid rgba(212,175,55,.25);}
+header{position:fixed;top:0;left:0;right:0;z-index:100;text-align:center;padding:18px 16px;font-size:20px;font-weight:700;letter-spacing:.6px;color:#fff;background:linear-gradient(90deg,#082041,#103b72,#082041);border-bottom:1px solid rgba(212,175,55,.25);backdrop-filter:blur(10px);}
 .container{width:100%;max-width:450px;}
 .card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(16,41,77,.96),rgba(9,28,56,.98));border:1px solid rgba(212,175,55,.18);border-radius:var(--radius);padding:26px 22px;box-shadow:var(--shadow);}
 .card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));}
@@ -33,10 +36,14 @@ h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:
 .label{display:block;margin:16px 0 8px;color:#dce9ff;font-size:14px;font-weight:600;}
 .input,select{width:100%;border:none;outline:none;padding:15px 16px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);color:#fff;font-size:15px;}
 .input:focus,select:focus{border-color:rgba(212,175,55,.45);box-shadow:0 0 0 4px rgba(212,175,55,.12);}
+select option{background:#10294d;color:#fff}
+select option .verified{color:var(--success)}
 .btn{width:100%;border:none;outline:none;cursor:pointer;margin-top:26px;padding:16px;border-radius:16px;font-size:16px;font-weight:700;color:#071426;background:linear-gradient(135deg,var(--gold2),var(--gold));box-shadow:0 12px 30px rgba(212,175,55,.25);}
 .btn:disabled{opacity:.7;cursor:not-allowed;}
 .small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
-.verified-tag{font-size:11px;color:var(--success);margin-left:8px}
+/* VERIFIED BADGE */
+.verified-badge{font-size:11px;color:var(--success);margin-left:6px;font-weight:600}
+.verified-badge i{margin-right:3px}
 .popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
 @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
 </style>
@@ -63,12 +70,12 @@ h2{margin:0 0 20px;font-size:23px;font-weight:700;color:var(--gold2);text-align:
       <input id="amount" class="input" type="number" min="50" placeholder="e.g. 100" required />
       <div class="small">You will receive: <strong id="kesAmount">KES 0.00</strong></div>
 
-      <!-- NEW: CHOOSE BUYER -->
-      <label class="label" for="buyer">Choose Buyer <span class="verified-tag"><i class="fa fa-check-circle"></i> Verified</span></label>
+      <!-- CHOOSE BUYER WITH VERIFIED BADGES -->
+      <label class="label" for="buyer">Choose Buyer</label>
       <select id="buyer" class="input" required>
         <option value="">Select a trader</option>
-        <option value="Jane">Jane</option>
-        <option value="Hassan">Hassan</option>
+        <option value="Jane">Jane <span class="verified-badge"><i class="fa fa-circle-check"></i>Verified</span></option>
+        <option value="Hassan">Hassan <span class="verified-badge"><i class="fa fa-circle-check"></i>Verified</span></option>
       </select>
 
       <label class="label" for="method">Receive Via</label>
@@ -145,41 +152,39 @@ auth.onAuthStateChanged(user => {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const amount = parseFloat(amountInput.value);
-  const buyer = document.getElementById('buyer').value; // NEW
+  const buyer = document.getElementById('buyer').value;
   const method = document.getElementById('method').value;
   const phone = document.getElementById('phone').value.trim();
 
   if (isNaN(amount) || amount < 50) return showPopup("Minimum sell is $50");
-  if (!buyer) return showPopup("Please choose a buyer"); // NEW
+  if (!buyer) return showPopup("Please choose a buyer");
   if (!/^07\d{8}$/.test(phone)) return showPopup("Enter valid phone");
 
   submitBtn.disabled = true; submitBtn.textContent = "Processing...";
   const balanceRef = db.ref(`users/${uid}/balance`);
 
-  // 1. DEDUCT IMMEDIATELY
   balanceRef.transaction((bal) => {
     bal = Number(bal) || 0;
     if (bal < amount) {
       showPopup("Insufficient balance");
-      return; // abort
+      return;
     }
     return bal - amount;
   }, async (error, committed) => {
     submitBtn.disabled = false; submitBtn.textContent = "Sell Now";
     if (error || !committed) return;
 
-    // 2. CREATE SELL ORDER
     const orderId = db.ref().push().key;
     const orderData = {
       id: orderId,
       userId: uid,
-      buyer: buyer, // NEW: saves which trader
+      buyer: buyer,
       amountUSDT: amount,
       amountKES: parseFloat((amount * usdToKes).toFixed(2)),
       rate: usdToKes,
       method: method,
       phone: phone,
-      status: "pending", // admin/trader approves then pays
+      status: "pending",
       type: "sell_usdt",
       createdAt: Date.now()
     };
@@ -197,4 +202,4 @@ form.addEventListener('submit', async (e) => {
 });
 </script>
 </body>
-  </html>
+</html>
