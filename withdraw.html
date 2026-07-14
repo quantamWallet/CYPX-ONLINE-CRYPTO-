@@ -52,7 +52,7 @@ h2 i{margin-right:8px;}
 .btn:disabled{opacity:.7;cursor:not-allowed;}
 .small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
 .small strong{color:var(--gold2);}
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade.25s ease;}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade.25s ease;} /* FIXED SPACE */
 .popup.success{background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
 .popup.error{background:linear-gradient(145deg,rgba(90,22,22,.95),rgba(55,12,12,.96));border:1px solid rgba(255,90,90,.20);color:#ffe1e1;}
 .popup.confirm{background:linear-gradient(145deg,rgba(18,41,76,.98),rgba(8,24,48,.98));border:1px solid rgba(212,175,55,.18);color:#eaf3ff;}
@@ -62,58 +62,53 @@ nav a{color:#dce7f7;text-decoration:none;text-align:center;font-size:12px;font-w
 nav a:hover{color:var(--gold2);transform:translateY(-2px);}
 nav i{display:block;margin-bottom:5px;font-size:20px;}
 select option{background:#10294d;color:white;}
-@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}} /* FIXED SPACE */
+@keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}}
 @media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
-/* SUCCESS TICK */
+
+/* SUCCESS TICK - FIXED 100% */
 .tick{
     width:90px;
     height:90px;
-    border:6px solid #20d47b;
     border-radius:50%;
-    margin:0 auto 18px;
+    border:5px solid var(--success);
+    margin:0 auto 14px;
     position:relative;
-    animation:scaleIn .35s ease;
+    animation:scaleIn.4s ease;
 }
-
-.tick::before{
+.tick::after{ /* short line */
     content:"";
     position:absolute;
-    left:24px;
-    top:18px;
-    width:24px;
-    height:48px;
-    border-right:6px solid #20d47b;
-    border-bottom:6px solid #20d47b;
-    transform:rotate(45deg) scale(0);
-    transform-origin:center;
-    animation:tickDraw .45s .35s forwards;
+    left:25px;
+    top:50px;
+    width:0;
+    height:5px;
+    background:var(--success);
+    opacity:0;
+    transform:rotate(45deg);
+    transform-origin:left center;
+    border-radius:3px;
+    animation:drawShort.3s.3s forwards;
 }
-
-.tick::after{
-    display:none;
+.tick::before{ /* long line */
+    content:"";
+    position:absolute;
+    left:41px;
+    top:38px;
+    width:5px;
+    height:0;
+    background:var(--success);
+    opacity:0;
+    transform:rotate(-45deg);
+    transform-origin:left bottom;
+    border-radius:3px;
+    animation:drawLong.3s.5s forwards;
 }
-
 @keyframes scaleIn{
-    from{
-        transform:scale(0);
-        opacity:0;
-    }
-    to{
-        transform:scale(1);
-        opacity:1;
-    }
+    from{transform:scale(0);opacity:0;}
+    to{transform:scale(1);opacity:1;}
 }
-
-@keyframes tickDraw{
-    from{
-        transform:rotate(45deg) scale(0);
-        opacity:0;
-    }
-    to{
-        transform:rotate(45deg) scale(1);
-        opacity:1;
-    }
-                                                                                                            }
+@keyframes drawShort{to{width:20px;opacity:1}}
+@keyframes drawLong{to{height:28px;opacity:1}}
 
 /* PHONE NUMBER COLOR */
 .masked-phone{
@@ -173,14 +168,16 @@ select option{background:#10294d;color:white;}
 <div id="popup" class="popup"></div>
 <script>
 // === Firebase Config ===
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain:"quantum-rio.firebaseapp.com",
-  databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId:"quantum-rio",
-  storageBucket:"quantum-rio.appspot.com",
-  messagingSenderId:"805433999377",
-  appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -298,18 +295,6 @@ form.addEventListener('submit', async (e) => {
   const balance = Number(balSnap.val()) || 0;
   if (balance < amount) {showPopup("Insufficient balance", "error");return;}
 
-  /*
-  REFERRAL CHECK BYPASSED FOR NOW
-  UNCOMMENT BELOW TO RE-ENABLE
-  const refSnap = await db.ref(`users/${currentUser.uid}/referrals`).once('value');
-  let validRefs = 0;
-  refSnap.forEach(r => {if (Number(r.child('deposited').val()) >= 3000) validRefs++;});
-  if (validRefs < 2) {
-    showPopup("You need at least 2 referrals with $50 deposits","confirm",0,"select.html");
-    return;
-  }
-  */
-
   submitBtn.disabled = true;submitBtn.textContent = "Processing...";
   const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
 
@@ -320,32 +305,33 @@ form.addEventListener('submit', async (e) => {
   }, async (error, committed) => {
     submitBtn.disabled = false;submitBtn.textContent = "Submit Withdrawal";
     if (error) {
-    console.error(error);
-    showPopup(error.message, "error");
-    return;
-}
-
-if (!committed) {
-    showPopup("Insufficient balance", "error");
-    return;
-              }
+      console.error(error);
+      showPopup(error.message, "error");
+      return;
+    }
+    if (!committed) {
+      showPopup("Insufficient balance", "error");
+      return;
+    }
     try {
       const methodNames = {mpesa:"Mpesa",airtel:"Airtel Money",paypal:"PayPal",btc:"Bitcoin (BTC)",usdt_erc20:"USDT (ERC20)"};
-      const payload = {amount: amount,method: methodNames[method],methodKey: method,status: "pending",timestamp: Date.now(),createdAt: Date.now()};
+      const withdrawalId = db.ref().push().key; // SAME ID FOR BOTH
+      const payload = {id: withdrawalId, amount: amount, method: methodNames[method], methodKey: method, status: "pending", timestamp: Date.now(), createdAt: Date.now()};
       if (method === "mpesa" || method === "airtel") {payload.phone = phone;}
       else if (method === "paypal") {payload.paypalEmail = paypalEmail;}
       else if (method === "btc") {payload.btcAddress = cryptoAddress;}
       else if (method === "usdt_erc20") {payload.usdtAddress = cryptoAddress;payload.network = "ERC20";}
 
-      await db.ref(`withdrawals/${currentUser.uid}`).push(payload);
-      await db.ref(`financial/${currentUser.uid}`).push({
-    type: "withdrawal",
-    amount: amount,
-    method: methodNames[method],
-    status: "pending",
-    timestamp: Date.now()
-});
- 
+      await db.ref(`withdrawals/${currentUser.uid}/${withdrawalId}`).set(payload);
+      await db.ref(`financial/${currentUser.uid}/${withdrawalId}`).set({
+        id: withdrawalId,
+        type: "withdrawal",
+        amount: amount,
+        method: methodNames[method],
+        status: "pending",
+        timestamp: Date.now()
+      });
+
       amountInput.value = '';phoneInput.value = '';paypalEmailInput.value = '';cryptoAddressInput.value = '';
 
       const phoneSnap = await db.ref(`users/${currentUser.uid}/phone`).once('value');
@@ -356,9 +342,9 @@ if (!committed) {
       setTimeout(() => {window.location.href = "financial.html";}, 4500);
 
     } catch (e) {
-    console.error(e);
-    showPopup(e.code + "<br>" + e.message, "error", 6000);
-                                                                                         }
+      console.error(e);
+      showPopup(e.code + "<br>" + e.message, "error", 6000);
+    }
   });
 });
 </script>
