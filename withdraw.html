@@ -65,7 +65,7 @@ select option{background:#10294d;color:white;}
 @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%);}to{opacity:1;transform:translate(-50%,-50%);}} /* FIXED SPACE */
 @media(max-width:480px){body{padding:85px 12px 100px;}.card{padding:22px 16px;}h2{font-size:20px;}#balanceBox{width:100%;}}
 
-/* SUCCESS TICK ANIMATION - FINAL */
+/* SUCCESS TICK ANIMATION - THIS ONE WORKS */
 .tick{
   width:90px;
   height:90px;
@@ -76,27 +76,29 @@ select option{background:#10294d;color:white;}
   animation:scaleIn .4s ease;
   box-sizing:border-box;
 }
-.tick::after{ /* short line */
+.tick::after{ /* short line bottom */
   content:"";
   position:absolute;
-  left:26px;
-  top:52px;
+  left:25px;
+  top:50px;
   width:0;
   height:5px;
   background:var(--success);
+  opacity:0; /* ADD THIS */
   transform:rotate(45deg);
   transform-origin:left center;
   border-radius:3px;
   animation:drawShort .3s .3s forwards;
 }
-.tick::before{ /* long line */
+.tick::before{ /* long line top */
   content:"";
   position:absolute;
-  left:42px;
-  top:40px;
+  left:41px;
+  top:38px;
   width:5px;
   height:0;
   background:var(--success);
+  opacity:0; /* ADD THIS */
   transform:rotate(-45deg);
   transform-origin:left bottom;
   border-radius:3px;
@@ -107,17 +109,16 @@ select option{background:#10294d;color:white;}
  100%{transform:scale(1)}
 }
 @keyframes drawShort{
-  to{width:22px; opacity:1}
-} /* FIXED: was missing */
+  to{width:20px; opacity:1}
 @keyframes drawLong{
-  to{height:30px; opacity:1}
-} /* FIXED: was missing and had extra } */
+  to{height:28px; opacity:1}
+}
 
 /* PHONE NUMBER COLOR */
 .masked-phone{
   color: var(--gold2);
   font-weight:700;
-  }
+}
 </style>
 </head>
 <body>
