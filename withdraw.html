@@ -239,7 +239,7 @@ const mpesaPrefixes = ["070","071","072","074","075","076","079","011"];
 const airtelPrefixes = ["073","078","076","075"];
 
 function isValidNumber(phone, method) {
-  if (!/^07\d{8}$/.test(phone)) return false;
+  if (!/^(07|01)\d{8}$/.test(phone)) return false;
   const prefix = phone.substring(0,3);
   return method === 'mpesa'? mpesaPrefixes.includes(prefix) : airtelPrefixes.includes(prefix);
 }
@@ -319,8 +319,16 @@ form.addEventListener('submit', async (e) => {
     return bal - amount;
   }, async (error, committed) => {
     submitBtn.disabled = false;submitBtn.textContent = "Submit Withdrawal";
-    if (error ||!committed) {showPopup("Transaction failed", "error");return;}
+    if (error) {
+    console.error(error);
+    showPopup(error.message, "error");
+    return;
+}
 
+if (!committed) {
+    showPopup("Insufficient balance", "error");
+    return;
+              }
     try {
       const methodNames = {mpesa:"Mpesa",airtel:"Airtel Money",paypal:"PayPal",btc:"Bitcoin (BTC)",usdt_erc20:"USDT (ERC20)"};
       const payload = {amount: amount,method: methodNames[method],methodKey: method,status: "pending",timestamp: Date.now(),createdAt: Date.now()};
@@ -330,7 +338,14 @@ form.addEventListener('submit', async (e) => {
       else if (method === "usdt_erc20") {payload.usdtAddress = cryptoAddress;payload.network = "ERC20";}
 
       await db.ref(`withdrawals/${currentUser.uid}`).push(payload);
-
+      await db.ref(`financial/${currentUser.uid}`).push({
+    type: "withdrawal",
+    amount: amount,
+    method: methodNames[method],
+    status: "pending",
+    timestamp: Date.now()
+});
+ 
       amountInput.value = '';phoneInput.value = '';paypalEmailInput.value = '';cryptoAddressInput.value = '';
 
       const phoneSnap = await db.ref(`users/${currentUser.uid}/phone`).once('value');
@@ -341,9 +356,9 @@ form.addEventListener('submit', async (e) => {
       setTimeout(() => {window.location.href = "financial.html";}, 4500);
 
     } catch (e) {
-      console.error(e);
-      showPopup("Saved but failed to sync history", "error");
-    }
+    console.error(e);
+    showPopup(e.code + "<br>" + e.message, "error", 6000);
+                                                                                         }
   });
 });
 </script>
