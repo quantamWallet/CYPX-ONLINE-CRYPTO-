@@ -571,18 +571,22 @@ const isWin = determineResult(selectedBot);
 let updates = { botRuns: botRuns };
 const potentialProfit = amount * 0.4098;
   // Read current total earnings
-db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
+const earningsRef = db.ref("users/" + userId + "/totalEarnings");
 
-    let totalEarnings = Number(snap.val()) || 0;
-
+earningsRef.transaction(current => {
+    current = Number(current) || 0;
+    if (isWin) {
+        return current + potentialProfit;
+    }
+    return current;
+}).then(() => {
     if(isWin){
 
         wins++;
         balance = balance + amount + potentialProfit;
 
         // Add only the profit to total earnings
-        totalEarnings += potentialProfit;
-
+        
         updates.wins = wins;
         updates.balance = balance;
         updates.totalEarnings = totalEarnings;
@@ -604,8 +608,7 @@ db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
         updates.balance = balance;
 
         // Don't reduce total earnings on losses
-        updates.totalEarnings = totalEarnings;
-
+    
         document.getElementById('resultIcon').style.color = '#ff3b30';
         document.getElementById('resultTitle').textContent = 'Session Loss';
         document.getElementById('profitText').style.color = '#ff3b30';
