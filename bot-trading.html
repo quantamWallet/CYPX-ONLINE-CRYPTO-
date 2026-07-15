@@ -567,7 +567,9 @@ function finishTrade(amount){
   document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=false);
   updateBotUI();
   saveBotData('active_trade', null); // clear active trade
-
+const isWin = determineResult(selectedBot);
+let updates = { botRuns: botRuns };
+const potentialProfit = amount * 0.4098;
   // Read current total earnings
 db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
 
@@ -633,8 +635,18 @@ db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
 
     document.getElementById('resultModal').style.display = 'flex';
 });
-function closeTradeModal(){ document.getElementById('tradeModal').style.display = 'none'; }
-function closeResultModal(){ document.getElementById('resultModal').style.display = 'none'; }
+
+} 
+  
+  // <-- closes finishTrade()
+
+function closeTradeModal(){
+    document.getElementById('tradeModal').style.display = 'none';
+}
+
+function closeResultModal(){
+    document.getElementById('resultModal').style.display = 'none';
+}
 </script>
 </body>
 </html>
