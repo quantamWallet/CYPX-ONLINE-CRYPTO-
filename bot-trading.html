@@ -297,8 +297,16 @@ function loadUserData(){
       activatedBots = data.activatedBots || [];
       botRuns = data.botRuns || botRuns;
     }else{
-      db.ref('users/'+userId).set({balance:6612.32,wins:0,losses:0,sessions:0,activatedBots:[],botRuns:botRuns});
-      balance = 6612.32;
+    db.ref('users/'+userId).set({
+        balance: 6612.32,
+        totalEarnings: 0,
+        wins: 0,
+        losses: 0,
+        sessions: 0,
+        activatedBots: [],
+        botRuns: botRuns
+    });
+    balance = 6612.32;
     }
     document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
     updateBotUI();
@@ -560,45 +568,71 @@ function finishTrade(amount){
   updateBotUI();
   saveBotData('active_trade', null); // clear active trade
 
-  const isWin = determineResult(selectedBot);
-  let profit = 0;
-  let updates = {botRuns: botRuns};
+  // Read current total earnings
+db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
 
-  const potentialProfit = amount * 0.4098;
+    let totalEarnings = Number(snap.val()) || 0;
 
-if(isWin){
-    wins++;
-    balance = balance + amount + potentialProfit; // RETURN $100 CAPITAL + $40.98 PROFIT
-    updates.wins = wins; updates.balance = balance;
-    document.getElementById('resultIcon').style.color = '#00ff88';
-    document.getElementById('resultTitle').textContent = 'Session Win';
-    document.getElementById('profitText').style.color = '#00ff88';
-    document.getElementById('profitText').textContent = `+$${Number(potentialProfit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
-  }else{
-    losses++;
-    balance = balance - potentialProfit; // DEDUCT PROFIT ON TOP OF CAPITAL ALREADY LOST
-    updates.losses = losses; updates.balance = balance;
-    document.getElementById('resultIcon').style.color = '#ff3b30';
-    document.getElementById('resultTitle').textContent = 'Session Loss';
-    document.getElementById('profitText').style.color = '#ff3b30';
-    document.getElementById('profitText').textContent = `-$${Number(potentialProfit).toLocaleString()}`;
-    addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
-      }
-  // SAVE TO HISTORY
-  const tradeId = Date.now();
-  saveBotData(`trade_history/${tradeId}`, {
-    botName: selectedBot, pair: selectedAsset.pair, amount: amount, 
-    duration: duration, result: isWin ? 'win' : 'loss', 
-    pnl: isWin ? profit : -amount, timestamp: Date.now()
-  });
-  
-  saveUserData(updates);
-  document.getElementById('startBtn').disabled = false;
-  document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
-  document.getElementById('resultModal').style.display = 'flex';
-  }
+    if(isWin){
 
+        wins++;
+        balance = balance + amount + potentialProfit;
+
+        // Add only the profit to total earnings
+        totalEarnings += potentialProfit;
+
+        updates.wins = wins;
+        updates.balance = balance;
+        updates.totalEarnings = totalEarnings;
+
+        document.getElementById('resultIcon').style.color = '#00ff88';
+        document.getElementById('resultTitle').textContent = 'Session Win';
+        document.getElementById('profitText').style.color = '#00ff88';
+        document.getElementById('profitText').textContent =
+            `+$${potentialProfit.toFixed(2)}`;
+
+        addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
+
+    }else{
+
+        losses++;
+        balance = balance - potentialProfit;
+
+        updates.losses = losses;
+        updates.balance = balance;
+
+        // Don't reduce total earnings on losses
+        updates.totalEarnings = totalEarnings;
+
+        document.getElementById('resultIcon').style.color = '#ff3b30';
+        document.getElementById('resultTitle').textContent = 'Session Loss';
+        document.getElementById('profitText').style.color = '#ff3b30';
+        document.getElementById('profitText').textContent =
+            `-$${potentialProfit.toFixed(2)}`;
+
+        addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
+    }
+
+    // Save trade history
+    const tradeId = Date.now();
+    saveBotData(`trade_history/${tradeId}`, {
+        botName: selectedBot,
+        pair: selectedAsset.pair,
+        amount: amount,
+        duration: duration,
+        result: isWin ? 'win' : 'loss',
+        pnl: isWin ? potentialProfit : -potentialProfit,
+        timestamp: Date.now()
+    });
+
+    saveUserData(updates);
+
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('startBtn').innerHTML =
+        `<i class="fas fa-play"></i> Start ${selectedBot}`;
+
+    document.getElementById('resultModal').style.display = 'flex';
+});
 function closeTradeModal(){ document.getElementById('tradeModal').style.display = 'none'; }
 function closeResultModal(){ document.getElementById('resultModal').style.display = 'none'; }
 </script>
