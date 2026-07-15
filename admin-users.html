@@ -11,607 +11,296 @@
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
 <style>
 
 body{
-
 margin:0;
 font-family:'Segoe UI',sans-serif;
 background:#000814;
 color:white;
-
 }
 
-
 .header{
-
 padding:18px;
 background:linear-gradient(90deg,#001d3d,#003566);
 display:flex;
 align-items:center;
 gap:15px;
-
 }
-
 
 .header a{
-
 color:white;
 text-decoration:none;
-
 }
-
 
 .container{
-
 padding:15px;
-
 }
 
-
 input{
-
 width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
 margin-bottom:15px;
 font-size:15px;
-
 }
 
-
 .user-card{
-
 background:#001a33;
 padding:15px;
 border-radius:15px;
 margin-bottom:12px;
-
+border:1px solid #003566;
 }
-
 
 .user-card p{
-
 margin:6px 0;
-
+font-size:14px;
 }
 
+.stats-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+margin:10px 0;
+padding:10px;
+background:#000d1a;
+border-radius:10px;
+}
+
+.stat-item{
+font-size:13px;
+}
+.stat-item b{
+color:#4da3ff;
+}
 
 button{
-
 padding:10px 15px;
 border:none;
 border-radius:10px;
 font-weight:bold;
 color:white;
-
+cursor:pointer;
 }
-
 
 .suspend{
-
 background:#dc2626;
-
 }
-
 
 .activate{
-
 background:#16a34a;
-
 }
-
 
 .vip{
-
 color:#ffd700;
-
+font-weight:700;
 }
 
+.earnings{
+color:#22c55e;
+font-weight:700;
+}
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="header">
 
 <a href="admin.html">
-
 <i class="fas fa-arrow-left"></i>
-
 </a>
 
-
 <b>
-
 <i class="fas fa-users"></i>
-
 User Management
-
 </b>
-
 
 </div>
 
-
-
 <div class="container">
 
-
-<input 
+<input
 id="search"
 placeholder="Search email or username..."
 onkeyup="searchUsers()">
 
-
 <div id="users">
-
 Loading users...
-
 </div>
 
-
 </div>
-
-
-
-
-
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
-
 
 <script>
 
-
 const firebaseConfig={
-
-
 apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-
 authDomain:"quantum-rio.firebaseapp.com",
-
 databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
-
 projectId:"quantum-rio",
-
 storageBucket:"quantum-rio.firebasestorage.app",
-
 messagingSenderId:"805433999377",
-
 appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
-
-
 };
 
-
-
 if(!firebase.apps.length){
-
 firebase.initializeApp(firebaseConfig);
-
 }
 
-
-
 const auth=firebase.auth();
-
 const db=firebase.database();
 
-
-
 let allUsers=[];
-
 let adminEmail="";
 let adminUID="";
 
-
-
-
-
-
 // ADMIN CHECK
-
-
 auth.onAuthStateChanged(user=>{
-
-
 if(!user){
-
 window.location.href="auth.html";
-
 return;
-
 }
-
-
 
 adminEmail=user.email;
 adminUID=user.uid;
 
-
-
 db.ref("admins/"+user.uid)
-
 .once("value")
-
 .then(admin=>{
-
-
 if(!admin.exists()){
-
-
 alert("Admin only");
-
 window.location.href="auth.html";
-
 return;
-
 }
-
-
-
 loadUsers();
-
-
 });
-
-
 });
-
-
-
-
-
-
-
 
 // LOAD USERS
-
 function loadUsers(){
-
     db.ref("users").on(
         "value",
         snap => {
-
             allUsers = [];
-
             snap.forEach(child => {
-
                 let data = child.val() || {};
                 data.uid = child.key;
                 allUsers.push(data);
-
             });
-
             displayUsers(allUsers);
-
         },
         error => {
-
             console.error(error);
-
             document.getElementById("users").innerHTML =
                 "Firebase Error: " + error.message;
-
         }
     );
-
 }
 
-
 function displayUsers(users){
-
-
 let html="";
 
-
-
 users.forEach(user=>{
-
-
 let status=user.status || "active";
 
-
+// Calculate total earnings
+let totalEarnings =
+    Number(user.totalReferralBonus || 0) +
+    Number(user.totalTaskIncome || 0);
 
 html += `
-
-
 <div class="user-card">
+<p><b>Email:</b> ${user.email || "N/A"}</p>
+<p><b>Username:</b> ${user.username || "N/A"}</p>
 
+<div class="stats-grid">
+  <div class="stat-item">
+    <b>Balance:</b> $${Number(user.balance || 0).toFixed(2)}
+  </div>
+  <div class="stat-item">
+    <b>Deposits:</b> $${Number(user.totalDeposit || 0).toFixed(2)}
+  </div>
+  <div class="stat-item">
+    <b>Withdrawn:</b> $${Number(user.totalWithdrawn || 0).toFixed(2)}
+  </div>
+  <div class="stat-item earnings">
+    <b>Earnings:</b> $${totalEarnings.toFixed(2)}
+  </div>
+</div>
 
-<p>
-<b>Email:</b>
+<p><b>Referral Bonus:</b> $${Number(user.totalReferralBonus || 0).toFixed(2)}</p>
+<p><b>Task Income:</b> $${Number(user.totalTaskIncome || 0).toFixed(2)}</p>
 
-${user.email || "N/A"}
-
-</p>
-
-
-<p>
-<b>Username:</b>
-
-${user.username || "N/A"}
-
-</p>
-
-
-
-<p>
-<b>Balance:</b>
-
-$${Number(user.balance || 0).toFixed(2)}
-
-</p>
-
-
-
-<p>
-<b>VIP:</b>
-
-<span class="vip">
-
-${getVip(user)}
-
-</span>
-
-</p>
-
-
-
-<p>
-<b>KYC:</b>
-
-${user.kycStatus || "none"}
-
-</p>
-
-
-
-<p>
-<b>Status:</b>
-
-${status}
-
-</p>
-
-
-
-
+<p><b>VIP:</b> <span class="vip">${getVip(user)}</span></p>
+<p><b>KYC:</b> ${user.kycStatus || "none"}</p>
+<p><b>Status:</b> ${status}</p>
 
 ${
 status=="active"
-
 ?
-
-`
-
-<button 
-class="suspend"
-
-onclick="changeStatus('${user.uid}','suspended')">
-
-Suspend
-
-</button>
-
-`
-
+`<button class="suspend" onclick="changeStatus('${user.uid}','suspended')">Suspend</button>`
 :
-
-`
-
-<button 
-class="activate"
-
-onclick="changeStatus('${user.uid}','active')">
-
-Activate
-
-</button>
-
-`
-
+`<button class="activate" onclick="changeStatus('${user.uid}','active')">Activate</button>`
 }
-
-
-
-
 
 </div>
-
-
 `;
-
-
-
 });
 
-
-
-document.getElementById("users").innerHTML =
-html || "No users found";
-
-
+document.getElementById("users").innerHTML = html || "No users found";
 }
-
-
-
-
-
-
-
-
 
 function searchUsers(){
-
-
-let text=
-document.getElementById("search")
-.value
-.toLowerCase();
-
-
-
-let filtered=
-allUsers.filter(user=>{
-
-
+let text = document.getElementById("search").value.toLowerCase();
+let filtered = allUsers.filter(user=>{
 return (
-
-(user.email||"")
-.toLowerCase()
-.includes(text)
-
-||
-
-(user.username||"")
-.toLowerCase()
-.includes(text)
-
+(user.email||"").toLowerCase().includes(text) ||
+(user.username||"").toLowerCase().includes(text)
 );
-
-
 });
-
-
-
 displayUsers(filtered);
-
-
 }
-
-
-
-
-
-
-
-
 
 function getVip(data){
-
-
 let max=0;
-
-
 if(data.vipLevels){
-
-
-Object.keys(data.vipLevels)
-.forEach(k=>{
-
-
+Object.keys(data.vipLevels).forEach(k=>{
 if(data.vipLevels[k]){
-
-
 let lvl=parseInt(k);
-
-
-if(lvl>max)
-max=lvl;
-
-
+if(lvl>max) max=lvl;
 }
-
-
 });
-
-
 }
-
-
-
 return "VIP"+max;
-
-
 }
-
-
-
-
-
-
-
-
 
 function changeStatus(uid,status){
-
-
-
-db.ref("users/"+uid)
-
-.update({
-
+db.ref("users/"+uid).update({
 status:status,
-
-statusUpdatedAt:
-firebase.database.ServerValue.TIMESTAMP,
-
-statusUpdatedBy:
-adminEmail
-
-
+statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP,
+statusUpdatedBy: adminEmail
 })
-
 .then(()=>{
-
-
 db.ref("adminLogs").push({
-
-
-action:
-"User "+status,
-
-
-user:
-uid,
-
-
-admin:
-adminEmail,
-
-
-adminUID:
-adminUID,
-
-
-time:
-Date.now()
-
-
+action: "User "+status,
+user: uid,
+admin: adminEmail,
+adminUID: adminUID,
+time: Date.now()
 });
-
-
-
-alert(
-"User "+status
-);
-
-
-
+alert("User "+status);
 });
-
-
-
 }
-
-
 
 </script>
 
-
 </body>
-
 </html>
