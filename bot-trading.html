@@ -618,71 +618,65 @@ function finishTrade(amount){
   updateBotUI();
   saveBotData('active_trade', null); // clear active trade
 
-  // Read current total earnings
-db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
+  const isWin = determineResult(selectedBot);
+  
+  // Calculate profit based on leverage and duration
+  const profitMultiplier = (leverage / 100) * (duration / 3600);
+  const potentialProfit = amount * profitMultiplier;
 
+  db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
     let totalEarnings = Number(snap.val()) || 0;
+    let updates = {};
 
     if(isWin){
+      wins++;
+      balance = balance + amount + potentialProfit;
+      totalEarnings += potentialProfit;
 
-        wins++;
-        balance = balance + amount + potentialProfit;
+      updates.wins = wins;
+      updates.balance = balance;
+      updates.totalEarnings = totalEarnings;
 
-        // Add only the profit to total earnings
-        totalEarnings += potentialProfit;
+      document.getElementById('resultIcon').style.color = '#00ff88';
+      document.getElementById('resultTitle').textContent = 'Session Win';
+      document.getElementById('profitText').style.color = '#00ff88';
+      document.getElementById('profitText').textContent = `+$${potentialProfit.toFixed(2)}`;
+      addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
 
-        updates.wins = wins;
-        updates.balance = balance;
-        updates.totalEarnings = totalEarnings;
+    } else {
+      losses++;
+      // You already deducted amount at start, so don't deduct again
+      updates.losses = losses;
+      updates.balance = balance;
+      updates.totalEarnings = totalEarnings;
 
-        document.getElementById('resultIcon').style.color = '#00ff88';
-        document.getElementById('resultTitle').textContent = 'Session Win';
-        document.getElementById('profitText').style.color = '#00ff88';
-        document.getElementById('profitText').textContent =
-            `+$${potentialProfit.toFixed(2)}`;
-
-        addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
-
-    }else{
-
-        losses++;
-        balance = balance - potentialProfit;
-
-        updates.losses = losses;
-        updates.balance = balance;
-
-        // Don't reduce total earnings on losses
-        updates.totalEarnings = totalEarnings;
-
-        document.getElementById('resultIcon').style.color = '#ff3b30';
-        document.getElementById('resultTitle').textContent = 'Session Loss';
-        document.getElementById('profitText').style.color = '#ff3b30';
-        document.getElementById('profitText').textContent =
-            `-$${potentialProfit.toFixed(2)}`;
-
-        addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
+      document.getElementById('resultIcon').style.color = '#ff3b30';
+      document.getElementById('resultTitle').textContent = 'Session Loss';
+      document.getElementById('profitText').style.color = '#ff3b30';
+      document.getElementById('profitText').textContent = `-$${potentialProfit.toFixed(2)}`;
+      addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
     }
 
     // Save trade history
     const tradeId = Date.now();
     saveBotData(`trade_history/${tradeId}`, {
-        botName: selectedBot,
-        pair: selectedAsset.pair,
-        amount: amount,
-        duration: duration,
-        result: isWin ? 'win' : 'loss',
-        pnl: isWin ? potentialProfit : -potentialProfit,
-        timestamp: Date.now()
+      botName: selectedBot,
+      pair: selectedAsset.pair,
+      amount: amount,
+      duration: duration,
+      result: isWin ? 'win' : 'loss',
+      pnl: isWin ? potentialProfit : -potentialProfit,
+      timestamp: Date.now()
     });
 
     saveUserData(updates);
+    updateStats();
 
     document.getElementById('startBtn').disabled = false;
-    document.getElementById('startBtn').innerHTML =
-        `<i class="fas fa-play"></i> Start ${selectedBot}`;
-
+    document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
     document.getElementById('resultModal').style.display = 'flex';
-});
+  });
+}
 function closeTradeModal(){ document.getElementById('tradeModal').style.display = 'none'; }
 function closeResultModal(){ document.getElementById('resultModal').style.display = 'none'; }
 </script>
