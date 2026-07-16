@@ -185,6 +185,7 @@ auth.onAuthStateChanged(user => {
   loadUserBalance();
   renderTraders();
   loadUserCopies();
+  // REMOVED startPnLSimulation() - Admin controls P&L now
 });
 
 function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
@@ -196,17 +197,22 @@ function loadUserBalance(){
   });
 }
 
+// FIX: LISTEN TO ADMIN CLOSING AND UPDATE REALTIME
 function loadUserCopies() {
   db.ref("copy_trading/" + currentUser.uid).on("value", snap => {
     const newData = snap.val() || {};
 
+    // CHECK IF ANY TRADE WAS CLOSED BY ADMIN
     for(let id in newData){
       const copy = newData[id];
       const oldCopy = userCopies[id];
 
       if(copy.status === "closed" && (!oldCopy || oldCopy.status === "active")){
+        // ADMIN CLOSED IT. SHOW TOAST AND REMOVE AFTER 3s
         const profit = copy.pnl || 0;
         showToast(`${copy.traderName} trade closed. P&L: ${formatMoney(profit)}`, profit >= 0? "success" : "error");
+
+        // Remove from UI after 3 seconds so user can see the final P&L
         setTimeout(() => {
           db.ref("copy_trading/" + currentUser.uid + "/" + id).remove();
         }, 3000);
@@ -222,7 +228,7 @@ function loadUserCopies() {
 function updatePortfolioSummary() {
   let totalAmount = 0, totalPnL = 0, count = 0;
   for(let id in userCopies){
-    if(userCopies[id].status === "active"){
+    if(userCopies[id].status === "active"){ // only count active
       totalAmount += userCopies[id].amount;
       totalPnL += userCopies[id].pnl || 0;
       count++;
@@ -239,7 +245,7 @@ function renderTraders() {
   grid.innerHTML = traders.map(t => {
     const isCopying = userCopies[t.id] && userCopies[t.id].status === "active";
     const userPnL = isCopying? (userCopies[t.id].pnl || 0) : 0;
-    const traderEarned = userPnL > 0? (userPnL * t.profitShare / 100) : 0; // FIXED
+    const traderEarned = userPnL > 0? (userPnL * t.profitShare / (100 - t.profitShare)) : 0;
     return `
     <div class="trader-card ${isCopying? 'copying' : ''}">
       <div class="trader-header">
@@ -260,13 +266,13 @@ function renderTraders() {
 
       <div class="pnl-box ${isCopying? 'active' : ''}" id="pnl-box-${t.id}">
         <div class="pnl-row"><span class="pnl-label">Your P&L</span><span class="pnl-value ${userPnL >= 0? 'green' : 'red'}" id="pnl-${t.id}">${formatMoney(userPnL)}</span></div>
-        <div class="pnl-row"><span class="pnl-label">Copied Amount</span><span class="pnl-value">${formatMoney(isCopying? userCopies[t.id].amount : 0)}</span></div> <!-- FIXED -->
+        <div class="pnl-row"><span class="pnl-label">Copied Amount</span><span class="pnl-value">${formatMoney(isCopying?.amount)}</span></div>
         <div class="pnl-row"><span class="pnl-label">Trader Earned</span><span class="pnl-value gold">${formatMoney(traderEarned)}</span></div>
       </div>
 
       <div class="btn-group">
         ${isCopying
-  ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
+   ? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy</button>`
           : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
         }
       </div>
@@ -314,6 +320,7 @@ function confirmCopy() {
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
+// FIX: USER STOP NOW SETS STATUS=CLOSED INSTEAD OF REMOVE
 function stopCopy(traderId) {
   const copyInfo = userCopies[traderId];
   if(!copyInfo || copyInfo.status!== "active") return showToast("Already closed", "error");
@@ -342,4 +349,4 @@ function showToast(message, type = "info"){
 }
 </script>
 </body>
-                                                                              </html>
+      </html>
