@@ -699,8 +699,8 @@ overlay.style.display="none";
 localStorage.setItem("tourDone","yes");
 
 };
+     <div>       
             
-            <script>
   <body>  
     <header>  
       <div style="display: flex; align-items: center; gap: 10px;">  
@@ -717,7 +717,7 @@ localStorage.setItem("tourDone","yes");
 
   <div class="email" id="user-email"></div>
 
-  <div class="balance-card">
+  <div class="balance-card" id="tour-balance">
     <p class="label">Total Balance</p>
     <h1 id="user-balance">$ 0.00</h1>
 
@@ -1279,7 +1279,6 @@ firebase.auth()
   }
 
 });
-import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // Assuming you have userUID and db already
 const notifRef = ref(db, `notifications/${userUID}`);
