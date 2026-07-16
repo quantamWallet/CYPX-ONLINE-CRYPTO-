@@ -88,6 +88,8 @@
   }
 .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,200,150,0.4); }
 .copy-btn:disabled { background: #555; cursor: not-allowed; transform: none; }
+.stop-btn { background: linear-gradient(90deg,#ef4444,#dc2626); box-shadow: 0 4px 15px rgba(239,68,68,0.3); }
+.stop-btn:hover { box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
 .waiting-btn { background: linear-gradient(90deg,#f59e0b,#d97706); box-shadow: 0 4px 15px rgba(245,158,11,0.3); }
 .waiting-btn:hover { transform: none; }
 
@@ -186,7 +188,7 @@ auth.onAuthStateChanged(user => {
   loadUserBalance();
   renderTraders();
   loadUserCopies();
-  startPnLSimulation(); // ADDED: Fake P&L runs
+  startPnLSimulation();
 });
 
 function formatMoney(n){ return "$" + Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2}) }
@@ -206,7 +208,7 @@ function loadUserCopies() {
       const copy = newData[id];
       const oldCopy = userCopies[id];
 
-      if(copy.status === "closed" && (!oldCopy || oldCopy.status === "active")){
+      if(copy.status === "closed" && (!oldCopy || oldCopy.status!== "closed")){
         const profit = copy.pnl || 0;
         showToast(`${copy.traderName} trade closed. P&L: ${formatMoney(profit)}`, profit >= 0? "success" : "error");
         setTimeout(() => {
@@ -240,8 +242,9 @@ function renderTraders() {
   const grid = document.getElementById('tradersGrid');
   grid.innerHTML = traders.map(t => {
     const copyData = userCopies[t.id];
-    const isCopying = copyData && copyData.status === "active";
-    const isWaiting = copyData && copyData.status === "pending_close"; // NEW
+    const status = copyData?.status;
+    const isCopying = status === "active";
+    const isWaiting = status === "pending_close"; // NEW STATE
     const userPnL = isCopying? (copyData.pnl || 0) : 0;
     const traderEarned = userPnL > 0? (userPnL * t.profitShare / 100) : 0;
     return `
@@ -270,47 +273,36 @@ function renderTraders() {
 
       <div class="btn-group">
         ${isCopying
- ? `<button class="copy-btn waiting-btn" disabled><i class="fas fa-hourglass-half"></i> Waiting for ${t.name} to close trade</button>` // CHANGED
+? `<button class="copy-btn stop-btn" onclick="stopCopy('${t.id}')"><i class="fas fa-stop-circle"></i> Stop Copy Trading</button>` // STATE 2
           : isWaiting
- ? `<button class="copy-btn waiting-btn" disabled><i class="fas fa-hourglass-half"></i> Closing Trade...</button>` // CHANGED
-          : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>`
+? `<button class="copy-btn waiting-btn" disabled><i class="fas fa-hourglass-half"></i> Waiting for ${t.name} to close trade</button>` // STATE 3
+          : `<button class="copy-btn" onclick="openModal('${t.id}')"><i class="fas fa-copy"></i> Copy Trader</button>` // STATE 1
         }
       </div>
     </div>
   `}).join('');
 }
 
-// NEW: FAKE PNL SIMULATION - 70% PROFIT BIAS
+// FAKE PNL SIMULATION - 70% PROFIT BIAS
 function startPnLSimulation(){
   if(pnlInterval) clearInterval(pnlInterval);
   pnlInterval = setInterval(() => {
     for(let id in userCopies){
       if(userCopies[id].status === "active"){
         const amount = userCopies[id].amount;
-        const maxChange = amount * 0.02; // Max 2% change per tick
+        const maxChange = amount * 0.02;
 
-        // 70% chance profit, 30% chance loss
         const isProfit = Math.random() < 0.7;
         const change = (Math.random() * maxChange) * (isProfit? 1 : -1);
 
         const newPnL = (userCopies[id].pnl || 0) + change;
-
-        // Don't go below -50% of amount
         const minPnL = -amount * 0.5;
         const finalPnL = Math.max(minPnL, newPnL);
 
         db.ref(`copy_trading/${currentUser.uid}/${id}/pnl`).set(finalPnL);
       }
     }
-  }, 3000); // Update every 3 seconds
-}
-
-function updatePnLDisplay(id){
-  const el = document.getElementById('pnl-'+id);
-  if(el && userCopies[id]) {
-    el.innerText = formatMoney(userCopies[id].pnl);
-    el.className = `pnl-value ${userCopies[id].pnl >= 0? 'green' : 'red'}`;
-  }
+  }, 3000);
 }
 
 function openModal(traderId) {
@@ -345,8 +337,20 @@ function confirmCopy() {
   }).catch(e => showToast("Error: " + e.message, "error"));
 }
 
-// REMOVED: stopCopy function. User cannot stop. Only admin closes
-// When admin sets status to "closed" it will auto remove
+// NEW: User requests to stop
+function stopCopy(traderId) {
+  const copyInfo = userCopies[traderId];
+  if(!copyInfo || copyInfo.status!== "active") return showToast("Already requested", "error");
+
+  showToast(`Request sent. Waiting for ${copyInfo.traderName} to close trade`, 'info');
+
+  db.ref(`copy_trading/${currentUser.uid}/${traderId}`).update({
+    status: "pending_close",
+    requestedAt: Date.now()
+  }).then(() => {
+    db.ref("copy_logs/" + currentUser.uid).push({ action: "REQUEST_STOP", traderId, timestamp: Date.now() });
+  }).catch(e => showToast("Error: " + e.message, "error"));
+}
 
 function showToast(message, type = "info"){
   const toast = document.getElementById('toast');
@@ -356,4 +360,4 @@ function showToast(message, type = "info"){
 }
 </script>
 </body>
-                                 </html>
+</html>
