@@ -282,9 +282,9 @@ auth.onAuthStateChanged(user=>{
 function saveBotData(path, data){
   db.ref('bot_trading/'+userId+'/'+path).set(data);
 }
-  function saveUserData(updates){
+function saveUserData(updates){
   db.ref('users/'+userId).update(updates);
-  }
+}
 function updateBotData(path, data){
   db.ref('bot_trading/'+userId+'/'+path).update(data);
 }
@@ -330,7 +330,7 @@ function loadUserData(){
       }
     }
   })
-                       }
+}
 
 // TRADINGVIEW WIDGET - loaded after DOM
 window.onload = function(){
@@ -355,56 +355,8 @@ function updateChart(symbol){
     "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true
   });
 }
-  // LIVE PRICE SIMULATOR
-function getLivePrice(symbol){
-  let base = 1.08;
-  if(symbol.includes('GBPUSD')) base = 1.26;
-  if(symbol.includes('USDJPY')) base = 150;
-  if(symbol.includes('BTC')) base = 62000;
-  if(symbol.includes('ETH')) base = 3200;
-  if(symbol.includes('XAU')) base = 4000;
-  if(symbol.includes('SPX')) base = 5200;
-  if(symbol.includes('NAS')) base = 18000;
-  if(symbol.includes('DJI')) base = 39000;
-  // add small random movement
-  return (base + (Math.random() - 0.5) * 0.02).toFixed(4);
-}
 
-function updateLivePrice(){
-  const price = getLivePrice(selectedAsset.symbol);
-  document.getElementById('livePrice').textContent = `$ ${Number(price).toLocaleString(undefined,{minimumFractionDigits:4})}`;
-}
-
-// Update chart when asset changes
-function updateChart(symbol){
-  document.getElementById('tv_chart').innerHTML = '';
-  new TradingView.widget({
-    "width": "100%", "height": 220, "symbol": symbol, "interval": "5",
-    "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true
-  });
-}
-  // LIVE PRICE SIMULATOR
-function getLivePrice(symbol){
-  let base = 1.08;
-  if(symbol.includes('GBPUSD')) base = 1.26;
-  if(symbol.includes('USDJPY')) base = 150;
-  if(symbol.includes('BTC')) base = 62000;
-  if(symbol.includes('ETH')) base = 3200;
-  if(symbol.includes('XAU')) base = 4000;
-  if(symbol.includes('SPX')) base = 5200;
-  if(symbol.includes('NAS')) base = 18000;
-  if(symbol.includes('DJI')) base = 39000;
-  // add small random movement
-  return (base + (Math.random() - 0.5) * 0.02).toFix
-// Update chart when asset changes
-function updateChart(symbol){
-  document.getElementById('tv_chart').innerHTML = '';
-  new TradingView.widget({
-    "width": "100%", "height": 220, "symbol": symbol, "interval": "5",
-    "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true
-  });
-}
-  // LIVE PRICE SIMULATOR
+// LIVE PRICE SIMULATOR
 function getLivePrice(symbol){
   let base = 1.08;
   if(symbol.includes('GBPUSD')) base = 1.26;
@@ -426,6 +378,7 @@ function updateLivePrice(){
 
 // update every 2 seconds
 setInterval(updateLivePrice, 2000);
+
 document.querySelectorAll('.asset').forEach(a=>{
   a.onclick = ()=>{
     if(isTrading) return showToast('Cannot change asset while trade is running', '#ff3b30');
@@ -434,7 +387,7 @@ document.querySelectorAll('.asset').forEach(a=>{
     selectedAsset = {pair:a.dataset.pair, symbol:a.dataset.symbol};
     document.getElementById('sumMarket').textContent = a.dataset.pair.replace('USD','/USD').replace('USDT','/USDT');
     updateChart(a.dataset.symbol);
-    updateLivePrice(); // <-- ADD THIS LINE
+    updateLivePrice();
   }
 })
 
@@ -445,7 +398,7 @@ document.querySelectorAll('.duration-btn[data-type]').forEach(b=>{
     b.classList.add('active');
     let val = Number(b.dataset.val);
     let type = b.dataset.type;
-    if(type === 'sec') duration = val; // FIX: 30sec works now
+    if(type === 'sec') duration = val;
     if(type === 'min') duration = val * 60;
     if(type === 'day') duration = val * 86400;
     durationText = b.textContent;
@@ -465,7 +418,7 @@ document.getElementById('amount').oninput = e=>{
   document.getElementById('sumAmount').textContent = '$'+Number(e.target.value).toLocaleString();
 }
 
-// ADDED 10% 15% 20%
+// PERCENT CALCULATOR
 function setPercent(p){
   const amt = Math.floor(balance * p / 100);
   document.getElementById('amount').value = amt < 100 ? 100 : amt;
@@ -513,8 +466,9 @@ function updateBotUI(){
     }
     document.getElementById(`run-${bot}`).textContent = `Runs: ${botRuns[bot]}`;
   });
-  }
-// CAN'T SELECT BOT UNTIL ACTIVATED
+}
+
+// SELECT BOT - MUST BE ACTIVATED FIRST
 function selectBot(botName, btn){
   if(!activatedBots.includes(botName)) return showToast('Activate bot first', '#ff3b30');
   document.querySelectorAll('.bot-card').forEach(c=>c.classList.remove('selected'));
@@ -555,7 +509,7 @@ function startTrade(){
   if(amount > balance) return showToast('Insufficient balance', '#ff3b30');
 
   isTrading = true;
-  balance -= amount; // <-- DEDUCT NOW
+  balance -= amount;
   saveUserData({balance: balance});
   currentTradeAmount = amount;
   
@@ -589,8 +543,8 @@ function startTrade(){
     if(timeLeft <= 0){ clearInterval(interval); finishTrade(amount); }
   },1000);
   
-  window.currentTradeInterval = interval; // so we can clear on refresh
-     }
+  window.currentTradeInterval = interval;
+}
 
 function resumeTrade(timeLeft){
   updateBotUI();
@@ -605,7 +559,7 @@ function resumeTrade(timeLeft){
     
     const interval = setInterval(()=>{
       timeLeft--;
-      if(timeLeft <= 0){ clearInterval(interval); finishTrade(tradeAmount); } // <-- USE tradeAmount
+      if(timeLeft <= 0){ clearInterval(interval); finishTrade(tradeAmount); }
     },1000);
     window.currentTradeInterval = interval;
   })
@@ -616,75 +570,80 @@ function finishTrade(amount){
   clearInterval(window.currentTradeInterval);
   document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=false);
   updateBotUI();
-  saveBotData('active_trade', null); // clear active trade
+  saveBotData('active_trade', null);
+
+  // DETERMINE WIN/LOSS AND CALCULATE PROFIT
+  const isWin = determineResult(selectedBot);
+  const potentialProfit = Number((amount * leverage * 0.03).toFixed(2));
+  const updates = {};
 
   // Read current total earnings
-db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
-
+  db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
     let totalEarnings = Number(snap.val()) || 0;
 
     if(isWin){
+      wins++;
+      balance = balance + amount + potentialProfit;
+      totalEarnings += potentialProfit;
 
-        wins++;
-        balance = balance + amount + potentialProfit;
+      updates.wins = wins;
+      updates.balance = balance;
+      updates.totalEarnings = totalEarnings;
 
-        // Add only the profit to total earnings
-        totalEarnings += potentialProfit;
+      document.getElementById('resultIcon').style.color = '#00ff88';
+      document.getElementById('resultTitle').textContent = 'Session Win';
+      document.getElementById('profitText').style.color = '#00ff88';
+      document.getElementById('profitText').textContent = `+$${potentialProfit.toFixed(2)}`;
 
-        updates.wins = wins;
-        updates.balance = balance;
-        updates.totalEarnings = totalEarnings;
-
-        document.getElementById('resultIcon').style.color = '#00ff88';
-        document.getElementById('resultTitle').textContent = 'Session Win';
-        document.getElementById('profitText').style.color = '#00ff88';
-        document.getElementById('profitText').textContent =
-            `+$${potentialProfit.toFixed(2)}`;
-
-        addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
-
+      addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
     }else{
+      losses++;
+      balance = balance - potentialProfit;
 
-        losses++;
-        balance = balance - potentialProfit;
+      updates.losses = losses;
+      updates.balance = balance;
+      updates.totalEarnings = totalEarnings;
 
-        updates.losses = losses;
-        updates.balance = balance;
+      document.getElementById('resultIcon').style.color = '#ff3b30';
+      document.getElementById('resultTitle').textContent = 'Session Loss';
+      document.getElementById('profitText').style.color = '#ff3b30';
+      document.getElementById('profitText').textContent = `-$${potentialProfit.toFixed(2)}`;
 
-        // Don't reduce total earnings on losses
-        updates.totalEarnings = totalEarnings;
-
-        document.getElementById('resultIcon').style.color = '#ff3b30';
-        document.getElementById('resultTitle').textContent = 'Session Loss';
-        document.getElementById('profitText').style.color = '#ff3b30';
-        document.getElementById('profitText').textContent =
-            `-$${potentialProfit.toFixed(2)}`;
-
-        addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
+      addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
     }
 
     // Save trade history
     const tradeId = Date.now();
     saveBotData(`trade_history/${tradeId}`, {
-        botName: selectedBot,
-        pair: selectedAsset.pair,
-        amount: amount,
-        duration: duration,
-        result: isWin ? 'win' : 'loss',
-        pnl: isWin ? potentialProfit : -potentialProfit,
-        timestamp: Date.now()
+      botName: selectedBot,
+      pair: selectedAsset.pair,
+      amount: amount,
+      duration: duration,
+      result: isWin ? 'win' : 'loss',
+      pnl: isWin ? potentialProfit : -potentialProfit,
+      timestamp: Date.now()
     });
 
     saveUserData(updates);
+    updateStats();
 
     document.getElementById('startBtn').disabled = false;
-    document.getElementById('startBtn').innerHTML =
-        `<i class="fas fa-play"></i> Start ${selectedBot}`;
+    document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
 
     document.getElementById('resultModal').style.display = 'flex';
-});
-function closeTradeModal(){ document.getElementById('tradeModal').style.display = 'none'; }
-function closeResultModal(){ document.getElementById('resultModal').style.display = 'none'; }
+  }).catch(err => {
+    console.error('Error finishing trade:', err);
+    showToast('Error completing trade', '#ff3b30');
+  });
+}
+
+function closeTradeModal(){ 
+  document.getElementById('tradeModal').style.display = 'none'; 
+}
+
+function closeResultModal(){ 
+  document.getElementById('resultModal').style.display = 'none'; 
+}
 </script>
 </body>
-      </html>
+</html>
