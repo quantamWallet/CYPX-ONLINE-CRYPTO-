@@ -102,7 +102,8 @@ const traders = [
 
 let copyData = {};
 let usernames = {};
-let pnlIsProfit = true;
+let pnlIsProfit = {};
+let inputValues = {}; // NEW: Store input values so they don't reset
 let isAdmin = false;
 
 auth.onAuthStateChanged(user=>{
@@ -207,19 +208,22 @@ function renderActiveTrades(){
       const pendingCount = copiers.filter(c => c.status === "pending_close").length;
       const totalCount = copiers.length;
 
+      // FIX 1: Restore input value from memory
+      const savedValue = inputValues[t.id] || '';
+
       html += `<div class="active-trade-card">
         <div style="display:flex; justify-content:space-between; margin-bottom:8px">
           <div><b>${t.name}</b></div>
           <div style="font-size:12px; color:#94a3b8">
-            ${totalCount} Copiers 
-            ${pendingCount > 0 ? `<span class="badge badge-warning">${pendingCount} Requested Stop</span>` : ''}
+            ${totalCount} Copiers
+            ${pendingCount > 0? `<span class="badge badge-warning">${pendingCount} Requested Stop</span>` : ''}
             | Total: $${totalCopied.toFixed(2)}
           </div>
         </div>
         <div style="font-size:12px; margin-bottom:10px">
-          Copiers: ${copiers.map(c=> 
-            c.status === "pending_close" 
-            ? `<span class="pending-name">${c.username} ⏳</span>` 
+          Copiers: ${copiers.map(c=>
+            c.status === "pending_close"
+           ? `<span class="pending-name">${c.username} ⏳</span>`
             : c.username
           ).join(', ')}
         </div>
@@ -229,7 +233,7 @@ function renderActiveTrades(){
             <button type="button" class="btn btn-profit" onclick="setPnL('${t.id}', true)">+ PROFIT</button>
             <button type="button" class="btn btn-loss" onclick="setPnL('${t.id}', false)">- LOSS</button>
           </div>
-          <input id="closeProfit_${t.id}" type="number" placeholder="25">
+          <input id="closeProfit_${t.id}" type="number" placeholder="25" value="${savedValue}" oninput="saveInput('${t.id}', this.value)"> <!-- FIX 2: save on input -->
         </div>
         <button class="btn btn-red" onclick="closeTrade('${t.id}')">Close & Pay ${totalCount} Copiers</button>
       </div>`;
@@ -238,10 +242,26 @@ function renderActiveTrades(){
 
   if(!hasTrades) html = '<div style="text-align:center; color:#94a3b8; padding:20px">No active copiers<br><small>Waiting for users to click "Copy Trader"</small></div>';
   container.innerHTML = html;
+
+  // FIX 3: Restore button opacity after re-render
+  traders.forEach(t => {
+    if(pnlIsProfit[t.id]!== undefined){
+      const el = document.getElementById(`closeProfit_${t.id}`);
+      if(el){
+        el.parentElement.querySelector('.btn-profit').style.opacity = pnlIsProfit[t.id]? '1' : '0.5';
+        el.parentElement.querySelector('.btn-loss').style.opacity =!pnlIsProfit[t.id]? '1' : '0.5';
+      }
+    }
+  });
+}
+
+// FIX 4: Save input value so it doesn't reset
+function saveInput(traderId, value){
+  inputValues[traderId] = value;
 }
 
 function setPnL(traderId, isProfit){
-  pnlIsProfit = isProfit;
+  pnlIsProfit[traderId] = isProfit; // FIX: make it per trader
   const el = document.getElementById(`closeProfit_${traderId}`);
   if(el){
     el.parentElement.querySelector('.btn-profit').style.opacity = isProfit? '1' : '0.5';
@@ -249,12 +269,11 @@ function setPnL(traderId, isProfit){
   }
 }
 
-// UPDATED: NOW PAYS ACTIVE + PENDING_CLOSE
 async function closeTrade(traderId){
   if(!isAdmin) return showToast("Unauthorized", true);
   let profit = parseFloat(document.getElementById(`closeProfit_${traderId}`).value);
   if(isNaN(profit)) return showToast("Enter P&L amount");
-  if(!pnlIsProfit) profit = -Math.abs(profit);
+  if(!pnlIsProfit[traderId]) profit = -Math.abs(profit); // FIX: check per trader
 
   const trader = traders.find(t=>t.id===traderId);
   const tradeData = { traderId, profit, status: "CLOSED", closedAt: Date.now() };
@@ -270,8 +289,7 @@ async function closeTrade(traderId){
       if(!copyData[uid][traderId]) continue;
       const copyInfo = copyData[uid][traderId];
 
-      // PAY BOTH ACTIVE AND PENDING_CLOSE
-      if(copyInfo.status !== "active" && copyInfo.status !== "pending_close") continue;
+      if(copyInfo.status!== "active" && copyInfo.status!== "pending_close") continue;
 
       const capital = Number(copyInfo.amount || 0);
       const grossProfit = profit * (capital / 1000);
@@ -281,7 +299,7 @@ async function closeTrade(traderId){
       updates[`users/${uid}/balance`] = firebase.database.ServerValue.increment(refundTotal);
       updates[`copy_trading/${uid}/${traderId}/status`] = "closed";
       updates[`copy_trading/${uid}/${traderId}/closedBy`] = "admin";
-      updates[`copy_trading/${uid}/${traderId}/pnl`] = userProfit; // OVERWRITE FAKE PNL WITH REAL
+      updates[`copy_trading/${uid}/${traderId}/pnl`] = userProfit;
       updates[`copy_trading/${uid}/${traderId}/closedAt`] = tradeId;
       updates[`copy_trading/${uid}/${traderId}/lastUpdate`] = Date.now();
       updates[`users/${uid}/history/trade_${tradeId}_${uid}`] = {...tradeData, userProfit, refundTotal, capital, traderName: trader.name };
@@ -293,6 +311,7 @@ async function closeTrade(traderId){
     }
 
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
+    delete inputValues[traderId]; // clear input after close
     showToast(`Trade Closed. ${count} Copiers Paid!`);
   } catch(e) { showToast("Error: " + e.message, true); }
 }
