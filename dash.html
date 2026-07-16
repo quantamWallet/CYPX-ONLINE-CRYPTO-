@@ -1,0 +1,287 @@
+showPopup("$0.80 successfully claimed");
+      // 🔁 refresh earnings safely (only if function exists)
+      if (typeof loadTotalEarnings === "function") {
+        loadTotalEarnings();
+      }
+
+    });
+
+  };
+
+});
+
+    /* =========================
+       VIP LIST (FIXED BOOLEAN CHECK)
+    ========================= */
+    const vipRef = database.ref("users/" + uid + "/vipLevels");
+
+    vipRef.on("value", snap => {
+      const data = snap.val() || {};
+      const list = document.getElementById("vip-list");
+      list.innerHTML = "";
+
+      const vipData = [50, 100, 250, 500, 700, 1000, 1500, 2500, 5000, 7000, 10000, 15000, 25000, 50000, 100000];
+
+      vipData.forEach((amt, i) => {
+        const lvl = i + 1;
+        const unlocked = data[lvl] && data[lvl].unlocked === true;
+
+        const div = document.createElement("div");
+        div.className = "vip-box";
+
+        div.innerHTML = `
+          <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+          <div class="info">
+            <p>Unlock amount: <span class="amount">$${amt.toLocaleString()}</span></p>
+            <p>${unlocked ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
+          </div>
+          <div class="arrow">»</div>
+        `;
+
+        div.querySelector(".arrow").onclick = () => {
+          if (unlocked) {
+            showPopup("VIP " + lvl + " unlocked");
+          } else {
+            showPopup("Unlock VIP first", true);
+          }
+        };
+
+        list.appendChild(div);
+      });
+    });
+
+    /* =========================
+       COUNTDOWN
+    ========================= */
+    function startCountdown() {
+      const countdown = document.getElementById("countdown");
+      let start = localStorage.getItem("countdownStart");
+
+      if (!start) {
+        start = Date.now();
+        localStorage.setItem("countdownStart", start);
+      }
+
+      setInterval(() => {
+        let diff = 86400000 - (Date.now() - start);
+
+        if (diff <= 0) {
+          start = Date.now();
+          localStorage.setItem("countdownStart", start);
+          diff = 86400000;
+        }
+
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        countdown.textContent =
+          `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+      }, 1000);
+    }
+
+    startCountdown();
+  });
+
+  function showPopup(msg, red = false) {
+    const popup = document.createElement("div");
+    popup.className = "popup" + (red ? " red" : "");
+    popup.textContent = msg;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 3000);
+  }
+};
+  
+        </script>
+    <a href="support.html" class="support-float">
+  <i class="fas fa-headset"></i>
+    </a>
+<!-- Install App Button -->
+<button id="installBtn" style="
+display:none;
+position:fixed;
+top:90px;
+right:15px;
+z-index:9999;
+padding:12px 18px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#00e0ff,#00ffaa);
+color:#001f3f;
+font-weight:700;
+font-size:15px;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+cursor:pointer;
+">
+📲 Install App
+</button>
+
+<script>
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+
+/* Detect install prompt */
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+
+  deferredPrompt = e;
+  installBtn.style.display = "block";
+});
+
+/* Install click */
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+
+  const { outcome } = await deferredPrompt.userChoice;
+
+  if (outcome === "accepted") {
+    console.log("App installed");
+  }
+
+  deferredPrompt = null;
+  installBtn.style.display = "none";
+});
+
+/* Hide if already installed */
+window.addEventListener("appinstalled", () => {
+  installBtn.style.display = "none";
+});
+  </script>  
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register(
+'/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'
+)
+.then(reg => {
+  console.log("SW registered:", reg.scope);
+})
+.catch(err => {
+  console.error("SW failed:", err);
+});
+}
+<!-- Firebase Messaging -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
+
+<script>
+const messaging = firebase.messaging();
+
+async function enableNotifications() {
+  try {
+
+    // Ask permission FIRST
+    const permission =
+      await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      console.log("Notification denied");
+      return;
+    }
+
+    // Register service worker
+    const registration =
+      await navigator.serviceWorker.register(
+        "./firebase-messaging-sw.js"
+      );
+
+    console.log("SW REGISTERED");
+
+    // Wait until active
+    await navigator.serviceWorker.ready;
+
+    // Get token
+    const token =
+      await messaging.getToken({
+        vapidKey:
+        "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+
+        serviceWorkerRegistration:
+        registration
+      });
+
+    console.log("TOKEN:", token);
+
+    if (!token) {
+      console.log("No token generated");
+      return;
+    }
+
+    const user =
+      firebase.auth().currentUser;
+
+    if (user) {
+
+      await firebase.database()
+      .ref(
+        "users/" +
+        user.uid +
+        "/fcmToken"
+      )
+      .set(token);
+
+      console.log(
+        "Token saved to Firebase"
+      );
+    }
+
+  } catch (err) {
+    console.error(
+      "FCM ERROR:",
+      err
+    );
+  }
+}
+
+/* Run after login */
+firebase.auth()
+.onAuthStateChanged(user => {
+
+  if (user) {
+    enableNotifications();
+  }
+
+});
+import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// Assuming you have userUID and db already
+const notifRef = ref(db, `notifications/${userUID}`);
+
+onChildAdded(notifRef, (snapshot) => {
+  const notif = snapshot.val();
+  if(notif.read) return; // skip old ones
+  
+  // 1. Show Toast
+  showToast(notif.title, notif.body);
+  
+  // 2. Add to bell icon
+  addToBell(notif);
+  
+  // 3. Mark as read after 3 sec
+  setTimeout(() => {
+    update(ref(db, `notifications/${userUID}/${snapshot.key}`), {read: true});
+  }, 3000);
+});
+
+function showToast(title, body) {
+  // Simple toast. Replace with your UI lib
+  const toast = document.createElement('div');
+  toast.style = "position:fixed;top:20px;right:20px;background:#00d4ff;color:#000;padding:15px;border-radius:8px;z-index:9999;";
+  toast.innerHTML = `<b>${title}</b><br>${body}`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+  }
+
+  import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+onChildAdded(ref(db, `notifications/${currentUser.uid}`), (snap) => {
+  const n = snap.val();
+  if(n.read) return;
+  alert(`${n.title}\n\n${n.body}`); // replace with your toast later
+  update(ref(db, `notifications/${currentUser.uid}/${snap.key}`), {read: true});
+});
+</script>
+    <script>
+    </script>
+  <script type="module" src="./js/app.js"></script>
+  </body>
