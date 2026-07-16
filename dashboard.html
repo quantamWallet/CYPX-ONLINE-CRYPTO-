@@ -216,7 +216,7 @@ nav{
   gap: 8px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  min-height: 90px; /* keeps all cards same height */
+  min-height: 90px;
 }
 
 .action-card:hover {
@@ -341,12 +341,10 @@ nav{
         border-radius: 5px;  
       }  
   
-      /* small helper for style */  
       .small-muted { color: #9fb0cf; font-size:13px; }  
-      /* SUPPORT FLOAT BUTTON */
-.support-float {
+      .support-float {
     position: fixed;
-    bottom: 85px; /* above bottom nav */
+    bottom: 85px;
     right: 18px;
     width: 60px;
     height: 60px;
@@ -357,50 +355,35 @@ nav{
     align-items: center;
     text-decoration: none;
     z-index: 9999;
-
-    /* Glass + glow effect */
-    box-shadow:
-        0 6px 20px rgba(0, 212, 255, 0.4),
-        inset 0 2px 6px rgba(255,255,255,0.2);
+    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4), inset 0 2px 6px rgba(255,255,255,0.2);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.1);
-
     transition: all 0.3s ease;
     animation: supportPulse 2.5s infinite;
 }
 
-/* Support Icon */
 .support-float i {
     color: white;
     font-size: 26px;
 }
 
-/* Hover / tap effect */
 .support-float:hover {
     transform: scale(1.1) rotate(5deg);
     box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
 }
 
-/* Mobile tap effect */
 .support-float:active {
     transform: scale(0.92);
 }
 
-/* Soft pulse animation */
 @keyframes supportPulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0,212,255,0.5);
-    }
-    70% {
-        box-shadow: 0 0 0 15px rgba(0,212,255,0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(0,212,255,0);
-    }
-          }
+    0% { box-shadow: 0 0 0 0 rgba(0,212,255,0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(0,212,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
+}
 
-   </style>  
+    </style>  
   </head>  
   <body>  
     <header>  
@@ -413,15 +396,11 @@ nav{
       <div class="announcement-content">🛒Welcome to CYPX HOLDINGS 🛒 Recruiting investors and agents worldwide!</div>  
     </div>  
 
-    
     <div class="balance-section">
-
   <div class="email" id="user-email"></div>
-
   <div class="balance-card">
     <p class="label">Total Balance</p>
     <h1 id="user-balance">$ 0.00</h1>
-
     <div class="balance-stats">
       <div>
         <p class="small-muted">Total Deposit</p>
@@ -433,49 +412,40 @@ nav{
       </div>
     </div>
   </div>
-
   <div class="balance-buttons">
-  <a href="deposit.html" class="action-card">
-    <div class="icon-box wallet"><i class="fas fa-wallet"></i></div>
-    <span>Deposit</span>
-  </a>
-
-  <a href="withdraw.html" class="action-card">
-    <div class="icon-box withdraw"><i class="fas fa-hand-holding-usd"></i></div>
-    <span>Withdraw</span>
-  </a>
-  
-  <a href="vip.html" class="action-card">
-    <div class="icon-box vip"><i class="fas fa-crown"></i></div>
-    <span>Invest Now</span>
-  </a>
-
-  <a href="copy.html" class="action-card">
-    <div class="icon-box copy"><i class="fas fa-chart-line"></i></div>
-    <span>Copy Trades</span>
-  </a>
-
-  <a href="bot-trading.html" class="action-card">
-    <div class="icon-box bot"><i class="fas fa-robot"></i></div>
-    <span>Bot Dashboard</span>
-  </a>
-
-  <a href="company.html" class="action-card">
-    <div class="icon-box about"><i class="fas fa-building"></i></div>
-    <span>About Us</span>
-  </a>
+    <a href="deposit.html" class="action-card">
+      <div class="icon-box wallet"><i class="fas fa-wallet"></i></div>
+      <span>Deposit</span>
+    </a>
+    <a href="withdraw.html" class="action-card">
+      <div class="icon-box withdraw"><i class="fas fa-hand-holding-usd"></i></div>
+      <span>Withdraw</span>
+    </a>
+    <a href="vip.html" class="action-card">
+      <div class="icon-box vip"><i class="fas fa-crown"></i></div>
+      <span>Invest Now</span>
+    </a>
+    <a href="copy.html" class="action-card">
+      <div class="icon-box copy"><i class="fas fa-chart-line"></i></div>
+      <span>Copy Trades</span>
+    </a>
+    <a href="bot-trading.html" class="action-card">
+      <div class="icon-box bot"><i class="fas fa-robot"></i></div>
+      <span>Bot Dashboard</span>
+    </a>
+    <a href="company.html" class="action-card">
+      <div class="icon-box about"><i class="fas fa-building"></i></div>
+      <span>About Us</span>
+    </a>
   </div>
-
     </div>  
   
     <div class="extra-info">  
       <img src="https://media.istockphoto.com/id/841526170/photo/three-business-people-in-the-office-working-together.jpg?s=170667a&w=0&k=20&c=58v5HeRzpzV3qusfD33JuF0j4Am5rbBYhkc37ozCv84=">  
       <p>  
-        Improve VIP task rules on the same day. Upgrading the VIP level on the same day allows you to complete multiple tasks without restrict. Listed as: You are now VIP1 and have completed today's task. You can upgrade to VIP2 to continue completing VIP2 tasks. If you continue to upgrade to VIP3, you can continue to complete the tasks of VIP3. 【Similar to this, the highest level of VIP is VIP15】  
+        Improve VIP task rules on the same day. Upgrading the VIP level on the same day allows you to complete multiple tasks without restrict. Listed as: You are now VIP1 and have completed today's tasks.
       </p>  
-      <button class="claim-btn" id="claim-btn">
-Claim $ 0.80
-      </button> 
+      <button class="claim-btn" id="claim-btn">Claim $ 0.80</button> 
     </div>  
   
     <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>  
@@ -495,277 +465,167 @@ Claim $ 0.80
   
     <div id="announcementModal">
   <h3>📢 Platform Update – CYPX HOLDINGS</h3>
-
   <div style="font-size: 14px; line-height: 1.6;">
-
     <p><strong>Welcome to CYPX HOLDINGS</strong></p>
-
-    <p>
-      CYPX provides users with access to automated tools, account management features, and structured participation in digital asset markets.
-    </p>
-
+    <p>CYPX provides users with access to automated tools, account management features, and structured participation in digital asset markets.</p>
     <hr style="margin:15px 0; opacity:0.2;">
-
     <p><strong>🔹 Account & Transactions</strong></p>
     <ul>
       <li>Minimum deposit: <strong>$50</strong></li>
       <li>Minimum withdrawal:<strong>$10</strong></li>
       <li>Withdrawals are processed within <strong>24 hours</strong></li>
     </ul>
-
     <p><strong>🔹 Activity Cycle</strong></p>
     <ul>
       <li>Tasks and account activity reset every 24 hours</li>
       <li>Users can participate daily based on account status</li>
     </ul>
-
     <hr style="margin:15px 0; opacity:0.2;">
-
     <p><strong>🔹 VIP Access Levels</strong></p>
-    <p>
-      VIP levels unlock additional platform features, higher activity limits, and enhanced account capabilities.
-      Progression is based on cumulative account activity and participation.
-    </p>
-
+    <p>VIP levels unlock additional platform features, higher activity limits, and enhanced account capabilities. Progression is based on cumulative account activity and participation.</p>
     <hr style="margin:15px 0; opacity:0.2;">
-
     <p><strong>🔹 Referral Program</strong></p>
-    <p>
-      Users can invite others to join the platform and receive structured rewards based on network activity.
-      Rewards are distributed across multiple levels according to platform rules.
-    </p>
-
+    <p>Users can invite others to join the platform and receive structured rewards based on network activity. Rewards are distributed across multiple levels according to platform rules.</p>
     <hr style="margin:15px 0; opacity:0.2;">
-
-    <p style="font-size:13px; opacity:0.7;">
-      ⚠️ <strong>Risk Notice:</strong> Digital asset trading and participation involve risk.
-      Returns are not guaranteed and may vary based on market conditions and user activity.
-    </p>
-
+    <p style="font-size:13px; opacity:0.7;">⚠️ <strong>Risk Notice:</strong> Digital asset trading and participation involve risk. Returns are not guaranteed and may vary based on market conditions and user activity.</p>
   </div>
-
   <button onclick="closeAnnouncement()">Close</button>
     </div>
   
     <script>
 window.onload = function () {
-
-  /* =========================
-     ANNOUNCEMENT FIX (100% WORKING)
-  ========================= */
   const annBtn = document.getElementById("ann-btn");
   const modal = document.getElementById("announcementModal");
+  annBtn.addEventListener("click", () => { modal.style.display = "block"; });
+  window.closeAnnouncement = function () { modal.style.display = "none"; };
 
-  annBtn.addEventListener("click", () => {
-    modal.style.display = "block";
-  });
-
-  window.closeAnnouncement = function () {
-    modal.style.display = "none";
-  };
-
-  /* =========================
-     AUTH
-  ========================= */
   auth.onAuthStateChanged(function(user) {
-    if (!user) {
-      window.location.href = "auth.html";
-      return;
-    }
-
+    if (!user) { window.location.href = "auth.html"; return; }
     const uid = user.uid;
     document.getElementById("user-email").textContent = user.email;
-
     const balanceRef = database.ref("users/" + uid + "/balance");
-    const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
-
-    /* =========================
-       BALANCE (REALTIME)
-    ========================= */
     balanceRef.on("value", snap => {
-  const balance = Number(snap.val() || 0);
-  document.getElementById("user-balance").textContent =
-formatMoney(balance);
-      })
-    /* =========================
-       TOTAL DEPOSITS (FIXED PROPERLY)
-    ========================= */
+      const balance = Number(snap.val() || 0);
+      document.getElementById("user-balance").textContent = formatMoney(balance);
+    })
     database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
-
       if (snap.exists()) {
         snap.forEach(child => {
           const d = child.val();
-
-          if (
-            d.status &&
-            d.status.toLowerCase().trim() === "approved"
-          ) {
+          if (d.status && d.status.toLowerCase().trim() === "approved") {
             totalDeposit += Number(d.amount || 0);
           }
         });
       }
+      document.getElementById("total-deposit").textContent = formatMoney(totalDeposit);
+    })
 
-      document.getElementById("total-deposit").textContent =
-formatMoney(totalDeposit);
-      })
-
-    /* =========================
-       TOTAL EARNINGS (REAL FIX 🔥)
-       ✔ referrals (ONLY approved)
-       ✔ bonus
-       ✔ vip earnings (if exists)
-    ========================= */
     function loadTotalEarnings() {
-  let total = 0;
-
-  // REFERRALS
-  database.ref("referralPurchases/" + uid).once("value")
-  .then(refSnap => {
-
-    if (refSnap.exists()) {
-      refSnap.forEach(child => {
-        const e = child.val();
-
-        if (e.status && e.status.toLowerCase() === "approved") {
-          total += Number(e.price || e.amount || 0);
+      let total = 0;
+      database.ref("referralPurchases/" + uid).once("value")
+      .then(refSnap => {
+        if (refSnap.exists()) {
+          refSnap.forEach(child => {
+            const e = child.val();
+            if (e.status && e.status.toLowerCase() === "approved") {
+              total += Number(e.price || e.amount || 0);
+            }
+          });
         }
-      });
+        return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
+      })
+      .then(bonusSnap => {
+        if (bonusSnap.val() === true) { total += 0.80; }
+        return database.ref("users/" + uid + "/vipEarnings").once("value");
+      })
+      .then(vipSnap => {
+        if (vipSnap.exists()) {
+          vipSnap.forEach(child => {
+            const v = child.val();
+            total += Number(v.totalEarned || 0);
+          });
+        }
+        return database.ref("users/" + uid + "/botEarnings").once("value");
+      })
+      .then(botSnap => {
+        if (botSnap.exists()) {
+          total += Number(botSnap.val() || 0);
+        }
+        return database.ref("users/" + uid + "/copyEarnings").once("value");
+      })
+      .then(copySnap => {
+        if (copySnap.exists()) {
+          total += Number(copySnap.val() || 0);
+        }
+        document.getElementById("total-earnings").textContent = formatMoney(total);
+      })
+      .catch(err => { console.error("Earnings error:", err); });
     }
 
-    // BONUS
-    return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
-  })
-  .then(bonusSnap => {
-
-    if (bonusSnap.val() === true) {
-      total += 0.80;
-    }
-
-    // ✅ FIXED: removed wrong semicolon + chained properly
-    return database.ref("users/" + uid + "/vipEarnings").once("value");
-  })
-  .then(vipSnap => {
-
-    if (vipSnap.exists()) {
-      vipSnap.forEach(child => {
-        const v = child.val();
-        total += Number(v.totalEarned || 0);
-      });
-    }
-
-    document.getElementById("total-earnings").textContent =
-formatMoney(total);
-})
-.catch(err => {
-    console.error("Earnings error:", err);
-});
-  }
-
-    // RUN + LIVE
     loadTotalEarnings();
     database.ref("referralPurchases/" + uid).on("value", loadTotalEarnings);
     database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);
     database.ref("users/" + uid + "/vipEarnings").on("value", loadTotalEarnings);
-    /* =========================
-   CLAIM BONUS (SAFE FIX 🔥)
-========================= */
+    database.ref("users/" + uid + "/botEarnings").on("value", loadTotalEarnings);
+    database.ref("users/" + uid + "/copyEarnings").on("value", loadTotalEarnings);
 
-const claimBtn = document.getElementById("claim-btn");
-
-auth.onAuthStateChanged(function(user) {
-
-  if (!user) return;
-
-  const uid = user.uid;
-
-  const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
-  const userRef = database.ref("users/" + uid);
-
-  // ✅ Keep button state synced
-  claimedRef.on("value", snap => {
-    if (snap.val() === true) {
-      claimBtn.textContent = "Completed";
-      claimBtn.disabled = true;
-    } else {
-      claimBtn.textContent = "Claim $0.80";
-      claimBtn.disabled = false;
-    }
-  });
-
-  // ✅ Click handler
-  claimBtn.onclick = function () {
-
-    if (claimBtn.disabled) return;
-
-    claimBtn.disabled = true;
-    claimBtn.textContent = "Processing...";
-
-    userRef.transaction(userData => {
-
-      if (!userData) return userData;
-
-      // ❌ already claimed
-      if (userData.hasClaimedBonus === true) {
-        return userData;
-      }
-
-      // ✅ apply bonus
-      userData.balance = Number(userData.balance || 0) + 0.80;
-      userData.hasClaimedBonus = true;
-
-      return userData;
-
-    }, (error, committed) => {
-
-      if (error) {
-        console.error("Transaction failed:", error);
-        claimBtn.disabled = false;
-        claimBtn.textContent = "Claim $0.80";
-        showPopup("Error, try again", true);
-        return;
-      }
-
-      if (!committed) {
-        showPopup("Already claimed", true);
-        return;
-      }
-
-      // ✅ success
-      claimBtn.textContent = "Completed";
-      claimBtn.disabled = true;
-
-      showPopup("$0.80 successfully claimed");
-      // 🔁 refresh earnings safely (only if function exists)
-      if (typeof loadTotalEarnings === "function") {
-        loadTotalEarnings();
-      }
-
+    const claimBtn = document.getElementById("claim-btn");
+    auth.onAuthStateChanged(function(user) {
+      if (!user) return;
+      const uid = user.uid;
+      const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
+      const userRef = database.ref("users/" + uid);
+      claimedRef.on("value", snap => {
+        if (snap.val() === true) {
+          claimBtn.textContent = "Completed";
+          claimBtn.disabled = true;
+        } else {
+          claimBtn.textContent = "Claim $0.80";
+          claimBtn.disabled = false;
+        }
+      });
+      claimBtn.onclick = function () {
+        if (claimBtn.disabled) return;
+        claimBtn.disabled = true;
+        claimBtn.textContent = "Processing...";
+        userRef.transaction(userData => {
+          if (!userData) return userData;
+          if (userData.hasClaimedBonus === true) { return userData; }
+          userData.balance = Number(userData.balance || 0) + 0.80;
+          userData.hasClaimedBonus = true;
+          return userData;
+        }, (error, committed) => {
+          if (error) {
+            console.error("Transaction failed:", error);
+            claimBtn.disabled = false;
+            claimBtn.textContent = "Claim $0.80";
+            showPopup("Error, try again", true);
+            return;
+          }
+          if (!committed) {
+            showPopup("Already claimed", true);
+            return;
+          }
+          claimBtn.textContent = "Completed";
+          claimBtn.disabled = true;
+          showPopup("$0.80 successfully claimed");
+          if (typeof loadTotalEarnings === "function") { loadTotalEarnings(); }
+        });
+      };
     });
 
-  };
-
-});
-
-    /* =========================
-       VIP LIST (FIXED BOOLEAN CHECK)
-    ========================= */
     const vipRef = database.ref("users/" + uid + "/vipLevels");
-
     vipRef.on("value", snap => {
       const data = snap.val() || {};
       const list = document.getElementById("vip-list");
       list.innerHTML = "";
-
       const vipData = [50, 100, 250, 500, 700, 1000, 1500, 2500, 5000, 7000, 10000, 15000, 25000, 50000, 100000];
-
       vipData.forEach((amt, i) => {
         const lvl = i + 1;
         const unlocked = data[lvl] && data[lvl].unlocked === true;
-
         const div = document.createElement("div");
         div.className = "vip-box";
-
         div.innerHTML = `
           <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
           <div class="info">
@@ -774,49 +634,34 @@ auth.onAuthStateChanged(function(user) {
           </div>
           <div class="arrow">»</div>
         `;
-
         div.querySelector(".arrow").onclick = () => {
-          if (unlocked) {
-            showPopup("VIP " + lvl + " unlocked");
-          } else {
-            showPopup("Unlock VIP first", true);
-          }
+          if (unlocked) { showPopup("VIP " + lvl + " unlocked"); }
+          else { showPopup("Unlock VIP first", true); }
         };
-
         list.appendChild(div);
       });
     });
 
-    /* =========================
-       COUNTDOWN
-    ========================= */
     function startCountdown() {
       const countdown = document.getElementById("countdown");
       let start = localStorage.getItem("countdownStart");
-
       if (!start) {
         start = Date.now();
         localStorage.setItem("countdownStart", start);
       }
-
       setInterval(() => {
         let diff = 86400000 - (Date.now() - start);
-
         if (diff <= 0) {
           start = Date.now();
           localStorage.setItem("countdownStart", start);
           diff = 86400000;
         }
-
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-
-        countdown.textContent =
-          `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
       }, 1000);
     }
-
     startCountdown();
   });
 
@@ -828,197 +673,54 @@ auth.onAuthStateChanged(function(user) {
     setTimeout(() => popup.remove(), 3000);
   }
 };
-  
-        </script>
-    <a href="support.html" class="support-float">
-  <i class="fas fa-headset"></i>
-    </a>
-<!-- Install App Button -->
-<button id="installBtn" style="
-display:none;
-position:fixed;
-top:90px;
-right:15px;
-z-index:9999;
-padding:12px 18px;
-border:none;
-border-radius:14px;
-background:linear-gradient(135deg,#00e0ff,#00ffaa);
-color:#001f3f;
-font-weight:700;
-font-size:15px;
-box-shadow:0 8px 20px rgba(0,0,0,.35);
-cursor:pointer;
-">
-📲 Install App
-</button>
-
-<script>
-let deferredPrompt;
-const installBtn = document.getElementById("installBtn");
-
-/* Detect install prompt */
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-
-  deferredPrompt = e;
-  installBtn.style.display = "block";
-});
-
-/* Install click */
-installBtn.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-
-  deferredPrompt.prompt();
-
-  const { outcome } = await deferredPrompt.userChoice;
-
-  if (outcome === "accepted") {
-    console.log("App installed");
-  }
-
-  deferredPrompt = null;
-  installBtn.style.display = "none";
-});
-
-/* Hide if already installed */
-window.addEventListener("appinstalled", () => {
-  installBtn.style.display = "none";
-});
-  </script>  
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register(
-'/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js'
-)
-.then(reg => {
-  console.log("SW registered:", reg.scope);
-})
-.catch(err => {
-  console.error("SW failed:", err);
-});
-}
-<!-- Firebase Messaging -->
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
-
-<script>
-const messaging = firebase.messaging();
-
-async function enableNotifications() {
-  try {
-
-    // Ask permission FIRST
-    const permission =
-      await Notification.requestPermission();
-
-    if (permission !== "granted") {
-      console.log("Notification denied");
-      return;
-    }
-
-    // Register service worker
-    const registration =
-      await navigator.serviceWorker.register(
-        "./firebase-messaging-sw.js"
-      );
-
-    console.log("SW REGISTERED");
-
-    // Wait until active
-    await navigator.serviceWorker.ready;
-
-    // Get token
-    const token =
-      await messaging.getToken({
-        vapidKey:
-        "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
-
-        serviceWorkerRegistration:
-        registration
-      });
-
-    console.log("TOKEN:", token);
-
-    if (!token) {
-      console.log("No token generated");
-      return;
-    }
-
-    const user =
-      firebase.auth().currentUser;
-
-    if (user) {
-
-      await firebase.database()
-      .ref(
-        "users/" +
-        user.uid +
-        "/fcmToken"
-      )
-      .set(token);
-
-      console.log(
-        "Token saved to Firebase"
-      );
-    }
-
-  } catch (err) {
-    console.error(
-      "FCM ERROR:",
-      err
-    );
-  }
-}
-
-/* Run after login */
-firebase.auth()
-.onAuthStateChanged(user => {
-
-  if (user) {
-    enableNotifications();
-  }
-
-});
-import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-// Assuming you have userUID and db already
-const notifRef = ref(db, `notifications/${userUID}`);
-
-onChildAdded(notifRef, (snapshot) => {
-  const notif = snapshot.val();
-  if(notif.read) return; // skip old ones
-  
-  // 1. Show Toast
-  showToast(notif.title, notif.body);
-  
-  // 2. Add to bell icon
-  addToBell(notif);
-  
-  // 3. Mark as read after 3 sec
-  setTimeout(() => {
-    update(ref(db, `notifications/${userUID}/${snapshot.key}`), {read: true});
-  }, 3000);
-});
-
-function showToast(title, body) {
-  // Simple toast. Replace with your UI lib
-  const toast = document.createElement('div');
-  toast.style = "position:fixed;top:20px;right:20px;background:#00d4ff;color:#000;padding:15px;border-radius:8px;z-index:9999;";
-  toast.innerHTML = `<b>${title}</b><br>${body}`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 5000);
-  }
-
-  import { ref, onChildAdded, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-onChildAdded(ref(db, `notifications/${currentUser.uid}`), (snap) => {
-  const n = snap.val();
-  if(n.read) return;
-  alert(`${n.title}\n\n${n.body}`); // replace with your toast later
-  update(ref(db, `notifications/${currentUser.uid}/${snap.key}`), {read: true});
-});
-</script>
-    <script>
     </script>
-  <script type="module" src="./js/app.js"></script>
+    <a href="support.html" class="support-float"><i class="fas fa-headset"></i></a>
+    <button id="installBtn" style="display:none;position:fixed;top:90px;right:15px;z-index:9999;padding:12px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,#00e0ff,#00ffaa);color:#001f3f;font-weight:700;font-size:15px;box-shadow:0 8px 20px rgba(0,0,0,.35);cursor:pointer;">📲 Install App</button>
+    <script>
+      let deferredPrompt;
+      const installBtn = document.getElementById("installBtn");
+      window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = "block"; });
+      installBtn.addEventListener("click", async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") { console.log("App installed"); }
+        deferredPrompt = null;
+        installBtn.style.display = "none";
+      });
+      window.addEventListener("appinstalled", () => { installBtn.style.display = "none"; });
+    </script>  
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register('/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js')
+        .then(reg => { console.log("SW registered:", reg.scope); })
+        .catch(err => { console.error("SW failed:", err); });
+      }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
+    <script>
+      const messaging = firebase.messaging();
+      async function enableNotifications() {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission !== "granted") { console.log("Notification denied"); return; }
+          const registration = await navigator.serviceWorker.register("./firebase-messaging-sw.js");
+          console.log("SW REGISTERED");
+          await navigator.serviceWorker.ready;
+          const token = await messaging.getToken({
+            vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+            serviceWorkerRegistration: registration
+          });
+          console.log("TOKEN:", token);
+          if (!token) { console.log("No token generated"); return; }
+          const user = firebase.auth().currentUser;
+          if (user) {
+            await firebase.database().ref("users/" + user.uid + "/fcmToken").set(token);
+            console.log("Token saved to Firebase");
+          }
+        } catch (err) { console.error("FCM ERROR:", err); }
+      }
+      firebase.auth().onAuthStateChanged(user => { if (user) { enableNotifications(); } });
+    </script>
   </body>
+</html>
