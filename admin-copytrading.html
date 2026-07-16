@@ -103,7 +103,8 @@ const traders = [
 let copyData = {};
 let usernames = {};
 let pnlIsProfit = {};
-let inputValues = {}; // NEW: Store input values so they don't reset
+let inputValues = {};
+let renderedCards = {}; // NEW: track if card already exists
 let isAdmin = false;
 
 auth.onAuthStateChanged(user=>{
@@ -137,7 +138,7 @@ function loadRealtimeData(){
   db.ref("copy_trading").on("value", snap=>{
     copyData = snap.val() || {};
     renderTraderStats();
-    renderActiveTrades();
+    updateActiveTrades(); // CHANGED: was renderActiveTrades
   }, err => {
     console.error("Copy load error:", err);
     showToast("Firebase Error: " + err.message, true);
@@ -186,9 +187,9 @@ function renderTraderStats(){
   document.getElementById("traderStats").innerHTML = html || "No data";
 }
 
-function renderActiveTrades(){
+// NEW FUNCTION: Only create card once, then just update numbers
+function updateActiveTrades(){
   const container = document.getElementById('activeTradesList');
-  let html = '';
   let hasTrades = false;
 
   traders.forEach(t=>{
@@ -203,65 +204,80 @@ function renderActiveTrades(){
       }
     }
 
+    const cardId = `card_${t.id}`;
+    let card = document.getElementById(cardId);
+
     if(copiers.length > 0){
       const activeCount = copiers.filter(c => c.status === "active").length;
       const pendingCount = copiers.filter(c => c.status === "pending_close").length;
       const totalCount = copiers.length;
 
-      // FIX 1: Restore input value from memory
-      const savedValue = inputValues[t.id] || '';
-
-      html += `<div class="active-trade-card">
+      // If card doesn't exist, create it ONCE
+      if(!card){
+        const savedValue = inputValues[t.id] || '';
+        card = document.createElement('div');
+        card.id = cardId;
+        card.className = 'active-trade-card';
+        card.innerHTML = `
         <div style="display:flex; justify-content:space-between; margin-bottom:8px">
           <div><b>${t.name}</b></div>
-          <div style="font-size:12px; color:#94a3b8">
-            ${totalCount} Copiers
-            ${pendingCount > 0? `<span class="badge badge-warning">${pendingCount} Requested Stop</span>` : ''}
-            | Total: $${totalCopied.toFixed(2)}
-          </div>
+          <div id="stats_${t.id}" style="font-size:12px; color:#94a3b8"></div>
         </div>
-        <div style="font-size:12px; margin-bottom:10px">
-          Copiers: ${copiers.map(c=>
-            c.status === "pending_close"
-           ? `<span class="pending-name">${c.username} ⏳</span>`
-            : c.username
-          ).join(', ')}
-        </div>
+        <div id="copiers_${t.id}" style="font-size:12px; margin-bottom:10px"></div>
 
         <div class="form-group"><label>Final P&L to Award for ALL ${totalCount} Copiers $</label>
           <div class="pnl-buttons">
             <button type="button" class="btn btn-profit" onclick="setPnL('${t.id}', true)">+ PROFIT</button>
             <button type="button" class="btn btn-loss" onclick="setPnL('${t.id}', false)">- LOSS</button>
           </div>
-          <input id="closeProfit_${t.id}" type="number" placeholder="25" value="${savedValue}" oninput="saveInput('${t.id}', this.value)"> <!-- FIX 2: save on input -->
+          <input id="closeProfit_${t.id}" type="number" placeholder="25" value="${savedValue}" oninput="saveInput('${t.id}', this.value)">
         </div>
         <button class="btn btn-red" onclick="closeTrade('${t.id}')">Close & Pay ${totalCount} Copiers</button>
-      </div>`;
-    }
-  });
-
-  if(!hasTrades) html = '<div style="text-align:center; color:#94a3b8; padding:20px">No active copiers<br><small>Waiting for users to click "Copy Trader"</small></div>';
-  container.innerHTML = html;
-
-  // FIX 3: Restore button opacity after re-render
-  traders.forEach(t => {
-    if(pnlIsProfit[t.id]!== undefined){
-      const el = document.getElementById(`closeProfit_${t.id}`);
-      if(el){
-        el.parentElement.querySelector('.btn-profit').style.opacity = pnlIsProfit[t.id]? '1' : '0.5';
-        el.parentElement.querySelector('.btn-loss').style.opacity =!pnlIsProfit[t.id]? '1' : '0.5';
+      `;
+        container.appendChild(card);
       }
+
+      // Update only the numbers, don't touch the input
+      document.getElementById(`stats_${t.id}`).innerHTML = `
+        ${totalCount} Copiers
+        ${pendingCount > 0? `<span class="badge badge-warning">${pendingCount} Requested Stop</span>` : ''}
+        | Total: $${totalCopied.toFixed(2)}
+      `;
+      document.getElementById(`copiers_${t.id}`).innerHTML = `Copiers: ${copiers.map(c=>
+        c.status === "pending_close"
+       ? `<span class="pending-name">${c.username} ⏳</span>`
+        : c.username
+      ).join(', ')}`;
+
+      // Update button text and label
+      card.querySelector('label').innerText = `Final P&L to Award for ALL ${totalCount} Copiers $`;
+      card.querySelector('.btn-red').innerText = `Close & Pay ${totalCount} Copiers`;
+
+      // Restore button opacity
+      if(pnlIsProfit[t.id]!== undefined){
+        card.querySelector('.btn-profit').style.opacity = pnlIsProfit[t.id]? '1' : '0.5';
+        card.querySelector('.btn-loss').style.opacity =!pnlIsProfit[t.id]? '1' : '0.5';
+      }
+
+    } else {
+      // Remove card if no copiers
+      if(card) card.remove();
     }
   });
+
+  if(!hasTrades && container.children.length === 0) {
+    container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px">No active copiers<br><small>Waiting for users to click "Copy Trader"</small></div>';
+  } else if(container.querySelector('.loading')){
+    container.querySelector('.loading').remove();
+  }
 }
 
-// FIX 4: Save input value so it doesn't reset
 function saveInput(traderId, value){
   inputValues[traderId] = value;
 }
 
 function setPnL(traderId, isProfit){
-  pnlIsProfit[traderId] = isProfit; // FIX: make it per trader
+  pnlIsProfit[traderId] = isProfit;
   const el = document.getElementById(`closeProfit_${traderId}`);
   if(el){
     el.parentElement.querySelector('.btn-profit').style.opacity = isProfit? '1' : '0.5';
@@ -273,7 +289,7 @@ async function closeTrade(traderId){
   if(!isAdmin) return showToast("Unauthorized", true);
   let profit = parseFloat(document.getElementById(`closeProfit_${traderId}`).value);
   if(isNaN(profit)) return showToast("Enter P&L amount");
-  if(!pnlIsProfit[traderId]) profit = -Math.abs(profit); // FIX: check per trader
+  if(!pnlIsProfit[traderId]) profit = -Math.abs(profit);
 
   const trader = traders.find(t=>t.id===traderId);
   const tradeData = { traderId, profit, status: "CLOSED", closedAt: Date.now() };
@@ -311,7 +327,7 @@ async function closeTrade(traderId){
     }
 
     if(Object.keys(updates).length > 0) await db.ref().update(updates);
-    delete inputValues[traderId]; // clear input after close
+    delete inputValues[traderId];
     showToast(`Trade Closed. ${count} Copiers Paid!`);
   } catch(e) { showToast("Error: " + e.message, true); }
 }
