@@ -97,7 +97,7 @@ auth.onAuthStateChanged(user=>{
     userId = user.uid;
     loadData();
     setInterval(checkMines, 60000);
-    setInterval(renderActive, 1000); // UPDATE COUNTDOWN EVERY 1 SECOND
+    setInterval(renderActive, 1000);
   }
 })
 
@@ -123,7 +123,8 @@ function renderPlans(){
     let cardClass = '';
 
     if(existingMine){
-      const daysLeft = Math.max(0, Math.ceil((existingMine.endTime - Date.now()) / (1000*60*60*24)));
+      const endTime = Number(existingMine.endTime); // FIX 1: FORCE TO NUMBER
+      const daysLeft = Math.max(0, Math.ceil((endTime - Date.now()) / (1000*60*60*24)));
       btnText = `Wait ${daysLeft} days to claim`;
       isDisabled = true;
       cardClass = 'owned';
@@ -170,7 +171,7 @@ function buyPlan(planId){
     roi: plan.roi,
     days: plan.days,
     startedAt: Date.now(),
-    endTime: endTime, // THIS SAVES TO FIREBASE SO IT WONT RESET
+    endTime: endTime,
     status: 'active'
   });
 
@@ -178,7 +179,8 @@ function buyPlan(planId){
 }
 
 function formatTime(ms){
-  if(ms <= 0) return "00:00:00";
+  ms = Number(ms); // FIX 2: FORCE TO NUMBER
+  if(isNaN(ms) || ms <= 0) return "Claim Ready!"; // If error show this
   const days = Math.floor(ms / (1000*60*60*24));
   const hours = Math.floor((ms % (1000*60*60*24)) / (1000*60*60));
   const minutes = Math.floor((ms % (1000*60*60)) / (1000*60));
@@ -196,15 +198,17 @@ function renderActive(){
   }
   container.innerHTML = Object.entries(activeMines).map(([id, m])=>{
     if(!m) return '';
-    const timeLeft = m.endTime - Date.now();
-    const totalTime = m.endTime - m.startedAt;
-    const progress = totalTime > 0? Math.min(100, ((Date.now() - m.startedAt) / totalTime) * 100) : 100;
+    const endTime = Number(m.endTime); // FORCE TO NUMBER
+    const startedAt = Number(m.startedAt);
+    const timeLeft = endTime - Date.now();
+    const totalTime = endTime - startedAt;
+    const progress = totalTime > 0? Math.min(100, ((Date.now() - startedAt) / totalTime) * 100) : 100;
 
     return `
     <div class="mine-item">
       <div class="mine-top">
         <div class="mine-name">${m.planName} - ${m.days}D</div>
-        <div class="mine-return">+$${m.profit.toFixed(2)}</div>
+        <div class="mine-return">+$${Number(m.profit).toFixed(2)}</div>
       </div>
       <div class="progress-bar"><div class="progress" style="width:${progress}%"></div></div>
       <div class="timer"><i class="fas fa-clock"></i> ${formatTime(timeLeft)}</div>
@@ -219,7 +223,8 @@ function checkMines(){
     const mines = snap.val() || {};
     for(let id in mines){
       const m = mines[id];
-      if(m && m.status === 'active' && Date.now() >= m.endTime){
+      const endTime = Number(m.endTime);
+      if(m && m.status === 'active' && Date.now() >= endTime){
 
         db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) + m.amount + m.profit);
         db.ref("users/" + userId + "/miningEarnings").transaction(c => (Number(c)||0) + m.profit);
