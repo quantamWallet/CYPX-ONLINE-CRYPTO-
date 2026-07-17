@@ -571,78 +571,73 @@ function finishTrade(amount){
   updateBotUI();
   saveBotData('active_trade', null);
 
-  // DETERMINE WIN/LOSS AND CALCULATE PROFIT
   const isWin = determineResult(selectedBot);
   const potentialProfit = Number((amount * leverage * 0.03).toFixed(2));
-  const updates = {};
 
-  // Read current total earnings
   db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
     let totalEarnings = Number(snap.val()) || 0;
+    const updates = {};
 
     if(isWin){
       wins++;
       
-      // 1. RETURN CAPITAL + PROFIT TO BALANCE
-      balance = balance + amount + potentialProfit;
+      // 1. TRANSACTION: RETURN CAPITAL + PROFIT TO BALANCE
+      db.ref("users/" + userId + "/balance").transaction(current => {
+        return (Number(current) || 0) + amount + potentialProfit;
+      });
       
-      // 2. ADD ONLY PROFIT TO BOT EARNINGS FOR DASHBOARD
+      // 2. ADD PROFIT TO BOT EARNINGS
       db.ref("users/" + userId + "/botEarnings").transaction(current => {
         return (Number(current) || 0) + potentialProfit;
       });
 
       totalEarnings += potentialProfit;
-
       updates.wins = wins;
-      updates.balance = balance;
       updates.totalEarnings = totalEarnings;
 
       document.getElementById('resultIcon').style.color = '#00ff88';
       document.getElementById('resultTitle').textContent = 'Session Win';
       document.getElementById('profitText').style.color = '#00ff88';
       document.getElementById('profitText').textContent = `+$${potentialProfit.toFixed(2)}`;
-
       addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
+
     }else{
       losses++;
-      balance = balance - potentialProfit; // lose profit
 
-      // 2. ADD LOSS TO BOT EARNINGS TOO SO TOTAL EARNS GOES DOWN
+      // 1. TRANSACTION: DEDUCT LOSS FROM BALANCE  
+      db.ref("users/" + userId + "/balance").transaction(current => {
+        return (Number(current) || 0) - potentialProfit;
+      });
+
+      // 2. DEDUCT FROM BOT EARNINGS
       db.ref("users/" + userId + "/botEarnings").transaction(current => {
         return (Number(current) || 0) - potentialProfit;
       });
 
       updates.losses = losses;
-      updates.balance = balance;
       updates.totalEarnings = totalEarnings;
 
       document.getElementById('resultIcon').style.color = '#ff3b30';
       document.getElementById('resultTitle').textContent = 'Session Loss';
       document.getElementById('profitText').style.color = '#ff3b30';
       document.getElementById('profitText').textContent = `-$${potentialProfit.toFixed(2)}`;
-
       addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
     }
 
-    // Save trade history
-    const tradeId = Date.now();
-    saveBotData(`trade_history/${tradeId}`, {
-      botName: selectedBot,
-      pair: selectedAsset.pair,
-      amount: amount,
-      duration: duration,
-      result: isWin ? 'win' : 'loss',
-      pnl: isWin ? potentialProfit : -potentialProfit,
-      timestamp: Date.now()
+    saveBotData(`trade_history/${Date.now()}`, {
+      botName: selectedBot, pair: selectedAsset.pair, amount: amount, 
+      duration: duration, result: isWin ? 'win' : 'loss', 
+      pnl: isWin ? potentialProfit : -potentialProfit, timestamp: Date.now()
     });
 
-    saveUserData(updates);
+    saveUserData(updates); // only wins/losses/totalEarnings now
     updateStats();
 
     document.getElementById('startBtn').disabled = false;
     document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
-
     document.getElementById('resultModal').style.display = 'flex';
+  });
+  }
   }).catch(err => {
     console.error('Error finishing trade:', err);
     showToast('Error completing trade', '#ff3b30');
