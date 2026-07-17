@@ -636,8 +636,6 @@ function finishTrade(amount){
     document.getElementById('startBtn').disabled = false;
     document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
     document.getElementById('resultModal').style.display = 'flex';
-  });
-  }
   }).catch(err => {
     console.error('Error finishing trade:', err);
     showToast('Error completing trade', '#ff3b30');
