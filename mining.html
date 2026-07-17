@@ -15,7 +15,7 @@ header{background:#001a33;padding:15px;text-align:center;border-bottom:1px solid
 header h1{color:#ffd700;font-size:22px;}
 .container{padding:15px;max-width:600px;margin:0 auto;}
 .balance-card{background:linear-gradient(135deg,#007BFF 0%,#00C896 100%);padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;}
-.balance-label{font-size:12px;color:rgba(255,255,0.9);text-transform:uppercase;}
+.balance-label{font-size:12px;color:rgba(255,255,255,0.9);text-transform:uppercase;}
 .balance-value{font-size:28px;font-weight:800;color:#ffd700;margin-top:5px;}
 .section-title{font-size:14px;margin:15px 0;color:#94e2cc;font-weight:600;}
 .plan-grid{display:grid;gap:12px;}
@@ -34,9 +34,9 @@ header h1{color:#ffd700;font-size:22px;}
 .mine-top{display:flex;justify-content:space-between;margin-bottom:8px;}
 .mine-name{font-weight:700;}
 .mine-return{color:#00C896;font-weight:800;}
-.progress-bar{height:6px;background:#002f6c;border-radius:10px;overflow:hidden;}
+.progress-bar{height:6px;background:#002f6c;border-radius:10px;overflow:hidden;margin:8px 0;}
 .progress{height:100%;background:linear-gradient(90deg,#00C896,#007BFF);}
-.timer{font-size:11px;color:#94e2cc;margin-top:6px;text-align:right;}
+.timer{font-size:12px;color:#ffd700;margin-top:6px;text-align:center;font-weight:700;letter-spacing:1px;}
 .toast{position:fixed;top:20px;right:15px;background:#00C896;padding:12px 16px;border-radius:10px;display:none;z-index:1000;}
 </style>
 </head>
@@ -97,6 +97,7 @@ auth.onAuthStateChanged(user=>{
     userId = user.uid;
     loadData();
     setInterval(checkMines, 60000);
+    setInterval(renderActive, 1000); // UPDATE COUNTDOWN EVERY 1 SECOND
   }
 })
 
@@ -115,8 +116,7 @@ function renderPlans(){
   document.getElementById('plans').innerHTML = plans.map(p=>{
     const profit = (p.price * p.roi / 100).toFixed(2);
     const daily = (profit / p.days).toFixed(2);
-    
-    // CHECK IF THIS PLAN IS ALREADY ACTIVE
+
     const existingMine = Object.values(activeMines).find(m => m.planName === p.name && m.status === 'active');
     let btnText = 'Activate $'+p.price;
     let isDisabled = balance < p.price;
@@ -144,7 +144,7 @@ function renderPlans(){
         <div class="plan-stat"><small>Duration</small><div>${p.days} Days</div></div>
         <div class="plan-stat"><small>Daily</small><div>$${daily}</div></div>
       </div>
-      <button class="plan-btn" onclick="buyPlan(${p.id})" ${isDisabled ? 'disabled' : ''}>
+      <button class="plan-btn" onclick="buyPlan(${p.id})" ${isDisabled? 'disabled' : ''}>
         ${btnText}
       </button>
     </div>
@@ -170,11 +170,22 @@ function buyPlan(planId){
     roi: plan.roi,
     days: plan.days,
     startedAt: Date.now(),
-    endTime: endTime,
+    endTime: endTime, // THIS SAVES TO FIREBASE SO IT WONT RESET
     status: 'active'
   });
 
   showToast(`${plan.name} Activated for ${plan.days} days!`);
+}
+
+function formatTime(ms){
+  if(ms <= 0) return "00:00:00";
+  const days = Math.floor(ms / (1000*60*60*24));
+  const hours = Math.floor((ms % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((ms % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((ms % (1000*60)) / 1000);
+
+  if(days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
 }
 
 function renderActive(){
@@ -187,8 +198,8 @@ function renderActive(){
     if(!m) return '';
     const timeLeft = m.endTime - Date.now();
     const totalTime = m.endTime - m.startedAt;
-    const progress = totalTime > 0 ? Math.min(100, ((Date.now() - m.startedAt) / totalTime) * 100) : 100;
-    const daysLeft = Math.max(0, Math.ceil(timeLeft / (1000*60*60*24)));
+    const progress = totalTime > 0? Math.min(100, ((Date.now() - m.startedAt) / totalTime) * 100) : 100;
+
     return `
     <div class="mine-item">
       <div class="mine-top">
@@ -196,7 +207,7 @@ function renderActive(){
         <div class="mine-return">+$${m.profit.toFixed(2)}</div>
       </div>
       <div class="progress-bar"><div class="progress" style="width:${progress}%"></div></div>
-      <div class="timer">${daysLeft} days left</div>
+      <div class="timer"><i class="fas fa-clock"></i> ${formatTime(timeLeft)}</div>
     </div>
     `
   }).join('');
