@@ -403,43 +403,67 @@ auth.onAuthStateChanged(user => {
 
   document.getElementById("user-email").textContent = user.email;
 
-  /* EARNINGS */
-  function loadEarnings() {
-    let total = 0;
-    db.ref("referralPurchases/" + uid).once("value").then(refSnap => {
-      if (refSnap.exists()) {
-        refSnap.forEach(child => {
-          const e = child.val();
-          if (e.status && e.status.toLowerCase() === "approved") {
-            total += Number(e.price || e.amount || 0);
-          }
-        });
-      }
-      return db.ref("users/" + uid + "/hasClaimedBonus").once("value");
-    }).then(bonusSnap => {
-      if (bonusSnap.val() === true) {
-        total += 100;
-      }
-      return db.ref("users/" + uid + "/vipEarnings").once("value");
-    }).then(vipSnap => {
-      if (vipSnap.exists()) {
-        vipSnap.forEach(child => {
-          const v = child.val();
-          total += Number(v.totalEarned || 0);
-        });
-      }
-      earningsUser = total;
-      render();
-    }).catch(err => {
-      console.error("Earnings error:", err);
-      render();
-    });
-  }
 
-  loadEarnings();
-  db.ref("referralPurchases/" + uid).on("value", loadEarnings);
-  db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
-  db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
+/* EARNINGS */
+function loadEarnings() {
+  let total = 0;
+  let loaded = 0;
+  const checkDone = () => { if(++loaded === 6) { earningsUser = total; render(); } }
+
+  // 1. REFERRAL
+  db.ref("referralPurchases/" + uid).once("value").then(refSnap => {
+    if (refSnap.exists()) {
+      refSnap.forEach(child => {
+        const e = child.val();
+        if (e.status && e.status.toLowerCase() === "approved") {
+          total += Number(e.price || e.amount || 0);
+        }
+      });
+    }
+    checkDone();
+  });
+
+  // 2. BONUS
+  db.ref("users/" + uid + "/hasClaimedBonus").once("value").then(bonusSnap => {
+    if (bonusSnap.val() === true) total += 100;
+    checkDone();
+  });
+
+  // 3. VIP
+  db.ref("users/" + uid + "/vipEarnings").once("value").then(vipSnap => {
+    if (vipSnap.exists()) {
+      vipSnap.forEach(child => total += Number(child.val().totalEarned || 0));
+    }
+    checkDone();
+  });
+
+  // 4. MINING <-- ADD THIS
+  db.ref("users/" + uid + "/miningEarnings").once("value").then(snap => {
+    total += Number(snap.val() || 0);
+    checkDone();
+  });
+
+  // 5. BOT <-- ADD THIS
+  db.ref("users/" + uid + "/botEarnings").once("value").then(snap => {
+    total += Number(snap.val() || 0);
+    checkDone();
+  });
+
+  // 6. COPY <-- ADD THIS
+  db.ref("users/" + uid + "/copyEarnings").once("value").then(snap => {
+    total += Number(snap.val() || 0);
+    checkDone();
+  });
+}
+
+loadEarnings();
+// LIVE UPDATERS
+db.ref("referralPurchases/" + uid).on("value", loadEarnings);
+db.ref("users/" + uid + "/hasClaimedBonus").on("value", loadEarnings);
+db.ref("users/" + uid + "/vipEarnings").on("value", loadEarnings);
+db.ref("users/" + uid + "/miningEarnings").on("value", loadEarnings); // <-- ADD
+db.ref("users/" + uid + "/botEarnings").on("value", loadEarnings);    // <-- ADD
+db.ref("users/" + uid + "/copyEarnings").on("value", loadEarnings);   // <-- ADD
 
   /* USER DATA - KYC LOGIC REMOVED */
   db.ref("users/" + uid).on("value", snap => {
