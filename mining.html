@@ -123,11 +123,12 @@ function renderPlans(){
     let cardClass = '';
 
     if(existingMine){
-      const endTime = Number(existingMine.endTime); // FIX 1: FORCE TO NUMBER
-      const daysLeft = Math.max(0, Math.ceil((endTime - Date.now()) / (1000*60*60*24)));
-      btnText = `Wait ${daysLeft} days to claim`;
-      isDisabled = true;
-      cardClass = 'owned';
+  const endTime = Number(existingMine.endTime) || (Number(existingMine.startedAt) + (existingMine.days * 24 * 60 * 60 * 1000));
+  const daysLeft = Math.max(0, Math.ceil((endTime - Date.now()) / (1000*60*60*24)));
+  btnText = `Wait ${daysLeft} days to claim`;
+  isDisabled = true;
+  cardClass = 'owned';
+    }
     } else if(balance < p.price) {
       btnText = 'Insufficient Balance';
       isDisabled = true;
@@ -179,8 +180,8 @@ function buyPlan(planId){
 }
 
 function formatTime(ms){
-  ms = Number(ms); // FIX 2: FORCE TO NUMBER
-  if(isNaN(ms) || ms <= 0) return "Claim Ready!"; // If error show this
+  ms = Number(ms);
+  if(isNaN(ms) || ms <= 0) return "Claim Ready!";
   const days = Math.floor(ms / (1000*60*60*24));
   const hours = Math.floor((ms % (1000*60*60*24)) / (1000*60*60));
   const minutes = Math.floor((ms % (1000*60*60)) / (1000*60));
@@ -198,11 +199,14 @@ function renderActive(){
   }
   container.innerHTML = Object.entries(activeMines).map(([id, m])=>{
     if(!m) return '';
-    const endTime = Number(m.endTime); // FORCE TO NUMBER
-    const startedAt = Number(m.startedAt);
+    
+    // FIX: FORCE TO NUMBER AND ADD FALLBACK FOR OLD MINES
+    const endTime = Number(m.endTime) || (Number(m.startedAt) + (m.days * 24 * 60 * 60 * 1000));
+    const startedAt = Number(m.startedAt) || (endTime - (m.days * 24 * 60 * 60 * 1000));
+    
     const timeLeft = endTime - Date.now();
     const totalTime = endTime - startedAt;
-    const progress = totalTime > 0? Math.min(100, ((Date.now() - startedAt) / totalTime) * 100) : 100;
+    const progress = totalTime > 0 ? Math.min(100, ((Date.now() - startedAt) / totalTime) * 100) : 100;
 
     return `
     <div class="mine-item">
