@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX Mining</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#0a0f1a;color:#fff;min-height:100vh;}
+header{background:#001a33;padding:15px;text-align:center;border-bottom:1px solid #002f6c;}
+header h1{color:#ffd700;font-size:22px;}
+.container{padding:15px;max-width:600px;margin:0 auto;}
+.balance-card{background:linear-gradient(135deg,#007BFF 0%,#00C896 100%);padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;}
+.balance-label{font-size:12px;color:rgba(255,255,0.9);text-transform:uppercase;}
+.balance-value{font-size:28px;font-weight:800;color:#ffd700;margin-top:5px;}
+.section-title{font-size:14px;margin:15px 0;color:#94e2cc;font-weight:600;}
+.plan-grid{display:grid;gap:12px;}
+.plan-card{background:rgba(0,26,51,0.7);backdrop-filter:blur(10px);padding:16px;border-radius:14px;border:2px solid rgba(255,255,255,0.08);}
+.plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.plan-name{font-weight:800;font-size:16px;color:#fff;}
+.plan-price{color:#ffd700;font-weight:800;font-size:18px;}
+.plan-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;font-size:12px;}
+.plan-stat{background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;text-align:center;}
+.plan-stat small{color:#94e2cc;}
+.plan-btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(90deg,#00C896,#007A54);color:#000;font-weight:800;cursor:pointer;}
+.plan-btn:disabled{background:#444;color:#888;cursor:not-allowed;}
+.active-mines{margin-top:25px;}
+.mine-item{background:#001a33;padding:14px;border-radius:12px;margin-bottom:10px;}
+.mine-top{display:flex;justify-content:space-between;margin-bottom:8px;}
+.mine-name{font-weight:700;}
+.mine-return{color:#00C896;font-weight:800;}
+.progress-bar{height:6px;background:#002f6c;border-radius:10px;overflow:hidden;}
+.progress{height:100%;background:linear-gradient(90deg,#00C896,#007BFF);}
+.timer{font-size:11px;color:#94e2cc;margin-top:6px;text-align:right;}
+.toast{position:fixed;top:20px;right:15px;background:#00C896;padding:12px 16px;border-radius:10px;display:none;z-index:1000;}
+</style>
+</head>
+<body>
+
+<header><h1><i class="fas fa-microchip"></i> CYPX MINING</h1></header>
+
+<div class="toast" id="toast"></div>
+
+<div class="container">
+  <div class="balance-card">
+    <div class="balance-label">Available Balance</div>
+    <div class="balance-value" id="balance">$0.00</div>
+  </div>
+
+  <div class="section-title">Select Mining Plan</div>
+  <div class="plan-grid" id="plans"></div>
+
+  <div class="section-title">Your Active Mining</div>
+  <div class="active-mines" id="activeMines"></div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+let userId = null;
+let balance = 0;
+let activeMines = {};
+
+const plans = [
+  {id:1, name:"Bronze Miner", price:25, roi:18, days:36},
+  {id:2, name:"Silver Miner", price:50, roi:20, days:36},
+  {id:3, name:"Gold Miner", price:100, roi:22, days:36},
+  {id:4, name:"Platinum Miner", price:250, roi:25, days:21},
+  {id:5, name:"Diamond Miner", price:500, roi:28, days:21},
+  {id:6, name:"Titanium Miner", price:1000, roi:30, days:21},
+  {id:7, name:"Elite Miner", price:2500, roi:33, days:14},
+  {id:8, name:"VIP Miner", price:5000, roi:35, days:14},
+  {id:9, name:"Quantum Miner", price:10000, roi:38, days:14},
+  {id:10, name:"CYPX Infinity", price:25000, roi:40, days:14}
+];
+
+auth.signInAnonymously().catch(console.error);
+auth.onAuthStateChanged(user=>{
+  if(user){
+    userId = user.uid;
+    loadData();
+    setInterval(checkMines, 60000);
+  }
+})
+
+function loadData(){
+  db.ref('users/'+userId).on('value', snap=>{
+    const data = snap.val() || {};
+    balance = data.balance || 0;
+    activeMines = data.activeMining || {}; // MUST MATCH DB KEY
+    document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
+    renderPlans();
+    renderActive();
+  })
+}
+
+function renderPlans(){
+  document.getElementById('plans').innerHTML = plans.map(p=>{
+    const profit = (p.price * p.roi / 100).toFixed(2);
+    const daily = (profit / p.days).toFixed(2);
+    return `
+    <div class="plan-card">
+      <div class="plan-header">
+        <div class="plan-name">${p.name}</div>
+        <div class="plan-price">$${p.price}</div>
+      </div>
+      <div class="plan-stats">
+        <div class="plan-stat"><small>Total ROI</small><div>${p.roi}%</div></div>
+        <div class="plan-stat"><small>Total Profit</small><div>$${profit}</div></div>
+        <div class="plan-stat"><small>Duration</small><div>${p.days} Days</div></div>
+        <div class="plan-stat"><small>Daily</small><div>$${daily}</div></div>
+      </div>
+      <button class="plan-btn" onclick="buyPlan(${p.id})" ${balance < p.price? 'disabled' : ''}>
+        ${balance < p.price? 'Insufficient Balance' : 'Activate $'+p.price}
+      </button>
+    </div>
+    `
+  }).join('');
+}
+
+function buyPlan(planId){
+  if(!userId) return;
+  const plan = plans.find(p=>p.id===planId);
+  if(!plan || balance < plan.price) return showToast('Insufficient Balance');
+
+  const mineId = Date.now();
+  const endTime = Date.now() + (plan.days * 24 * 60 * 60 * 1000);
+  const profit = plan.price * plan.roi / 100;
+
+  db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) - plan.price);
+
+  db.ref(`users/${userId}/activeMining/${mineId}`).set({
+    planName: plan.name,
+    amount: plan.price,
+    profit: profit,
+    roi: plan.roi,
+    days: plan.days,
+    startedAt: Date.now(),
+    endTime: endTime,
+    status: 'active'
+  });
+
+  showToast(`${plan.name} Activated for ${plan.days} days!`);
+}
+
+function renderActive(){
+  const container = document.getElementById('activeMines');
+  if(!activeMines || Object.keys(activeMines).length === 0){
+    container.innerHTML = '<div style="color:#666;text-align:center;">No active mining</div>';
+    return;
+  }
+  container.innerHTML = Object.entries(activeMines).map(([id, m])=>{
+    if(!m) return ''; // safety check
+    const timeLeft = m.endTime - Date.now();
+    const totalTime = m.endTime - m.startedAt;
+    const progress = totalTime > 0 ? Math.min(100, ((Date.now() - m.startedAt) / totalTime) * 100) : 100;
+    const daysLeft = Math.max(0, Math.ceil(timeLeft / (1000*60*60*24)));
+    return `
+    <div class="mine-item">
+      <div class="mine-top">
+        <div class="mine-name">${m.planName} - ${m.days}D</div>
+        <div class="mine-return">+$${m.profit.toFixed(2)}</div>
+      </div>
+      <div class="progress-bar"><div class="progress" style="width:${progress}%"></div></div>
+      <div class="timer">${daysLeft} days left</div>
+    </div>
+    `
+  }).join('');
+}
+
+function checkMines(){
+  if(!userId) return;
+  db.ref(`users/${userId}/activeMining`).once('value').then(snap=>{ // READ FRESH DATA
+    const mines = snap.val() || {};
+    for(let id in mines){
+      const m = mines[id];
+      if(m && m.status === 'active' && Date.now() >= m.endTime){
+
+        db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) + m.amount + m.profit);
+        db.ref("users/" + userId + "/miningEarnings").transaction(c => (Number(c)||0) + m.profit);
+        db.ref(`users/${userId}/activeMining/${id}`).remove();
+
+        showToast(`${m.planName} completed! +$${(m.amount + m.profit).toFixed(2)}`);
+      }
+    }
+  })
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>t.style.display='none', 3000);
+}
+</script>
+</body>
+    </html>
