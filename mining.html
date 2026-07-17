@@ -20,6 +20,7 @@ header h1{color:#ffd700;font-size:22px;}
 .section-title{font-size:14px;margin:15px 0;color:#94e2cc;font-weight:600;}
 .plan-grid{display:grid;gap:12px;}
 .plan-card{background:rgba(0,26,51,0.7);backdrop-filter:blur(10px);padding:16px;border-radius:14px;border:2px solid rgba(255,255,255,0.08);}
+.plan-card.owned{border-color:#00C896;}
 .plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 .plan-name{font-weight:800;font-size:16px;color:#fff;}
 .plan-price{color:#ffd700;font-weight:800;font-size:18px;}
@@ -103,7 +104,7 @@ function loadData(){
   db.ref('users/'+userId).on('value', snap=>{
     const data = snap.val() || {};
     balance = data.balance || 0;
-    activeMines = data.activeMining || {}; // MUST MATCH DB KEY
+    activeMines = data.activeMining || {};
     document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
     renderPlans();
     renderActive();
@@ -114,8 +115,25 @@ function renderPlans(){
   document.getElementById('plans').innerHTML = plans.map(p=>{
     const profit = (p.price * p.roi / 100).toFixed(2);
     const daily = (profit / p.days).toFixed(2);
+    
+    // CHECK IF THIS PLAN IS ALREADY ACTIVE
+    const existingMine = Object.values(activeMines).find(m => m.planName === p.name && m.status === 'active');
+    let btnText = 'Activate $'+p.price;
+    let isDisabled = balance < p.price;
+    let cardClass = '';
+
+    if(existingMine){
+      const daysLeft = Math.max(0, Math.ceil((existingMine.endTime - Date.now()) / (1000*60*60*24)));
+      btnText = `Wait ${daysLeft} days to claim`;
+      isDisabled = true;
+      cardClass = 'owned';
+    } else if(balance < p.price) {
+      btnText = 'Insufficient Balance';
+      isDisabled = true;
+    }
+
     return `
-    <div class="plan-card">
+    <div class="plan-card ${cardClass}">
       <div class="plan-header">
         <div class="plan-name">${p.name}</div>
         <div class="plan-price">$${p.price}</div>
@@ -126,8 +144,8 @@ function renderPlans(){
         <div class="plan-stat"><small>Duration</small><div>${p.days} Days</div></div>
         <div class="plan-stat"><small>Daily</small><div>$${daily}</div></div>
       </div>
-      <button class="plan-btn" onclick="buyPlan(${p.id})" ${balance < p.price? 'disabled' : ''}>
-        ${balance < p.price? 'Insufficient Balance' : 'Activate $'+p.price}
+      <button class="plan-btn" onclick="buyPlan(${p.id})" ${isDisabled ? 'disabled' : ''}>
+        ${btnText}
       </button>
     </div>
     `
@@ -166,7 +184,7 @@ function renderActive(){
     return;
   }
   container.innerHTML = Object.entries(activeMines).map(([id, m])=>{
-    if(!m) return ''; // safety check
+    if(!m) return '';
     const timeLeft = m.endTime - Date.now();
     const totalTime = m.endTime - m.startedAt;
     const progress = totalTime > 0 ? Math.min(100, ((Date.now() - m.startedAt) / totalTime) * 100) : 100;
@@ -186,7 +204,7 @@ function renderActive(){
 
 function checkMines(){
   if(!userId) return;
-  db.ref(`users/${userId}/activeMining`).once('value').then(snap=>{ // READ FRESH DATA
+  db.ref(`users/${userId}/activeMining`).once('value').then(snap=>{
     const mines = snap.val() || {};
     for(let id in mines){
       const m = mines[id];
@@ -210,4 +228,4 @@ function showToast(msg){
 }
 </script>
 </body>
-    </html>
+</html>
