@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deposit - CYPX HOLDINGS</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #071426, #0d1b2a);
+      color: white;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #ffcc00;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #cccccc;
+      font-size: 14px;
+    }
+
+    .deposit-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .deposit-card {
+      background: #10233d;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .deposit-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .deposit-card h2 {
+      color: #ffcc00;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .deposit-card p {
+      color: #d1d1d1;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .deposit-btn {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(to right, #ffcc00, #f5b800);
+      color: #071426;
+      transition: 0.3s ease;
+    }
+
+    .deposit-btn:hover {
+      opacity: 0.9;
+    }
+
+    .info-box {
+      margin-top: 25px;
+      background: rgba(255,255,255,0.06);
+      border-left: 4px solid #ffcc00;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #dddddd;
+      max-width: 600px;
+      margin: 25px auto 0;
+    }
+  </style>
+
+  <!-- Firebase JS SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+  </script>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>Deposit Center</h1>
+    <p>Fund your CYPX HOLDINGS account securely with Crypto</p>
+  </div>
+
+  <div class="deposit-container">
+
+    <!-- Crypto Deposit Only -->
+    <div class="deposit-card">
+      <h2>Crypto Deposit</h2>
+      <p>
+        Deposit cryptocurrency directly into your CYPX HOLDINGS wallet. 
+        Supported networks include TRC20, BEP20, TRX, USDT, BNB, and other supported assets.
+      </p>
+
+      <button class="deposit-btn" onclick="window.location.href='crypto.html'">
+        Proceed to Crypto Deposit
+      </button>
+    </div>
+
+  </div>
+
+  <div class="info-box">
+    <strong>Important Notice:</strong><br>
+    Please ensure you choose the correct deposit method and network before making payments. 
+    Incorrect transfers may lead to delays or loss of funds. 
+    Always verify payment details carefully before confirming transactions.
+  </div>
+
+<script src="js/app-back.js"></script>
+</body>
+</html>
