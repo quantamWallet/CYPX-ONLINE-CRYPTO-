@@ -123,12 +123,11 @@ function renderPlans(){
     let cardClass = '';
 
     if(existingMine){
-  const endTime = Number(existingMine.endTime) || (Number(existingMine.startedAt) + (existingMine.days * 24 * 60 * 60 * 1000));
-  const daysLeft = Math.max(0, Math.ceil((endTime - Date.now()) / (1000*60*60*24)));
-  btnText = `Wait ${daysLeft} days to claim`;
-  isDisabled = true;
-  cardClass = 'owned';
-    }
+      const endTime = Number(existingMine.endTime) || (Number(existingMine.startedAt) + (existingMine.days * 24 * 60 * 60 * 1000));
+      const daysLeft = Math.max(0, Math.ceil((endTime - Date.now()) / (1000*60*60*24)));
+      btnText = `Wait ${daysLeft} days to claim`;
+      isDisabled = true;
+      cardClass = 'owned';
     } else if(balance < p.price) {
       btnText = 'Insufficient Balance';
       isDisabled = true;
@@ -152,7 +151,7 @@ function renderPlans(){
     </div>
     `
   }).join('');
-}
+                                                         }
 
 function buyPlan(planId){
   if(!userId) return;
