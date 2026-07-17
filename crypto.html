@@ -12,231 +12,138 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+<!-- QR Code Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-  font-family:Arial,sans-serif;
-  background:linear-gradient(to bottom,#071426,#0d1b2a);
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:linear-gradient(160deg,#050e1a 0%,#0d1b2a 100%);
   color:white;
   padding-bottom:90px;
+  min-height:100vh;
 }
-
 .header{
-  background:#10233d;
+  background:rgba(16,35,61,0.8);
+  backdrop-filter:blur(10px);
   padding:18px;
   text-align:center;
   font-size:22px;
-  font-weight:bold;
+  font-weight:800;
   color:#ffcc00;
   box-shadow:0 2px 10px rgba(0,0,0,0.3);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  position:sticky;top:0;z-index:10;
 }
-
-.container{
-  max-width:430px;
-  margin:20px auto;
-  padding:0 15px;
-}
-
+.container{max-width:480px;margin:20px auto;padding:0 15px;}
 .hero{
-  background:#10233d;
-  border-radius:18px;
-  padding:20px;
+  background:rgba(16,35,61,0.6);
+  backdrop-filter:blur(12px);
+  border-radius:20px;
+  padding:22px;
   margin-bottom:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.05);
 }
-
 .verified-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
+  display:inline-flex;align-items:center;gap:6px;
   background:linear-gradient(to right,#25d366,#128c7e);
-  padding:7px 14px;
-  border-radius:30px;
-  font-size:12px;
-  font-weight:bold;
-  margin-bottom:15px;
+  padding:7px 14px;border-radius:30px;font-size:12px;font-weight:700;margin-bottom:15px;
 }
-
-.hero h2{
-  color:#ffcc00;
-  margin-bottom:14px;
-}
-
-.hero p{
-  color:#ddd;
-  margin-bottom:12px;
-}
+.hero h2{color:#ffcc00;margin-bottom:10px;font-size:20px;}
+.hero p{color:#b8c5d6;margin-bottom:18px;font-size:14px;line-height:1.6;}
 
 .wallet-card{
-  background:#0b1b2d;
-  border-radius:14px;
-  padding:16px;
-  margin-top:15px;
-  border:1px solid rgba(255,255,255,0.08);
+  background:#071426;border-radius:16px;padding:18px;margin-top:15px;
+  border:1px solid rgba(255,204,0,0.15);
 }
 
-.wallet-title{
-  color:#ffcc00;
-  font-weight:bold;
-  margin-bottom:12px;
-}
-
+.wallet-title{color:#ffcc00;font-weight:700;margin-bottom:12px;font-size:14px;display:flex;align-items:center;gap:8px;}
 .select-box{
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:12px;
-  background:#071426;
-  color:white;
-  font-size:15px;
-  margin-bottom:15px;
+  width:100%;padding:14px;border:none;border-radius:12px;
+  background:#0b1b2d;color:white;font-size:15px;margin-bottom:15px;
+  border:1px solid rgba(255,255,255,0.08);outline:none;
 }
+.select-box:focus{border-color:#ffcc00;}
+
+.qr-section{display:flex;flex-direction:column;align-items:center;gap:12px;margin:15px 0;}
+.qr-box{
+  background:white;padding:12px;border-radius:14px;display:inline-block;
+  box-shadow:0 4px 15px rgba(0,0,0,0.3);
+}
+.qr-box canvas{width:160px !important;height:160px !important;}
 
 .copy-box{
-  background:#071426;
-  border:1px dashed #25d366;
-  padding:14px;
-  border-radius:12px;
-  text-align:center;
-  margin:12px 0;
-  cursor:pointer;
-  font-size:15px;
-  font-weight:bold;
-  word-break:break-word;
+  background:#0b1b2d;border:1px dashed #25d366;padding:14px;border-radius:12px;
+  text-align:center;cursor:pointer;font-size:14px;font-weight:700;word-break:break-word;
+  transition:0.2s;width:100%;
 }
-
-.copy-box small{
-  color:#aaa;
-}
+.copy-box:hover{background:#0d2135;border-color:#ffcc00;}
+.copy-box small{color:#aaa;font-weight:400;}
 
 .minimum{
-  color:#ffcc00;
-  font-weight:bold;
-  margin-top:15px;
+  background:rgba(255,204,0,0.1);color:#ffcc00;font-weight:700;
+  margin-top:15px;padding:10px;border-radius:10px;text-align:center;font-size:14px;
 }
 
-.steps{
-  margin-top:16px;
-  padding-left:20px;
-  color:#d4d4d4;
-  line-height:1.8;
-}
+.steps{margin-top:16px;padding-left:20px;color:#b8c5d6;line-height:2;font-size:14px;}
+.steps li{margin-bottom:6px;}
+.steps i{color:#25d366;margin-right:8px;}
 
 .card{
-  background:#10233d;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  background:rgba(16,35,61,0.6);backdrop-filter:blur(12px);
+  border-radius:20px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.05);
 }
-
-.card h2{
-  color:#ffcc00;
-  margin-bottom:15px;
-}
+.card h2{color:#ffcc00;margin-bottom:18px;font-size:18px;}
 
 .input{
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:12px;
-  background:#071426;
-  color:white;
-  margin-bottom:15px;
-  font-size:15px;
+  width:100%;padding:15px;border:none;border-radius:12px;
+  background:#071426;color:white;margin-bottom:15px;font-size:15px;
+  border:1px solid rgba(255,255,255,0.08);outline:none;
 }
-
-.input::placeholder{
-  color:#999;
-}
+.input:focus{border-color:#ffcc00;}
+.input::placeholder{color:#666;}
 
 .submit-btn{
-  width:100%;
-  padding:15px;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(to right,#ffcc00,#f2b600);
-  color:#071426;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
+  width:100%;padding:16px;border:none;border-radius:12px;
+  background:linear-gradient(to right,#ffcc00,#f2b600);color:#071426;
+  font-size:16px;font-weight:800;cursor:pointer;transition:0.2s;
 }
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,204,0,0.3);}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 
 .info-box{
-  margin-top:20px;
-  background:#10233d;
-  border-left:4px solid #ffcc00;
-  padding:16px;
-  border-radius:12px;
-  color:#ddd;
-  line-height:1.8;
+  margin-top:20px;background:rgba(16,35,61,0.6);border-left:4px solid #ffcc00;
+  padding:16px;border-radius:12px;color:#b8c5d6;line-height:1.8;font-size:14px;
 }
-
 .delay-box{
-  margin-top:20px;
-  background:#10233d;
-  border-left:4px solid #25d366;
-  padding:16px;
-  border-radius:12px;
+  margin-top:20px;background:rgba(16,35,61,0.6);border-left:4px solid #25d366;
+  padding:16px;border-radius:12px;
 }
-
-.delay-box h3{
-  color:#25d366;
-  margin-bottom:10px;
-}
-
+.delay-box h3{color:#25d366;margin-bottom:10px;font-size:16px;}
 .telegram-btn{
-  display:block;
-  width:100%;
-  text-align:center;
-  background:linear-gradient(to right,#229ED9,#1b87bb);
-  color:white;
-  text-decoration:none;
-  padding:14px;
-  border-radius:12px;
-  margin-top:15px;
-  font-weight:bold;
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:linear-gradient(to right,#229ED9,#1b87bb);color:white;text-decoration:none;
+  padding:14px;border-radius:12px;margin-top:15px;font-weight:700;transition:0.2s;
 }
+.telegram-btn:hover{transform:translateY(-2px);}
 
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  display:none;
-}
-
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;z-index:999;}
 .popup{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:#10233d;
-  padding:16px 22px;
-  border-radius:12px;
-  font-weight:bold;
-  display:none;
-  z-index:1000;
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#10233d;padding:16px 22px;border-radius:12px;font-weight:700;display:none;z-index:1000;
 }
-
-.success{
-  border-left:4px solid #25d366;
-}
-
-.error{
-  border-left:4px solid red;
-}
+.success{border-left:4px solid #25d366;}
+.error{border-left:4px solid #ff4444;}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  Crypto Deposit
+  <i class="fas fa-wallet"></i> Crypto Deposit
 </div>
 
 <div class="container">
@@ -244,22 +151,17 @@ body{
 <div class="hero">
 
 <div class="verified-badge">
-<i class="fas fa-check-circle"></i>
+<i class="fas fa-shield-check"></i>
 Verified CYPX Wallets
 </div>
 
 <h2>Official Crypto Deposit</h2>
-
-<p>
-Only send crypto to the verified CYPX wallet
-addresses below. Deposits are reviewed manually
-for security.
-</p>
+<p>Only send crypto to the verified CYPX wallet addresses below. Deposits are reviewed manually for security.</p>
 
 <div class="wallet-card">
 
 <div class="wallet-title">
-Choose Crypto Network
+<i class="fas fa-network-wired"></i> Choose Crypto Network
 </div>
 
 <select id="cryptoSelect" class="select-box">
@@ -270,26 +172,25 @@ Choose Crypto Network
   <option value="USDT_TRC20">USDT (TRC20)</option>
 </select>
 
-<div
-class="copy-box"
-id="walletBox"
-onclick="copyWallet()"
->
-1341crN2nSM29KFEqtB7UozdQYyDD6CvzV
-<br>
-<small>Tap to copy wallet</small>
+<div class="qr-section">
+  <div class="qr-box" id="qrcode"></div>
+  <div class="copy-box" id="walletBox" onclick="copyWallet()">
+    1341crN2nSM29KFEqtB7UozdQYyDD6CvzV
+    <br><small><i class="fas fa-copy"></i> Tap to copy wallet</small>
+  </div>
 </div>
+
 <div class="minimum">
-Minimum Deposit: $25
+<i class="fas fa-info-circle"></i> Minimum Deposit: $25
 </div>
 
 <ul class="steps">
-<li>Select the crypto network carefully</li>
-<li>Copy the wallet address</li>
-<li>Send crypto to selected wallet</li>
-<li>Enter amount of at least $25</li>
-<li>Upload payment screenshot</li>
-<li>Submit deposit request</li>
+<li><i class="fas fa-check"></i> Select the crypto network carefully</li>
+<li><i class="fas fa-check"></i> Scan QR or copy wallet address</li>
+<li><i class="fas fa-check"></i> Send crypto to selected wallet</li>
+<li><i class="fas fa-check"></i> Enter amount of at least $25</li>
+<li><i class="fas fa-check"></i> Upload payment screenshot</li>
+<li><i class="fas fa-check"></i> Submit deposit request</li>
 </ul>
 
 </div>
@@ -297,80 +198,31 @@ Minimum Deposit: $25
 
 <!-- DEPOSIT FORM -->
 <div class="card">
-
-<h2>Submit Crypto Deposit</h2>
-
+<h2><i class="fas fa-paper-plane"></i> Submit Crypto Deposit</h2>
 <form id="depositForm">
-
-<input
-type="number"
-id="amount"
-class="input"
-placeholder="Enter amount (Min $25)"
-required
-/>
-
-<input
-type="file"
-id="receipt"
-class="input"
-accept="image/*"
-required
-/>
-
-<button
-type="submit"
-class="submit-btn"
-id="submitBtn"
->
-Submit Deposit
+<input type="number" id="amount" class="input" placeholder="Enter amount (Min $25)" required />
+<input type="file" id="receipt" class="input" accept="image/*" required />
+<button type="submit" class="submit-btn" id="submitBtn">
+<i class="fas fa-paper-plane"></i> Submit Deposit
 </button>
-
 </form>
-
 </div>
 
 <!-- INFO -->
 <div class="info-box">
-<strong>Processing Time:</strong>
-5–30 minutes.<br>
-
-<strong>Status:</strong>
-Deposits appear as
-<strong>Pending</strong>
-before approval.<br>
-
-<strong>Security:</strong>
-Only send crypto to verified
-CYPX wallets.<br>
-
-<strong>Important:</strong>
-Sending to the wrong network
-may permanently lose funds.
+<strong><i class="fas fa-clock"></i> Processing Time:</strong> 5–30 minutes.<br>
+<strong><i class="fas fa-hourglass-half"></i> Status:</strong> Deposits appear as <strong>Pending</strong> before approval.<br>
+<strong><i class="fas fa-shield-alt"></i> Security:</strong> Only send crypto to verified CYPX wallets.<br>
+<strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> Sending to the wrong network may permanently lose funds.
 </div>
 
 <!-- SUPPORT -->
 <div class="delay-box">
-
-<h3>Deposit Delayed?</h3>
-
-<p>
-If your crypto deposit takes
-longer than expected,
-contact CYPX support with
-your screenshot for
-manual verification.
-</p>
-
-<a
-href="https://t.me/cypxholdings"
-target="_blank"
-class="telegram-btn"
->
-<i class="fab fa-telegram-plane"></i>
-Contact Support @cypxholdings
+<h3><i class="fas fa-headset"></i> Deposit Delayed?</h3>
+<p>If your crypto deposit takes longer than expected, contact CYPX support with your screenshot for manual verification.</p>
+<a href="https://t.me/cypxholdings" target="_blank" class="telegram-btn">
+<i class="fab fa-telegram-plane"></i> Contact Support @cypxholdings
 </a>
-
 </div>
 
 </div>
@@ -379,7 +231,6 @@ Contact Support @cypxholdings
 <div class="popup" id="popup"></div>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -391,9 +242,7 @@ const firebaseConfig = {
   measurementId: "G-4RSQXZJX44"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -401,6 +250,7 @@ const storage = firebase.storage();
 
 let uid = null;
 let userReady = false;
+let qrCode = null;
 
 /* AUTH */
 auth.onAuthStateChanged((user)=>{
@@ -408,289 +258,129 @@ auth.onAuthStateChanged((user)=>{
     uid = user.uid;
     userReady = true;
   }else{
-    showPopup(
-      "Please login first",
-      "error"
-    );
-
-    setTimeout(()=>{
-      window.location.href =
-      "auth.html";
-    },1500);
+    showPopup("Please login first","error");
+    setTimeout(()=>{ window.location.href = "auth.html"; },1500);
   }
 });
 
 /* WALLETS */
 const wallets = {
-  BTC:
-  "1341crN2nSM29KFEqtB7UozdQYyDD6CvzV",
-
-  USDT_ERC20:
-  "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168",
-
-  BNB_ERC20:
-  "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168",
-
-  ETH_ERC20:
-  "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168",
-
-  USDT_TRC20:
-  "TBHiPNGTw3EmAYQcKznHp2a5RERvT7E72K"
+  BTC: "1341crN2nSM29KFEqtB7UozdQYyDD6CvzV",
+  USDT_ERC20: "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168",
+  BNB_ERC20: "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168",
+  ETH_ERC20: "0xe5e959e57ae1937acf0dde128a8b7ee0aa970168",
+  USDT_TRC20: "TBHiPNGTw3EmAYQcKznHp2a5RERvT7E72K"
 };
 
-const cryptoSelect =
-document.getElementById(
-"cryptoSelect"
-);
+const cryptoSelect = document.getElementById("cryptoSelect");
+const walletBox = document.getElementById("walletBox");
 
-const walletBox =
-document.getElementById(
-"walletBox"
-);
+/* GENERATE QR */
+function generateQR(address){
+  document.getElementById("qrcode").innerHTML = "";
+  qrCode = new QRCode(document.getElementById("qrcode"), {
+    text: address,
+    width: 160,
+    height: 160,
+    colorDark : "#000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.H
+  });
+}
 
-/* CHANGE WALLET */
-cryptoSelect.addEventListener(
-"change",
-function(){
+/* INIT QR ON LOAD */
+generateQR(wallets[cryptoSelect.value]);
 
-walletBox.innerHTML =
-wallets[this.value] +
-"<br><small>Tap to copy wallet</small>";
-
+/* CHANGE WALLET + QR */
+cryptoSelect.addEventListener("change", function(){
+  const address = wallets[this.value];
+  walletBox.innerHTML = address + "<br><small><i class='fas fa-copy'></i> Tap to copy wallet</small>";
+  generateQR(address);
 });
 
 /* COPY WALLET */
 function copyWallet(){
-
-const selected =
-cryptoSelect.value;
-
-navigator.clipboard
-.writeText(
-wallets[selected]
-);
-
-showPopup(
-"Wallet copied",
-"success"
-);
-
+  const selected = cryptoSelect.value;
+  navigator.clipboard.writeText(wallets[selected]);
+  showPopup("Wallet copied","success");
 }
+
 /* POPUP */
 function showPopup(message, type){
-
-const popup =
-document.getElementById("popup");
-
-const overlay =
-document.getElementById("overlay");
-
-popup.textContent =
-message;
-
-popup.className =
-"popup " + type;
-
-popup.style.display =
-"block";
-
-overlay.style.display =
-"block";
-
-setTimeout(()=>{
-popup.style.display =
-"none";
-
-overlay.style.display =
-"none";
-},2000);
-
+  const popup = document.getElementById("popup");
+  const overlay = document.getElementById("overlay");
+  popup.textContent = message;
+  popup.className = "popup " + type;
+  popup.style.display = "block";
+  overlay.style.display = "block";
+  setTimeout(()=>{ popup.style.display = "none"; overlay.style.display = "none"; },2000);
 }
 
-/* FORM SUBMIT */
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+/* FORM SUBMIT - LOGIC UNCHANGED */
+document.addEventListener("DOMContentLoaded",()=>{
+  const form = document.getElementById("depositForm");
+  const submitBtn = document.getElementById("submitBtn");
 
-const form =
-document.getElementById(
-"depositForm"
-);
+  form.addEventListener("submit", async function(e){
+    e.preventDefault();
+    if(!userReady ||!uid){ showPopup("Please wait...","error"); return; }
 
-const submitBtn =
-document.getElementById(
-"submitBtn"
-);
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-form.addEventListener(
-"submit",
-async function(e){
+    const amount = Number(document.getElementById("amount").value);
+    const receipt = document.getElementById("receipt").files[0];
+    const selectedCrypto = cryptoSelect.value;
+    const walletAddress = wallets[selectedCrypto];
 
-e.preventDefault();
+    if(amount < 25){
+      showPopup("Minimum deposit is $25","error");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Deposit';
+      return;
+    }
 
-if(!userReady ||!uid){
-showPopup(
-"Please wait...",
-"error"
-);
-return;
-}
+    try{
+      const depositId = db.ref().push().key;
+      let depositData = {
+        id: depositId,
+        amount: amount,
+        method: "Crypto",
+        cryptoType: selectedCrypto,
+        wallet: walletAddress,
+        status: "pending",
+        timestamp: Date.now(),
+        type: "deposit"
+      };
 
-submitBtn.disabled =
-true;
+      await db.ref("deposits/" + uid + "/" + depositId).set(depositData);
+      await db.ref("financial/" + uid + "/" + depositId).set(depositData);
 
-submitBtn.innerText =
-"Submitting...";
+      if(receipt){
+        storage.ref("cryptoReceipts/" + uid + "/" + depositId).put(receipt)
+        .then(async(snapshot)=>{
+          const url = await snapshot.ref.getDownloadURL();
+          await db.ref("deposits/" + uid + "/" + depositId).update({receiptUrl: url});
+        })
+        .catch((err)=>{ console.log("Receipt upload failed:",err); });
+      }
 
-const amount =
-Number(
-document.getElementById(
-"amount"
-).value
-);
+      showPopup("Crypto deposit submitted ✔ Pending approval","success");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Deposit';
+      form.reset();
 
-const receipt =
-document.getElementById(
-"receipt"
-).files[0];
+      setTimeout(()=>{ window.location.href = "financial.html"; },1500);
 
-const selectedCrypto =
-cryptoSelect.value;
-
-const walletAddress =
-wallets[selectedCrypto];
-
-if(amount < 25){
-
-showPopup(
-"Minimum deposit is $25",
-"error"
-);
-
-submitBtn.disabled =
-false;
-
-submitBtn.innerText =
-"Submit Deposit";
-
-return;
-}
-
-try{
-
-const depositId =
-db.ref().push().key;
-
-/* SAVE DATA */
-let depositData = {
-id: depositId,
-amount: amount,
-method: "Crypto",
-cryptoType:
-selectedCrypto,
-wallet:
-walletAddress,
-status: "pending",
-timestamp:
-Date.now(),
-type: "deposit"
-};
-
-/* SAVE TO DEPOSITS */
-await db.ref(
-"deposits/" +
-uid +
-"/" +
-depositId
-).set(depositData);
-
-/* SAVE TO FINANCIAL */
-await db.ref(
-"financial/" +
-uid +
-"/" +
-depositId
-).set(depositData);
-
-/* RECEIPT UPLOAD
-(NON-BLOCKING) */
-if(receipt){
-
-storage.ref(
-"cryptoReceipts/" +
-uid +
-"/" +
-depositId
-)
-.put(receipt)
-
-.then(async(snapshot)=>{
-
-const url =
-await snapshot.ref
-.getDownloadURL();
-
-await db.ref(
-"deposits/" +
-uid +
-"/" +
-depositId
-).update({
-receiptUrl: url
-});
-
-})
-
-.catch((err)=>{
-console.log(
-"Receipt upload failed:",
-err
-);
-});
-
-}
-
-/* SUCCESS */
-showPopup(
-"Crypto deposit submitted ✔ Pending approval",
-"success"
-);
-
-submitBtn.disabled =
-false;
-
-submitBtn.innerText =
-"Submit Deposit";
-
-form.reset();
-
-setTimeout(()=>{
-window.location.href =
-"financial.html";
-},1500);
-
-}catch(err){
-
-console.error(err);
-
-showPopup(
-err.message ||
-"Submission failed",
-"error"
-);
-
-submitBtn.disabled =
-false;
-
-submitBtn.innerText =
-"Submit Deposit";
-
-}
-
-});
-
+    }catch(err){
+      console.error(err);
+      showPopup(err.message || "Submission failed","error");
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Deposit';
+    }
+  });
 });
 </script>
 <script src="js/app-back.js"></script>
 </body>
-</html>
+  </html>
