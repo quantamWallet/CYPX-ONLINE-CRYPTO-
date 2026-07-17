@@ -280,14 +280,14 @@ onclick="copyWallet()"
 <small>Tap to copy wallet</small>
 </div>
 <div class="minimum">
-Minimum Deposit: $50
+Minimum Deposit: $25
 </div>
 
 <ul class="steps">
 <li>Select the crypto network carefully</li>
 <li>Copy the wallet address</li>
 <li>Send crypto to selected wallet</li>
-<li>Enter amount of at least $50</li>
+<li>Enter amount of at least $25</li>
 <li>Upload payment screenshot</li>
 <li>Submit deposit request</li>
 </ul>
@@ -306,7 +306,7 @@ Minimum Deposit: $50
 type="number"
 id="amount"
 class="input"
-placeholder="Enter amount (Min $50)"
+placeholder="Enter amount (Min $25)"
 required
 />
 
@@ -379,21 +379,16 @@ Contact Support @cypxholdings
 <div class="popup" id="popup"></div>
 
 <script>
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey:
-  "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain:
-  "quantum-rio.firebaseapp.com",
-  databaseURL:
-  "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId:
-  "quantum-rio",
-  storageBucket:
-  "quantum-rio.appspot.com",
-  messagingSenderId:
-  "805433999377",
-  appId:
-  "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
 if (!firebase.apps.length) {
@@ -533,7 +528,7 @@ async function(e){
 
 e.preventDefault();
 
-if(!userReady || !uid){
+if(!userReady ||!uid){
 showPopup(
 "Please wait...",
 "error"
@@ -565,10 +560,10 @@ cryptoSelect.value;
 const walletAddress =
 wallets[selectedCrypto];
 
-if(amount < 50){
+if(amount < 25){
 
 showPopup(
-"Minimum deposit is $50",
+"Minimum deposit is $25",
 "error"
 );
 
@@ -698,4 +693,4 @@ submitBtn.innerText =
 </script>
 <script src="js/app-back.js"></script>
 </body>
-  </html>
+</html>
