@@ -519,6 +519,28 @@ window.onload = function () {
   auth.onAuthStateChanged(function(user) {
     if (!user) { window.location.href = "auth.html"; return; }
     const uid = user.uid;
+    // Notification badge
+const notifBadge = document.getElementById("notifBadge");
+
+database.ref("notifications/" + uid).on("value", snap => {
+
+    let unread = 0;
+
+    if (snap.exists()) {
+        snap.forEach(child => {
+            const n = child.val() || {};
+            if (n.read !== true) unread++;
+        });
+    }
+
+    if (unread > 0) {
+        notifBadge.style.display = "inline-block";
+        notifBadge.textContent = unread > 99 ? "99+" : unread;
+    } else {
+        notifBadge.style.display = "none";
+    }
+
+});
     document.getElementById("user-email").textContent = user.email;
     const balanceRef = database.ref("users/" + uid + "/balance");
     balanceRef.on("value", snap => {
