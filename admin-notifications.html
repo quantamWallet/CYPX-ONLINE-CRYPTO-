@@ -2,57 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CYPX Admin - In-App Notifications</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CYPX Admin - Notifications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
-    body { font-family: Arial; background: #0a0a0a; color: #fff; padding: 20px; }
-    input, textarea, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #222; color: #fff; box-sizing: border-box; }
-    button { background: #00d4ff; color: #000; font-weight: bold; cursor: pointer; }
-    button:hover { background: #00aacc; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body {
+      font-family: 'Segoe UI', Arial;
+      background: linear-gradient(160deg,#050e1a 0%,#001f3f 100%);
+      color: #fff;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ANDROID HEADER */
+   .appbar{
+      background:rgba(0,47,108,0.9);
+      backdrop-filter:blur(10px);
+      padding:16px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      border-bottom:1px solid rgba(0,212,255,0.2);
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+   .appbar h2{font-size:18px;font-weight:800;flex:1;}
+
+   .container {
+      flex:1;
+      padding: 16px;
+      overflow-y:auto;
+      padding-bottom:100px;
+    }
+
+   .card {
+      background: rgba(0,26,51,0.7);
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom:16px;
+      border:1px solid rgba(0,212,255,0.1);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #0b1b2d;
+      color: #fff;
+      font-size:15px;
+    }
+    input:focus, textarea:focus, select:focus{border-color:#00d4ff;outline:none;}
+
+    button {
+      width: 100%;
+      padding: 16px;
+      margin: 10px 0;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg,#00d4ff,#0099cc);
+      color: #000;
+      font-weight: 800;
+      cursor: pointer;
+      font-size:16px;
+    }
+    button:hover { transform:scale(1.02); }
     button:disabled { background: #333; color: #777; cursor: not-allowed; }
-    .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
-    .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; border: 1px solid #222; }
-    .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
-    .templates button:hover { background: #444; }
-    label { font-size: 13px; color: #aaa; }
-    .user-count { font-size: 12px; color: #00d4ff; }
-    .admin-info { background: #111; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; border: 1px solid #00d4ff; }
+
+   .log {
+      background: #000;
+      padding: 12px;
+      border-radius: 12px;
+      height: 180px;
+      overflow-y: scroll;
+      font-size: 12px;
+      border: 1px solid #222;
+      font-family: monospace;
+    }
+
+   .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+   .templates button {
+      background: rgba(0,43,92,0.8);
+      color: #fff;
+      margin: 0;
+      font-size: 13px;
+      padding:12px;
+      border:1px solid rgba(0,212,255,0.2);
+    }
+   .templates button:hover { background: #004a99; }
+
+    label { font-size: 13px; color: #00d4ff; font-weight:600; margin-top:8px;display:block; }
+   .user-count { font-size: 12px; color: #25d366; }
+   .admin-info {
+      background: rgba(0,212,255,0.1);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      border: 1px solid #00d4ff;
+    }
+
+   .broadcast-btn{
+      background: linear-gradient(135deg,#ff9500,#ff3b30);
+      color:#fff;
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>📢 CYPX In-App Admin Panel</h2>
-    <div class="admin-info" id="adminInfo">Checking login...</div>
+  <div class="appbar">
+    <i class="fas fa-bullhorn"></i>
+    <h2>CYPX Admin Panel</h2>
+  </div>
 
-    <label>Quick Templates</label>
-    <div class="templates">
-      <button type="button" onclick="fillTemplate('deposit')">Deposit ✅</button>
-      <button type="button" onclick="fillTemplate('withdraw')">Withdraw 💸</button>
-      <button type="button" onclick="fillTemplate('vip')">VIP 🔓</button>
-      <button type="button" onclick="fillTemplate('copy')">Copy Trade 📈</button>
+  <div class="container">
+    <div class="admin-info" id="adminInfo"><i class="fas fa-spinner fa-spin"></i> Checking login...</div>
+
+    <div class="card">
+      <label><i class="fas fa-wand-magic-sparkles"></i> Quick Templates</label>
+      <div class="templates">
+        <button type="button" onclick="fillTemplate('deposit')"><i class="fas fa-wallet"></i> Deposit</button>
+        <button type="button" onclick="fillTemplate('withdraw')"><i class="fas fa-money-bill-transfer"></i> Withdraw</button>
+        <button type="button" onclick="fillTemplate('vip')"><i class="fas fa-crown"></i> VIP</button>
+        <button type="button" onclick="fillTemplate('copy')"><i class="fas fa-chart-line"></i> Copy Trade</button>
+      </div>
     </div>
 
-    <label>Select User <span class="user-count" id="userCount"></span></label>
-    <select id="uid">
-      <option value="">-- Loading users... --</option>
-      <option value="all">📢 ALL USERS - Broadcast</option>
-    </select>
+    <div class="card">
+      <label><i class="fas fa-user-group"></i> Select User <span class="user-count" id="userCount"></span></label>
+      <select id="uid">
+        <option value="">-- Loading users... --</option>
+        <option value="all">📢 ALL USERS - Broadcast</option>
+      </select>
 
-    <label>Title</label>
-    <input type="text" id="title" value="CYPX HOLDINGS">
+      <label><i class="fas fa-heading"></i> Title</label>
+      <input type="text" id="title" value="CYPX HOLDINGS">
 
-    <label>Message</label>
-    <textarea id="body" rows="3" placeholder="Your message here"></textarea>
+      <label><i class="fas fa-message"></i> Message</label>
+      <textarea id="body" rows="4" placeholder="Type your notification message..."></textarea>
 
-    <button id="sendBtn">Send In-App Notification</button>
+      <button id="sendBtn"><i class="fas fa-paper-plane"></i> Send Notification</button>
+      <button class="broadcast-btn" onclick="quickBroadcast()"><i class="fas fa-broadcast-tower"></i> Quick Broadcast to ALL</button>
+    </div>
 
-    <h3>Log</h3>
-    <div class="log" id="log"></div>
+    <div class="card">
+      <h3 style="font-size:15px;margin-bottom:8px;"><i class="fas fa-terminal"></i> Activity Log</h3>
+      <div class="log" id="log"></div>
+    </div>
   </div>
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"; // ADDED set
+  import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -76,24 +180,25 @@
   const adminInfoEl = document.getElementById('adminInfo');
 
   function log(msg, type='info') {
-    const color = type === 'error'? '#ff5555' : type === 'success'? '#00ff88' : '#fff';
-    logEl.innerHTML += `<span style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</span><br>`;
+    const color = type === 'error'? '#ff5555' : type === 'success'? '#00ff88' : '#aaa';
+    const icon = type === 'error'? '❌' : type === 'success'? '✅' : 'ℹ️';
+    logEl.innerHTML += `<span style="color:${color}">${icon} [${new Date().toLocaleTimeString()}] ${msg}</span><br>`;
     logEl.scrollTop = logEl.scrollHeight;
   }
 
   onAuthStateChanged(auth, async (user) => {
     if(!user) {
-      adminInfoEl.innerHTML = `❌ Not logged in. Login with your admin account first.`;
+      adminInfoEl.innerHTML = `❌ Not logged in`;
       sendBtn.disabled = true;
       uidSelect.disabled = true;
       return;
     }
     const adminSnap = await get(ref(db, `admins/${user.uid}`));
-    if(adminSnap.exists() && (adminSnap.val().role === 'admin' || adminSnap.val().role === 'superadmin')){
-      adminInfoEl.innerHTML = `✅ ${user.email} | Role: ${adminSnap.val().role}`;
+    if(adminSnap.exists() && ['admin','superadmin'].includes(adminSnap.val().role)){
+      adminInfoEl.innerHTML = `✅ ${user.email} | <b>${adminSnap.val().role}</b>`;
       loadUsers();
     } else {
-      adminInfoEl.innerHTML = `❌ Access Denied. UID ${user.uid} not found in /admins`;
+      adminInfoEl.innerHTML = `❌ Access Denied`;
       sendBtn.disabled = true;
       uidSelect.disabled = true;
     }
@@ -112,16 +217,14 @@
           const name = data.fullName || data.name || data.email || data.phone || uid.substring(0,8);
           const option = document.createElement('option');
           option.value = uid;
-          option.textContent = `${name} | ${uid.substring(0,8)}`;
+          option.textContent = `${name} - ${uid.substring(0,8)}`;
           uidSelect.appendChild(option);
         });
-        log(`✅ Loaded ${count} users from users/`, 'success');
+        log(`Loaded ${count} users`, 'success');
       } else {
-        log(`❌ No data found at /users.`, 'error');
+        log(`No users found in /users`, 'error');
       }
       userCountEl.innerText = `(${count} users)`;
-    }, (error) => {
-      log(`❌ Firebase Read Error: ${error.message}`, 'error');
     });
   }
 
@@ -129,14 +232,13 @@
     const notification = {
       title, body, type, read: false,
       timestamp: Date.now(),
-      url: "dashboard.html" // change to your dashboard link
+      url: "dashboard.html"
     };
     const notifRef = ref(db, `notifications/${uid}`);
     const newNotifRef = push(notifRef);
-    await set(newNotifRef, notification); // FIX: set was missing from imports
+    await set(newNotifRef, notification);
     return newNotifRef.key;
   }
-  window.sendInAppNotification = sendInAppNotification; // expose for onclick
 
   window.fillTemplate = (type) => {
     const templates = {
@@ -151,42 +253,46 @@
     }
   }
 
-  sendBtn.addEventListener('click', async () => {
+  // QUICK BROADCAST BUTTON
+  window.quickBroadcast = () => {
+    document.getElementById('uid').value = "all";
+    sendNotification();
+  }
+
+  async function sendNotification(){
     const uid = document.getElementById('uid').value.trim();
     const title = document.getElementById('title').value.trim();
     const body = document.getElementById('body').value.trim();
-    if(!uid ||!title ||!body) return log("❌ Fill all fields", 'error');
+    if(!uid ||!title ||!body) return log("Fill all fields", 'error');
 
     sendBtn.disabled = true;
-    sendBtn.innerText = "Sending...";
+    sendBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`;
 
     try {
       if(uid.toLowerCase() === 'all') {
-        log("Broadcasting to ALL users...");
+        log("Broadcasting to ALL users...", 'info');
         const snap = await get(ref(db, 'users'));
-        if(!snap.exists()) return log("❌ No users found", 'error');
+        if(!snap.exists()) return log("No users found", 'error');
         let successCount = 0;
-        const usersData = snap.val(); // FIX: use .val() not .toJSON()
+        const usersData = snap.val();
         for(const userUid in usersData){
-          try{
-            await sendInAppNotification(userUid, title, body, "broadcast");
-            successCount++;
-          } catch(e){
-            log(`❌ Failed for ${userUid}: ${e.message}`, 'error');
-          }
+          await sendInAppNotification(userUid, title, body, "broadcast");
+          successCount++;
         }
-        log(`✅ Successfully sent to ${successCount} users`, 'success');
+        log(`Broadcast sent to ${successCount} users`, 'success');
       } else {
         const key = await sendInAppNotification(uid, title, body, "manual");
-        log(`✅ Sent to ${uid.substring(0,8)}. NotifID: ${key}`, 'success');
+        log(`Sent to ${uid.substring(0,8)}. ID: ${key}`, 'success');
       }
+      document.getElementById('body').value = ""; // clear after send
     } catch(err) {
-      log("❌ Error: " + err.message, 'error');
-      console.error(err);
+      log("Error: " + err.message, 'error');
     }
     sendBtn.disabled = false;
-    sendBtn.innerText = "Send In-App Notification";
-  });
+    sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> Send Notification`;
+  }
+
+  sendBtn.addEventListener('click', sendNotification);
   </script>
 </body>
-</html>
+  </html>
