@@ -508,14 +508,7 @@ window.onload = function () {
       const balance = Number(snap.val() || 0);
       document.getElementById("user-balance").textContent = formatMoney(balance);
     })
-    db.ref("notifications/"+user.uid).on("child_added", snap=>{
-  const n = snap.val();
-  if(!n.read){
-    // show toast/popup here
-    alert(n.title + "\n" + n.body);
-    db.ref(`notifications/${user.uid}/${snap.key}/read`).set(true);
-  }
-})
+
     database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
       if (snap.exists()) {
