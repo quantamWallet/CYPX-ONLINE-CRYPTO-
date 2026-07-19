@@ -541,6 +541,30 @@ database.ref("notifications/" + uid).on("value", snap => {
     }
 
 });
+    // SUPPORT BADGE
+const supportBadge = document.getElementById("supportBadge");
+
+database.ref("supportChats/" + uid + "/messages").on("value", snap => {
+    let unread = 0;
+
+    if (snap.exists()) {
+        snap.forEach(child => {
+            const msg = child.val();
+
+            // Count only unread admin messages
+            if (msg.sender === "admin" && msg.read !== true) {
+                unread++;
+            }
+        });
+    }
+
+    if (unread > 0) {
+        supportBadge.style.display = "inline-block";
+        supportBadge.textContent = unread > 99 ? "99+" : unread;
+    } else {
+        supportBadge.style.display = "none";
+    }
+});
     document.getElementById("user-email").textContent = user.email;
     const balanceRef = database.ref("users/" + uid + "/balance");
     balanceRef.on("value", snap => {
