@@ -16,7 +16,7 @@ header{
   display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid rgba(0,212,255,0.2);
 }
 .online-dot{width:9px;height:9px;background:#25d366;border-radius:50%;box-shadow:0 0 10px #25d366;animation:pulse 2s infinite;}
-.offline-dot{background:#888;box-shadow:none;animation:none;}
+.offline-dot{background:#888 !important;box-shadow:none !important;animation:none !important;} /* ADDED !important */
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
 
 /* CHAT */
@@ -53,7 +53,7 @@ header{
 <body>
 <header>
   <i class="fas fa-headset"></i> CYPX Live Support 
-  <div class="online-dot offline-dot" id="adminStatus"></div>
+  <div class="online-dot" id="adminStatus"></div> <!-- FIX 1: REMOVED offline-dot -->
   <span id="unreadBadge" class="title-badge" style="display:none;">0</span>
 </header>
 
@@ -93,8 +93,8 @@ let lastMessageCount = 0;
 auth.onAuthStateChanged(user=>{
   if(!user) location.href="auth.html";
   const chatRef = db.ref("support_chats/"+user.uid);
-  const typingRef = db.ref("support_typing/"+user.uid); // NEW: for typing indicator
-  const adminStatusRef = db.ref("support_admin_status/"+user.uid); // NEW: for online status
+  const typingRef = db.ref("support_typing/"+user.uid);
+  const adminStatusRef = db.ref("support_admin_status/"+user.uid);
   
   // 1. CHECK IF FIRST TIME AND SEND WELCOME - LOGIC UNCHANGED
   chatRef.once("value").then(snap=>{
@@ -108,13 +108,15 @@ auth.onAuthStateChanged(user=>{
     }
   });
 
-  // 2. ADMIN ONLINE STATUS
+  // 2. ADMIN ONLINE STATUS - FIXED
   adminStatusRef.on("value", snap=>{
     const statusDot = document.getElementById('adminStatus');
     if(snap.val() === "online"){
-      statusDot.classList.remove("offline-dot");
+      statusDot.classList.remove("offline-dot"); // FIX 2: FORCE REMOVE GREY
+      statusDot.classList.add("online-dot");
     } else {
-      statusDot.classList.add("offline-dot");
+      statusDot.classList.remove("online-dot");
+      statusDot.classList.add("offline-dot"); // add grey
     }
   });
 
@@ -137,29 +139,26 @@ auth.onAuthStateChanged(user=>{
       msgCount++;
       const m = child.val();
       const div = document.createElement("div");
-      div.className = "msg " + m.sender; // will be "msg user" or "msg admin"
+      div.className = "msg " + m.sender;
       const time = new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       div.innerHTML = `${m.message}<div class="time">${time}</div>`;
       chatBox.appendChild(div);
 
-      // UNREAD BADGE LOGIC: count admin messages not read by user
       if(m.sender === "admin" && !m.read){
         unreadCount++;
       }
     });
     
-    // Show badge if new admin messages
     if(msgCount > lastMessageCount && unreadCount > 0){
       document.getElementById('unreadBadge').style.display = "inline-block";
       document.getElementById('unreadBadge').textContent = unreadCount;
-      document.title = `(${unreadCount}) CYPX Support`; // badge on browser tab
+      document.title = `(${unreadCount}) CYPX Support`;
     }
     lastMessageCount = msgCount;
 
-    chatBox.appendChild(document.getElementById('typingIndicator')); // keep typing at bottom
+    chatBox.appendChild(document.getElementById('typingIndicator'));
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // Mark admin messages as read
     snap.forEach(child=>{
       const m = child.val();
       if(m.sender === "admin" && !m.read){
@@ -183,7 +182,6 @@ auth.onAuthStateChanged(user=>{
     msgInput.value="";
   }
 
-  // USER TYPING - tell admin
   let typingTimeout;
   msgInput.addEventListener("input", ()=>{
     db.ref(`support_typing_user/${user.uid}`).set(true);
