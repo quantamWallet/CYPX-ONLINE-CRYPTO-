@@ -633,8 +633,82 @@ function loadNotifications(){
             total += Number(v.totalEarned || 0);
           });
         }
-        return database.ref("users/" + uid + "/botEarnings").once("val
-                                                                  vipData.forEach((amt, i) => {
+        return database.ref("users/" + uid + "/botEarnings").once("value");
+      })
+      .then(botSnap => {
+        if (botSnap.exists()) {
+          total += Number(botSnap.val() || 0);
+        }
+        return database.ref("users/" + uid + "/copyEarnings").once("value");
+      })
+      .then(copySnap => {
+        if (copySnap.exists()) {
+          total += Number(copySnap.val() || 0);
+        }
+        document.getElementById("total-earnings").textContent = formatMoney(total);
+      })
+      .catch(err => { console.error("Earnings error:", err); });
+    }
+
+    loadTotalEarnings();
+    database.ref("referralPurchases/" + uid).on("value", loadTotalEarnings);
+    database.ref("users/" + uid + "/hasClaimedBonus").on("value", loadTotalEarnings);
+    database.ref("users/" + uid + "/vipEarnings").on("value", loadTotalEarnings);
+    database.ref("users/" + uid + "/botEarnings").on("value", loadTotalEarnings);
+    database.ref("users/" + uid + "/copyEarnings").on("value", loadTotalEarnings);
+
+    const claimBtn = document.getElementById("claim-btn");
+    auth.onAuthStateChanged(function(user) {
+      if (!user) return;
+      const uid = user.uid;
+      const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
+      const userRef = database.ref("users/" + uid);
+      claimedRef.on("value", snap => {
+        if (snap.val() === true) {
+          claimBtn.textContent = "Completed";
+          claimBtn.disabled = true;
+        } else {
+          claimBtn.textContent = "Claim $0.80";
+          claimBtn.disabled = false;
+        }
+      });
+      claimBtn.onclick = function () {
+        if (claimBtn.disabled) return;
+        claimBtn.disabled = true;
+        claimBtn.textContent = "Processing...";
+        userRef.transaction(userData => {
+          if (!userData) return userData;
+          if (userData.hasClaimedBonus === true) { return userData; }
+          userData.balance = Number(userData.balance || 0) + 0.80;
+          userData.hasClaimedBonus = true;
+          return userData;
+        }, (error, committed) => {
+          if (error) {
+            console.error("Transaction failed:", error);
+            claimBtn.disabled = false;
+            claimBtn.textContent = "Claim $0.80";
+            showPopup("Error, try again", true);
+            return;
+          }
+          if (!committed) {
+            showPopup("Already claimed", true);
+            return;
+          }
+          claimBtn.textContent = "Completed";
+          claimBtn.disabled = true;
+          showPopup("$0.80 successfully claimed");
+          if (typeof loadTotalEarnings === "function") { loadTotalEarnings(); }
+        });
+      };
+    });
+
+    const vipRef = database.ref("users/" + uid + "/vipLevels");
+    vipRef.on("value", snap => {
+      const data = snap.val() || {};
+      const list = document.getElementById("vip-list");
+      list.innerHTML = "";
+      const vipData = [50, 100, 250, 500, 700, 1000, 1500, 2500, 5000, 7000, 10000, 15000, 25000, 50000, 100000];
+      vipData.forEach((amt, i) => {
         const lvl = i + 1;
         const unlocked = data[lvl] && data[lvl].unlocked === true;
         const div = document.createElement("div");
