@@ -624,115 +624,126 @@ window.onload = function () {
       const balance = Number(snap.val() || 0);
       document.getElementById("user-balance").textContent = formatMoney(balance);
     })
-// NOTIFICATION SYSTEM - FINAL VERSION
-const notifRef = database.ref("notifications/" + uid);
-const broadcastRef = database.ref("notifications/broadcast"); 
-const supportRef = database.ref("support_chats/" + uid);
-let unreadNotif = 0;
-let unreadSupport = 0;
-let userCache = [];
-let broadcastCache = [];
-let isFirstLoad = true; // ONLY DECLARE ONCE
 
-const bell = document.getElementById('notifBell');
-const notifBadge = document.getElementById('notifBadge');
-const supportBadge = document.getElementById('supportBadge');
-const popup = document.getElementById('notifPopup');
-const list = document.getElementById('notifList');
+// NOTIFICATION SYSTEM - FINAL WORKING VERSION
+auth.onAuthStateChanged(function(user) {
+  if (!user) { window.location.href = "auth.html"; return; }
+  const uid = user.uid;
+  document.getElementById("user-email").textContent = user.email;
 
-bell.onclick = () => { 
-  popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
-}
+  const balanceRef = database.ref("users/" + uid + "/balance");
+  balanceRef.on("value", snap => {
+    const balance = Number(snap.val() || 0);
+    document.getElementById("user-balance").textContent = formatMoney(balance);
+  })
 
-// 1. LISTEN FOR NEW USER NOTIFICATIONS - POPUP ONLY NEW ONES
-notifRef.on("child_added", snap=>{
-  const n = snap.val();
-  if(!n.read && !isFirstLoad){ // only popup if not first load
-    showPopup(n.title + ": " + n.body);
-  }
-})
+  // ===== START NOTIFICATION CODE =====
+  const notifRef = database.ref("notifications/" + uid);
+  const broadcastRef = database.ref("notifications/broadcast"); 
+  const supportRef = database.ref("support_chats/" + uid);
+  let unreadNotif = 0;
+  let unreadSupport = 0;
+  let userCache = [];
+  let broadcastCache = [];
+  let isFirstLoad = true;
 
-// 2. LISTEN FOR NEW BROADCAST NOTIFICATIONS - POPUP ONLY NEW ONES
-broadcastRef.on("child_added", snap=>{
-  const n = snap.val();
-  if(!n.read && !isFirstLoad){ // only popup if not first load
-    showPopup("📢 " + n.title + ": " + n.body);
-  }
-})
+  const bell = document.getElementById('notifBell');
+  const notifBadge = document.getElementById('notifBadge');
+  const supportBadge = document.getElementById('supportBadge');
+  const popup = document.getElementById('notifPopup');
+  const list = document.getElementById('notifList');
 
-// After BOTH initial loads finish, allow popups
-Promise.all([notifRef.once("value"), broadcastRef.once("value")]).then(() => {
-  isFirstLoad = false;
-})
-
-// 3. PERMANENT LISTENER: LOAD ALL NOTIFICATIONS + KEEP THEM IN THE BELL
-function loadNotifications(){
-  notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
-    userCache = [];
-    if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
-    renderNotifications();
-  });
-
-  broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
-    broadcastCache = [];
-    if(snap.exists()) snap.forEach(child=> broadcastCache.push({key: child.key,...child.val(), isBroadcast: true}));
-    renderNotifications();
-  });
-}
-
-function renderNotifications(){
-  list.innerHTML = "";
-  unreadNotif = 0;
-  
-  // merge both caches
-  const arr = [...userCache, ...broadcastCache];
-
-  // sort newest first and take 50
-  arr.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-  const finalArr = arr.slice(0, 50);
-
-  if(finalArr.length === 0){
-    list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications yet</div>";
-    notifBadge.style.display = "none";
-    return;
+  bell.onclick = () => { 
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
   }
 
-  finalArr.forEach(n=>{
-    if(!n.read) unreadNotif++;
-    const time = n.timestamp? new Date(n.timestamp).toLocaleString() : '';
-    const div = document.createElement("div");
-    div.className = "notif-item" + (n.read? " read" : "") + (n.isBroadcast? " broadcast" : "");
-    div.innerHTML = `<b>${n.isBroadcast? '📢 ' : ''}${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
-
-    div.onclick = () => {
-      if(!n.isBroadcast){
-        database.ref(`notifications/${uid}/${n.key}/read`).set(true);
-      }
-      if(n.url) location.href = n.url; 
-    }
-    list.appendChild(div);
-  });
-
-  notifBadge.style.display = unreadNotif > 0? "inline-block" : "none";
-  notifBadge.textContent = unreadNotif;
-}
-
-// 4. SUPPORT UNREAD BADGE
-supportRef.on("value", snap=>{
-  unreadSupport = 0;
-  if(snap.exists()){
-    snap.forEach(child=>{
-      const m = child.val();
-      if(m.sender === "admin" && !m.read) unreadSupport++;
+  // 1. LOAD ALL NOTIFICATIONS FIRST
+  function loadNotifications(){
+    notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
+      userCache = [];
+      if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
+      renderNotifications();
     });
+
+    broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
+      broadcastCache = [];
+      if(snap.exists()) snap.forEach(child=> broadcastCache.push({key: child.key,...child.val(), isBroadcast: true}));
+      renderNotifications();
+    });
+
+    // After both load once, allow popups
+    Promise.all([notifRef.once("value"), broadcastRef.once("value")]).then(() => {
+      isFirstLoad = false;
+    })
   }
-  supportBadge.style.display = unreadSupport > 0 ? "inline-block" : "none";
-  supportBadge.textContent = unreadSupport;
-})
 
-loadNotifications(); // START
+  function renderNotifications(){
+    list.innerHTML = "";
+    unreadNotif = 0;
+    
+    const arr = [...userCache, ...broadcastCache];
+    arr.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+    const finalArr = arr.slice(0, 50);
 
-    database.ref("deposits/" + uid).on("value", snap => {
+    if(finalArr.length === 0){
+      list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications yet</div>";
+      notifBadge.style.display = "none";
+      return;
+    }
+
+    finalArr.forEach(n=>{
+      if(!n.read) unreadNotif++;
+      const time = n.timestamp? new Date(n.timestamp).toLocaleString() : '';
+      const div = document.createElement("div");
+      div.className = "notif-item" + (n.read? " read" : "") + (n.isBroadcast? " broadcast" : "");
+      div.innerHTML = `<b>${n.isBroadcast? '📢 ' : ''}${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
+
+      div.onclick = () => {
+        if(!n.isBroadcast){
+          database.ref(`notifications/${uid}/${n.key}/read`).set(true);
+        }
+        if(n.url) location.href = n.url; 
+      }
+      list.appendChild(div);
+    });
+
+    notifBadge.style.display = unreadNotif > 0? "inline-block" : "none";
+    notifBadge.textContent = unreadNotif;
+  }
+
+  // 2. LISTEN FOR NEW USER NOTIFICATIONS - POPUP ONLY NEW ONES
+  notifRef.on("child_added", snap=>{
+    const n = snap.val();
+    if(!n.read && !isFirstLoad){
+      showPopup(n.title + ": " + n.body);
+    }
+  })
+
+  // 3. LISTEN FOR NEW BROADCAST NOTIFICATIONS
+  broadcastRef.on("child_added", snap=>{
+    const n = snap.val();
+    if(!n.read && !isFirstLoad){
+      showPopup("📢 " + n.title + ": " + n.body);
+    }
+  })
+
+  // 4. SUPPORT UNREAD BADGE
+  supportRef.on("value", snap=>{
+    unreadSupport = 0;
+    if(snap.exists()){
+      snap.forEach(child=>{
+        const m = child.val();
+        if(m.sender === "admin" && !m.read) unreadSupport++;
+      });
+    }
+    supportBadge.style.display = unreadSupport > 0 ? "inline-block" : "none";
+    supportBadge.textContent = unreadSupport;
+  })
+
+  loadNotifications(); // <-- THIS WAS MISSING BRO
+  // ===== END NOTIFICATION CODE =====
+
+  database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
       if (snap.exists()) {
         snap.forEach(child => {
