@@ -23,14 +23,14 @@ body{background:linear-gradient(160deg,#050e1a 0%,#0a0f1a 100%);color:#fff;font-
 
 /* CHAT AREA */
 .chat-area{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,0.15);}
-.chat-area header{padding:16px 20px;background:rgba(0,47,108,0.8);backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);}
+.chat-area header{padding:16px 20px;background:rgba(0,47,108,0.8);backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);position:sticky;top:0;z-index:10;}
 .chat-header-left{display:flex;align-items:center;gap:10px;}
-.chat-header-left.status-dot{width:8px;height:8px;background:#25d366;border-radius:50%;box-shadow:0 0 8px #25d366;}
-.chat-box{flex:1;overflow-y:auto;padding:20px;}
+.status-dot{width:8px;height:8px;background:#25d366;border-radius:50%;box-shadow:0 0 8px #25d366;}
+.chat-box{flex:1;overflow-y:auto;padding:20px;padding-bottom:80px;} /* ADDED PADDING BOTTOM */
 .msg{margin:10px 0;padding:12px 16px;border-radius:18px;max-width:70%;word-wrap:break-word;font-size:14px;line-height:1.5;position:relative;}
 .user-msg{background:#1e293b;color:#fff;margin-right:auto;border-bottom-left-radius:4px;}
 .admin-msg{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;margin-left:auto;border-bottom-right-radius:4px;font-weight:500;}
-.msg.msg-time{font-size:10px;opacity:0.7;margin-top:5px;text-align:right;}
+.msg-time{font-size:10px;opacity:0.7;margin-top:5px;text-align:right;}
 
 /* TYPING INDICATOR */
 .typing-indicator{display:flex;align-items:center;gap:6px;padding:10px 16px;background:#1e293b;border-radius:18px;width:fit-content;margin:8px 0;border-bottom-left-radius:4px;display:none;}
@@ -41,9 +41,20 @@ body{background:linear-gradient(160deg,#050e1a 0%,#0a0f1a 100%);color:#fff;font-
 .typing-dots span:nth-child(3){animation-delay:0.4s;}
 @keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
 
-/* INPUT */
-.input-box{display:flex;gap:10px;padding:15px;background:rgba(0,26,51,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.05);}
-.input-box input{flex:1;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#0b1b2d;color:#fff;outline:none;font-size:14px;}
+/* INPUT - FIXED */
+.input-box{
+  display:flex;gap:10px;padding:15px;background:#001a33; /* REMOVED TRANSPARENCY */
+  border-top:1px solid rgba(0,212,255,0.3);
+  position:fixed; /* FIXED TO BOTTOM */
+  bottom:0;
+  left:340px; /* OFFSET FOR SIDEBAR */
+  right:0;
+  z-index:100; /* ON TOP OF EVERYTHING */
+}
+.input-box input{
+  flex:1;padding:14px;border-radius:12px;border:1px solid rgba(0,212,255,0.3);
+  background:#0b1b2d;color:#fff;outline:none;font-size:14px; /* WHITE TEXT */
+}
 .input-box input:focus{border-color:#00d4ff;}
 .input-box button{padding:14px 20px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;font-weight:800;cursor:pointer;transition:0.2s;}
 .input-box button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,212,255,0.4);}
@@ -54,9 +65,12 @@ body{background:linear-gradient(160deg,#050e1a 0%,#0a0f1a 100%);color:#fff;font-
 /* MOBILE FIX */
 @media (max-width: 768px){
   body{flex-direction:column;}
-.sidebar{width:100%;height:38%;}
-.chat-area{height:62%;}
-.msg{max-width:85%;}
+ .sidebar{width:100%;height:38%;}
+ .chat-area{height:62%;}
+ .msg{max-width:85%;}
+ .input-box{left:0;} /* FULL WIDTH ON MOBILE */
+ .chat-box{padding-bottom:90px;} /* MORE SPACE FOR INPUT */
+}
 </style>
 </head>
 <body>
@@ -204,7 +218,7 @@ function openSupportChat(uid, username, el){
         db.ref(`support_chats/${uid}/${child.key}/read`).set(true);
       }
     });
-    chatBox.appendChild(typingIndicator); // keep typing at bottom
+    chatBox.appendChild(typingIndicator);
     chatBox.scrollTop = chatBox.scrollHeight;
   })
 }
@@ -217,7 +231,7 @@ document.getElementById('adminMsgInput').addEventListener("input", ()=>{
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(()=>{
     document.getElementById('typingIndicator').style.display="none";
-  }, 2000); // hides 2s after stop typing
+  }, 2000);
 });
 
 document.getElementById('sendAdminMsg').onclick = sendReply;
@@ -227,7 +241,7 @@ function sendReply(){
   const text = document.getElementById('adminMsgInput').value.trim();
   if(!text ||!currentChatUID) return;
 
-  document.getElementById('typingIndicator').style.display="none"; // hide when sent
+  document.getElementById('typingIndicator').style.display="none";
 
   db.ref(`support_chats/${currentChatUID}`).push({
     sender: "admin",
@@ -239,4 +253,4 @@ function sendReply(){
 }
 </script>
 </body>
-</html>
+  </html>
