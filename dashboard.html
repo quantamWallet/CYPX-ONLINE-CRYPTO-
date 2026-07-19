@@ -541,6 +541,7 @@ window.onload = function () {
     })
 // NOTIFICATION SYSTEM
 const notifRef = database.ref("notifications/" + uid);
+const broadcastRef = database.ref("notifications/broadcast"); // your broadcast path
 const supportRef = database.ref("support_chats/" + uid);
 let unreadNotif = 0;
 let unreadSupport = 0;
@@ -557,7 +558,7 @@ bell.onclick = () => {
 
 let isFirstLoad = true; // flag to skip old notifications
 
-// 1. LISTEN FOR NEW NOTIFICATIONS - ONLY POP NEW ONES
+// 1. LISTEN FOR NEW USER NOTIFICATIONS - POPUP ONLY NEW ONES
 notifRef.on("child_added", snap=>{
   const n = snap.val();
   if(!n.read){
@@ -567,29 +568,28 @@ notifRef.on("child_added", snap=>{
   }
 })
 
-// After initial data loads, set flag to false so new ones will popup
-notifRef.once("value").then(() => {
-  isFirstLoad = false;
-})
-// 0. ADD BROADCAST REF
-const broadcastRef = database.ref("notifications/broadcast"); // <- change this path if yours is different
-let broadcastCache = {}; // keep track so we don't duplicate
-
-// LISTEN FOR NEW BROADCAST NOTIFICATIONS - POPUP ONLY NEW ONES
+// 2. LISTEN FOR NEW BROADCAST NOTIFICATIONS - POPUP ONLY NEW ONES
 broadcastRef.on("child_added", snap=>{
   const n = snap.val();
-  const key = snap.key;
-  broadcastCache[key] = {key,...n, isBroadcast: true};
-
-  // show popup for new broadcasts only, same logic as user notifs
-  if(!n.read &&!isFirstLoad){
+  if(!n.read && !isFirstLoad){
     showPopup(n.title + ": " + n.body);
   }
 })
 
-// UPDATE THE LOAD FUNCTION TO MERGE USER + BROADCAST
+// After initial data loads, set flag to false so new ones will popup
+Promise.all([notifRef.once("value"), broadcastRef.once("value")]).then(() => {
+  isFirstLoad = false;
+})
+
+// 3. PERMANENT LISTENER: LOAD ALL NOTIFICATIONS + KEEP THEM IN THE BELL
 function loadNotifications(){
-  // listen to both
+  // listen to both in real-time, not once
+  notifRef.orderByChild('timestamp').limitToLast(50).on("value", handleLoad);
+  broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", handleLoad);
+}
+
+function handleLoad(){
+  // get latest data from both refs every time either changes
   Promise.all([
     notifRef.orderByChild('timestamp').limitToLast(50).once("value"),
     broadcastRef.orderByChild('timestamp').limitToLast(50).once("value")
@@ -627,11 +627,11 @@ function loadNotifications(){
       div.innerHTML = `<b>${n.isBroadcast? '📢 ' : ''}${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
 
       div.onclick = () => {
-        // only mark user notifs as read. Broadcasts are read for everyone
+        // only mark user notifs as read. Broadcasts stay until you delete them from DB
         if(!n.isBroadcast){
           database.ref(`notifications/${uid}/${n.key}/read`).set(true);
         }
-        if(n.url) location.href = n.url;
+        if(n.url) location.href = n.url; 
       }
       list.appendChild(div);
     });
@@ -641,40 +641,7 @@ function loadNotifications(){
   })
 }
 
-// ALSO listen for live updates on broadcast so list refreshes
-broadcastRef.on("child_added", () => loadNotifications());
-broadcastRef.on("child_changed", () => loadNotifications());
-// 2. LOAD ALL NOTIFICATIONS
-function loadNotifications(){
-  notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap=>{
-    list.innerHTML = "";
-    unreadNotif = 0;
-    if(!snap.exists()){
-      list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications yet</div>";
-      notifBadge.style.display = "none"; return;
-    }
-    const arr = []; 
-    snap.forEach(child=> arr.unshift({key: child.key, ...child.val()})); // newest first
-    
-    arr.forEach(n=>{
-      if(!n.read) unreadNotif++;
-      const time = n.timestamp ? new Date(n.timestamp).toLocaleString() : '';
-      const div = document.createElement("div");
-      div.className = "notif-item" + (n.read ? " read" : "");
-      div.innerHTML = `<b>${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
-      div.onclick = () => { 
-        database.ref(`notifications/${uid}/${n.key}/read`).set(true);
-        if(n.url) location.href = n.url; 
-      }
-      list.appendChild(div);
-    });
-
-    notifBadge.style.display = unreadNotif > 0 ? "inline-block" : "none";
-    notifBadge.textContent = unreadNotif;
-  })
-}
-
-// 3. SUPPORT UNREAD BADGE
+// 4. SUPPORT UNREAD BADGE - UNCHANGED
 supportRef.on("value", snap=>{
   unreadSupport = 0;
   if(snap.exists()){
@@ -687,7 +654,7 @@ supportRef.on("value", snap=>{
   supportBadge.textContent = unreadSupport;
 })
 
-loadNotifications(); // <-- THIS IS THE KEY FIX
+loadNotifications(); // <-- START PERMANENT LISTENERS
     database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
       if (snap.exists()) {
