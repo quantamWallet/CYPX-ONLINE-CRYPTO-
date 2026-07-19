@@ -155,32 +155,48 @@ function loadSupportChats(){
     supportList.innerHTML="";
     const promises = [];
 
-    snap.forEach(userChat=>{
-      const uid = userChat.key;
-      let lastMsg = "No messages";
-      let lastTime = 0;
-      let unread = 0;
+    snap.forEach(userChat => {
 
-      userChat.forEach(msg=>{
-        const m = msg.val();
-        lastMsg = m.message;
-        lastTime = m.timestamp;
-        if(m.sender === "user" &&!m.read) unread++;
-      });
+    const uid = userChat.key;
 
-      const p = getUsername(uid).then(username=>{
-        const div = document.createElement('div');
+    const messages = userChat.child("messages");
+
+    let lastMsg = "No messages";
+    let lastTime = 0;
+    let unread = 0;
+
+    messages.forEach(msg => {
+        const m = msg.val() || {};
+
+        lastMsg = m.message || "";
+        lastTime = m.timestamp || 0;
+
+        if (m.sender === "user" && m.read !== true) {
+            unread++;
+        }
+    });
+
+    const p = getUsername(uid).then(username => {
+
+        const div = document.createElement("div");
         div.className = "support-user";
+
         div.innerHTML = `
-          <div class="username">${username}</div> ${unread>0? `<span class="unread-badge">${unread}</span>`:''}
-          <div class="last-msg">${lastMsg}</div>
-          <div class="time">${new Date(lastTime).toLocaleTimeString()}</div>
+            <div class="username">${username}</div>
+            ${unread > 0 ? `<span class="unread-badge">${unread}</span>` : ""}
+            <div class="last-msg">${lastMsg}</div>
+            <div class="time">${lastTime ? new Date(lastTime).toLocaleTimeString() : ""}</div>
         `;
-        div.onclick = ()=> openSupportChat(uid, username, div);
+
+        div.onclick = () => openSupportChat(uid, username, div);
+
         supportList.appendChild(div);
-      });
-      promises.push(p);
-    })
+
+    });
+
+    promises.push(p);
+
+});
   }, err=>{
     document.getElementById('supportList').innerHTML = "Error: " + err.message;
     console.log(err)
