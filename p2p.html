@@ -35,8 +35,6 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
 .pay-tag{display:inline-block;background:#1a2440;padding:6px 10px;border-radius:20px;font-size:12px;margin-right:6px}
 .copy-box{background:#1a2440;border:1px dashed #2563eb;padding:10px;border-radius:10px;text-align:center;cursor:pointer;font-weight:700;margin-top:8px}
 .copy-box small{display:block;font-size:10px;color:#94a3b8;font-weight:400;margin-top:2px}
-.telegram-link{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;background:#0088cc;color:#fff;padding:8px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600}
-.telegram-link:hover{background:#0077b5}
 .btn-buy{width:100%;padding:12px;border:none;border-radius:10px;background:#16a34a;color:#fff;font-weight:700;font-size:15px;cursor:pointer;margin-top:10px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:999}
 .modal-content{background:#121a2b;border:1px solid #24324f;border-radius:16px;padding:18px;width:90%;max-width:400px}
@@ -67,7 +65,6 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
     <div class="details"><div class="detail">Limits: <span>$50 - $43000</span></div><div class="detail">Available: <span>$5000</span></div></div>
     <div class="payment"><span class="pay-tag"><i class="fa fa-mobile"></i> AIRTEL MONEY KENYA</span></div>
     <div class="copy-box" onclick="copyNumber('254717427604')">254717427604<small>Tap to copy number</small></div>
-    <a href="https://t.me/cypxholdings" target="_blank" class="telegram-link"><i class="fab fa-telegram"></i> Chat on Telegram</a>
     <button class="btn-buy" onclick="openBuyModal('MPESA KENYA', '254717427604', 'LANGAT PRO TRADER')">Buy USD</button>
   </div>
   <div class="listing">
@@ -81,7 +78,6 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
     <div class="details"><div class="detail">Limits: <span>$50 - $43000</span></div><div class="detail">Available: <span>$5000</span></div></div>
     <div class="payment"><span class="pay-tag"><i class="fa fa-mobile"></i> AIRTEL MONEY KENYA</span></div>
     <div class="copy-box" onclick="copyNumber('254750858351')">254750858351<small>Tap to copy number</small></div>
-    <a href="https://t.me/cypxholdings" target="_blank" class="telegram-link"><i class="fab fa-telegram"></i> Chat on Telegram</a>
     <button class="btn-buy" onclick="openBuyModal('AIRTEL MONEY KENYA', '254750858351', 'HASSAN ABDI')">Buy USD</button>
   </div>
 </div>
@@ -103,7 +99,6 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
 <div class="popup" id="popup"></div>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -214,7 +209,7 @@ async function submitDeposit(){
 
     if(receipt){
       storage.ref("receipts/" + uid + "/" + depositId).put(receipt)
-    .then(async(snap)=>{
+   .then(async(snap)=>{
         const url = await snap.ref.getDownloadURL();
         await db.ref("deposits/" + uid + "/" + depositId).update({receiptUrl: url});
         await db.ref("financial/" + uid + "/" + depositId).update({receiptUrl: url});
@@ -236,4 +231,4 @@ async function submitDeposit(){
 }
 </script>
 </body>
-  </html>
+</html>
