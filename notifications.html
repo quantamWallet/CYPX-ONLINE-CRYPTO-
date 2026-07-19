@@ -249,7 +249,7 @@ function initNotifications(){
         if(!n.isBroadcast){
           database.ref(`notifications/${uid}/${n.key}/read`).set(true);
         }
-        if(n.url) window.location.href = n.url; 
+        // REMOVED: if(n.url) window.location.href = n.url; 
       }
       list.appendChild(div);
     });
