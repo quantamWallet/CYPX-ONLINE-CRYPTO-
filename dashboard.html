@@ -409,14 +409,20 @@ nav{
   <body>  
     <header>  
   <div style="display: flex; align-items: center; gap: 10px;">  
-    <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
+    <img src="file_0000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
     <h2 style="margin: 0;">CYPX HOLDINGS</h2>  
   </div>  
-  <div style="position:relative;">
-    <i class="fas fa-bell" id="notifBell" style="font-size:22px; cursor:pointer;"></i>
-    <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+  <div style="display:flex; gap:18px; align-items:center;">
+    <div style="position:relative;">
+      <i class="fas fa-bell" id="notifBell" style="font-size:22px; cursor:pointer;"></i>
+      <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+    </div>
+    <div style="position:relative;">
+      <a href="support.html" style="color:white;"><i class="fas fa-headset" style="font-size:22px;"></i></a>
+      <span id="supportBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:#ff3b30; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+    </div>
   </div>
-</header>
+    </header>
     <div class="announcement" id="ann-btn">  
       <div class="announcement-content">🛒Welcome to CYPX HOLDINGS 🛒 Recruiting investors and agents worldwide!</div>  
     </div>  
@@ -533,68 +539,70 @@ window.onload = function () {
       const balance = Number(snap.val() || 0);
       document.getElementById("user-balance").textContent = formatMoney(balance);
     })
-// NOTIFICATION SYSTEM - ADD THIS INSIDE auth.onAuthStateChanged
+// NOTIFICATION SYSTEM
 const notifRef = database.ref("notifications/" + uid);
-let unreadCount = 0;
+const supportRef = database.ref("support_chats/" + uid); // assumes your support chat is here
+let unreadNotif = 0;
+let unreadSupport = 0;
 
 const bell = document.getElementById('notifBell');
-const badge = document.getElementById('notifBadge');
+const notifBadge = document.getElementById('notifBadge');
+const supportBadge = document.getElementById('supportBadge');
 const popup = document.getElementById('notifPopup');
 const list = document.getElementById('notifList');
 
-bell.onclick = () => {
-  popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-}
+bell.onclick = () => { popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; }
 
-// 1. LISTEN FOR NEW NOTIFICATIONS + SHOW TOAST
+// 1. LISTEN FOR NEW NOTIFICATIONS - SHOW TOAST BUT KEEP IN LIST
 notifRef.on("child_added", snap=>{
   const n = snap.val();
   if(!n.read){
-    // TOAST POPUP
     showPopup(n.title + ": " + n.body);
-    
-    // AUTO MARK AS READ AFTER 3 SEC
-    setTimeout(()=>{
-      database.ref(`notifications/${uid}/${snap.key}/read`).set(true);
-    }, 3000);
   }
-  loadNotifications(); // refresh list
+  loadNotifications(); // refresh list to show ALL saved
 })
 
-// 2. LOAD ALL NOTIFICATIONS TO BELL LIST
+// 2. LOAD ALL NOTIFICATIONS - SAVE ALL 50
 function loadNotifications(){
-  notifRef.orderByChild('timestamp').limitToLast(20).on("value", snap=>{
+  notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap=>{
     list.innerHTML = "";
-    unreadCount = 0;
+    unreadNotif = 0;
     if(!snap.exists()){
       list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications</div>";
-      badge.style.display = "none";
-      return;
+      notifBadge.style.display = "none"; return;
     }
-    const arr = [];
-    snap.forEach(child=> arr.unshift({key: child.key, ...child.val()})); // newest first
+    const arr = []; snap.forEach(child=> arr.unshift({key: child.key, ...child.val()}));
     
     arr.forEach(n=>{
-      if(!n.read) unreadCount++;
+      if(!n.read) unreadNotif++;
       const time = new Date(n.timestamp).toLocaleString();
       const div = document.createElement("div");
       div.className = "notif-item" + (n.read ? " read" : "");
       div.innerHTML = `<b>${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
-      div.onclick = () => {
-        database.ref(`notifications/${uid}/${n.key}/read`).set(true);
-        if(n.url) location.href = n.url;
+      div.onclick = () => { 
+        database.ref(`notifications/${uid}/${n.key}/read`).set(true); // only mark read on click
+        if(n.url) location.href = n.url; 
       }
       list.appendChild(div);
     });
 
-    if(unreadCount > 0){
-      badge.style.display = "inline-block";
-      badge.textContent = unreadCount;
-    } else {
-      badge.style.display = "none";
-    }
+    notifBadge.style.display = unreadNotif > 0 ? "inline-block" : "none";
+    notifBadge.textContent = unreadNotif;
   })
 }
+
+// 3. SUPPORT UNREAD BADGE
+supportRef.on("value", snap=>{
+  unreadSupport = 0;
+  if(snap.exists()){
+    snap.forEach(child=>{
+      const m = child.val();
+      if(m.sender === "admin" && !m.read) unreadSupport++; // count admin replies
+    });
+  }
+  supportBadge.style.display = unreadSupport > 0 ? "inline-block" : "none";
+  supportBadge.textContent = unreadSupport;
+})
     database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
       if (snap.exists()) {
