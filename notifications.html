@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX Notifications</title>
+<style>
+  body{ background:#0A1A2F; font-family:Arial, sans-serif; color:#E0EFFF; margin:0; padding:20px;}
+  /* BELL WRAPPER */
+  .notif-wrap{ position:relative; display:inline-block; }
+  #notifBell{ 
+    font-size:24px; cursor:pointer; position:relative; 
+    background:#11294A; padding:10px; border-radius:12px;
+  }
+  #notifBadge{
+    position:absolute; top:2px; right:2px; background:#FFD700; color:#000;
+    font-size:10px; font-weight:bold; padding:2px 6px; border-radius:10px;
+    display:none;
+  }
+  
+  /* DROPDOWN */
+  .notif-popup{
+    position:absolute; top:120%; right:0; width:360px; max-height:500px;
+    background:#11294A; border:1px solid rgba(0,212,255,0.25); border-radius:14px;
+    padding:10px; z-index:99999; overflow-y:auto; display:none;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  }
+  .notif-header{
+    font-weight:bold; color:#FFD700; padding:8px; border-bottom:1px solid rgba(0,212,255,0.1);
+    margin-bottom:8px;
+  }
+  .notif-item{
+    background:rgba(255,255,255,0.04); padding:12px; border-radius:10px;
+    margin-bottom:8px; cursor:pointer; border-left:3px solid #00d4ff;
+    transition:background 0.2s;
+  }
+  .notif-item:hover{ background:rgba(0,212,255,0.08); }
+  .notif-item.read{ opacity:0.55; border-left-color:#3a5a7a; }
+  .notif-item b{ display:block; margin-bottom:4px; color:#FFD700; font-size:14px; }
+  .notif-item{ color:#E0EFFF; font-size:13px; }
+  .notif-time{ font-size:10px; color:#8FA3C0; margin-top:4px; }
+  .notif-empty{ text-align:center; color:#8FA3C0; padding:20px; }
+  
+  .notif-popup::-webkit-scrollbar{ width:6px; }
+  .notif-popup::-webkit-scrollbar-thumb{ background:#00d4ff; border-radius:6px; }
+</style>
+</head>
+<body>
+
+<div class="notif-wrap">
+  <div id="notifBell">🔔 <span id="notifBadge">0</span></div>
+  <div id="notifPopup" class="notif-popup">
+    <div class="notif-header">Notifications</div>
+    <div id="notifList"><div class="notif-empty">Loading...</div></div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script>
+// 1. FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// 2. GET CURRENT USER UID
+let uid = null;
+firebase.auth().onAuthStateChanged(user => {
+  if(user){
+    uid = user.uid;
+    initNotifications(); // start only after we have uid
+  }else{
+    document.getElementById('notifList').innerHTML = '<div class="notif-empty">Please login</div>';
+  }
+});
+
+// 3. NOTIFICATION LOGIC
+function initNotifications(){
+  const notifRef = database.ref("notifications/" + uid);
+  const broadcastRef = database.ref("notifications/broadcast"); 
+  const bell = document.getElementById('notifBell');
+  const notifBadge = document.getElementById('notifBadge');
+  const popup = document.getElementById('notifPopup');
+  const list = document.getElementById('notifList');
+  
+  let userCache = [];
+  let broadcastCache = [];
+  let unreadNotif = 0;
+
+  // TOGGLE DROPDOWN
+  bell.onclick = (e) => { 
+    e.stopPropagation();
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
+  }
+  document.addEventListener('click', (e) => {
+    if(!bell.contains(e.target) && !popup.contains(e.target)){
+      popup.style.display = 'none';
+    }
+  })
+
+  // LISTEN TO BOTH IN REAL TIME
+  notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
+    userCache = [];
+    if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
+    render();
+  });
+
+  broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
+    broadcastCache = [];
+    if(snap.exists()) snap.forEach(child=> broadcastCache.push({key: child.key,...child.val(), isBroadcast: true}));
+    render();
+  });
+
+  function render(){
+    list.innerHTML = "";
+    unreadNotif = 0;
+    const arr = [...userCache, ...broadcastCache];
+    arr.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+    const finalArr = arr.slice(0, 50);
+
+    if(finalArr.length === 0){
+      list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+      notifBadge.style.display = "none";
+      return;
+    }
+
+    finalArr.forEach(n=>{
+      if(!n.read && !n.isBroadcast) unreadNotif++; // only count user notifs as unread
+      const time = n.timestamp? new Date(n.timestamp).toLocaleString() : '';
+      const div = document.createElement("div");
+      div.className = "notif-item" + (n.read? " read" : "") + (n.isBroadcast? " broadcast" : "");
+      div.innerHTML = `<b>${n.isBroadcast? '📢 ' : ''}${n.title || 'Notification'}</b>${n.body || ''}<div class="notif-time">${time}</div>`;
+
+      div.onclick = () => {
+        if(!n.isBroadcast){
+          database.ref(`notifications/${uid}/${n.key}/read`).set(true);
+        }
+        popup.style.display = 'none';
+        if(n.url) window.location.href = n.url; 
+      }
+      list.appendChild(div);
+    });
+
+    notifBadge.style.display = unreadNotif > 0? "inline-block" : "none";
+    notifBadge.textContent = unreadNotif;
+  }
+}
+</script>
+
+</body>
+</html>
