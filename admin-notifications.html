@@ -9,14 +9,14 @@
     button { background: #00d4ff; color: #000; font-weight: bold; cursor: pointer; }
     button:hover { background: #00aacc; }
     button:disabled { background: #333; color: #777; cursor: not-allowed; }
-.box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
-.log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; border: 1px solid #222; }
-.templates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
-.templates button:hover { background: #444; }
-   label { font-size: 13px; color: #aaa; }
-.user-count { font-size: 12px; color: #00d4ff; }
-.admin-info { background: #111; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; border: 1px solid #00d4ff; }
+    .box { background: #1a1a1a; padding: 20px; border-radius: 12px; max-width: 500px; margin: auto; }
+    .log { background: #000; padding: 10px; border-radius: 8px; height: 200px; overflow-y: scroll; font-size: 12px; border: 1px solid #222; }
+    .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .templates button { background: #333; color: #fff; margin: 0; font-size: 12px; }
+    .templates button:hover { background: #444; }
+    label { font-size: 13px; color: #aaa; }
+    .user-count { font-size: 12px; color: #00d4ff; }
+    .admin-info { background: #111; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; border: 1px solid #00d4ff; }
   </style>
 </head>
 <body>
@@ -52,7 +52,7 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"; // ADDED set
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -109,10 +109,10 @@
           count++;
           const uid = userSnap.key;
           const data = userSnap.val() || {};
-          const name = data.fullName || data.name || data.email || data.phone || uid;
+          const name = data.fullName || data.name || data.email || data.phone || uid.substring(0,8);
           const option = document.createElement('option');
           option.value = uid;
-          option.textContent = `${name} | ${uid}`;
+          option.textContent = `${name} | ${uid.substring(0,8)}`;
           uidSelect.appendChild(option);
         });
         log(`✅ Loaded ${count} users from users/`, 'success');
@@ -125,17 +125,18 @@
     });
   }
 
-  window.sendInAppNotification = async (uid, title, body, type = "manual") => {
+  async function sendInAppNotification(uid, title, body, type = "manual") {
     const notification = {
       title, body, type, read: false,
       timestamp: Date.now(),
-      url: "https://quantamwallet.github.io/CYPX-ONLINE-CRYPTO-/dashboard.html"
+      url: "dashboard.html" // change to your dashboard link
     };
     const notifRef = ref(db, `notifications/${uid}`);
     const newNotifRef = push(notifRef);
-    await set(newNotifRef, notification); // use set instead of push().then to catch errors
+    await set(newNotifRef, notification); // FIX: set was missing from imports
     return newNotifRef.key;
   }
+  window.sendInAppNotification = sendInAppNotification; // expose for onclick
 
   window.fillTemplate = (type) => {
     const templates = {
@@ -165,18 +166,19 @@
         const snap = await get(ref(db, 'users'));
         if(!snap.exists()) return log("❌ No users found", 'error');
         let successCount = 0;
-        for(const userSnap of snap.toJSON? Object.entries(snap.val()) : []){
+        const usersData = snap.val(); // FIX: use .val() not .toJSON()
+        for(const userUid in usersData){
           try{
-            await window.sendInAppNotification(userSnap[0], title, body, "broadcast");
+            await sendInAppNotification(userUid, title, body, "broadcast");
             successCount++;
           } catch(e){
-            log(`❌ Failed for ${userSnap[0]}: ${e.message}`, 'error');
+            log(`❌ Failed for ${userUid}: ${e.message}`, 'error');
           }
         }
         log(`✅ Successfully sent to ${successCount} users`, 'success');
       } else {
-        const key = await window.sendInAppNotification(uid, title, body, "manual");
-        log(`✅ Sent to ${uid}. NotifID: ${key}`, 'success');
+        const key = await sendInAppNotification(uid, title, body, "manual");
+        log(`✅ Sent to ${uid.substring(0,8)}. NotifID: ${key}`, 'success');
       }
     } catch(err) {
       log("❌ Error: " + err.message, 'error');
@@ -187,4 +189,4 @@
   });
   </script>
 </body>
-  </html>
+</html>
