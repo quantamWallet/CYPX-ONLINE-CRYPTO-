@@ -552,9 +552,11 @@ database.ref("supportChats/" + uid + "/messages").on("value", snap => {
             const msg = child.val();
 
             // Count only unread admin messages
-            if (msg.sender === "admin" && msg.read !== true) {
-                unread++;
-            }
+            console.log(msg);
+
+if (String(msg.sender).toLowerCase() === "admin" && msg.read !== true) {
+    unread++;
+}
         });
     }
 
