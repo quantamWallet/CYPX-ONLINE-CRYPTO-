@@ -583,14 +583,15 @@ window.onload = function () {
       const balance = Number(snap.val() || 0);
       document.getElementById("user-balance").textContent = formatMoney(balance);
     })
-// NOTIFICATION SYSTEM
+// NOTIFICATION SYSTEM - FINAL VERSION
 const notifRef = database.ref("notifications/" + uid);
 const broadcastRef = database.ref("notifications/broadcast"); 
 const supportRef = database.ref("support_chats/" + uid);
 let unreadNotif = 0;
 let unreadSupport = 0;
-let userCache = []; // ADD THIS
-let broadcastCache = []; // ADD THIS
+let userCache = [];
+let broadcastCache = [];
+let isFirstLoad = true; // ONLY DECLARE ONCE
 
 const bell = document.getElementById('notifBell');
 const notifBadge = document.getElementById('notifBadge');
@@ -602,35 +603,23 @@ bell.onclick = () => {
   popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
 }
 
-let isFirstLoad = true;
-
 // 1. LISTEN FOR NEW USER NOTIFICATIONS - POPUP ONLY NEW ONES
-let isFirstLoad = true; // flag to skip old notifications
-
-// 1. LISTEN FOR NEW NOTIFICATIONS - ONLY POP NEW ONES
 notifRef.on("child_added", snap=>{
   const n = snap.val();
-  if(!n.read){
-    if(!isFirstLoad){ // only show popup if it's NOT the first load
-      showPopup(n.title + ": " + n.body);
-    }
+  if(!n.read && !isFirstLoad){ // only popup if not first load
+    showPopup(n.title + ": " + n.body);
   }
-})
-
-// After initial data loads, set flag to false so new ones will popup
-notifRef.once("value").then(() => {
-  isFirstLoad = false;
 })
 
 // 2. LISTEN FOR NEW BROADCAST NOTIFICATIONS - POPUP ONLY NEW ONES
 broadcastRef.on("child_added", snap=>{
   const n = snap.val();
-  if(!n.read && !isFirstLoad){
-    showPopup(n.title + ": " + n.body);
+  if(!n.read && !isFirstLoad){ // only popup if not first load
+    showPopup("📢 " + n.title + ": " + n.body);
   }
 })
 
-// After initial data loads, set flag to false so new ones will popup
+// After BOTH initial loads finish, allow popups
 Promise.all([notifRef.once("value"), broadcastRef.once("value")]).then(() => {
   isFirstLoad = false;
 })
@@ -640,17 +629,17 @@ function loadNotifications(){
   notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
     userCache = [];
     if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
-    renderNotifications(); // render instead of handleLoad
+    renderNotifications();
   });
 
   broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
     broadcastCache = [];
     if(snap.exists()) snap.forEach(child=> broadcastCache.push({key: child.key,...child.val(), isBroadcast: true}));
-    renderNotifications(); // render instead of handleLoad
+    renderNotifications();
   });
 }
 
-function renderNotifications(){ // RENAMED FROM handleLoad
+function renderNotifications(){
   list.innerHTML = "";
   unreadNotif = 0;
   
@@ -687,7 +676,7 @@ function renderNotifications(){ // RENAMED FROM handleLoad
   notifBadge.textContent = unreadNotif;
 }
 
-// 4. SUPPORT UNREAD BADGE - UNCHANGED
+// 4. SUPPORT UNREAD BADGE
 supportRef.on("value", snap=>{
   unreadSupport = 0;
   if(snap.exists()){
@@ -700,7 +689,7 @@ supportRef.on("value", snap=>{
   supportBadge.textContent = unreadSupport;
 })
 
-loadNotifications(); // <-- START PERMANENT LISTENERS
+loadNotifications(); // START
 
     database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
