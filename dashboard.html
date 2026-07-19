@@ -555,12 +555,21 @@ bell.onclick = () => {
   popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
 }
 
-// 1. LISTEN FOR NEW NOTIFICATIONS
+let isFirstLoad = true; // flag to skip old notifications
+
+// 1. LISTEN FOR NEW NOTIFICATIONS - ONLY POP NEW ONES
 notifRef.on("child_added", snap=>{
   const n = snap.val();
   if(!n.read){
-    showPopup(n.title + ": " + n.body);
+    if(!isFirstLoad){ // only show popup if it's NOT the first load
+      showPopup(n.title + ": " + n.body);
+    }
   }
+})
+
+// After initial data loads, set flag to false so new ones will popup
+notifRef.once("value").then(() => {
+  isFirstLoad = false;
 })
 
 // 2. LOAD ALL NOTIFICATIONS
