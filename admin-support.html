@@ -144,7 +144,7 @@ async function getUsername(uid){
 }
 
 function loadSupportChats(){
-  const supportRef = db.ref('support_chats');
+  const supportRef = db.ref("supportChats");
   supportRef.on("value", async snap=>{
     const supportList = document.getElementById('supportList');
     if(!snap.exists()){
@@ -201,8 +201,7 @@ function openSupportChat(uid, username, el){
   // THIS TELLS CLIENT THAT ADMIN IS ONLINE
   db.ref(`support_admin_status/${uid}`).set("online");
 
-  const chatRef = db.ref(`support_chats/${uid}`);
-
+  const chatRef = db.ref(`supportChats/${uid}/messages`);
   chatRef.on("value", snap=>{
     const chatBox = document.getElementById('chatBox');
     const typingIndicator = document.getElementById('typingIndicator');
@@ -222,7 +221,7 @@ function openSupportChat(uid, username, el){
       chatBox.appendChild(div);
 
       if(m.sender === "user" &&!m.read){
-        db.ref(`support_chats/${uid}/${child.key}/read`).set(true);
+        db.ref(`supportChats/${uid}/messages/${child.key}/read`).set(true);
       }
     });
     chatBox.appendChild(typingIndicator);
@@ -255,12 +254,12 @@ function sendReply(){
 
   document.getElementById('typingIndicator').style.display="none";
 
-  db.ref(`support_chats/${currentChatUID}`).push({
+  db.ref(`supportChats/${currentChatUID}/messages`).push({
     sender: "admin",
     message: text,
     timestamp: Date.now(),
-    read: true
-  });
+    read: false
+});
   document.getElementById('adminMsgInput').value="";
 }
 
