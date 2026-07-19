@@ -188,12 +188,15 @@ let uid = null;
 firebase.auth().onAuthStateChanged(user => {
   if(user){
     uid = user.uid;
-    initNotifications(); 
+
+    console.log("Logged in UID:", uid);
+    console.log("Reading notifications from:", "notifications/" + uid);
+
+    initNotifications();
   }else{
     window.location.href = "auth.html";
   }
 });
-
 function initNotifications(){
   const notifRef = database.ref("notifications/" + uid);
   const list = document.getElementById('notifList');
@@ -214,9 +217,35 @@ function initNotifications(){
   // THIS LISTENS TO ALL PAST + NEW MESSAGES FOR THIS USER
   notifRef.orderByChild('timestamp').limitToLast(100).on("value", snap => {
     userCache = [];
-    if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: child.val().type === 'broadcast'}));
-    else console.log("No data at notifications/" + uid);
-    render();
+    if (snap.exists()) {
+
+    console.log("Notifications found:");
+    console.log(snap.val());
+
+    snap.forEach(child => {
+
+        const data = child.val() || {};
+
+        console.log("Notification:", child.key, data);
+
+        userCache.push({
+            key: child.key,
+            title: data.title || "",
+            body: data.body || "",
+            timestamp: data.timestamp || 0,
+            read: data.read === true,
+            isBroadcast: data.type === "broadcast",
+            url: data.url || ""
+        });
+
+    });
+
+} else {
+
+    console.log("No notifications exist for UID:", uid);
+
+  }
+      render();
   }, (error) => {
     console.error("Firebase read error:", error); // Will show if rules block
     list.innerHTML = '<div class="notif-empty">Error loading. Check Firebase Rules</div>';
