@@ -1,0 +1,739 @@
+<!DOCTYPE html>  
+<html lang="en">  
+  <head>  
+    <meta charset="UTF-8" />  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>  
+    <title>CYPX HOLDINGS - Dashboard</title>  
+    <link rel="manifest" href="/CYPX-ONLINE-CRYPTO-/manifest.json">
+<meta name="theme-color" content="#007a54">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />  
+  
+    <!-- Firebase SDK (compat version) -->  
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>  
+    <script>  
+      const firebaseConfig = {  
+        apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
+        authDomain: "quantum-rio.firebaseapp.com",  
+        databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
+        projectId: "quantum-rio",  
+        storageBucket: "quantum-rio.firebasestorage.app",  
+        messagingSenderId: "805433999377",  
+        appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",  
+        measurementId: "G-4RSQXZJX44"  
+      };  
+      firebase.initializeApp(firebaseConfig);  
+      const database = firebase.database();  
+      const auth = firebase.auth(); 
+      
+      function formatMoney(amount) {
+  return "$" + Number(amount || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+      }
+    </script>  
+  
+    <style>  
+      body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+
+    background: url("Screenshot_20260626-155314.jpg") no-repeat center center fixed;
+    background-size: cover;
+      }
+      body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(0, 20, 45, 0.65);
+    z-index:-1;
+      }
+      .balance-card,
+.vip-box,
+header,
+nav{
+    background:rgba(0,31,63,0.75);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+}
+      header {  
+        background-color: #002f6c;  
+        padding: 15px;  
+        display: flex;  
+        justify-content: space-between;  
+        align-items: center;  
+      }  
+      .announcement {  
+        background-color: #00274d;  
+        color: #fff700;  
+        padding: 10px;  
+        white-space: nowrap;  
+        overflow: hidden;  
+        box-sizing: border-box;  
+        border-top: 1px solid #003;  
+        border-bottom: 1px solid #003;  
+        cursor: pointer;  
+      }  
+      .announcement-content {  
+        display: inline-block;  
+        padding-left: 100%;  
+        animation: scroll-left 15s linear infinite;  
+      }  
+      @keyframes scroll-left {  
+        0% { transform: translateX(0); }  
+        100% { transform: translateX(-100%); }  
+      }  
+      
+      .extra-info {  
+        padding: 15px;  
+        text-align: center;  
+      }  
+      .extra-info img {  
+        max-width: 90%;  
+        border-radius: 8px;  
+        margin-bottom: 15px;  
+      }  
+      .extra-info p {  
+        font-size: 14px;  
+        margin: 10px 0;  
+      }  
+      .claim-btn {  
+        background-color: #ffcc00;  
+        color: black;  
+        padding: 8px 20px;  
+        font-weight: bold;  
+        border: none;  
+        border-radius: 8px;  
+        cursor: pointer;  
+      }  
+      .popup {  
+        position: fixed;  
+        top: 50%;  
+        left: 50%;  
+        transform: translate(-50%, -50%);  
+        background-color: #28a745;  
+        color: white;  
+        padding: 20px;  
+        border-radius: 10px;  
+        font-weight: bold;  
+        z-index: 9999;  
+        max-width: 80%;  
+        text-align: center;  
+      }  
+      .popup.red {  
+        background-color: #cc0000;  
+      }  
+      .task-countdown {  
+        background-color: #001a33;  
+        text-align: center;  
+        padding: 10px;  
+        font-weight: bold;  
+        color: #ffcc00;  
+      }  
+  
+      
+   .balance-section {
+  padding: 20px;
+  background: linear-gradient(180deg, #002b5c, #001f3f);
+}
+
+/* Email */
+.balance-section .email {
+  font-size: 13px;
+  color: #9fb0cf;
+  margin-bottom: 10px;
+}
+
+/* Card */
+.balance-card {
+  background: linear-gradient(145deg, #003f88, #002f6c);
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* Labels */
+.balance-card .label {
+  font-size: 13px;
+  color: #9fb0cf;
+  margin-bottom: 6px;
+}
+
+/* Main balance */
+.balance-card h1 {
+  font-size: 28px;
+  color: #ffd700;
+  margin: 0 0 15px 0;
+  letter-spacing: 1px;
+}
+
+/* Stats row */
+.balance-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.balance-stats div {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.balance-stats h3 {
+  margin: 5px 0 0;
+  color: #fff;
+  font-size: 16px;
+}
+
+/* Buttons */
+.balance-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+  padding: 0 5px;
+}
+
+.action-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 14px 10px;
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  min-height: 90px;
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(0,212,255,0.3);
+}
+
+.action-card:active {
+  transform: scale(0.96);
+}
+
+.icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.action-card span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+  text-align: center;
+}
+
+/* Gradient icons */
+.icon-box.wallet { background: linear-gradient(135deg, #00ff88, #00cc66); }
+.icon-box.withdraw { background: linear-gradient(135deg, #ff3b30, #cc2e24); }
+.icon-box.vip { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; }
+.icon-box.copy { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+.icon-box.bot { background: linear-gradient(135deg, #00d4ff, #0099cc); }
+.icon-box.about { background: linear-gradient(135deg, #64748b, #475569); }
+
+.icon-box i { color: #fff; }
+.icon-box.vip i { color: #000; }
+  
+      .vip-list {  
+        padding: 10px;  
+      }  
+      .vip-box {  
+        background-color: #003366;  
+        margin: 10px 0;  
+        padding: 10px;  
+        border-radius: 10px;  
+        display: flex;  
+        align-items: center;  
+        justify-content: space-between;  
+      }  
+      .vip-box img {  
+        height: 50px;  
+        margin-right: 10px;  
+      }  
+      .vip-box .info {  
+        flex-grow: 1;  
+      }  
+      .vip-box .info p {  
+        margin: 0;  
+      }  
+      .vip-box .info .amount {  
+        font-weight: bold;  
+        color: yellow;  
+      }  
+      .vip-box .arrow {  
+        font-size: 24px;  
+        color: white;  
+        cursor: pointer;  
+      }  
+      .vip-images {  
+        display: flex;  
+        justify-content: center;  
+        gap: 10px;  
+        padding: 20px 10px 80px;  
+      }  
+      .vip-images img {  
+        width: 48%;  
+        border-radius: 10px;  
+      }  
+      nav {  
+        position: fixed;  
+        bottom: 0;  
+        left: 0;  
+        right: 0;  
+        background-color: #002244;  
+        display: flex;  
+        justify-content: space-around;  
+        padding: 10px 0;  
+      }  
+      nav a {  
+        color: white;  
+        text-align: center;  
+        text-decoration: none;  
+      }  
+      nav i {  
+        font-size: 20px;  
+      }  
+      #announcementModal {  
+        display: none;  
+        position: fixed;  
+        z-index: 9999;  
+        left: 0;  
+        top: 0;  
+        width: 100%;  
+        height: 100%;  
+        background-color: white;  
+        color: #002f6c;  
+        padding: 20px;  
+        overflow-y: scroll;  
+      }  
+      #announcementModal button {  
+        margin-top: 20px;  
+        margin-bottom: 40px;  
+        padding: 10px 20px;  
+        background-color: #ffcc00;  
+        border: none;  
+        font-weight: bold;  
+        cursor: pointer;  
+        border-radius: 5px;  
+      }  
+  
+      .small-muted { color: #9fb0cf; font-size:13px; }  
+      .support-float {
+    position: fixed;
+    bottom: 85px;
+    right: 18px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    z-index: 9999;
+    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4), inset 0 2px 6px rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+    animation: supportPulse 2.5s infinite;
+}
+
+.support-float i {
+    color: white;
+    font-size: 26px;
+}
+
+.support-float:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+}
+
+.support-float:active {
+    transform: scale(0.92);
+}
+
+@keyframes supportPulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,212,255,0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(0,212,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
+}
+
+.notif-popup{
+  position:fixed; top:70px; right:15px; width:320px; max-height:400px;
+  background:rgba(0,31,63,0.95); backdrop-filter:blur(12px);
+  border:1px solid rgba(0,212,255,0.3); border-radius:16px;
+  padding:12px; z-index:99999; overflow-y:auto; display:none;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+.notif-item{
+  background:rgba(255,255,255,0.05); padding:12px; border-radius:10px;
+  margin-bottom:8px; cursor:pointer; border-left:3px solid #00d4ff;
+}
+.notif-item.read{opacity:0.5; border-left-color:#555;}
+.notif-item b{display:block; margin-bottom:4px; color:#00d4ff;}
+.notif-time{font-size:10px; color:#aaa; margin-top:4px;}
+    </style>  
+  </head>  
+  <div class="notif-popup" id="notifPopup">
+  <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+    <b>Notifications</b>
+    <span onclick="document.getElementById('notifPopup').style.display='none'" style="cursor:pointer;">✖</span>
+  </div>
+  <div id="notifList">Loading...</div>
+</div>
+  <body>  
+    <header>  
+  <div style="display: flex; align-items: center; gap: 10px;">  
+    <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
+    <h2 style="margin: 0;">CYPX HOLDINGS</h2>  
+  </div>  
+  <div style="position:relative;">
+    <i class="fas fa-bell" id="notifBell" style="font-size:22px; cursor:pointer;"></i>
+    <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+  </div>
+</header>
+    <div class="announcement" id="ann-btn">  
+      <div class="announcement-content">🛒Welcome to CYPX HOLDINGS 🛒 Recruiting investors and agents worldwide!</div>  
+    </div>  
+
+    <div class="balance-section">
+  <div class="email" id="user-email"></div>
+  <div class="balance-card">
+    <p class="label">Total Balance</p>
+    <h1 id="user-balance">$ 0.00</h1>
+    <div class="balance-stats">
+      <div>
+        <p class="small-muted">Total Deposit</p>
+        <h3 id="total-deposit">$ 0.00</h3>
+      </div>
+      <div>
+        <p class="small-muted">Total Earnings</p>
+        <h3 id="total-earnings">$ 0.00</h3>
+      </div>
+    </div>
+  </div>
+  <div class="balance-buttons">
+    <a href="deposit.html" class="action-card">
+      <div class="icon-box wallet"><i class="fas fa-wallet"></i></div>
+      <span>Deposit</span>
+    </a>
+    <a href="withdraw.html" class="action-card">
+      <div class="icon-box withdraw"><i class="fas fa-hand-holding-usd"></i></div>
+      <span>Withdraw</span>
+    </a>
+    <a href="vip.html" class="action-card">
+      <div class="icon-box vip"><i class="fas fa-crown"></i></div>
+      <span>Invest Now</span>
+    </a>
+    <a href="copy.html" class="action-card">
+      <div class="icon-box copy"><i class="fas fa-chart-line"></i></div>
+      <span>Copy Trades</span>
+    </a>
+    <a href="bot-trading.html" class="action-card">
+      <div class="icon-box bot"><i class="fas fa-robot"></i></div>
+      <span>Bot Dashboard</span>
+    </a>
+    <a href="company.html" class="action-card">
+      <div class="icon-box about"><i class="fas fa-building"></i></div>
+      <span>About Us</span>
+    </a>
+  </div>
+    </div>  
+  
+    <div class="extra-info">  
+      <img src="https://media.istockphoto.com/id/841526170/photo/three-business-people-in-the-office-working-together.jpg?s=170667a&w=0&k=20&c=58v5HeRzpzV3qusfD33JuF0j4Am5rbBYhkc37ozCv84=">  
+      <p>  
+        Improve VIP task rules on the same day. Upgrading the VIP level on the same day allows you to complete multiple tasks without restrict. Listed as: You are now VIP1 and have completed today's tasks.
+      </p>  
+      <button class="claim-btn" id="claim-btn">Claim $ 0.80</button> 
+    </div>  
+  
+    <div class="task-countdown">Task Reset Countdown: <span id="countdown"></span></div>  
+    <div class="vip-list" id="vip-list"></div>  
+    <div class="vip-images">  
+      <img src="https://media.istockphoto.com/id/178447404/photo/modern-business-buildings.jpg?s=612x612&w=0&k=20&c=MOG9lvRz7WjsVyW3IiQ0srEzpaBPDcc7qxYsBCvAUJs=" alt="VIP Banner 1">  
+      <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueXxlbnwwfHwwfHx8MA%3D%3D" alt="VIP Banner 2">  
+    </div>  
+  
+    <nav>  
+      <a href="dashboard.html"><i class="fas fa-home"></i><br>Home</a>  
+      <a href="task.html"><i class="fas fa-tasks"></i><br>Task</a>  
+      <a href="team.html"><i class="fas fa-users"></i><br>Team</a>  
+      <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>  
+      <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>  
+    </nav>  
+  
+    <div id="announcementModal">
+  <h3>📢 Platform Update – CYPX HOLDINGS</h3>
+  <div style="font-size: 14px; line-height: 1.6;">
+    <p><strong>Welcome to CYPX HOLDINGS</strong></p>
+    <p>CYPX provides users with access to automated tools, account management features, and structured participation in digital asset markets.</p>
+    <hr style="margin:15px 0; opacity:0.2;">
+    <p><strong>🔹 Account & Transactions</strong></p>
+    <ul>
+      <li>Minimum deposit: <strong>$50</strong></li>
+      <li>Minimum withdrawal:<strong>$10</strong></li>
+      <li>Withdrawals are processed within <strong>24 hours</strong></li>
+    </ul>
+    <p><strong>🔹 Activity Cycle</strong></p>
+    <ul>
+      <li>Tasks and account activity reset every 24 hours</li>
+      <li>Users can participate daily based on account status</li>
+    </ul>
+    <hr style="margin:15px 0; opacity:0.2;">
+    <p><strong>🔹 VIP Access Levels</strong></p>
+    <p>VIP levels unlock additional platform features, higher activity limits, and enhanced account capabilities. Progression is based on cumulative account activity and participation.</p>
+    <hr style="margin:15px 0; opacity:0.2;">
+    <p><strong>🔹 Referral Program</strong></p>
+    <p>Users can invite others to join the platform and receive structured rewards based on network activity. Rewards are distributed across multiple levels according to platform rules.</p>
+    <hr style="margin:15px 0; opacity:0.2;">
+    <p style="font-size:13px; opacity:0.7;">⚠️ <strong>Risk Notice:</strong> Digital asset trading and participation involve risk. Returns are not guaranteed and may vary based on market conditions and user activity.</p>
+  </div>
+  <button onclick="closeAnnouncement()">Close</button>
+    </div>
+  
+    <script>
+window.onload = function () {
+  const annBtn = document.getElementById("ann-btn");
+  const modal = document.getElementById("announcementModal");
+  annBtn.addEventListener("click", () => { modal.style.display = "block"; });
+  window.closeAnnouncement = function () { modal.style.display = "none"; };
+
+  auth.onAuthStateChanged(function(user) {
+    if (!user) { window.location.href = "auth.html"; return; }
+    const uid = user.uid;
+    document.getElementById("user-email").textContent = user.email;
+    const balanceRef = database.ref("users/" + uid + "/balance");
+    balanceRef.on("value", snap => {
+      const balance = Number(snap.val() || 0);
+      document.getElementById("user-balance").textContent = formatMoney(balance);
+    })
+// NOTIFICATION SYSTEM - ADD THIS INSIDE auth.onAuthStateChanged
+const notifRef = database.ref("notifications/" + uid);
+let unreadCount = 0;
+
+const bell = document.getElementById('notifBell');
+const badge = document.getElementById('notifBadge');
+const popup = document.getElementById('notifPopup');
+const list = document.getElementById('notifList');
+
+bell.onclick = () => {
+  popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+}
+
+// 1. LISTEN FOR NEW NOTIFICATIONS + SHOW TOAST
+notifRef.on("child_added", snap=>{
+  const n = snap.val();
+  if(!n.read){
+    // TOAST POPUP
+    showPopup(n.title + ": " + n.body);
+    
+    // AUTO MARK AS READ AFTER 3 SEC
+    setTimeout(()=>{
+      database.ref(`notifications/${uid}/${snap.key}/read`).set(true);
+    }, 3000);
+  }
+  loadNotifications(); // refresh list
+})
+
+// 2. LOAD ALL NOTIFICATIONS TO BELL LIST
+function loadNotifications(){
+  notifRef.orderByChild('timestamp').limitToLast(20).on("value", snap=>{
+    list.innerHTML = "";
+    unreadCount = 0;
+    if(!snap.exists()){
+      list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications</div>";
+      badge.style.display = "none";
+      return;
+    }
+    const arr = [];
+    snap.forEach(child=> arr.unshift({key: child.key, ...child.val()})); // newest first
+    
+    arr.forEach(n=>{
+      if(!n.read) unreadCount++;
+      const time = new Date(n.timestamp).toLocaleString();
+      const div = document.createElement("div");
+      div.className = "notif-item" + (n.read ? " read" : "");
+      div.innerHTML = `<b>${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
+      div.onclick = () => {
+        database.ref(`notifications/${uid}/${n.key}/read`).set(true);
+        if(n.url) location.href = n.url;
+      }
+      list.appendChild(div);
+    });
+
+    if(unreadCount > 0){
+      badge.style.display = "inline-block";
+      badge.textContent = unreadCount;
+    } else {
+      badge.style.display = "none";
+    }
+  })
+}
+    database.ref("deposits/" + uid).on("value", snap => {
+      let totalDeposit = 0;
+      if (snap.exists()) {
+        snap.forEach(child => {
+          const d = child.val();
+          if (d.status && d.status.toLowerCase().trim() === "approved") {
+            totalDeposit += Number(d.amount || 0);
+          }
+        });
+      }
+      document.getElementById("total-deposit").textContent = formatMoney(totalDeposit);
+    })
+
+    function loadTotalEarnings() {
+      let total = 0;
+      database.ref("referralPurchases/" + uid).once("value")
+      .then(refSnap => {
+        if (refSnap.exists()) {
+          refSnap.forEach(child => {
+            const e = child.val();
+            if (e.status && e.status.toLowerCase() === "approved") {
+              total += Number(e.price || e.amount || 0);
+            }
+          });
+        }
+        return database.ref("users/" + uid + "/hasClaimedBonus").once("value");
+      })
+      .then(bonusSnap => {
+        if (bonusSnap.val() === true) { total += 0.80; }
+        return database.ref("users/" + uid + "/vipEarnings").once("value");
+      })
+      .then(vipSnap => {
+        if (vipSnap.exists()) {
+          vipSnap.forEach(child => {
+            const v = child.val();
+            total += Number(v.totalEarned || 0);
+          });
+        }
+        return database.ref("users/" + uid + "/botEarnings").once("val
+                                                                  vipData.forEach((amt, i) => {
+        const lvl = i + 1;
+        const unlocked = data[lvl] && data[lvl].unlocked === true;
+        const div = document.createElement("div");
+        div.className = "vip-box";
+        div.innerHTML = `
+          <img src="https://png.pngtree.com/png-clipart/20221216/original/pngtree-vip-icon-design-png-image_8749175.png">
+          <div class="info">
+            <p>Unlock amount: <span class="amount">$${amt.toLocaleString()}</span></p>
+            <p>${unlocked ? "✅ VIP" + lvl : "🔐 VIP" + lvl}</p>
+          </div>
+          <div class="arrow">»</div>
+        `;
+        div.querySelector(".arrow").onclick = () => {
+          if (unlocked) { showPopup("VIP " + lvl + " unlocked"); }
+          else { showPopup("Unlock VIP first", true); }
+        };
+        list.appendChild(div);
+      });
+    });
+
+    function startCountdown() {
+      const countdown = document.getElementById("countdown");
+      let start = localStorage.getItem("countdownStart");
+      if (!start) {
+        start = Date.now();
+        localStorage.setItem("countdownStart", start);
+      }
+      setInterval(() => {
+        let diff = 86400000 - (Date.now() - start);
+        if (diff <= 0) {
+          start = Date.now();
+          localStorage.setItem("countdownStart", start);
+          diff = 86400000;
+        }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        countdown.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+      }, 1000);
+    }
+    startCountdown();
+  });
+
+  function showPopup(msg, red = false) {
+    const popup = document.createElement("div");
+    popup.className = "popup" + (red ? " red" : "");
+    popup.textContent = msg;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), 3000);
+  }
+};
+    </script>
+    <a href="support.html" class="support-float"><i class="fas fa-headset"></i></a>
+    <button id="installBtn" style="display:none;position:fixed;top:90px;right:15px;z-index:9999;padding:12px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,#00e0ff,#00ffaa);color:#001f3f;font-weight:700;font-size:15px;box-shadow:0 8px 20px rgba(0,0,0,.35);cursor:pointer;">📲 Install App</button>
+    <script>
+      let deferredPrompt;
+      const installBtn = document.getElementById("installBtn");
+      window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = "block"; });
+      installBtn.addEventListener("click", async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") { console.log("App installed"); }
+        deferredPrompt = null;
+        installBtn.style.display = "none";
+      });
+      window.addEventListener("appinstalled", () => { installBtn.style.display = "none"; });
+    </script>  
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register('/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js')
+        .then(reg => { console.log("SW registered:", reg.scope); })
+        .catch(err => { console.error("SW failed:", err); });
+      }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
+    <script>
+      const messaging = firebase.messaging();
+      async function enableNotifications() {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission !== "granted") { console.log("Notification denied"); return; }
+          const registration = await navigator.serviceWorker.register("./firebase-messaging-sw.js");
+          console.log("SW REGISTERED");
+          await navigator.serviceWorker.ready;
+          const token = await messaging.getToken({
+            vapidKey: "R8zh-jtBaa37JonYyMU0B9Ufm2gt9T-pljqkabtsdc4",
+            serviceWorkerRegistration: registration
+          });
+          console.log("TOKEN:", token);
+          if (!token) { console.log("No token generated"); return; }
+          const user = firebase.auth().currentUser;
+          if (user) {
+            await firebase.database().ref("users/" + user.uid + "/fcmToken").set(token);
+            console.log("Token saved to Firebase");
+          }
+        } catch (err) { console.error("FCM ERROR:", err); }
+      }
+      firebase.auth().onAuthStateChanged(user => { if (user) { enableNotifications(); } });
+    </script>
+  </body>
+</html>
