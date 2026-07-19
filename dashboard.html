@@ -484,27 +484,31 @@ nav{
  </style>  
   </head>  
   <body>  
-    <div class="notif-popup" id="notifPopup">
-  <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-    <b>Notifications</b>
-    <span onclick="document.getElementById('notifPopup').style.display='none'" style="cursor:pointer;">✖</span>
-  </div>
-  <div id="notifList">Loading...</div>
-    </div>
-    <header>  
-  <div style="display: flex; align-items: center; gap: 10px;">  
-    <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
-    <h2 style="margin: 0;">CYPX HOLDINGS</h2>  
-  </div>  
-  <div class="header-right">
-  <div style="position:relative;">
-    <i class="fas fa-bell" id="notifBell" style="font-size:22px; cursor:pointer;"></i>
+    <div class="header-right">
+  <a href="notifications.html" style="position:relative; color:white; text-decoration:none;">
+    <i class="fas fa-bell" style="font-size:22px;"></i>
     <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
-  </div>
+  </a>
   <div style="position:relative;">
     <a href="support.html" style="color:white;"><i class="fas fa-headset" style="font-size:22px;"></i></a>
     <span id="supportBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:#ff3b30; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
   </div>
+    </div>
+    <header>  
+  <div style="display: flex; align-items: center; gap: 10px;">  
+  <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
+  <h2 style="margin: 0;">CYPX HOLDINGS</h2>  
+</div>  
+<div class="header-right">
+  <a href="notifications.html" style="position:relative; color:white; text-decoration:none;">
+    <i class="fas fa-bell" style="font-size:22px;"></i>
+    <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+  </a>
+  <div style="position:relative;">
+    <a href="support.html" style="color:white;"><i class="fas fa-headset" style="font-size:22px;"></i></a>
+    <span id="supportBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:#ff3b30; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+  </div>
+</div>
   </div>
   </div>
     </header>
@@ -624,120 +628,6 @@ window.onload = function () {
       const balance = Number(snap.val() || 0);
       document.getElementById("user-balance").textContent = formatMoney(balance);
     })
-
-
-    // ===== START NOTIFICATION CODE - SAFE VERSION =====
-  const notifRef = database.ref("notifications/" + uid);
-  const broadcastRef = database.ref("notifications/broadcast"); 
-  const supportRef = database.ref("support_chats/" + uid);
-  let unreadNotif = 0;
-  let unreadSupport = 0;
-  let userCache = [];
-  let broadcastCache = [];
-  let isFirstLoad = true;
-  let hasLoadedOnce = false; // new flag
-
-  const bell = document.getElementById('notifBell');
-  const notifBadge = document.getElementById('notifBadge');
-  const supportBadge = document.getElementById('supportBadge');
-  const popup = document.getElementById('notifPopup');
-  const list = document.getElementById('notifList');
-
-  if(bell){ // safety check so page doesn't crash
-    bell.onclick = () => { 
-      popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
-    }
-  }
-
-  function loadNotifications(){
-    notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
-      userCache = [];
-      if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
-      renderNotifications();
-      if(!hasLoadedOnce) checkFirstLoad();
-    });
-
-    broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
-      broadcastCache = [];
-      if(snap.exists()) snap.forEach(child=> broadcastCache.push({key: child.key,...child.val(), isBroadcast: true}));
-      renderNotifications();
-      if(!hasLoadedOnce) checkFirstLoad();
-    });
-  }
-
-  function checkFirstLoad(){
-    hasLoadedOnce = true;
-    setTimeout(()=>{ isFirstLoad = false; }, 1000); // wait 1s after load before allowing popups
-  }
-
-  function renderNotifications(){
-    if(!list) return;
-    list.innerHTML = "";
-    unreadNotif = 0;
-    
-    const arr = [...userCache, ...broadcastCache];
-    arr.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-    const finalArr = arr.slice(0, 50);
-
-    if(finalArr.length === 0){
-      list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications yet</div>";
-      if(notifBadge) notifBadge.style.display = "none";
-      return;
-    }
-
-    finalArr.forEach(n=>{
-      if(!n.read) unreadNotif++;
-      const time = n.timestamp? new Date(n.timestamp).toLocaleString() : '';
-      const div = document.createElement("div");
-      div.className = "notif-item" + (n.read? " read" : "") + (n.isBroadcast? " broadcast" : "");
-      div.innerHTML = `<b>${n.isBroadcast? '📢 ' : ''}${n.title}</b>${n.body}<div class="notif-time">${time}</div>`;
-
-      div.onclick = () => {
-        if(!n.isBroadcast){
-          database.ref(`notifications/${uid}/${n.key}/read`).set(true);
-        }
-        if(n.url) location.href = n.url; 
-      }
-      list.appendChild(div);
-    });
-
-    if(notifBadge){
-      notifBadge.style.display = unreadNotif > 0? "inline-block" : "none";
-      notifBadge.textContent = unreadNotif;
-    }
-  }
-
-  notifRef.on("child_added", snap=>{
-    const n = snap.val();
-    if(!n.read && !isFirstLoad){
-      showPopup(n.title + ": " + n.body);
-    }
-  })
-
-  broadcastRef.on("child_added", snap=>{
-    const n = snap.val();
-    if(!n.read && !isFirstLoad){
-      showPopup("📢 " + n.title + ": " + n.body);
-    }
-  })
-
-  supportRef.on("value", snap=>{
-    unreadSupport = 0;
-    if(snap.exists()){
-      snap.forEach(child=>{
-        const m = child.val();
-        if(m.sender === "admin" && !m.read) unreadSupport++;
-      });
-    }
-    if(supportBadge){
-      supportBadge.style.display = unreadSupport > 0 ? "inline-block" : "none";
-      supportBadge.textContent = unreadSupport;
-    }
-  })
-
-  loadNotifications();
-  // ===== END NOTIFICATION CODE =====
-
   database.ref("deposits/" + uid).on("value", snap => {
       let totalDeposit = 0;
       if (snap.exists()) {
