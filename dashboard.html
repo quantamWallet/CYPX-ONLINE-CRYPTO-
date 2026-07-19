@@ -625,19 +625,8 @@ window.onload = function () {
       document.getElementById("user-balance").textContent = formatMoney(balance);
     })
 
-// NOTIFICATION SYSTEM - FINAL WORKING VERSION
-auth.onAuthStateChanged(function(user) {
-  if (!user) { window.location.href = "auth.html"; return; }
-  const uid = user.uid;
-  document.getElementById("user-email").textContent = user.email;
 
-  const balanceRef = database.ref("users/" + uid + "/balance");
-  balanceRef.on("value", snap => {
-    const balance = Number(snap.val() || 0);
-    document.getElementById("user-balance").textContent = formatMoney(balance);
-  })
-
-  // ===== START NOTIFICATION CODE =====
+    // ===== START NOTIFICATION CODE - SAFE VERSION =====
   const notifRef = database.ref("notifications/" + uid);
   const broadcastRef = database.ref("notifications/broadcast"); 
   const supportRef = database.ref("support_chats/" + uid);
@@ -646,6 +635,7 @@ auth.onAuthStateChanged(function(user) {
   let userCache = [];
   let broadcastCache = [];
   let isFirstLoad = true;
+  let hasLoadedOnce = false; // new flag
 
   const bell = document.getElementById('notifBell');
   const notifBadge = document.getElementById('notifBadge');
@@ -653,31 +643,35 @@ auth.onAuthStateChanged(function(user) {
   const popup = document.getElementById('notifPopup');
   const list = document.getElementById('notifList');
 
-  bell.onclick = () => { 
-    popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
+  if(bell){ // safety check so page doesn't crash
+    bell.onclick = () => { 
+      popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
+    }
   }
 
-  // 1. LOAD ALL NOTIFICATIONS FIRST
   function loadNotifications(){
     notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
       userCache = [];
       if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
       renderNotifications();
+      if(!hasLoadedOnce) checkFirstLoad();
     });
 
     broadcastRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
       broadcastCache = [];
       if(snap.exists()) snap.forEach(child=> broadcastCache.push({key: child.key,...child.val(), isBroadcast: true}));
       renderNotifications();
+      if(!hasLoadedOnce) checkFirstLoad();
     });
+  }
 
-    // After both load once, allow popups
-    Promise.all([notifRef.once("value"), broadcastRef.once("value")]).then(() => {
-      isFirstLoad = false;
-    })
+  function checkFirstLoad(){
+    hasLoadedOnce = true;
+    setTimeout(()=>{ isFirstLoad = false; }, 1000); // wait 1s after load before allowing popups
   }
 
   function renderNotifications(){
+    if(!list) return;
     list.innerHTML = "";
     unreadNotif = 0;
     
@@ -687,7 +681,7 @@ auth.onAuthStateChanged(function(user) {
 
     if(finalArr.length === 0){
       list.innerHTML = "<div style='text-align:center; color:#888; padding:20px;'>No notifications yet</div>";
-      notifBadge.style.display = "none";
+      if(notifBadge) notifBadge.style.display = "none";
       return;
     }
 
@@ -707,11 +701,12 @@ auth.onAuthStateChanged(function(user) {
       list.appendChild(div);
     });
 
-    notifBadge.style.display = unreadNotif > 0? "inline-block" : "none";
-    notifBadge.textContent = unreadNotif;
+    if(notifBadge){
+      notifBadge.style.display = unreadNotif > 0? "inline-block" : "none";
+      notifBadge.textContent = unreadNotif;
+    }
   }
 
-  // 2. LISTEN FOR NEW USER NOTIFICATIONS - POPUP ONLY NEW ONES
   notifRef.on("child_added", snap=>{
     const n = snap.val();
     if(!n.read && !isFirstLoad){
@@ -719,7 +714,6 @@ auth.onAuthStateChanged(function(user) {
     }
   })
 
-  // 3. LISTEN FOR NEW BROADCAST NOTIFICATIONS
   broadcastRef.on("child_added", snap=>{
     const n = snap.val();
     if(!n.read && !isFirstLoad){
@@ -727,7 +721,6 @@ auth.onAuthStateChanged(function(user) {
     }
   })
 
-  // 4. SUPPORT UNREAD BADGE
   supportRef.on("value", snap=>{
     unreadSupport = 0;
     if(snap.exists()){
@@ -736,11 +729,13 @@ auth.onAuthStateChanged(function(user) {
         if(m.sender === "admin" && !m.read) unreadSupport++;
       });
     }
-    supportBadge.style.display = unreadSupport > 0 ? "inline-block" : "none";
-    supportBadge.textContent = unreadSupport;
+    if(supportBadge){
+      supportBadge.style.display = unreadSupport > 0 ? "inline-block" : "none";
+      supportBadge.textContent = unreadSupport;
+    }
   })
 
-  loadNotifications(); // <-- THIS WAS MISSING BRO
+  loadNotifications();
   // ===== END NOTIFICATION CODE =====
 
   database.ref("deposits/" + uid).on("value", snap => {
