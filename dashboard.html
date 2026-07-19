@@ -383,64 +383,84 @@ nav{
     100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
 }
 
-.notif-popup{
-  position:absolute; /* changed from fixed */
-  top:100%; /* drop down from bell */
-  right:0; 
-  margin-top:8px;
-  width:340px; 
-  max-height:420px;
-  background:#11294A; /* match your card blue, not too green */
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(0,212,255,0.25); 
-  border-radius:14px;
-  padding:10px; 
-  z-index:99999; 
-  overflow-y:auto; 
-  display:none;
-  box-shadow:0 8px 24px rgba(0,0,0,0.5);
+/* 1. WRAP BELL IN A RELATIVE CONTAINER IN HTML FIRST */
+.header-right{
+  position: relative;
+  display: flex;
+  gap: 18px;
+  align-items: center;
 }
 
-/* make bell container position relative so popup anchors to it */
-#notifBell{
-  position:relative;
+/* 2. FIXED POPUP CSS FOR MOBILE */
+.notif-popup{
+  position: absolute; /* drop down from bell */
+  top: calc(100% + 10px); /* 10px below bell */
+  right: -10px; /* pull it left a bit on mobile */
+  margin-top: 0;
+  width: min(340px, 92vw); /* 92% of screen width max */
+  max-height: 70vh; /* use vh so it doesn't go off screen */
+  background: #11294A; /* match your card blue */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,212,255,0.25); 
+  border-radius: 14px;
+  padding: 10px; 
+  z-index: 99999; 
+  overflow-y: auto; 
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* Arrow pointing to bell */
+.notif-popup::before{
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #11294A;
 }
 
 .notif-item{
-  background:rgba(255,255,255,0.04); 
-  padding:12px; 
-  border-radius:10px;
-  margin-bottom:8px; 
-  cursor:pointer; 
-  border-left:3px solid #00d4ff; /* cyan accent */
-  transition:background 0.2s;
+  background: rgba(255,255,255,0.04); 
+  padding: 12px; 
+  border-radius: 10px;
+  margin-bottom: 8px; 
+  cursor: pointer; 
+  border-left: 3px solid #00d4ff; /* cyan accent */
+  transition: background 0.2s;
 }
 .notif-item:hover{
-  background:rgba(0,212,255,0.08);
+  background: rgba(0,212,255,0.08);
 }
 .notif-item.read{
-  opacity:0.55; 
-  border-left-color:#3a5a7a;
+  opacity: 0.55; 
+  border-left-color: #3a5a7a;
 }
 .notif-item b{
-  display:block; 
-  margin-bottom:4px; 
-  color:#FFD700; /* yellow title to match $9,392.50 */
-  font-size:14px;
+  display: block; 
+  margin-bottom: 4px; 
+  color: #FFD700; /* yellow title to match $9,392.50 */
+  font-size: 14px;
 }
 .notif-item{
-  color:#E0EFFF; /* light text */
-  font-size:13px;
+  color: #E0EFFF; /* light text */
+  font-size: 13px;
 }
+.notif-item.broadcast b{ color: #FFD700; }
+.notif-item.broadcast{ border-left-color: #FFD700; }
+
 .notif-time{
-  font-size:10px; 
-  color:#8FA3C0; /* muted blue-gray */
-  margin-top:4px;
+  font-size: 10px; 
+  color: #8FA3C0; /* muted blue-gray */
+  margin-top: 4px;
 }
 
 /* scrollbar to match theme */
-.notif-popup::-webkit-scrollbar{ width:6px; }
-.notif-popup::-webkit-scrollbar-thumb{ background:#00d4ff; border-radius:6px; }
+.notif-popup::-webkit-scrollbar{ width: 6px; }
+.notif-popup::-webkit-scrollbar-thumb{ background: #00d4ff; border-radius: 6px; }
     </style>  
   </head>  
   <body>  
@@ -456,15 +476,16 @@ nav{
     <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
     <h2 style="margin: 0;">CYPX HOLDINGS</h2>  
   </div>  
-  <div style="display:flex; gap:18px; align-items:center;">
-    <div style="position:relative;">
-      <i class="fas fa-bell" id="notifBell" style="font-size:22px; cursor:pointer;"></i>
-      <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
-    </div>
-    <div style="position:relative;">
-      <a href="support.html" style="color:white;"><i class="fas fa-headset" style="font-size:22px;"></i></a>
-      <span id="supportBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:#ff3b30; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
-    </div>
+  <div class="header-right">
+  <div style="position:relative;">
+    <i class="fas fa-bell" id="notifBell" style="font-size:22px; cursor:pointer;"></i>
+    <span id="notifBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+  </div>
+  <div style="position:relative;">
+    <a href="support.html" style="color:white;"><i class="fas fa-headset" style="font-size:22px;"></i></a>
+    <span id="supportBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:#ff3b30; color:white; border-radius:50%; padding:2px 6px; font-size:10px; font-weight:800;">0</span>
+  </div>
+  </div>
   </div>
     </header>
     <div class="announcement" id="ann-btn">  
