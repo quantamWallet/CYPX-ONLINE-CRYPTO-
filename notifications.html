@@ -18,111 +18,144 @@
     padding:20px;
   }
   
-  /* HEADER */
+  /* NEW HEADER CSS */
   .page-header{
-    display:flex; 
-    justify-content:space-between; 
+    display:flex;
+    justify-content:space-between;
     align-items:center;
-    background:#11294A; 
-    padding:16px 20px; 
-    border-radius:14px;
+    gap:15px;
+    background:#11294A;
+    padding:18px;
+    border-radius:16px;
     margin-bottom:20px;
-    border:1px solid rgba(0,212,255,0.15);
+    border:1px solid rgba(0,212,255,.2);
+    flex-wrap:wrap;
   }
-  .page-header h1{
-    margin:0; 
-    font-size:20px; 
+
+  .header-left h1{
+    margin:0;
     color:#FFD700;
+    font-size:34px;
+    font-weight:700;
   }
-  .back-btn{
-    background:#00d4ff; 
-    color:#000; 
-    padding:8px 14px; 
-    border-radius:8px; 
-    text-decoration:none;
-    font-weight:700; 
-    font-size:13px;
+
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
   }
-  .mark-read{ 
-    font-size:12px; 
-    color:#00d4ff; 
-    cursor:pointer; 
+
+  .mark-read{
+    color:#00d4ff;
+    font-size:14px;
     font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
   }
   .mark-read:hover{ text-decoration:underline; }
+
+  .back-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#00d4ff;
+    color:#000;
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:10px;
+    font-weight:bold;
+    transition:.3s;
+    white-space:nowrap;
+  }
+  .back-btn:hover{
+    background:#00bce6;
+  }
+
+  #notifBadgeTop{
+    background:#FF3B30; 
+    color:#fff;
+    font-size:13px; 
+    font-weight:800; 
+    padding:4px 10px; 
+    border-radius:12px;
+    margin-left:10px;
+    vertical-align:middle;
+  }
   
-  /* NOTIFICATION LIST */
+  /* IMPROVED NOTIFICATION CARDS */
   .notif-list{
     background:#11294A; 
     border:1px solid rgba(0,212,255,0.15); 
     border-radius:14px;
-    padding:12px;
+    padding:16px;
     min-height:200px;
   }
   .notif-item{
-    background:rgba(255,255,255,0.04); 
-    padding:14px; 
-    border-radius:10px;
-    margin-bottom:10px; 
-    cursor:pointer; 
-    border-left:3px solid #00d4ff;
-    transition:all 0.2s;
+    background:#183458;
+    border-left:4px solid #00d4ff;
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+    transition:.25s;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+    color:#E0EFFF;
+    font-size:14px;
+    line-height:1.5;
   }
-  .notif-item:hover{ 
-    background:rgba(0,212,255,0.08); 
-    transform:translateX(3px);
+
+  .notif-item:hover{
+    transform:translateY(-2px);
+    background:#21436f;
   }
-  .notif-item.read{ 
-    opacity:0.5; 
-    border-left-color:#3a5a7a; 
+
+  .notif-item.broadcast{
+    border-left-color:#FFD700;
   }
-  .notif-item.broadcast{ 
-    border-left-color:#FFD700; 
+
+  .notif-item.read{
+    opacity:.65;
   }
-  .notif-item b{ 
-    display:block; 
-    margin-bottom:5px; 
-    color:#FFD700; 
-    font-size:15px; 
+
+  .notif-item b{
+    display:block;
+    color:#FFD700;
+    font-size:18px;
+    margin-bottom:8px;
   }
-  .notif-item{ 
-    color:#E0EFFF; 
-    font-size:14px; 
-    line-height:1.4;
+
+  .notif-time{
+    margin-top:10px;
+    font-size:12px;
+    color:#8fa3c0;
   }
-  .notif-time{ 
-    font-size:11px; 
-    color:#8FA3C0; 
-    margin-top:6px; 
-  }
+  
   .notif-empty{ 
     text-align:center; 
     color:#8FA3C0; 
     padding:40px 20px; 
     font-size:14px;
   }
-  #notifBadgeTop{
-    background:#FF3B30; 
-    color:#fff;
-    font-size:11px; 
-    font-weight:800; 
-    padding:3px 8px; 
-    border-radius:10px;
-    margin-left:8px;
-  }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- HEADER -->
+  <!-- NEW HEADER HTML -->
   <div class="page-header">
-    <div>
-      <h1>🔔 Notifications <span id="notifBadgeTop"></span></h1>
+    <div class="header-left">
+        <h1>🔔 Notifications <span id="notifBadgeTop"></span></h1>
     </div>
-    <div>
-      <span class="mark-read" id="markAllRead">Mark all read</span>
-      <a href="dashboard.html" class="back-btn">← Back</a>
+
+    <div class="header-right">
+        <span class="mark-read" id="markAllRead">
+            ✓ Mark all read
+        </span>
+
+        <a href="dashboard.html" class="back-btn">
+            ← Back
+        </a>
     </div>
   </div>
 
@@ -138,7 +171,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
