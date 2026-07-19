@@ -6,19 +6,17 @@
 <title>CYPX Notifications</title>
 <style>
   body{ background:#0A1A2F; font-family:Arial, sans-serif; color:#E0EFFF; margin:0; padding:20px;}
-  /* BELL WRAPPER */
   .notif-wrap{ position:relative; display:inline-block; }
   #notifBell{ 
     font-size:24px; cursor:pointer; position:relative; 
     background:#11294A; padding:10px; border-radius:12px;
   }
   #notifBadge{
-    position:absolute; top:2px; right:2px; background:#FFD700; color:#000;
-    font-size:10px; font-weight:bold; padding:2px 6px; border-radius:10px;
+    position:absolute; top:2px; right:2px; background:#FF3B30; color:#fff;
+    font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px;
     display:none;
   }
   
-  /* DROPDOWN */
   .notif-popup{
     position:absolute; top:120%; right:0; width:360px; max-height:500px;
     background:#11294A; border:1px solid rgba(0,212,255,0.25); border-radius:14px;
@@ -26,16 +24,20 @@
     box-shadow:0 8px 24px rgba(0,0,0,0.5);
   }
   .notif-header{
+    display:flex; justify-content:space-between; align-items:center;
     font-weight:bold; color:#FFD700; padding:8px; border-bottom:1px solid rgba(0,212,255,0.1);
     margin-bottom:8px;
   }
+  .mark-read{ font-size:11px; color:#00d4ff; cursor:pointer; }
+  .mark-read:hover{ text-decoration:underline; }
+  
   .notif-item{
     background:rgba(255,255,255,0.04); padding:12px; border-radius:10px;
     margin-bottom:8px; cursor:pointer; border-left:3px solid #00d4ff;
     transition:background 0.2s;
   }
   .notif-item:hover{ background:rgba(0,212,255,0.08); }
-  .notif-item.read{ opacity:0.55; border-left-color:#3a5a7a; }
+  .notif-item.read{ opacity:0.5; border-left-color:#3a5a7a; }
   .notif-item b{ display:block; margin-bottom:4px; color:#FFD700; font-size:14px; }
   .notif-item{ color:#E0EFFF; font-size:13px; }
   .notif-time{ font-size:10px; color:#8FA3C0; margin-top:4px; }
@@ -50,12 +52,14 @@
 <div class="notif-wrap">
   <div id="notifBell">🔔 <span id="notifBadge">0</span></div>
   <div id="notifPopup" class="notif-popup">
-    <div class="notif-header">Notifications</div>
+    <div class="notif-header">
+      Notifications <span class="mark-read" id="markAllRead">Mark all read</span>
+    </div>
     <div id="notifList"><div class="notif-empty">Loading...</div></div>
   </div>
 </div>
 
-<!-- FIREBASE SDK -->
+<!-- FIREBASE SDK v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -69,8 +73,7 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
@@ -80,9 +83,9 @@ let uid = null;
 firebase.auth().onAuthStateChanged(user => {
   if(user){
     uid = user.uid;
-    initNotifications(); // start only after we have uid
+    initNotifications();
   }else{
-    document.getElementById('notifList').innerHTML = '<div class="notif-empty">Please login</div>';
+    window.location.href = "auth.html"; // redirect if not logged in
   }
 });
 
@@ -94,12 +97,12 @@ function initNotifications(){
   const notifBadge = document.getElementById('notifBadge');
   const popup = document.getElementById('notifPopup');
   const list = document.getElementById('notifList');
+  const markAll = document.getElementById('markAllRead');
   
   let userCache = [];
   let broadcastCache = [];
   let unreadNotif = 0;
 
-  // TOGGLE DROPDOWN
   bell.onclick = (e) => { 
     e.stopPropagation();
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'; 
@@ -110,7 +113,15 @@ function initNotifications(){
     }
   })
 
-  // LISTEN TO BOTH IN REAL TIME
+  // MARK ALL READ
+  markAll.onclick = () => {
+    userCache.forEach(n=>{
+      if(!n.read){
+        database.ref(`notifications/${uid}/${n.key}/read`).set(true);
+      }
+    })
+  }
+
   notifRef.orderByChild('timestamp').limitToLast(50).on("value", snap => {
     userCache = [];
     if(snap.exists()) snap.forEach(child=> userCache.push({key: child.key,...child.val(), isBroadcast: false}));
@@ -137,7 +148,7 @@ function initNotifications(){
     }
 
     finalArr.forEach(n=>{
-      if(!n.read && !n.isBroadcast) unreadNotif++; // only count user notifs as unread
+      if(!n.read && !n.isBroadcast) unreadNotif++;
       const time = n.timestamp? new Date(n.timestamp).toLocaleString() : '';
       const div = document.createElement("div");
       div.className = "notif-item" + (n.read? " read" : "") + (n.isBroadcast? " broadcast" : "");
@@ -160,4 +171,4 @@ function initNotifications(){
 </script>
 
 </body>
-</html>
+</html> 
