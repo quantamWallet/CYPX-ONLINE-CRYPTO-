@@ -382,105 +382,13 @@ nav{
     70% { box-shadow: 0 0 0 15px rgba(0,212,255,0); }
     100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
 }
-
-/* 1. WRAP BELL IN A RELATIVE CONTAINER IN HTML FIRST */
-.header-right{
-  position: relative;
-  display: flex;
-  gap: 18px;
-  align-items: center;
-}
 /* HEADER RIGHT WRAPPER */
 .header-right{
   position: relative;
   display: flex;
   gap: 18px;
   align-items: center;
-}
-
-/* NOTIFICATION POPUP - FIXED TO TOP OF SCREEN */
-.notif-popup{
-  position: fixed; /* sticks to screen, not header */
-  top: 65px; /* below your header */
-  right: 15px; 
-  width: min(360px, 92vw); /* responsive */
-  max-height: 70vh; /* scroll if too long */
-  background: #11294A; /* match your card blue */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0,212,255,0.25); 
-  border-radius: 16px;
-  padding: 12px; 
-  z-index: 99999; 
-  overflow-y: auto; 
-  display: none;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-}
-
-/* NOTIFICATION ITEM */
-.notif-item{
-  background: rgba(255,255,255,0.04); 
-  padding: 12px; 
-  border-radius: 12px;
-  margin-bottom: 8px; 
-  cursor: pointer; 
-  border-left: 3px solid #00d4ff; /* cyan accent */
-  transition: all 0.2s ease;
-  color: #E0EFFF; /* light text */
-  font-size: 13px;
-  line-height: 1.4;
-}
-.notif-item:hover{
-  background: rgba(0,212,255,0.10);
-  transform: translateX(2px);
-}
-.notif-item.read{
-  opacity: 0.5; 
-  border-left-color: #3a5a7a;
-}
-.notif-item b{
-  display: block; 
-  margin-bottom: 4px; 
-  color: #FFD700; /* yellow title to match balance */
-  font-size: 14px;
-  font-weight: 700;
-}
-.notif-item.broadcast{ 
-  border-left-color: #FFD700; 
-}
-.notif-item.broadcast b{ 
-  color: #FFD700; 
-}
-
-.notif-time{
-  font-size: 10px; 
-  color: #8FA3C0; /* muted blue-gray */
-  margin-top: 6px;
-}
-
-/* SCROLLBAR TO MATCH THEME */
-.notif-popup::-webkit-scrollbar{ 
-  width: 6px; 
-}
-.notif-popup::-webkit-scrollbar-track{
-  background: transparent;
-}
-.notif-popup::-webkit-scrollbar-thumb{ 
-  background: #00d4ff; 
-  border-radius: 6px; 
-}
-.notif-popup::-webkit-scrollbar-thumb:hover{ 
-  background: #00aacc; 
-}
-
-/* MOBILE TWEAK */
-@media(max-width: 480px){
-  .notif-popup{
-    right: 10px;
-    left: 10px;
-    width: auto;
-  }
-}
+      }
  </style>  
   </head>  
   <body>  
