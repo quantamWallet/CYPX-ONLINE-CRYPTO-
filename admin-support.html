@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX Admin Support</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:linear-gradient(160deg,#050e1a 0%,#0a0f1a 100%);color:#fff;font-family:'Segoe UI',Arial;margin:0;display:flex;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:340px;background:rgba(0,31,63,0.7);backdrop-filter:blur(12px);border-right:1px solid rgba(0,212,255,0.15);display:flex;flex-direction:column;}
+.sidebar header{padding:18px;background:linear-gradient(90deg,#002f6c,#004a99);font-weight:800;text-align:center;font-size:16px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.support-list{flex:1;overflow-y:auto;padding:12px;}
+.support-user{padding:14px;background:rgba(0,26,51,0.6);margin-bottom:10px;border-radius:12px;cursor:pointer;transition:0.2s;border:1px solid rgba(255,255,255,0.05);position:relative;}
+.support-user:hover{background:rgba(0,43,92,0.8);transform:translateX(4px);}
+.support-user.active{border:2px solid #00d4ff;background:rgba(0,43,92,0.9);}
+.support-user.username{font-weight:700;font-size:15px;margin-bottom:4px;}
+.support-user.last-msg{font-size:12px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.support-user.time{font-size:10px;color:#00d4ff;margin-top:4px;}
+.unread-badge{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#ff3b30,#ff9500);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:800;box-shadow:0 0 10px rgba(255,59,48,0.5);}
+
+/* CHAT AREA */
+.chat-area{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,0.15);}
+.chat-area header{padding:16px 20px;background:rgba(0,47,108,0.8);backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);}
+.chat-header-left{display:flex;align-items:center;gap:10px;}
+.chat-header-left.status-dot{width:8px;height:8px;background:#25d366;border-radius:50%;box-shadow:0 0 8px #25d366;}
+.chat-box{flex:1;overflow-y:auto;padding:20px;}
+.msg{margin:10px 0;padding:12px 16px;border-radius:18px;max-width:70%;word-wrap:break-word;font-size:14px;line-height:1.5;position:relative;}
+.user-msg{background:#1e293b;color:#fff;margin-right:auto;border-bottom-left-radius:4px;}
+.admin-msg{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;margin-left:auto;border-bottom-right-radius:4px;font-weight:500;}
+.msg.msg-time{font-size:10px;opacity:0.7;margin-top:5px;text-align:right;}
+
+/* TYPING INDICATOR */
+.typing-indicator{display:flex;align-items:center;gap:6px;padding:10px 16px;background:#1e293b;border-radius:18px;width:fit-content;margin:8px 0;border-bottom-left-radius:4px;display:none;}
+.typing-indicator i{color:#00d4ff;font-size:12px;}
+.typing-dots{display:flex;gap:4px;}
+.typing-dots span{width:6px;height:6px;background:#00d4ff;border-radius:50%;animation:typing 1.4s infinite;}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+
+/* INPUT */
+.input-box{display:flex;gap:10px;padding:15px;background:rgba(0,26,51,0.8);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.05);}
+.input-box input{flex:1;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:#0b1b2d;color:#fff;outline:none;font-size:14px;}
+.input-box input:focus{border-color:#00d4ff;}
+.input-box button{padding:14px 20px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;font-weight:800;cursor:pointer;transition:0.2s;}
+.input-box button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,212,255,0.4);}
+.no-chat{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#555;font-size:16px;gap:10px;}
+.no-chat i{font-size:40px;color:#00d4ff;opacity:0.3;}
+.logout{color:#ff6b6b;text-decoration:none;font-size:14px;font-weight:600;}
+
+/* MOBILE FIX */
+@media (max-width: 768px){
+  body{flex-direction:column;}
+.sidebar{width:100%;height:38%;}
+.chat-area{height:62%;}
+.msg{max-width:85%;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <header><i class="fas fa-headset"></i> Support Desk</header>
+  <div class="support-list" id="supportList">Loading chats...</div>
+</div>
+
+<div class="chat-area">
+  <header>
+    <div class="chat-header-left">
+      <div class="status-dot" id="statusDot" style="display:none;"></div>
+      <span id="chatHeader">Select a chat</span>
+    </div>
+    <a href="admin.html" class="logout"><i class="fas fa-arrow-left"></i> Back</a>
+  </header>
+  <div class="chat-box" id="chatBox">
+    <div class="no-chat"><i class="fas fa-comments"></i><div>Select a user to start chatting</div></div>
+    <div class="typing-indicator" id="typingIndicator">
+      <i class="fas fa-user-shield"></i>
+      <span>Admin is typing</span>
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <div class="input-box" id="inputBox" style="display:none;">
+    <input type="text" id="adminMsgInput" placeholder="Type your reply...">
+    <button id="sendAdminMsg"><i class="fas fa-paper-plane"></i> Send</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+let currentChatUID = null;
+let userCache = {};
+let typingTimeout;
+
+auth.onAuthStateChanged(async user=>{
+  if(!user) return location.href="auth.html";
+
+  const adminSnap = await db.ref(`admins/${user.uid}`).once('value');
+  if(!adminSnap.exists() ||!['admin','superadmin'].includes(adminSnap.val().role)){
+    alert("Access Denied. You are not admin");
+    return location.href="dashboard.html";
+  }
+
+  loadSupportChats();
+})
+
+async function getUsername(uid){
+  if(userCache[uid]) return userCache[uid];
+  const snap = await db.ref(`users/${uid}/username`).once('value');
+  const name = snap.val() || uid.substring(0,8);
+  userCache[uid] = name;
+  return name;
+}
+
+function loadSupportChats(){
+  const supportRef = db.ref('support_chats');
+  supportRef.on("value", async snap=>{
+    const supportList = document.getElementById('supportList');
+    if(!snap.exists()){
+      supportList.innerHTML="<div style='text-align:center;color:#555;padding:20px;'>No chats yet.<br>Wait for user to message</div>";
+      return;
+    }
+
+    supportList.innerHTML="";
+    const promises = [];
+
+    snap.forEach(userChat=>{
+      const uid = userChat.key;
+      let lastMsg = "No messages";
+      let lastTime = 0;
+      let unread = 0;
+
+      userChat.forEach(msg=>{
+        const m = msg.val();
+        lastMsg = m.message;
+        lastTime = m.timestamp;
+        if(m.sender === "user" &&!m.read) unread++;
+      });
+
+      const p = getUsername(uid).then(username=>{
+        const div = document.createElement('div');
+        div.className = "support-user";
+        div.innerHTML = `
+          <div class="username">${username}</div> ${unread>0? `<span class="unread-badge">${unread}</span>`:''}
+          <div class="last-msg">${lastMsg}</div>
+          <div class="time">${new Date(lastTime).toLocaleTimeString()}</div>
+        `;
+        div.onclick = ()=> openSupportChat(uid, username, div);
+        supportList.appendChild(div);
+      });
+      promises.push(p);
+    })
+  }, err=>{
+    document.getElementById('supportList').innerHTML = "Error: " + err.message;
+    console.log(err)
+  })
+}
+
+function openSupportChat(uid, username, el){
+  currentChatUID = uid;
+  document.querySelectorAll('.support-user').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('chatHeader').textContent = "Chatting with: " + username;
+  document.getElementById('statusDot').style.display="block";
+  document.getElementById('inputBox').style.display="flex";
+
+  const chatRef = db.ref(`support_chats/${uid}`);
+
+  chatRef.on("value", snap=>{
+    const chatBox = document.getElementById('chatBox');
+    const typingIndicator = document.getElementById('typingIndicator');
+    chatBox.innerHTML="";
+    if(!snap.exists()){
+      chatBox.innerHTML='<div class="no-chat"><i class="fas fa-comments"></i><div>No messages yet</div></div>';
+      chatBox.appendChild(typingIndicator);
+      return;
+    }
+
+    snap.forEach(child=>{
+      const m = child.val();
+      const div = document.createElement("div");
+      div.className = "msg " + (m.sender==="admin"?"admin-msg":"user-msg");
+      const time = new Date(m.timestamp).toLocaleTimeString();
+      div.innerHTML = `${m.message}<div class="msg-time">${time}</div>`;
+      chatBox.appendChild(div);
+
+      if(m.sender === "user" &&!m.read){
+        db.ref(`support_chats/${uid}/${child.key}/read`).set(true);
+      }
+    });
+    chatBox.appendChild(typingIndicator); // keep typing at bottom
+    chatBox.scrollTop = chatBox.scrollHeight;
+  })
+}
+
+// SHOW TYPING INDICATOR WHEN ADMIN IS TYPING
+document.getElementById('adminMsgInput').addEventListener("input", ()=>{
+  if(!currentChatUID) return;
+  document.getElementById('typingIndicator').style.display="flex";
+
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(()=>{
+    document.getElementById('typingIndicator').style.display="none";
+  }, 2000); // hides 2s after stop typing
+});
+
+document.getElementById('sendAdminMsg').onclick = sendReply;
+document.getElementById('adminMsgInput').addEventListener("keypress", e=>{ if(e.key==="Enter") sendReply() })
+
+function sendReply(){
+  const text = document.getElementById('adminMsgInput').value.trim();
+  if(!text ||!currentChatUID) return;
+
+  document.getElementById('typingIndicator').style.display="none"; // hide when sent
+
+  db.ref(`support_chats/${currentChatUID}`).push({
+    sender: "admin",
+    message: text,
+    timestamp: Date.now(),
+    read: true
+  });
+  document.getElementById('adminMsgInput').value="";
+}
+</script>
+</body>
+</html>
