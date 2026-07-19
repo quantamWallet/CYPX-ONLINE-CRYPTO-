@@ -390,78 +390,98 @@ nav{
   gap: 18px;
   align-items: center;
 }
+/* HEADER RIGHT WRAPPER */
+.header-right{
+  position: relative;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
 
-/* 2. FIXED POPUP CSS FOR MOBILE */
+/* NOTIFICATION POPUP - FIXED TO TOP OF SCREEN */
 .notif-popup{
-  position: absolute; /* drop down from bell */
-  top: calc(100% + 10px); /* 10px below bell */
-  right: -10px; /* pull it left a bit on mobile */
-  margin-top: 0;
-  width: min(340px, 92vw); /* 92% of screen width max */
-  max-height: 70vh; /* use vh so it doesn't go off screen */
+  position: fixed; /* sticks to screen, not header */
+  top: 65px; /* below your header */
+  right: 15px; 
+  width: min(360px, 92vw); /* responsive */
+  max-height: 70vh; /* scroll if too long */
   background: #11294A; /* match your card blue */
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(0,212,255,0.25); 
-  border-radius: 14px;
-  padding: 10px; 
+  border-radius: 16px;
+  padding: 12px; 
   z-index: 99999; 
   overflow-y: auto; 
   display: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
 }
 
-/* Arrow pointing to bell */
-.notif-popup::before{
-  content: '';
-  position: absolute;
-  top: -8px;
-  right: 20px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid #11294A;
-}
-
+/* NOTIFICATION ITEM */
 .notif-item{
   background: rgba(255,255,255,0.04); 
   padding: 12px; 
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 8px; 
   cursor: pointer; 
   border-left: 3px solid #00d4ff; /* cyan accent */
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  color: #E0EFFF; /* light text */
+  font-size: 13px;
+  line-height: 1.4;
 }
 .notif-item:hover{
-  background: rgba(0,212,255,0.08);
+  background: rgba(0,212,255,0.10);
+  transform: translateX(2px);
 }
 .notif-item.read{
-  opacity: 0.55; 
+  opacity: 0.5; 
   border-left-color: #3a5a7a;
 }
 .notif-item b{
   display: block; 
   margin-bottom: 4px; 
-  color: #FFD700; /* yellow title to match $9,392.50 */
+  color: #FFD700; /* yellow title to match balance */
   font-size: 14px;
+  font-weight: 700;
 }
-.notif-item{
-  color: #E0EFFF; /* light text */
-  font-size: 13px;
+.notif-item.broadcast{ 
+  border-left-color: #FFD700; 
 }
-.notif-item.broadcast b{ color: #FFD700; }
-.notif-item.broadcast{ border-left-color: #FFD700; }
+.notif-item.broadcast b{ 
+  color: #FFD700; 
+}
 
 .notif-time{
   font-size: 10px; 
   color: #8FA3C0; /* muted blue-gray */
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
-/* scrollbar to match theme */
-.notif-popup::-webkit-scrollbar{ width: 6px; }
-.notif-popup::-webkit-scrollbar-thumb{ background: #00d4ff; border-radius: 6px; }
-    </style>  
+/* SCROLLBAR TO MATCH THEME */
+.notif-popup::-webkit-scrollbar{ 
+  width: 6px; 
+}
+.notif-popup::-webkit-scrollbar-track{
+  background: transparent;
+}
+.notif-popup::-webkit-scrollbar-thumb{ 
+  background: #00d4ff; 
+  border-radius: 6px; 
+}
+.notif-popup::-webkit-scrollbar-thumb:hover{ 
+  background: #00aacc; 
+}
+
+/* MOBILE TWEAK */
+@media(max-width: 480px){
+  .notif-popup{
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
+ </style>  
   </head>  
   <body>  
     <div class="notif-popup" id="notifPopup">
