@@ -121,6 +121,17 @@ select option{background:#10294d;color:white;}
     user-select: none;
     transition: .3s;
     }
+  .overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.65);
+    backdrop-filter:blur(6px);
+    z-index:9998;
+    display:none;
+  }
 /* PHONE NUMBER COLOR */
 .masked-phone{
   color: var(--gold2);
@@ -181,7 +192,9 @@ select option{background:#10294d;color:white;}
   <a href="vip.html"><i class="fas fa-crown"></i><br>VIP</a>
   <a href="profile.html"><i class="fas fa-user"></i><br>Me</a>
 </nav>
+<div id="overlay" class="overlay"></div>
 
+<div id="popup" class="popup"></div>
 <div id="popup" class="popup"></div>
 
 <div id="passwordPopup" class="popup confirm">
@@ -239,6 +252,7 @@ const cryptoHint = document.getElementById('cryptoHint');
 const submitBtn = document.getElementById('submitBtn');
 const form = document.getElementById('withdrawForm');
 const popup = document.getElementById('popup');
+  const overlay = document.getElementById("overlay");
 const passwordPopup = document.getElementById('passwordPopup');
 const confirmPassword = document.getElementById('confirmPassword');
 const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
@@ -247,13 +261,23 @@ const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
 function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
   popup.innerHTML = msg;
   popup.className = 'popup ' + type;
-  popup.style.display = 'block';
+  popup.style.display = 'none';
+overlay.style.display = 'none';
   if (type === 'confirm') {
     popup.innerHTML += `<br><br><button id="confirmBtn">Go</button>`;
+
     document.getElementById('confirmBtn').onclick = () => {
-      popup.style.display = 'none';
-      window.location.href = redirect || 'select.html';
+        popup.style.display = "none";
+        overlay.style.display = "none";
+
+        window.location.href = redirect || "select.html";
     };
+} else {
+    setTimeout(() => {
+        popup.style.display = "none";
+        overlay.style.display = "none";
+    }, timeout);
+  }
   } else {
     setTimeout(() => popup.style.display = 'none', timeout);
   }
