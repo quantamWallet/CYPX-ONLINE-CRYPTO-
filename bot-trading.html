@@ -471,39 +471,54 @@ function updateBotUI(){
   document.querySelectorAll('.bot-card').forEach(card=>{
     const bot = card.dataset.bot;
     const btn = card.querySelector('.bot-btn');
-    
+
+    card.classList.remove("selected");
+
     if(activatedBots.includes(bot)){
-      if(selectedBot === bot){
-        btn.textContent = 'Bot Selected';
-        btn.style.background = '#00ff88';
-      }else{
-        btn.textContent = 'Select Bot';
-        btn.classList.add('select');
-      }
-    }
-    
-    if(isTrading){
-      card.classList.add('disabled');
-      btn.disabled = true;
+        if(selectedBot === bot){
+            card.classList.add("selected");
+            btn.textContent = "Bot Selected";
+            btn.classList.add("select");
+            btn.style.background = "#00ff88";
+        }else{
+            btn.textContent = "Select Bot";
+            btn.classList.add("select");
+            btn.style.background = "#00d4ff";
+        }
     }else{
-      card.classList.remove('disabled');
-      btn.disabled = false;
+        btn.textContent = "Activate Bot";
+        btn.classList.remove("select");
+        btn.style.background = "#00d4ff";
     }
-    document.getElementById(`run-${bot}`).textContent = `Runs: ${botRuns[bot]}`;
+
+    if(isTrading){
+        card.classList.add("disabled");
+        btn.disabled = true;
+    }else{
+        card.classList.remove("disabled");
+        btn.disabled = false;
+    }
+
+    document.getElementById(`run-${bot}`).textContent =
+        `Runs: ${botRuns[bot] || 0}`;
   });
 }
 
 // SELECT BOT - MUST BE ACTIVATED FIRST
-function selectBot(botName, btn){
-  if(!activatedBots.includes(botName)) return showToast('Activate bot first', '#ff3b30');
-  document.querySelectorAll('.bot-card').forEach(c=>c.classList.remove('selected'));
-  btn.closest('.bot-card').classList.add('selected');
-  selectedBot = botName;
-  document.getElementById('sumBot').textContent = botName;
-  document.getElementById('startBtn').disabled = false;
-  document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${botName}`;
-  showToast(`${botName} Selected`);
-}
+function selectBot(botName){
+    if(!activatedBots.includes(botName))
+        return showToast("Activate bot first","#ff3b30");
+
+    selectedBot = botName;
+    document.getElementById("sumBot").textContent = botName;
+    document.getElementById("startBtn").disabled = false;
+    document.getElementById("startBtn").innerHTML =
+        `<i class="fas fa-play"></i> Start ${botName}`;
+
+    updateBotUI();   // <-- Add this line
+
+    showToast(botName + " Selected");
+  }
 
 function addLog(msg){
   const log = document.createElement('div');
