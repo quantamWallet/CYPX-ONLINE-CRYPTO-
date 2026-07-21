@@ -403,7 +403,7 @@ document.querySelectorAll('.duration-btn[data-type]').forEach(b=>{
     durationText = b.textContent;
     document.getElementById('sumDur').textContent = durationText;
   }
-})
+});
 
 document.querySelectorAll('.lev-btn').forEach(b=>{
   b.onclick = ()=>{
@@ -494,12 +494,47 @@ function updateStats(){
 
 function determineResult(botName){
   botRuns[botName]++;
-  document.getElementById(`run-${botName}`).textContent = `Runs: ${botRuns[botName]}`;
-  if(botName === "SCALPER"){ let r = botRuns[botName] % 5; if(r === 4 || r === 0) return false; return true; }
-  if(botName === "SWING"){ let r = botRuns[botName] % 5; if(r === 2) return false; return true; }
-  if(botName === "AI QUANT"){ return true; }
+
+  document.getElementById(`run-${botName}`).textContent =
+    `Runs: ${botRuns[botName]}`;
+
+  // Save bot runs
+  saveUserData({ botRuns: botRuns });
+
+  // SCALPER:
+  // Every 6 runs:
+  // 1 Win
+  // 2 Win
+  // 3 Win
+  // 4 Win
+  // 5 Win
+  // 6 Loss
+  if(botName === "SCALPER"){
+    const r = botRuns[botName] % 6;
+    return r !== 0;
+  }
+
+  // SWING:
+  // Every 6 runs:
+  // 1 Win
+  // 2 Win
+  // 3 Loss
+  // 4 Win
+  // 5 Win
+  // 6 Win
+  if(botName === "SWING"){
+    const r = botRuns[botName] % 6;
+    return r !== 3;
+  }
+
+  // AI QUANT:
+  // Always Win
+  if(botName === "AI QUANT"){
+    return true;
+  }
+
   return Math.random() > 0.3;
-}
+             }
 
 function startTrade(){
   if(!selectedBot) return showToast('Please select a bot first', '#ff3b30');
