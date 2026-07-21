@@ -326,13 +326,12 @@ function updateBalance(uid){
     const input =
         document.getElementById("balance_" + uid);
 
-    const balance =
-        Number(input.value);
+    const balance = Number(input.value);
 
-    if(isNaN(balance)){
-        alert("Invalid balance");
-        return;
-    }
+if (isNaN(balance) || balance < 0) {
+    alert("Balance must be 0 or greater.");
+    return;
+  }
 
     db.ref("users/" + uid)
     .update({
@@ -350,6 +349,7 @@ function updateBalance(uid){
         });
 
         alert("Balance updated successfully.");
+loadUsers();
 
     });
 
