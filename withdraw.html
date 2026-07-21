@@ -115,7 +115,12 @@ select option{background:#10294d;color:white;}
         opacity:1;
     }
 }
-
+.blur{
+    filter: blur(6px);
+    pointer-events: none;
+    user-select: none;
+    transition: .3s;
+    }
 /* PHONE NUMBER COLOR */
 .masked-phone{
   color: var(--gold2);
@@ -142,8 +147,14 @@ select option{background:#10294d;color:white;}
         <option value="usdt_erc20">USDT (ERC20)</option>
       </select>
       <div id="phoneBox">
-        <label class="label" for="phone">Phone Number</label>
-        <input id="phone" class="input" type="text" placeholder="07XXXXXXXX" />
+  <label class="label" for="phone">Registered Phone Number</label>
+  <input
+      id="phone"
+      class="input"
+      type="text"
+      readonly
+      disabled
+  />
       </div>
       <div id="paypalBox" style="display:none;">
         <label class="label" for="paypalEmail">PayPal Email</label>
@@ -172,6 +183,31 @@ select option{background:#10294d;color:white;}
 </nav>
 
 <div id="popup" class="popup"></div>
+
+<div id="passwordPopup" class="popup confirm">
+    <h3 style="margin-top:0;color:#fff;">Confirm Withdrawal</h3>
+
+    <p style="margin-bottom:15px;">
+        Enter your account password to continue.
+    </p>
+
+    <input
+        type="password"
+        id="confirmPassword"
+        class="input"
+        placeholder="Enter password"
+    >
+
+    <button id="confirmPasswordBtn" class="btn">
+        Confirm
+    </button>
+
+    <button
+        id="cancelPasswordBtn"
+        style="width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:#555;color:#fff;cursor:pointer;">
+        Cancel
+    </button>
+</div>
 <script>
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -203,7 +239,10 @@ const cryptoHint = document.getElementById('cryptoHint');
 const submitBtn = document.getElementById('submitBtn');
 const form = document.getElementById('withdrawForm');
 const popup = document.getElementById('popup');
-
+const passwordPopup = document.getElementById('passwordPopup');
+const confirmPassword = document.getElementById('confirmPassword');
+const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
+const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
 // === Popup ===
 function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
   popup.innerHTML = msg;
@@ -221,18 +260,35 @@ function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
 }
 
 let currentUser = null;
+let registeredPhone = "";
 
 // === Auth ===
 auth.onAuthStateChanged(user => {
   currentUser = user;
+
   if (user) {
+
     submitBtn.disabled = false;
-    db.ref(`users/${user.uid}/balance`).on('value', snap => {
-      balanceEl.textContent = (Number(snap.val()) || 0).toLocaleString('en-US');
+
+    db.ref(`users/${user.uid}`).once("value").then(snap => {
+
+      registeredPhone = snap.child("phone").val() || "";
+
+      phoneInput.value = registeredPhone;
+
     });
+
+    db.ref(`users/${user.uid}/balance`).on("value", snap => {
+
+      balanceEl.textContent = (Number(snap.val()) || 0).toLocaleString("en-US");
+
+    });
+
   } else {
-    balanceEl.textContent = '—';
+
+    balanceEl.textContent = "—";
     submitBtn.disabled = true;
+
   }
 });
 
@@ -268,7 +324,64 @@ methodInput.addEventListener("change", () => {
 methodInput.dispatchEvent(new Event('change'));
 
 function maskPhone(phone){if(!phone || phone.length < 6) return phone;return phone.slice(0,4) + '***' + phone.slice(-2);}
+async function verifyPassword() {
 
+    return new Promise((resolve, reject) => {
+
+        confirmPassword.value = "";
+
+        passwordPopup.style.display = "block";
+
+        document.querySelector(".container").classList.add("blur");
+        document.querySelector("nav").classList.add("blur");
+
+        cancelPasswordBtn.onclick = () => {
+
+            passwordPopup.style.display = "none";
+
+            document.querySelector(".container").classList.remove("blur");
+            document.querySelector("nav").classList.remove("blur");
+
+            reject();
+
+        };
+
+        confirmPasswordBtn.onclick = async () => {
+
+            const password = confirmPassword.value.trim();
+
+            if (!password) {
+                showPopup("Please enter your password", "error");
+                return;
+            }
+
+            try {
+
+                const credential = firebase.auth.EmailAuthProvider.credential(
+                    currentUser.email,
+                    password
+                );
+
+                await currentUser.reauthenticateWithCredential(credential);
+
+                passwordPopup.style.display = "none";
+
+                document.querySelector(".container").classList.remove("blur");
+                document.querySelector("nav").classList.remove("blur");
+
+                resolve();
+
+            } catch (e) {
+
+                showPopup("Incorrect password", "error");
+
+            }
+
+        };
+
+    });
+
+              }
 // === Submit ===
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -276,7 +389,7 @@ form.addEventListener('submit', async (e) => {
 
   const amount = Math.floor(Number(amountInput.value));
   const method = methodInput.value;
-  const phone = phoneInput.value.trim();
+  const phone = registeredPhone;
   const paypalEmail = paypalEmailInput.value.trim();
   const cryptoAddress = cryptoAddressInput.value.trim();
 
@@ -312,10 +425,24 @@ form.addEventListener('submit', async (e) => {
   }
   */
 
-  submitBtn.disabled = true;submitBtn.textContent = "Processing...";
-  const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+  submitBtn.disabled = true;
+submitBtn.textContent = "Processing...";
 
-  balanceRef.transaction((bal) => {
+try {
+
+    await verifyPassword();
+
+} catch {
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Withdrawal";
+    return;
+
+}
+
+const balanceRef = db.ref(`users/${currentUser.uid}/balance`);
+
+balanceRef.transaction((bal) => {
     bal = Number(bal) || 0;
     if (bal < amount) return;
     return bal - amount;
@@ -350,11 +477,34 @@ if (!committed) {
  
       amountInput.value = '';phoneInput.value = '';paypalEmailInput.value = '';cryptoAddressInput.value = '';
 
-      const phoneSnap = await db.ref(`users/${currentUser.uid}/phone`).once('value');
-      const regPhone = phoneSnap.val() || phone;
-      const masked = maskPhone(regPhone);
+      let receiver = "";
 
-      showPopup(`<div class="tick"></div>Withdrawal of $ ${amount.toLocaleString()} submitted<br>Method: ${methodNames[method]}<br>To: <span class="masked-phone">${masked}</span>`,"success",4000);
+if (method === "mpesa" || method === "airtel") {
+
+    receiver = maskPhone(registeredPhone);
+
+} else if (method === "btc" || method === "usdt_erc20") {
+
+    receiver =
+        cryptoAddress.substring(0, 6) +
+        "*****" +
+        cryptoAddress.substring(cryptoAddress.length - 5);
+
+} else {
+
+    receiver = paypalEmail;
+
+}
+
+showPopup(
+`<div class="tick"></div>
+Withdrawal of <b>$${amount.toLocaleString()}</b> submitted
+<br>Method: ${methodNames[method]}
+<br>To:
+<span class="masked-phone">${receiver}</span>`,
+"success",
+4000
+);
       setTimeout(() => {window.location.href = "financial.html";}, 4500);
 
     } catch (e) {
