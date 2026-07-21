@@ -265,31 +265,36 @@ function showPopup(msg, type = "success", timeout = 2800, redirect = null) {
     overlay.style.display = "block";
     popup.style.display = "block";
 
+    // Blur background
+    document.querySelector(".container").classList.add("blur");
+    document.querySelector("nav").classList.add("blur");
+
+    function closePopup() {
+        popup.style.display = "none";
+        overlay.style.display = "none";
+
+        // Remove blur
+        document.querySelector(".container").classList.remove("blur");
+        document.querySelector("nav").classList.remove("blur");
+    }
+
     if (type === "confirm") {
 
         popup.innerHTML += `<br><br><button id="confirmBtn">Go</button>`;
 
         document.getElementById("confirmBtn").onclick = () => {
-
-            popup.style.display = "none";
-            overlay.style.display = "none";
-
+            closePopup();
             window.location.href = redirect || "select.html";
-
         };
 
     } else {
 
-        setTimeout(() => {
-
-            popup.style.display = "none";
-            overlay.style.display = "none";
-
-        }, timeout);
+        setTimeout(closePopup, timeout);
 
     }
 
 }
+
 let currentUser = null;
 let registeredPhone = "";
 
@@ -396,11 +401,11 @@ overlay.style.display = "none";
                 await currentUser.reauthenticateWithCredential(credential);
 
                 passwordPopup.style.display = "none";
-overlay.style.display = "none";
-                document.querySelector(".container").classList.remove("blur");
-                document.querySelector("nav").classList.remove("blur");
 
-                resolve();
+// Keep the overlay and blur.
+// showPopup() will remove them after the popup closes.
+
+resolve();
 
             } catch (e) {
 
