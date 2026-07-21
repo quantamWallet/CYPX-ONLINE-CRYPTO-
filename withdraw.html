@@ -414,10 +414,19 @@ resolve();
     showPopup("Incorrect password", "error", 2500);
 
     setTimeout(() => {
+
+        overlay.style.display = "block";
         passwordPopup.style.display = "block";
+
+        document.querySelector(".container").classList.add("blur");
+        document.querySelector("nav").classList.add("blur");
+
+        confirmPassword.value = "";
+        confirmPassword.focus();
+
     }, 2500);
 
-            }
+        }
 
         };
 
