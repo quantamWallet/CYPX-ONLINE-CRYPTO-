@@ -375,7 +375,7 @@ if(lvl>max) max=lvl;
 return "VIP"+max;
 }
 
-function changeStatus(uid,status){
+function changeStatus(uid, status){
 
     db.ref("users/" + uid).update({
         status: status,
@@ -393,36 +393,16 @@ function changeStatus(uid,status){
 
         showToast(
             status === "active"
-            ? "User activated successfully"
-            : "User suspended successfully",
+                ? "User activated successfully"
+                : "User suspended successfully",
             "success"
         );
 
     });
 
-} // <-- ADD THIS
+}
 
-    db.ref("users/" + uid)
-    .update({
-        balance: balance
-    })
-    .then(()=>{
 
-        db.ref("adminLogs").push({
-            action: "Balance Updated",
-            user: uid,
-            newBalance: balance,
-            admin: adminEmail,
-            adminUID: adminUID,
-            time: Date.now()
-        });
-
-        showToast("Balance updated successfully.","success");
-loadUsers();
-
-    });
-
-          }
     function openEdit(uid, field, currentValue){
 
     const value = prompt("Enter new " + field, currentValue);
