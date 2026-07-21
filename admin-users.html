@@ -305,22 +305,28 @@ return "VIP"+max;
 }
 
 function changeStatus(uid,status){
-db.ref("users/"+uid).update({
-status:status,
-statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP,
-statusUpdatedBy: adminEmail
-})
-.then(()=>{
-db.ref("adminLogs").push({
-action: "User "+status,
-user: uid,
-admin: adminEmail,
-adminUID: adminUID,
-time: Date.now()
+db.ref("users/" + uid).update({
+    status: status,
+    statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP,
+    statusUpdatedBy: adminEmail
+}).then(() => {
+
+    db.ref("adminLogs").push({
+        action: "User " + status,
+        user: uid,
+        admin: adminEmail,
+        adminUID: adminUID,
+        time: Date.now()
+    });
+
+    showToast(
+        status === "active"
+            ? "User activated successfully"
+            : "User suspended successfully",
+        "success"
+    );
+
 });
-alert("User "+status);
-});
-}
 function updateBalance(uid){
 
     const input =
