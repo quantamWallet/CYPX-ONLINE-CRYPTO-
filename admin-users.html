@@ -189,9 +189,13 @@ db.ref("admins/"+user.uid)
 .once("value")
 .then(admin=>{
 if(!admin.exists()){
-alert("Admin only");
-window.location.href="auth.html";
-return;
+    showToast("Admin access only","error");
+
+    setTimeout(()=>{
+        window.location.href="auth.html";
+    },1500);
+
+    return;
 }
 loadUsers();
 });
@@ -409,9 +413,22 @@ function changeStatus(uid, status){
 
     if(value === null) return;
 
-    db.ref("users/" + uid).update({
-        [field]: isNaN(value) ? value : Number(value)
-    }).then(()=>{
+    let newValue = value;
+
+if([
+    "balance",
+    "totalDeposit",
+    "totalWithdrawn",
+    "totalReferralBonus",
+    "totalTaskIncome",
+    "vipLevel"
+].includes(field)){
+    newValue = Number(value);
+}
+
+db.ref("users/" + uid).update({
+    [field]: newValue
+}).then(()=>{
 
         db.ref("adminLogs").push({
             action: "Updated " + field,
