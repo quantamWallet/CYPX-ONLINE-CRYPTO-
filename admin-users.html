@@ -102,7 +102,18 @@ font-weight:700;
 color:#22c55e;
 font-weight:700;
 }
+.edit-icon{
+    float:right;
+    color:#4da3ff;
+    cursor:pointer;
+    font-size:13px;
+    transition:.2s;
+}
 
+.edit-icon:hover{
+    color:#7ec8ff;
+    transform:scale(1.15);
+  }
 </style>
 
 </head>
@@ -220,38 +231,110 @@ let totalEarnings =
 
 html += `
 <div class="user-card">
-<p><b>UID:</b> ${user.uid}</p>
-<p><b>Username:</b> ${user.username || "N/A"}</p>
-<p><b>Email:</b> ${user.email || "N/A"}</p>
-<p><b>Phone:</b> ${user.phone || "N/A"}</p>
+
+<p>
+<b>UID:</b> ${user.uid}
+</p>
+
+<p>
+<b>Username:</b>
+${user.username || "N/A"}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','username','${user.username || ""}')"></i>
+</p>
+
+<p>
+<b>Email:</b>
+${user.email || "N/A"}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','email','${user.email || ""}')"></i>
+</p>
+
+<p>
+<b>Phone:</b>
+${user.phone || "N/A"}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','phone','${user.phone || ""}')"></i>
+</p>
+
 <div class="stats-grid">
-  <div class="stat-item">
-    <b>Balance:</b>
-    $${Number(user.balance || 0).toFixed(2)}
-  </div>
 
-  <div class="stat-item">
-    <b>Earnings:</b>
-    $${totalEarnings.toFixed(2)}
-  </div>
+<div class="stat-item">
+<b>Balance:</b>
+$${Number(user.balance || 0).toFixed(2)}
 
-  <div class="stat-item">
-    <b>Deposits:</b>
-    $${Number(user.totalDeposit || 0).toFixed(2)}
-  </div>
-
-  <div class="stat-item">
-    <b>Withdrawals:</b>
-    $${Number(user.totalWithdrawn || 0).toFixed(2)}
-  </div>
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','balance','${user.balance || 0}')"></i>
 </div>
 
-<p><b>Referral Bonus:</b> $${Number(user.totalReferralBonus || 0).toFixed(2)}</p>
-<p><b>Task Income:</b> $${Number(user.totalTaskIncome || 0).toFixed(2)}</p>
+<div class="stat-item">
+<b>Earnings:</b>
+$${totalEarnings.toFixed(2)}
 
-<p><b>VIP:</b> <span class="vip">${getVip(user)}</span></p>
-<p><b>KYC:</b> ${user.kycStatus || "none"}</p>
-<p><b>Status:</b> ${status}</p>
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','totalTaskIncome','${user.totalTaskIncome || 0}')"></i>
+</div>
+
+<div class="stat-item">
+<b>Deposits:</b>
+$${Number(user.totalDeposit || 0).toFixed(2)}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','totalDeposit','${user.totalDeposit || 0}')"></i>
+</div>
+
+<div class="stat-item">
+<b>Withdrawals:</b>
+$${Number(user.totalWithdrawn || 0).toFixed(2)}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','totalWithdrawn','${user.totalWithdrawn || 0}')"></i>
+</div>
+
+</div>
+
+<p>
+<b>Referral Bonus:</b>
+$${Number(user.totalReferralBonus || 0).toFixed(2)}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','totalReferralBonus','${user.totalReferralBonus || 0}')"></i>
+</p>
+
+<p>
+<b>Task Income:</b>
+$${Number(user.totalTaskIncome || 0).toFixed(2)}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','totalTaskIncome','${user.totalTaskIncome || 0}')"></i>
+</p>
+
+<p>
+<b>VIP:</b>
+<span class="vip">${getVip(user)}</span>
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','vipLevel','${user.vipLevel || 0}')"></i>
+</p>
+
+<p>
+<b>KYC:</b>
+${user.kycStatus || "none"}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','kycStatus','${user.kycStatus || "none"}')"></i>
+</p>
+
+<p>
+<b>Status:</b>
+${status}
+
+<i class="fas fa-pen edit-icon"
+onclick="openEdit('${user.uid}','status','${status}')"></i>
+</p>
 
 ${
 status=="active"
@@ -260,22 +343,9 @@ status=="active"
 :
 `<button class="activate" onclick="changeStatus('${user.uid}','active')">Activate</button>`
 }
-<div style="margin:15px 0;">
-    <input
-        id="balance_${user.uid}"
-        type="number"
-        placeholder="Enter new balance"
-        value="${Number(user.balance || 0)}">
 
-    <button
-        style="background:#2563eb;margin-top:8px;width:100%;"
-        onclick="updateBalance('${user.uid}')">
-        Update Balance
-    </button>
-</div>
 </div>
 `;
-});
 
 document.getElementById("users").innerHTML = html || "No users found";
 }
@@ -305,28 +375,31 @@ return "VIP"+max;
 }
 
 function changeStatus(uid,status){
-db.ref("users/" + uid).update({
-    status: status,
-    statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP,
-    statusUpdatedBy: adminEmail
-}).then(() => {
 
-    db.ref("adminLogs").push({
-        action: "User " + status,
-        user: uid,
-        admin: adminEmail,
-        adminUID: adminUID,
-        time: Date.now()
-    });
+    db.ref("users/" + uid).update({
+        status: status,
+        statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP,
+        statusUpdatedBy: adminEmail
+    }).then(() => {
 
-    showToast(
-        status === "active"
+        db.ref("adminLogs").push({
+            action: "User " + status,
+            user: uid,
+            admin: adminEmail,
+            adminUID: adminUID,
+            time: Date.now()
+        });
+
+        showToast(
+            status === "active"
             ? "User activated successfully"
             : "User suspended successfully",
-        "success"
-    );
+            "success"
+        );
 
-});
+    });
+
+} // <-- ADD THIS
 function updateBalance(uid){
 
     const input =
@@ -335,7 +408,7 @@ function updateBalance(uid){
     const balance = Number(input.value);
 
 if (isNaN(balance) || balance < 0) {
-    alert("Balance must be 0 or greater.");
+    showToast("Balance must be 0 or greater.","error");
     return;
   }
 
@@ -354,7 +427,7 @@ if (isNaN(balance) || balance < 0) {
             time: Date.now()
         });
 
-        alert("Balance updated successfully.");
+        showToast("Balance updated successfully.","success");
 loadUsers();
 
     });
