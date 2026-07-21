@@ -140,8 +140,8 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 
   <div class="section-title">Select Bot - Paid Access</div>
   <div class="bots-grid">
-    <div class="bot-card" data-bot="SCALPER" data-price="296">
-      <h3>SCALPER BOT <span class="bot-price">$296</span></h3>
+    <div class="bot-card" data-bot="SCALPER" data-price="0">
+      <h3>SCALPER BOT <span class="bot-price">FREE</span>
       <div class="bot-desc">Fast trades 30s - 5min. Best for Majors + Gold. 82% Winrate</div>
       <div class="bot-stats"><span><i class="fas fa-bolt"></i> High Frequency</span><span><i class="fas fa-chart-line"></i> Low Risk</span></div>
       <div class="bot-run" id="run-SCALPER">Runs: 0</div>
@@ -304,7 +304,7 @@ function loadUserData(){
         wins: 0,
         losses: 0,
         sessions: 0,
-        activatedBots: [],
+        activatedBots: ["SCALPER"],
         botRuns: botRuns
     });
     balance = 6612.32;
@@ -425,6 +425,18 @@ function setPercent(p){
 }
 
 function handleBot(botName, price, btn){
+  if(botName === "SCALPER"){
+    if(!activatedBots.includes("SCALPER")){
+        activatedBots.push("SCALPER");
+        saveUserData({activatedBots: activatedBots});
+    }
+
+    btn.textContent = "Select Bot";
+    btn.classList.add("select");
+    selectBot(botName, btn);
+    showToast("SCALPER BOT activated for free!", "#00ff88");
+    return;
+  }
   if(activatedBots.includes(botName)){
     selectBot(botName, btn);
     return;
