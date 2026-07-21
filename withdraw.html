@@ -329,13 +329,45 @@ auth.onAuthStateChanged(user => {
 });
 
 // === Phone validation ===
-const mpesaPrefixes = ["070","071","072","074","075","076","079","011"];
-const airtelPrefixes = ["073","078","076","075"];
-
 function isValidNumber(phone, method) {
-  if (!/^(07|01)\d{8}$/.test(phone)) return false;
-  const prefix = phone.substring(0,3);
-  return method === 'mpesa'? mpesaPrefixes.includes(prefix) : airtelPrefixes.includes(prefix);
+
+    // Remove any + sign
+    phone = phone.replace(/^\+/, "");
+
+    // Must contain only digits
+    if (!/^\d+$/.test(phone)) return false;
+
+    // Kenya
+    if (phone.startsWith("254")) {
+        return phone.length === 12;
+    }
+
+    // Tanzania
+    if (phone.startsWith("255")) {
+        return phone.length === 12;
+    }
+
+    // Uganda
+    if (phone.startsWith("256")) {
+        return phone.length === 12;
+    }
+
+    // Rwanda
+    if (phone.startsWith("250")) {
+        return phone.length === 12;
+    }
+
+    // Burundi
+    if (phone.startsWith("257")) {
+        return phone.length === 11;
+    }
+
+    // South Sudan
+    if (phone.startsWith("211")) {
+        return phone.length === 12;
+    }
+
+    return false;
 }
 
 // === BTC validation ===
@@ -359,7 +391,11 @@ methodInput.addEventListener("change", () => {
 });
 methodInput.dispatchEvent(new Event('change'));
 
-function maskPhone(phone){if(!phone || phone.length < 6) return phone;return phone.slice(0,4) + '***' + phone.slice(-2);}
+function maskPhone(phone) {
+    if (!phone || phone.length < 7) return phone;
+    return phone.substring(0, 6) + "*****" + phone.substring(phone.length - 2);
+}
+  
 async function verifyPassword() {
 
     return new Promise((resolve, reject) => {
