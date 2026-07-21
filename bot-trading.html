@@ -611,10 +611,11 @@ function finishTrade(amount){
 
   db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
     let totalEarnings = Number(snap.val()) || 0;
-    const updates = {};
-
+    const updates = {
+    totalEarnings: totalEarnings
+};
     if(isWin){
-      wins++;
+      
       
       // 1. TRANSACTION: RETURN CAPITAL + PROFIT TO BALANCE
       db.ref("users/" + userId + "/balance").transaction(current => {
@@ -627,7 +628,9 @@ function finishTrade(amount){
       });
 
       totalEarnings += potentialProfit;
-      updates.wins = wins;
+      db.ref("users/" + userId + "/wins").transaction(current => {
+    return (Number(current) || 0) + 1;
+});
       updates.totalEarnings = totalEarnings;
 
       document.getElementById('resultIcon').style.color = '#00ff88';
@@ -637,7 +640,7 @@ function finishTrade(amount){
       addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
 
     }else{
-      losses++;
+      
 
       // 1. TRANSACTION: DEDUCT LOSS FROM BALANCE  
       db.ref("users/" + userId + "/balance").transaction(current => {
@@ -649,7 +652,9 @@ function finishTrade(amount){
         return (Number(current) || 0) - potentialProfit;
       });
 
-      updates.losses = losses;
+      db.ref("users/" + userId + "/losses").transaction(current => {
+    return (Number(current) || 0) + 1;
+});
       updates.totalEarnings = totalEarnings;
 
       document.getElementById('resultIcon').style.color = '#ff3b30';
