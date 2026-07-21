@@ -915,7 +915,7 @@ document.getElementById("loginPassword");
 const rememberMe =
 document.getElementById("rememberMe");
 
-/* REGISTER */
+/* REGISTER *
 
 const username =
 document.getElementById("username");
@@ -926,6 +926,9 @@ document.getElementById("registerEmail");
 const phoneNumber =
 document.getElementById("phoneNumber");
 
+const countryCode =
+document.getElementById("countryCode");
+
 const registerPassword =
 document.getElementById("registerPassword");
 
@@ -935,6 +938,29 @@ document.getElementById("confirmPassword");
 const referralCode =
 document.getElementById("referralCode");
 
+// Only allow numbers and maximum length
+phoneNumber.addEventListener("input", () => {
+    phoneNumber.value = phoneNumber.value
+        .replace(/\D/g, "") // Remove non-numbers
+        .slice(0, 9);       // Maximum 9 digits
+});
+
+// Update placeholder when country changes
+countryCode.addEventListener("change", () => {
+    const placeholders = {
+        "254": "717427605",
+        "255": "712345678",
+        "256": "701234567",
+        "250": "781234567",
+        "257": "79123456",
+        "211": "912345678"
+    };
+
+    phoneNumber.placeholder = placeholders[countryCode.value];
+});
+
+// Set the initial placeholder
+countryCode.dispatchEvent(new Event("change"));
 
 /* ===========================
    REFERRAL CODE
