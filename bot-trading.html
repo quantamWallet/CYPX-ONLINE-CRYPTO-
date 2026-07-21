@@ -239,11 +239,27 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
 <!-- Result Modal -->
 <div class="modal" id="resultModal">
   <div class="modal-box">
-    <i class="fas fa-check-circle" style="font-size:50px;color:#00ff88;" id="resultIcon"></i>
-    <h2 id="resultTitle">Session Complete</h2>
-    <div class="profit" id="profitText">+$2,709.74</div>
-    <small>Updated to your balance</small>
-    <button class="start-btn" style="margin-top:15px;" onclick="closeResultModal()">Continue Trading</button>
+    <i class="fas fa-check-circle" id="resultIcon"
+       style="font-size:60px;color:#00ff88;"></i>
+
+    <h2 id="resultTitle">Session 16 Complete</h2>
+
+    <div class="profit" id="profitText">+$28,341.00</div>
+
+    <div id="profitPercent"
+         style="font-size:24px;font-weight:bold;color:#00d4ff;margin:8px 0;">
+        +62.18%
+    </div>
+
+    <small style="font-size:16px;color:#ddd;">
+        Profit added to your balance
+    </small>
+
+    <button class="start-btn"
+            style="margin-top:20px;"
+            onclick="closeResultModal()">
+        Continue Trading
+    </button>
   </div>
 </div>
 
@@ -674,12 +690,25 @@ function finishTrade(amount){
 });
       updates.totalEarnings = totalEarnings;
 
-      document.getElementById('resultIcon').style.color = '#00ff88';
-      document.getElementById('resultTitle').textContent = 'Session Win';
-      document.getElementById('profitText').style.color = '#00ff88';
-      document.getElementById('profitText').textContent = `+$${potentialProfit.toFixed(2)}`;
-      addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
+      const profitPercent = ((potentialProfit / amount) * 100).toFixed(2);
 
+document.getElementById('resultIcon').style.color = '#00ff88';
+
+document.getElementById('resultTitle').textContent =
+    `Session ${sessions} Complete`;
+
+document.getElementById('profitText').style.color = '#00ff88';
+document.getElementById('profitText').textContent =
+    `+$${potentialProfit.toLocaleString(undefined,{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    })}`;
+
+document.getElementById('profitPercent').style.color = '#00d4ff';
+document.getElementById('profitPercent').textContent =
+    `+${profitPercent}%`;
+
+addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
     }else{
       
 
@@ -698,12 +727,25 @@ function finishTrade(amount){
 });
       updates.totalEarnings = totalEarnings;
 
-      document.getElementById('resultIcon').style.color = '#ff3b30';
-      document.getElementById('resultTitle').textContent = 'Session Loss';
-      document.getElementById('profitText').style.color = '#ff3b30';
-      document.getElementById('profitText').textContent = `-$${potentialProfit.toFixed(2)}`;
-      addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
-    }
+      const lossPercent = ((potentialProfit / amount) * 100).toFixed(2);
+
+document.getElementById('resultIcon').style.color = '#ff3b30';
+
+document.getElementById('resultTitle').textContent =
+    `Session ${sessions} Complete`;
+
+document.getElementById('profitText').style.color = '#ff3b30';
+document.getElementById('profitText').textContent =
+    `-$${potentialProfit.toLocaleString(undefined,{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    })}`;
+
+document.getElementById('profitPercent').style.color = '#ff3b30';
+document.getElementById('profitPercent').textContent =
+    `-${lossPercent}%`;
+
+addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
 
     saveBotData(`trade_history/${Date.now()}`, {
       botName: selectedBot, pair: selectedAsset.pair, amount: amount, 
