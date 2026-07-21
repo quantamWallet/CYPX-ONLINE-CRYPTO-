@@ -1100,22 +1100,24 @@ return true;
 function validatePhone(){
 
     const code = document.getElementById("countryCode").value;
-    const number = phoneNumber.value.replace(/\D/g,"");
+
+    let number = phoneNumber.value.replace(/\D/g, "");
+
+    // Remove leading 0 automatically
+    if(number.startsWith("0")){
+        number = number.substring(1);
+        phoneNumber.value = number;
+    }
 
     if(number.length !== 9){
         showError("Enter a valid mobile number.");
         return false;
     }
 
-    if(number.startsWith("0")){
-        showError("Do not include the leading 0.");
-        return false;
-    }
-
     phoneNumber.dataset.full = code + number;
 
     return true;
-}
+        }
 
 /* ===========================
    PASSWORD VALIDATION
