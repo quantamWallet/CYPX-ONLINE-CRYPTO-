@@ -294,7 +294,27 @@ box-shadow:
 rgba(37,99,235,.15);
 
 }
+.phone-group{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
 
+.country-code{
+    width:110px;
+    height:48px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    padding:0 10px;
+    background:#fff;
+    font-size:14px;
+    outline:none;
+}
+
+.phone-group input{
+    flex:1;
+    padding-left:15px;
+    }
 .error{
 
 display:none;
@@ -709,17 +729,26 @@ required>
 <div class="error"
 id="registerEmailError"></div>
 
-<div class="input-field">
+<div class="input-field phone-group">
+    <i class="fa-solid fa-phone"></i>
 
-<i class="fa-solid fa-phone"></i>
+    <select id="countryCode" class="country-code">
+        <option value="254">🇰🇪 +254</option>
+        <option value="255">🇹🇿 +255</option>
+        <option value="256">🇺🇬 +256</option>
+        <option value="250">🇷🇼 +250</option>
+        <option value="257">🇧🇮 +257</option>
+        <option value="211">🇸🇸 +211</option>
+    </select>
 
-<input
-type="tel"
-id="phoneNumber"
-placeholder="Phone Number"
-autocomplete="tel"
-required>
-
+    <input
+        type="tel"
+        id="phoneNumber"
+        placeholder="717427605"
+        inputmode="numeric"
+        maxlength="9"
+        autocomplete="tel"
+        required>
 </div>
 
 <div class="error"
@@ -1070,21 +1099,22 @@ return true;
 
 function validatePhone(){
 
-const phone =
-phoneNumber.value.trim();
+    const code = document.getElementById("countryCode").value;
+    const number = phoneNumber.value.replace(/\D/g,"");
 
-if(phone.length<8){
+    if(number.length !== 9){
+        showError("Enter a valid mobile number.");
+        return false;
+    }
 
-showError(
-"Enter a valid phone number."
-);
+    if(number.startsWith("0")){
+        showError("Do not include the leading 0.");
+        return false;
+    }
 
-return false;
+    phoneNumber.dataset.full = code + number;
 
-}
-
-return true;
-
+    return true;
 }
 
 /* ===========================
@@ -1190,8 +1220,7 @@ username.value.trim().toLowerCase();
 const email =
 registerEmail.value.trim().toLowerCase();
 
-const phone =
-phoneNumber.value.trim();
+const phone = phoneNumber.dataset.full;
 
 const password =
 registerPassword.value;
