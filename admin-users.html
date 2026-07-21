@@ -220,21 +220,29 @@ let totalEarnings =
 
 html += `
 <div class="user-card">
-<p><b>Email:</b> ${user.email || "N/A"}</p>
+<p><b>UID:</b> ${user.uid}</p>
 <p><b>Username:</b> ${user.username || "N/A"}</p>
-
+<p><b>Email:</b> ${user.email || "N/A"}</p>
+<p><b>Phone:</b> ${user.phone || "N/A"}</p>
 <div class="stats-grid">
   <div class="stat-item">
-    <b>Balance:</b> $${Number(user.balance || 0).toFixed(2)}
+    <b>Balance:</b>
+    $${Number(user.balance || 0).toFixed(2)}
   </div>
+
   <div class="stat-item">
-    <b>Deposits:</b> $${Number(user.totalDeposit || 0).toFixed(2)}
+    <b>Earnings:</b>
+    $${totalEarnings.toFixed(2)}
   </div>
+
   <div class="stat-item">
-    <b>Withdrawn:</b> $${Number(user.totalWithdrawn || 0).toFixed(2)}
+    <b>Deposits:</b>
+    $${Number(user.totalDeposit || 0).toFixed(2)}
   </div>
-  <div class="stat-item earnings">
-    <b>Earnings:</b> $${totalEarnings.toFixed(2)}
+
+  <div class="stat-item">
+    <b>Withdrawals:</b>
+    $${Number(user.totalWithdrawn || 0).toFixed(2)}
   </div>
 </div>
 
@@ -252,7 +260,19 @@ status=="active"
 :
 `<button class="activate" onclick="changeStatus('${user.uid}','active')">Activate</button>`
 }
+<div style="margin:15px 0;">
+    <input
+        id="balance_${user.uid}"
+        type="number"
+        placeholder="Enter new balance"
+        value="${Number(user.balance || 0)}">
 
+    <button
+        style="background:#2563eb;margin-top:8px;width:100%;"
+        onclick="updateBalance('${user.uid}')">
+        Update Balance
+    </button>
+</div>
 </div>
 `;
 });
@@ -301,7 +321,39 @@ time: Date.now()
 alert("User "+status);
 });
 }
+function updateBalance(uid){
 
+    const input =
+        document.getElementById("balance_" + uid);
+
+    const balance =
+        Number(input.value);
+
+    if(isNaN(balance)){
+        alert("Invalid balance");
+        return;
+    }
+
+    db.ref("users/" + uid)
+    .update({
+        balance: balance
+    })
+    .then(()=>{
+
+        db.ref("adminLogs").push({
+            action: "Balance Updated",
+            user: uid,
+            newBalance: balance,
+            admin: adminEmail,
+            adminUID: adminUID,
+            time: Date.now()
+        });
+
+        alert("Balance updated successfully.");
+
+    });
+
+          }
 </script>
 
 </body>
