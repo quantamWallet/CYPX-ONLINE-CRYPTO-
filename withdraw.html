@@ -195,7 +195,6 @@ select option{background:#10294d;color:white;}
 <div id="overlay" class="overlay"></div>
 
 <div id="popup" class="popup"></div>
-<div id="popup" class="popup"></div>
 
 <div id="passwordPopup" class="popup confirm">
     <h3 style="margin-top:0;color:#fff;">Confirm Withdrawal</h3>
@@ -258,31 +257,39 @@ const confirmPassword = document.getElementById('confirmPassword');
 const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
 const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
 // === Popup ===
-function showPopup(msg, type = 'success', timeout = 2800, redirect = null) {
-  popup.innerHTML = msg;
-  popup.className = 'popup ' + type;
-  popup.style.display = 'none';
-overlay.style.display = 'none';
-  if (type === 'confirm') {
-    popup.innerHTML += `<br><br><button id="confirmBtn">Go</button>`;
+function showPopup(msg, type = "success", timeout = 2800, redirect = null) {
 
-    document.getElementById('confirmBtn').onclick = () => {
-        popup.style.display = "none";
-        overlay.style.display = "none";
+    popup.innerHTML = msg;
+    popup.className = "popup " + type;
 
-        window.location.href = redirect || "select.html";
-    };
-} else {
-    setTimeout(() => {
-        popup.style.display = "none";
-        overlay.style.display = "none";
-    }, timeout);
-  }
-  } else {
-    setTimeout(() => popup.style.display = 'none', timeout);
-  }
+    overlay.style.display = "block";
+    popup.style.display = "block";
+
+    if (type === "confirm") {
+
+        popup.innerHTML += `<br><br><button id="confirmBtn">Go</button>`;
+
+        document.getElementById("confirmBtn").onclick = () => {
+
+            popup.style.display = "none";
+            overlay.style.display = "none";
+
+            window.location.href = redirect || "select.html";
+
+        };
+
+    } else {
+
+        setTimeout(() => {
+
+            popup.style.display = "none";
+            overlay.style.display = "none";
+
+        }, timeout);
+
+    }
+
 }
-
 let currentUser = null;
 let registeredPhone = "";
 
