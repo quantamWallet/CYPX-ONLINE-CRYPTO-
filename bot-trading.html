@@ -659,7 +659,7 @@ function resumeTrade(timeLeft){
 function finishTrade(amount){
   isTrading = false;
   clearInterval(window.currentTradeInterval);
-  document.querySelectorAll('.duration-btn').forEach(b=>b.disabled=false);
+  document.querySelectorAll('.duration-btn').forEach(b => b.disabled = false);
   updateBotUI();
   saveBotData('active_trade', null);
 
@@ -667,103 +667,116 @@ function finishTrade(amount){
   const potentialProfit = Number((amount * leverage * 0.03).toFixed(2));
 
   db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
+
     let totalEarnings = Number(snap.val()) || 0;
+
     const updates = {
-    totalEarnings: totalEarnings
-};
-    if(isWin){
-      
-      
-      // 1. TRANSACTION: RETURN CAPITAL + PROFIT TO BALANCE
+      totalEarnings: totalEarnings
+    };
+
+    if (isWin) {
+
+      // Return capital + profit
       db.ref("users/" + userId + "/balance").transaction(current => {
         return (Number(current) || 0) + amount + potentialProfit;
       });
-      
-      // 2. ADD PROFIT TO BOT EARNINGS
+
+      // Add bot earnings
       db.ref("users/" + userId + "/botEarnings").transaction(current => {
         return (Number(current) || 0) + potentialProfit;
       });
 
-      totalEarnings += potentialProfit;
+      // Increase wins
       db.ref("users/" + userId + "/wins").transaction(current => {
-    return (Number(current) || 0) + 1;
-});
+        return (Number(current) || 0) + 1;
+      });
+
+      totalEarnings += potentialProfit;
       updates.totalEarnings = totalEarnings;
 
       const profitPercent = ((potentialProfit / amount) * 100).toFixed(2);
 
-document.getElementById('resultIcon').style.color = '#00ff88';
+      document.getElementById('resultIcon').style.color = '#00ff88';
+      document.getElementById('resultTitle').textContent = `Session ${sessions} Complete`;
 
-document.getElementById('resultTitle').textContent =
-    `Session ${sessions} Complete`;
+      document.getElementById('profitText').style.color = '#00ff88';
+      document.getElementById('profitText').textContent =
+        `+$${potentialProfit.toLocaleString(undefined,{
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        })}`;
 
-document.getElementById('profitText').style.color = '#00ff88';
-document.getElementById('profitText').textContent =
-    `+$${potentialProfit.toLocaleString(undefined,{
-        minimumFractionDigits:2,
-        maximumFractionDigits:2
-    })}`;
+      document.getElementById('profitPercent').style.color = '#00d4ff';
+      document.getElementById('profitPercent').textContent =
+        `+${profitPercent}%`;
 
-document.getElementById('profitPercent').style.color = '#00d4ff';
-document.getElementById('profitPercent').textContent =
-    `+${profitPercent}%`;
+      addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
 
-addLog(`TRADE CLOSED - WIN +$${potentialProfit.toFixed(2)}`);
-    }else{
-      
+    } else {
 
-      // 1. TRANSACTION: DEDUCT LOSS FROM BALANCE  
+      // Deduct loss
       db.ref("users/" + userId + "/balance").transaction(current => {
         return (Number(current) || 0) - potentialProfit;
       });
 
-      // 2. DEDUCT FROM BOT EARNINGS
+      // Deduct bot earnings
       db.ref("users/" + userId + "/botEarnings").transaction(current => {
         return (Number(current) || 0) - potentialProfit;
       });
 
+      // Increase losses
       db.ref("users/" + userId + "/losses").transaction(current => {
-    return (Number(current) || 0) + 1;
-});
+        return (Number(current) || 0) + 1;
+      });
+
       updates.totalEarnings = totalEarnings;
 
       const lossPercent = ((potentialProfit / amount) * 100).toFixed(2);
 
-document.getElementById('resultIcon').style.color = '#ff3b30';
+      document.getElementById('resultIcon').style.color = '#ff3b30';
+      document.getElementById('resultTitle').textContent = `Session ${sessions} Complete`;
 
-document.getElementById('resultTitle').textContent =
-    `Session ${sessions} Complete`;
+      document.getElementById('profitText').style.color = '#ff3b30';
+      document.getElementById('profitText').textContent =
+        `-$${potentialProfit.toLocaleString(undefined,{
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        })}`;
 
-document.getElementById('profitText').style.color = '#ff3b30';
-document.getElementById('profitText').textContent =
-    `-$${potentialProfit.toLocaleString(undefined,{
-        minimumFractionDigits:2,
-        maximumFractionDigits:2
-    })}`;
+      document.getElementById('profitPercent').style.color = '#ff3b30';
+      document.getElementById('profitPercent').textContent =
+        `-${lossPercent}%`;
 
-document.getElementById('profitPercent').style.color = '#ff3b30';
-document.getElementById('profitPercent').textContent =
-    `-${lossPercent}%`;
+      addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
+    }
 
-addLog(`TRADE CLOSED - LOSS -$${potentialProfit.toFixed(2)}`);
-
+    // Save trade history (runs for both win & loss)
     saveBotData(`trade_history/${Date.now()}`, {
-      botName: selectedBot, pair: selectedAsset.pair, amount: amount, 
-      duration: duration, result: isWin ? 'win' : 'loss', 
-      pnl: isWin ? potentialProfit : -potentialProfit, timestamp: Date.now()
+      botName: selectedBot,
+      pair: selectedAsset.pair,
+      amount: amount,
+      duration: duration,
+      result: isWin ? "win" : "loss",
+      pnl: isWin ? potentialProfit : -potentialProfit,
+      timestamp: Date.now()
     });
 
-    saveUserData(updates); // only wins/losses/totalEarnings now
+    // Save updated earnings
+    saveUserData(updates);
+
     updateStats();
 
     document.getElementById('startBtn').disabled = false;
-    document.getElementById('startBtn').innerHTML = `<i class="fas fa-play"></i> Start ${selectedBot}`;
+    document.getElementById('startBtn').innerHTML =
+      `<i class="fas fa-play"></i> Start ${selectedBot}`;
+
     document.getElementById('resultModal').style.display = 'flex';
+
   }).catch(err => {
-    console.error('Error finishing trade:', err);
-    showToast('Error completing trade', '#ff3b30');
+    console.error("Error finishing trade:", err);
+    showToast("Error completing trade", "#ff3b30");
   });
-}
+  }
 
 function closeTradeModal(){ 
   document.getElementById('tradeModal').style.display = 'none'; 
