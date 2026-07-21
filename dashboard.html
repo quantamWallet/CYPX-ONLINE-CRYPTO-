@@ -515,10 +515,38 @@ window.onload = function () {
   const modal = document.getElementById("announcementModal");
   annBtn.addEventListener("click", () => { modal.style.display = "block"; });
   window.closeAnnouncement = function () { modal.style.display = "none"; };
+auth.onAuthStateChanged(async function(user) {
 
-  auth.onAuthStateChanged(function(user) {
-    if (!user) { window.location.href = "auth.html"; return; }
-    const uid = user.uid;
+    if (!user) {
+        window.location.href = "auth.html";
+        return;
+    }
+
+    try {
+
+        const snap = await db.ref("users/" + user.uid).once("value");
+
+        if (snap.exists() && snap.val().status === "suspended") {
+
+            await auth.signOut();
+
+            showError("Your account has been suspended. Please contact support.");
+
+            return;
+
+        }
+
+        // User is active
+        // Continue loading the page here
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+});
+  
     // Notification badge
 const notifBadge = document.getElementById("notifBadge");
 
