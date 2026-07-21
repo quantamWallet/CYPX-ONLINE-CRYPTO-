@@ -52,7 +52,7 @@ h2 i{margin-right:8px;}
 .btn:disabled{opacity:.7;cursor:not-allowed;}
 .small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
 .small strong{color:var(--gold2);}
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:9999;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade.25s ease;} /* FIXED SPACE */
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:10000;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade.25s ease;} /* FIXED SPACE */
 .popup.success{background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
 .popup.error{background:linear-gradient(145deg,rgba(90,22,22,.95),rgba(55,12,12,.96));border:1px solid rgba(255,90,90,.20);color:#ffe1e1;}
 .popup.confirm{background:linear-gradient(145deg,rgba(18,41,76,.98),rgba(8,24,48,.98));border:1px solid rgba(212,175,55,.18);color:#eaf3ff;}
@@ -129,7 +129,7 @@ select option{background:#10294d;color:white;}
     height:100%;
     background:rgba(0,0,0,.65);
     backdrop-filter:blur(6px);
-    z-index:9998;
+    z-index:9999;
     display:none;
   }
 /* PHONE NUMBER COLOR */
@@ -361,15 +361,15 @@ async function verifyPassword() {
 
         confirmPassword.value = "";
 
-        passwordPopup.style.display = "block";
-
+        overlay.style.display = "block";
+passwordPopup.style.display = "block";
         document.querySelector(".container").classList.add("blur");
         document.querySelector("nav").classList.add("blur");
 
         cancelPasswordBtn.onclick = () => {
 
             passwordPopup.style.display = "none";
-
+overlay.style.display = "none";
             document.querySelector(".container").classList.remove("blur");
             document.querySelector("nav").classList.remove("blur");
 
@@ -396,7 +396,7 @@ async function verifyPassword() {
                 await currentUser.reauthenticateWithCredential(credential);
 
                 passwordPopup.style.display = "none";
-
+overlay.style.display = "none";
                 document.querySelector(".container").classList.remove("blur");
                 document.querySelector("nav").classList.remove("blur");
 
