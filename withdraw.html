@@ -409,7 +409,13 @@ resolve();
 
             } catch (e) {
 
-                showPopup("Incorrect password", "error");
+    passwordPopup.style.display = "none";
+
+    showPopup("Incorrect password", "error", 2500);
+
+    setTimeout(() => {
+        passwordPopup.style.display = "block";
+    }, 2500);
 
             }
 
