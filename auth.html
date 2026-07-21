@@ -1503,31 +1503,45 @@ showLoading();
 
 try{
 
-await configurePersistence();
-
 await signInWithEmailAndPassword(
 
-auth,
+    auth,
 
-loginEmail.value.trim(),
+    loginEmail.value.trim(),
 
-loginPassword.value
+    loginPassword.value
 
 );
+
+// Check if the account is suspended
+const uid = auth.currentUser.uid;
+
+const snap = await get(ref(db, "users/" + uid));
+
+if (snap.exists() && snap.val().status === "suspended") {
+
+    await auth.signOut();
+
+    hideLoading();
+
+    showError(
+        "Your account has been suspended. Please contact support."
+    );
+
+    return;
+}
 
 hideLoading();
 
 showSuccess(
-
-"Login successful."
-
+    "Login successful."
 );
 
-setTimeout(()=>{
+setTimeout(() => {
 
-window.location.href="dashboard.html";
+    window.location.href = "dashboard.html";
 
-},1000);
+}, 1000);
 
 }catch(error){
 
