@@ -536,73 +536,53 @@ return;
 }
 
 currentUser=user;
-
 const uid=user.uid;
 
-const appSnap=await db.ref("merchantApplications/"+uid).once("value");
+try {
+    const appSnap=await db.ref("merchantApplications/"+uid).once("value");
 
-if(appSnap.exists()){
+    if(appSnap.exists()){
+        const app=appSnap.val();
 
-const app=appSnap.val();
+        if(app.status==="pending"){
+            walletBalance.innerHTML="Application Submitted";
+            statusText.className="status";
+            statusText.innerHTML="🟡 Pending Review";
+            statusMessage.innerHTML="Your merchant application is currently under review.<br>Please wait for admin approval.";
+            continueBtn.innerHTML="Application Pending";
+            continueBtn.disabled=true;
+            progressBar.style.width="100%";
+            return;
+        }
 
-if(app.status==="pending"){
+        if(app.status==="approved"){
+            walletBalance.innerHTML="Merchant Approved";
+            statusText.className="status green";
+            statusText.innerHTML="🟢 Approved";
+            statusMessage.innerHTML="Congratulations! You are already a CYPX Merchant.";
+            continueBtn.innerHTML="Open Merchant Dashboard";
+            continueBtn.disabled=false;
+            continueBtn.classList.add("enabled");
+            continueBtn.onclick=function(){
+            location.href="merchant-dashboard.html";
+            }
+            progressBar.style.width="100%";
+            return;
+        }
 
-walletBalance.innerHTML="Application Submitted";
+        if(app.status==="rejected"){
+            statusText.className="status red";
+            statusText.innerHTML="Application Rejected";
+            statusMessage.innerHTML="You may submit another application.";
+            return;
+        }
+    }
 
-statusText.className="status";
-statusText.innerHTML="🟡 Pending Review";
-
-statusMessage.innerHTML="Your merchant application is currently under review.<br>Please wait for admin approval.";
-
-continueBtn.innerHTML="Application Pending";
-continueBtn.disabled=true;
-
-progressBar.style.width="100%";
-
-return;
-
-}
-
-if(app.status==="approved"){
-
-walletBalance.innerHTML="Merchant Approved";
-
-statusText.className="status green";
-statusText.innerHTML="🟢 Approved";
-
-statusMessage.innerHTML="Congratulations! You are already a CYPX Merchant.";
-
-continueBtn.innerHTML="Open Merchant Dashboard";
-
-continueBtn.disabled=false;
-
-continueBtn.classList.add("enabled");
-
-continueBtn.onclick=function(){
-location.href="merchant-dashboard.html";
-}
-
-progressBar.style.width="100%";
-
-return;
-
-}
-
-if(app.status==="rejected"){
-
-statusText.className="status red";
-
-statusText.innerHTML="Application Rejected";
-
-statusMessage.innerHTML="You may submit another application.";
-
-}
-
-}
-
-db.ref("users/" + uid + "/balance").once("value")
-.then(async (snap) => {
-    const balance = Number(snap.val() || 0);
+    // Start eligibility check
+    statusText.innerHTML = "Checking balance...";
+    
+    const balanceSnap = await db.ref("users/" + uid + "/balance").once("value");
+    const balance = Number(balanceSnap.val() || 0);
 
     walletBalance.innerHTML = "$" + balance.toLocaleString(undefined,{
         minimumFractionDigits:2, 
@@ -612,8 +592,10 @@ db.ref("users/" + uid + "/balance").once("value")
     let percent = Math.min((balance / 1000) * 100, 100);
     progressBar.style.width = percent + "%";
 
+    statusText.innerHTML = "Checking deposits...";
+
     let approvedDeposit = false;
-    const depSnap = await db.ref("deposits/" + uid).once("value"); // now checking deposits/
+    const depSnap = await db.ref("deposits/" + uid).once("value");
 
     depSnap.forEach(child => {
         const d = child.val();
@@ -648,16 +630,16 @@ db.ref("users/" + uid + "/balance").once("value")
         }
         statusMessage.innerHTML = reasons.join("<br><br>");
     }
-})
-.catch(err=>{
-    console.error(err);
+} catch(err){
+    console.error("Eligibility Check Failed:", err);
     walletBalance.innerHTML = "Error";
-    statusText.innerHTML = "Database Error";
-    statusMessage.innerHTML = err.message;
-});
+    statusText.className = "status red";
+    statusText.innerHTML = "Failed to Load";
+    statusMessage.innerHTML = "Error: " + err.message;
+}
 });
 
 </script>
 
 </body>
-</html>
+  </html>
