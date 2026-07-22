@@ -38,7 +38,7 @@ header{background:#002f6c;padding:18px;display:flex;align-items:center;justify-c
 #continueBtn.enabled{cursor:pointer;background:linear-gradient(135deg,#00c853,#00e676);}
 .note{background:#112d54;padding:15px;border-radius:12px;margin-top:15px;line-height:1.6;font-size:14px;border-left:4px solid orange;}
 label{display:block;margin-top:18px;margin-bottom:8px;font-weight:bold;color:#d8e8ff;}
-.input{width:100%;padding:14px;border:none;border-radius:10px;background:#102d55;color:#fff;font-size:15px;outline:none;border:1px solid rgba(255,255,255,.08);}
+.input{width:100%;padding:14px;border:none;border-radius:10px;background:#102d55;color:#fff;font-size:15px;outline:none;border:1px solid rgba(255,255,255,.08);transition:.2s;}
 .input:focus{border-color:#00d4ff;}
 textarea.input{resize:vertical;}
 .merchantBtn{width:100%;margin-top:25px;padding:16px;font-size:17px;font-weight:bold;border:none;border-radius:12px;background:#00b050;color:#fff;cursor:pointer;transition:.3s;}
@@ -46,7 +46,11 @@ textarea.input{resize:vertical;}
 .merchantBtn:hover:not(:disabled){transform:translateY(-2px);background:#009944;}
 @media(max-width:600px){.balance{font-size:30px;}.card h2{font-size:20px;}}
 
-/* NEW: Toast Notification */
+/* NEW: Validation styling */
+.input.error{border:1px solid #ff5c5c!important;animation:shake.3s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+/* Toast Notification */
 .toast{position:fixed;top:20px;right:20px;background:#00b050;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;box-shadow:0 4px 15px rgba(0,0,0,.3);animation:slideIn.3s ease;}
 .toast.error{background:#ff5c5c;}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
@@ -160,7 +164,7 @@ Submit Application
 </div>
 </div>
 
-<!-- NEW: Toast Container -->
+<!-- Toast Container -->
 <div id="toast" class="toast"></div>
 
 <script>
@@ -190,7 +194,6 @@ const toast = document.getElementById("toast");
 
 let currentUser=null;
 
-// NEW: Toast function
 function showToast(message, type="success"){
     toast.innerHTML = `<i class="fas fa-${type==="success"?"check-circle":"exclamation-circle"}" style="margin-right:8px;"></i> ${message}`;
     toast.className = `toast ${type==="error"?"error":""}`;
@@ -216,7 +219,7 @@ try {
             statusText.className="status";statusText.innerHTML="🟡 Pending Review";
             statusMessage.innerHTML="Your merchant application is currently under review.<br>Please wait for admin approval.";
             continueBtn.innerHTML="Application Pending";continueBtn.disabled=true;progressBar.style.width="100%";
-            applicationForm.style.display = "none"; // hide form if already pending
+            applicationForm.style.display = "none";
             return;
         }
         if(app.status==="approved"){
@@ -226,7 +229,7 @@ try {
             continueBtn.innerHTML="Open Merchant Dashboard";continueBtn.disabled=false;continueBtn.classList.add("enabled");
             continueBtn.onclick=function(){location.href="merchant-dashboard.html";}
             progressBar.style.width="100%";
-            applicationForm.style.display = "none"; // hide form if approved
+            applicationForm.style.display = "none";
             return;
         }
         if(app.status==="rejected"){
@@ -294,11 +297,16 @@ submitBtn.onclick = async () => {
         submittedAt: Date.now()
     };
 
+    // NEW: Validation with styling
+    document.querySelectorAll(".input").forEach(i => i.classList.remove("error")); // clear old errors
+    let hasError = false;
     for(let key in applicationData){
         if(key!== "submittedAt" && key!== "status" && applicationData[key] === ""){
-            return showToast("Please fill all fields", "error");
+            document.getElementById(key).classList.add("error"); // add red border + shake
+            hasError = true;
         }
     }
+    if(hasError) return showToast("Please fill all required fields", "error");
     if(!agree.checked) return showToast("Please agree to Terms and Conditions", "error");
 
     submitBtn.disabled = true;
@@ -308,7 +316,7 @@ submitBtn.onclick = async () => {
         await db.ref("merchantApplications/" + uid).set(applicationData);
 
         showToast("Application submitted successfully!", "success");
-        applicationForm.style.display = "none"; // HIDE FORM
+        applicationForm.style.display = "none";
         statusText.className="status";statusText.innerHTML="🟡 Pending Review";
         statusMessage.innerHTML="Your merchant application is currently under review.<br>Please wait for admin approval.";
         continueBtn.innerHTML="Application Pending";continueBtn.disabled=true;progressBar.style.width="100%";
@@ -322,4 +330,4 @@ submitBtn.onclick = async () => {
 }
 </script>
 </body>
-  </html>
+                                      </html>
