@@ -521,17 +521,15 @@ auth.onAuthStateChanged(async function(user) {
         window.location.href = "auth.html";
         return;
     }
-
+const uid = user.uid;
     try {
 
-        const snap = await db.ref("users/" + user.uid).once("value");
-
+        const snap = await database.ref("users/" + user.uid).once("value");
         if (snap.exists() && snap.val().status === "suspended") {
 
             await auth.signOut();
 
-            showError("Your account has been suspended. Please contact support.");
-
+            showPopup("Your account has been suspended. Please contact support.", true);
             return;
 
         }
