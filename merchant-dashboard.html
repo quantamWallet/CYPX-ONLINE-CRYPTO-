@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>CYPX Merchant Dashboard</title>
+
+<meta name="theme-color" content="#007a54">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+background:#08172d;
+
+color:#fff;
+
+overflow-x:hidden;
+
+padding-bottom:90px;
+
+}
+
+a{
+
+text-decoration:none;
+
+color:inherit;
+
+}
+
+button{
+
+font-family:'Poppins',sans-serif;
+
+border:none;
+
+outline:none;
+
+cursor:pointer;
+
+}
+
+img{
+
+display:block;
+
+max-width:100%;
+
+}
+.card{
+background:#102b4d;
+border:1px solid rgba(255,255,255,.08);
+border-radius:18px;
+padding:20px;
+margin-bottom:22px;
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+.card-title{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:20px;
+font-weight:600;
+margin-bottom:18px;
+color:#fff;
+}
+
+.card-title i{
+color:#00d4ff;
+}
+.section-title{
+margin:25px 0 18px;
+}
+
+.section-title h2{
+font-size:24px;
+font-weight:700;
+}
+
+.section-title p{
+margin-top:4px;
+color:#bfcfe2;
+font-size:14px;
+}
+.container{
+
+width:95%;
+
+max-width:1400px;
+
+margin:auto;
+
+padding:20px;
+
+}
+/* =========================
+MERCHANT HEADER
+========================= */
+
+.merchant-header{
+
+background:linear-gradient(135deg,#006d5b,#003b74);
+
+padding:22px;
+
+border-bottom-left-radius:30px;
+
+border-bottom-right-radius:30px;
+
+box-shadow:0 8px 25px rgba(0,0,0,.35);
+
+}
+
+.merchant-top{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+.merchant-logo{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+.logo-circle{
+
+width:58px;
+
+height:58px;
+
+border-radius:50%;
+
+background:#ffffff22;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:24px;
+
+}
+
+.logo-circle i{
+
+color:#FFD54F;
+
+}
+
+.merchant-logo h2{
+
+font-size:22px;
+
+font-weight:700;
+
+}
+
+.merchant-logo p{
+
+font-size:13px;
+
+opacity:.9;
+
+margin-top:3px;
+
+}
+
+.header-actions{
+
+display:flex;
+
+gap:12px;
+
+}
+
+.icon-btn{
+
+width:46px;
+
+height:46px;
+
+border-radius:50%;
+
+background:#ffffff18;
+
+color:#fff;
+
+position:relative;
+
+font-size:18px;
+
+transition:.25s;
+
+}
+
+.icon-btn:hover{
+
+background:#ffffff35;
+
+}
+
+.badge{
+
+position:absolute;
+
+top:-3px;
+
+right:-2px;
+
+background:#ff3b30;
+
+color:#fff;
+
+font-size:11px;
+
+font-weight:700;
+
+padding:2px 6px;
+
+border-radius:20px;
+
+display:none;
+
+}
+
+.merchant-profile{
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+margin-top:22px;
+
+}
+
+.avatar{
+
+width:70px;
+
+height:70px;
+
+border-radius:50%;
+
+background:#ffffff22;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:32px;
+
+}
+
+.profile-details{
+
+flex:1;
+
+margin-left:15px;
+
+}
+
+.profile-details h3{
+
+font-size:19px;
+
+}
+
+.profile-details p{
+
+font-size:13px;
+
+opacity:.85;
+
+margin-top:4px;
+
+}
+
+.online-box{
+
+background:#ffffff18;
+
+padding:10px 16px;
+
+border-radius:25px;
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+font-size:14px;
+
+}
+
+.online-dot{
+
+width:10px;
+
+height:10px;
+
+border-radius:50%;
+
+background:#00ff66;
+
+box-shadow:0 0 10px #00ff66;
+
+}
+
+.merchant-clock{
+
+margin-top:18px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:8px;
+
+font-size:15px;
+
+opacity:.95;
+
+}
+/* =========================
+MERCHANT STATS
+========================= */
+
+.stats-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+
+gap:18px;
+
+margin-top:25px;
+
+}
+
+.stat-card{
+
+background:#102b4d;
+
+border-radius:18px;
+
+padding:18px;
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+transition:.3s;
+
+}
+
+.stat-card:hover{
+
+transform:translateY(-4px);
+
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+
+}
+
+.stat-icon{
+
+width:58px;
+
+height:58px;
+
+border-radius:16px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:24px;
+
+color:#fff;
+
+flex-shrink:0;
+
+}
+
+.blue{background:#1e88e5;}
+.green{background:#00c853;}
+.gold{background:#f9a825;}
+.purple{background:#8e24aa;}
+
+.stat-info{
+
+flex:1;
+
+}
+
+.stat-info h4{
+
+font-size:13px;
+
+font-weight:500;
+
+color:#c8d7f0;
+
+margin-bottom:6px;
+
+}
+
+.stat-info h2{
+
+font-size:24px;
+
+font-weight:700;
+
+color:#fff;
+
+}
+/* =========================
+LIVE OVERVIEW
+========================= */
+
+.overview-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:18px;
+
+margin-bottom:25px;
+
+}
+
+.overview-card{
+
+display:flex;
+
+align-items:center;
+
+background:#102b4d;
+
+border-radius:18px;
+
+padding:18px;
+
+border:1px solid rgba(255,255,255,.08);
+
+transition:.3s;
+
+}
+
+.overview-card:hover{
+
+transform:translateY(-4px);
+
+}
+
+.overview-icon{
+
+width:60px;
+
+height:60px;
+
+border-radius:16px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:24px;
+
+margin-right:16px;
+
+color:#fff;
+
+}
+
+.overview-icon.blue{background:#1976d2;}
+.overview-icon.orange{background:#ef6c00;}
+.overview-icon.green{background:#00c853;}
+.overview-icon.gold{background:#f9a825;}
+
+.overview-info h3{
+
+font-size:28px;
+
+margin-bottom:4px;
+
+}
+
+.overview-info span{
+
+color:#c8d7ea;
+
+font-size:14px;
+
+}
+
+.merchant-feed{
+
+margin-top:30px;
+
+background:#102b4d;
+
+border-radius:18px;
+
+padding:20px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+.feed-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:18px;
+
+}
+
+.live-dot{
+
+width:12px;
+
+height:12px;
+
+border-radius:50%;
+
+background:#00ff88;
+
+animation:pulse 1s infinite;
+
+}
+
+@keyframes pulse{
+
+0%{opacity:.3;}
+
+50%{opacity:1;}
+
+100%{opacity:.3;}
+
+}
+
+.feed-item{
+
+display:flex;
+
+align-items:flex-start;
+
+padding:15px 0;
+
+border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.feed-item:last-child{
+
+border-bottom:none;
+
+}
+
+.feed-icon{
+
+width:42px;
+
+height:42px;
+
+border-radius:50%;
+
+background:#163c6a;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+margin-right:14px;
+
+color:#00d4ff;
+
+}
+
+.feed-item h4{
+
+font-size:15px;
+
+margin-bottom:5px;
+
+}
+
+.feed-item p{
+
+font-size:13px;
+
+color:#bfcfe2;
+}
+.wallet-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-top:18px;
+}
+
+.wallet-box{
+background:#102d55;
+padding:18px;
+border-radius:14px;
+text-align:center;
+border:1px solid rgba(255,255,255,.08);
+transition:.3s;
+}
+
+.wallet-box:hover{
+transform:translateY(-3px);
+}
+
+.wallet-title{
+font-size:13px;
+color:#9fc8ff;
+margin-bottom:8px;
+}
+
+.wallet-value{
+font-size:22px;
+font-weight:bold;
+color:#00ff88;
+}
+
+.wallet-box.orange .wallet-value{
+color:#ffb300;
+}
+
+.wallet-box.blue .wallet-value{
+color:#00d4ff;
+}
+
+.wallet-box.purple .wallet-value{
+color:#d86bff;
+}
+
+@media(max-width:600px){
+.wallet-grid{
+grid-template-columns:1fr;
+}
+}
+.orange{
+background:#ef6c00;
+}
+
+.red{
+background:#e53935;
+}
+@keyframes slideIn{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+</style>
+
+</head>
+
+<body> <!-- FIX 1: body must start here -->
+
+<!-- Merchant Notifications -->
+<div id="notificationPanel" style="
+position:fixed;
+top:0;
+right:-420px;
+width:380px;
+max-width:100%;
+height:100%;
+background:#102b4d;
+z-index:9999;
+transition:.35s;
+overflow-y:auto;
+box-shadow:-8px 0 25px rgba(0,0,0,.35);
+">
+
+<div style="
+padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid rgba(255,255,255,.08);
+">
+
+<h2>
+<i class="fas fa-bell"></i>
+Notifications
+</h2>
+
+<button id="closeNotificationPanel"
+style="
+background:none;
+color:#fff;
+font-size:24px;
+">
+<i class="fas fa-times"></i>
+</button>
+
+</div>
+
+<div id="notificationList">
+
+<div class="feed-item">
+
+<div class="feed-icon">
+<i class="fas fa-spinner fa-spin"></i>
+</div>
+
+<div>
+
+<h4>Loading notifications...</h4>
+
+<p>Please wait...</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer"
+style="
+position:fixed;
+top:20px;
+right:20px;
+z-index:10000;
+display:flex;
+flex-direction:column;
+gap:12px;
+">
+</div>
+
+  <!-- =========================
+MERCHANT HEADER
+========================= -->
+
+<header class="merchant-header">
+
+<div class="merchant-top">
+
+<div class="merchant-logo">
+
+<div class="logo-circle">
+<i class="fas fa-store"></i>
+</div>
+
+<div>
+
+<h2>CYPX Merchant</h2>
+
+<p id="merchantGreeting">
+Loading...
+</p>
+
+</div>
+
+</div>
+
+<div class="header-actions">
+
+<button class="icon-btn" id="notificationBtn">
+
+<i class="fas fa-bell"></i>
+
+<span class="badge" id="notificationBadge">
+0
+</span>
+
+</button>
+
+<button class="icon-btn" id="settingsBtn">
+
+<i class="fas fa-cog"></i>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="merchant-profile">
+
+<div class="avatar">
+
+<i class="fas fa-user"></i>
+
+</div>
+
+<div class="profile-details">
+
+<h3 id="merchantName">
+Loading...
+</h3>
+
+<p id="merchantEmail">
+Loading...
+</p>
+
+</div>
+
+<div class="online-box">
+
+<span class="online-dot"></span>
+
+<span id="onlineText">
+Online
+</span>
+
+</div>
+
+</div>
+
+<div class="merchant-clock">
+
+<i class="far fa-clock"></i>
+
+<span id="liveClock">
+00:00:00
+</span>
+
+</div>
+
+</header>
+
+<div class="container">
+
+<!-- =========================
+     MERCHANT STATISTICS CARD 1
+========================= -->
+<div class="card">
+
+    <div class="card-title">
+        <i class="fas fa-chart-line"></i>
+        Merchant Statistics
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+
+            <div class="stat-info">
+                <h4>Total Trades</h4>
+                <h2 id="totalTrades">0</h2>
+            </div>
+        </div>
+<div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-check-circle"></i>
+            </div>
+
+            <div class="stat-info">
+                <h4>Completed</h4>
+                <h2 id="completedTrades">0</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <i class="fas fa-clock"></i>
+            </div>
+
+            <div class="stat-info">
+                <h4>Pending</h4>
+                <h2 id="pendingTrades">0</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-times-circle"></i>
+            </div>
+
+            <div class="stat-info">
+                <h4>Cancelled</h4>
+                <h2 id="cancelledTrades">0</h2>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Merchant Wallet Summary -->
+
+<div class="card">
+
+<h2>
+<i class="fas fa-wallet"></i>
+Merchant Wallet
+</h2>
+
+<div class="wallet-grid">
+
+<div class="wallet-box">
+<div class="wallet-title">Available Balance</div>
+<div class="wallet-value" id="merchantBalance">$0.00</div>
+</div>
+
+<div class="wallet-box orange">
+<div class="wallet-title">Frozen Balance</div>
+<div class="wallet-value" id="frozenBalance">$0.00</div>
+</div>
+
+<div class="wallet-box blue">
+<div class="wallet-title">Today's Volume</div>
+<div class="wallet-value" id="todayVolume">$0.00</div>
+</div>
+
+<div class="wallet-box purple">
+<div class="wallet-title">Total Volume</div>
+<div class="wallet-value" id="totalVolume">$0.00</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================
+LIVE MERCHANT OVERVIEW
+========================= -->
+
+<div class="section-title">
+
+<h2>Live Merchant Overview</h2>
+
+<p>Your business performance today</p>
+
+</div>
+
+<div class="overview-grid">
+
+<div class="overview-card">
+
+<div class="overview-icon blue">
+<i class="fas fa-bullhorn"></i>
+</div>
+
+<div class="overview-info">
+<h3 id="activeAds">0</h3>
+<span>Active Ads</span>
+</div>
+
+</div>
+
+<div class="overview-card">
+
+<div class="overview-icon orange">
+<i class="fas fa-clock"></i>
+</div>
+
+<div class="overview-info">
+<h3 id="openOrders">0</h3>
+<span>Open Orders</span>
+</div>
+
+</div>
+
+<div class="overview-card">
+
+    <div class="overview-icon green">
+        <i class="fas fa-check-circle"></i>
+    </div>
+
+    <div class="overview-info">
+        <h3 id="completedToday">0</h3>
+        <span>Completed Today</span>
+    </div>
+
+</div>
+
+<div class="overview-card">
+
+    <div class="overview-icon gold">
+        <i class="fas fa-dollar-sign"></i>
+    </div>
+
+    <div class="overview-info">
+        <h3 id="todayProfit">$0.00</h3>
+        <span>Today's Earnings</span>
+    </div>
+
+</div>
+
+</div>
+
+<div class="merchant-feed">
+
+<div class="feed-header">
+
+<h2>Live Activity</h2>
+
+<div class="live-dot"></div>
+
+</div>
+
+<div id="merchantFeed">
+
+<div class="feed-item">
+
+<div class="feed-icon">
+<i class="fas fa-spinner fa-spin"></i>
+</div>
+
+<div>
+
+<h4>Loading merchant activity...</h4>
+
+<p>Please wait...</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// Firebase Configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+let currentUser = null;
+let currentMerchant = null;
+
+// Check Login
+auth.onAuthStateChanged(async(user)=>{
+
+    if(!user){
+        window.location.href="auth.html";
+        return;
+    }
+
+    currentUser = user;
+
+    try{
+
+        const merchantSnap = await db.ref("merchantApplications/"+user.uid).once("value");
+
+        if(!merchantSnap.exists()){
+            window.location.href="merchant-apply.html";
+            return;
+        }
+
+        const merchant = merchantSnap.val();
+
+        if(merchant.status !== "approved"){
+            window.location.href="merchant-apply.html";
+            return;
+        }
+
+        currentMerchant = merchant;
+
+        loadMerchantProfile();
+
+    }catch(error){
+
+        showToast("Unable to verify merchant account.","error"); // FIXED
+
+        console.error(error);
+
+    }
+
+});
+  function showToast(title,message,color="#00c853"){
+
+    const toast=document.createElement("div");
+
+    toast.style.cssText=`
+    min-width:300px;
+    background:#16365d;
+    border-left:5px solid ${color};
+    border-radius:12px;
+    padding:15px;
+    color:white;
+    animation:slideIn .35s;
+    box-shadow:0 10px 25px rgba(0,0,0,.35);
+    `;
+
+    toast.innerHTML=`
+    <strong>${title}</strong>
+    <div style="margin-top:6px;font-size:14px;">
+    ${message}
+    </div>
+    `;
+
+    document.getElementById("toastContainer").appendChild(toast);
+
+    setTimeout(()=>{ toast.remove(); },4500);
+
+}
+
+function loadNotifications(){
+
+const uid=currentUser.uid;
+
+db.ref("notifications/"+uid).limitToLast(30).on("value",(snapshot)=>{
+
+const list=document.getElementById("notificationList");
+list.innerHTML="";
+let unread=0;
+
+if(!snapshot.exists()){
+list.innerHTML=`<div class="feed-item"><div class="feed-icon"><i class="fas fa-bell-slash"></i></div><div><h4>No notifications</h4><p>You're all caught up.</p></div></div>`;
+document.getElementById("notificationBadge").style.display="none";
+return;
+}
+
+const items=[];
+snapshot.forEach(child=>{
+items.unshift({id:child.key,...child.val()});
+}); // FIXED: closed forEach
+
+items.forEach(item=>{ // FIXED: closed forEach
+if(!item.read){unread++;}
+const div=document.createElement("div");
+div.className="feed-item";
+div.innerHTML=`
+<div class="feed-icon"><i class="fas fa-bell"></i></div>
+<div>
+<h4>${item.title||"Notification"}</h4>
+<p>${item.message||""}</p>
+<small style="color:#8aa8d8;">${item.time||""}</small>
+</div>
+`;
+list.appendChild(div);
+});
+
+const badge=document.getElementById("notificationBadge");
+if(unread>0){badge.style.display="flex";badge.textContent=unread;}else{badge.style.display="none";}
+
+}); // closed db.on
+
+}
+
+const panel=document.getElementById("notificationPanel");
+
+document.getElementById("notificationBtn").onclick=function(){panel.style.right="0";};
+document.getElementById("closeNotificationPanel").onclick=function(){panel.style.right="-420px";};
+
+function loadMerchantProfile(){
+    const user = currentUser;
+    const merchant = currentMerchant;
+
+    document.getElementById("merchantName").textContent = merchant.fullName || user.displayName || "Merchant";
+    document.getElementById("merchantEmail").textContent = merchant.email || user.email;
+
+    const hour = new Date().getHours();
+    let greeting = "Welcome";
+    if(hour < 12){greeting = "Good Morning";}
+    else if(hour < 18){greeting = "Good Afternoon";}
+    else{greeting = "Good Evening";}
+    
+    loadMerchantStats();
+    loadMerchantFeed();
+    loadNotifications();
+
+    document.getElementById("merchantGreeting").textContent = greeting + ", " + (merchant.fullName || "Merchant");
+}
+
+function loadMerchantStats(){
+    const uid = currentUser.uid;
+
+    db.ref("users/" + uid).on("value",(snap)=>{
+        const user = snap.val() || {};
+        document.getElementById("merchantBalance").textContent = "$" + Number(user.balance || 0).toFixed(2);
+        document.getElementById("frozenBalance").textContent = "$" + Number(user.frozenBalance || 0).toFixed(2);
+    });
+
+    db.ref("merchantStats/" + uid).on("value",(snap)=>{
+        const stats = snap.val() || {};
+        document.getElementById("totalTrades").textContent = stats.totalTrades || 0;
+        document.getElementById("completedTrades").textContent = stats.completedTrades || 0;
+        document.getElementById("pendingTrades").textContent = stats.pendingTrades || 0;
+        document.getElementById("cancelledTrades").textContent = stats.cancelledTrades || 0;
+        document.getElementById("todayVolume").textContent = "$" + Number(stats.todayVolume || 0).toFixed(2);
+        document.getElementById("totalVolume").textContent = "$" + Number(stats.totalVolume || 0).toFixed(2);
+        document.getElementById("activeAds").textContent = stats.activeAds || 0;
+        document.getElementById("openOrders").textContent = stats.openOrders || 0;
+        document.getElementById("completedToday").textContent = stats.completedToday || 0;
+        document.getElementById("todayProfit").textContent = "$" + Number(stats.todayProfit || 0).toFixed(2);
+    });
+}
+
+function loadMerchantFeed(){
+    const uid = currentUser.uid;
+    db.ref("merchantActivity/" + uid).limitToLast(20).on("value",(snapshot)=>{
+        const feed = document.getElementById("merchantFeed");
+        feed.innerHTML = "";
+        if(!snapshot.exists()){
+            feed.innerHTML = `<div class="feed-item"><div class="feed-icon"><i class="fas fa-clock"></i></div><div><h4>No recent activity</h4><p>Your merchant activity will appear here.</p></div></div>`;
+            return;
+        }
+        const activities=[];
+        snapshot.forEach(child=>{activities.unshift(child.val());});
+        activities.forEach(item=>{
+            let icon="fa-info-circle";let color="#00d4ff";
+            switch(item.type){
+                case "buy":icon="fa-arrow-down";color="#00c853";break;
+                case "sell":icon="fa-arrow-up";color="#ff9800";break;
+                case "completed":icon="fa-check-circle";color="#00c853";break;
+                case "cancelled":icon="fa-times-circle";color="#f44336";break;
+                case "advert":icon="fa-bullhorn";color="#1e88e5";break;
+            }
+            const div=document.createElement("div");
+            div.className="feed-item";
+            div.innerHTML=`<div class="feed-icon"><i class="fas ${icon}" style="color:${color};"></i></div><div><h4>${item.title || "Merchant Activity"}</h4><p>${item.message || ""}</p><small style="color:#8aa8d8;display:block;margin-top:6px;">${item.time || ""}</small></div>`;
+            feed.appendChild(div);
+        });
+    });
+}
+
+function updateClock(){
+    const now = new Date();
+    document.getElementById("liveClock").textContent = now.toLocaleTimeString();
+}
+updateClock();
+setInterval(updateClock,1000);
+
+</script>
+</body>
+</html>
