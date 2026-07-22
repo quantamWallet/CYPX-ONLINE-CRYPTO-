@@ -633,16 +633,26 @@ db.ref("users/" + uid + "/balance").once("value")
 
     if(balance >= 1000 && approvedDeposit){
 
-        statusText.className = "status green";
-        statusText.innerHTML = "🟢 Eligible";
+    statusText.className = "status green";
+    statusText.innerHTML = "🟢 Eligible";
 
-        statusMessage.innerHTML =
-        "Congratulations! Your account qualifies to become a CYPX Merchant.";
+    statusMessage.innerHTML =
+    "Congratulations! Your account qualifies to become a CYPX Merchant.";
 
-        continueBtn.disabled = false;
-        continueBtn.classList.add("enabled");
+    continueBtn.disabled = false;
+    continueBtn.classList.add("enabled");
 
-    }else{
+    continueBtn.onclick = function(){
+
+        document.getElementById("applicationForm").scrollIntoView({
+            behavior:"smooth"
+        });
+
+        document.getElementById("submitApplication").disabled = false;
+
+    };
+
+}else{
 
         statusText.className = "status red";
         statusText.innerHTML = "🔴 Not Eligible";
