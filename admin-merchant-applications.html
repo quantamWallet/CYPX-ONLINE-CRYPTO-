@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Merchant Applications</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+body{
+background:#081426;
+font-family:Arial,sans-serif;
+color:#fff;
+margin:0;
+}
+
+header{
+background:#0d1b2a;
+padding:18px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:#132238;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+}
+
+.card h3{
+margin:0 0 10px;
+color:#00d4ff;
+}
+
+.card p{
+margin:6px 0;
+font-size:14px;
+}
+
+img{
+width:100%;
+border-radius:10px;
+margin-top:10px;
+}
+
+.actions{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+button{
+flex:1;
+padding:12px;
+border:none;
+border-radius:8px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.approve{
+background:#00c853;
+color:white;
+}
+
+.reject{
+background:#ff3b30;
+color:white;
+}
+
+.empty{
+text-align:center;
+padding:50px;
+color:#aaa;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<i class="fas fa-user-check"></i>
+Merchant Applications
+</header>
+
+<div class="container" id="list">
+
+<div class="empty">
+Loading applications...
+</div>
+
+</div>
+
+<script>
+
+const firebaseConfig={
+apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+authDomain:"quantum-rio.firebaseapp.com",
+databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+projectId:"quantum-rio",
+storageBucket:"quantum-rio.firebasestorage.app",
+messagingSenderId:"805433999377",
+appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db=firebase.database();
+
+const list=document.getElementById("list");
+
+db.ref("merchantApplications").on("value",snap=>{
+
+list.innerHTML="";
+
+if(!snap.exists()){
+list.innerHTML='<div class="empty">No pending applications.</div>';
+return;
+}
+
+snap.forEach(user=>{
+
+const data=user.val();
+
+if(data.status!="pending") return;
+
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+
+<h3>${data.fullName}</h3>
+
+<p><b>Email:</b> ${data.email}</p>
+
+<p><b>Phone:</b> ${data.phone}</p>
+
+<p><b>Wallet Balance:</b> $${Number(data.balance).toFixed(2)}</p>
+
+<p><b>Experience:</b><br>${data.experience}</p>
+
+<p><b>Status:</b> ${data.status}</p>
+
+<img src="${data.idImage}" alt="ID">
+
+<div class="actions">
+
+<button class="approve" onclick="approve('${user.key}')">
+
+Approve
+
+</button>
+
+<button class="reject" onclick="reject('${user.key}')">
+
+Reject
+
+</button>
+
+</div>
+
+`;
+
+list.appendChild(card);
+
+});
+
+});
+
+function approve(uid){
+
+db.ref("merchantApplications/"+uid).update({
+
+status:"approved",
+approvedAt:Date.now()
+
+});
+
+db.ref("users/"+uid).update({
+
+merchantTrader:true
+
+});
+
+alert("Merchant approved.");
+
+}
+
+function reject(uid){
+
+db.ref("merchantApplications/"+uid).update({
+
+status:"rejected",
+rejectedAt:Date.now()
+
+});
+
+alert("Application rejected.");
+
+}
+
+</script>
+
+</body>
+</html>
