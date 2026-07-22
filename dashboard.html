@@ -382,16 +382,52 @@ nav{
     70% { box-shadow: 0 0 0 15px rgba(0,212,255,0); }
     100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
 }
+.notification-icon{
+    position:relative;
+    color:#fff;
+    font-size:24px;
+    text-decoration:none;
+    padding:8px;
+}
 
+.notification-icon i{
+    transition:.3s;
+}
+
+.notification-icon:hover i{
+    color:#ffd700;
+}
+
+#notificationBadge{
+    position:absolute;
+    top:2px;
+    right:0;
+    min-width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#ff2d55;
+    color:#fff;
+    font-size:11px;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    display:none;
+}
     </style>  
   </head>  
   <body>  
-    <header>  
-      <div style="display: flex; align-items: center; gap: 10px;">  
-        <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height: 30px;" />  
-        <h2 style="margin: 0;">CYPX HOLDINGS</h2>  
-      </div>  
-    </header>  
+    <header>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img src="file_0000000060cc71f5ae523b84facdb23d.png" alt="Logo" style="height:30px;">
+    <h2 style="margin:0;">CYPX HOLDINGS</h2>
+  </div>
+
+  <a href="notifications.html" class="notification-icon">
+    <i class="fas fa-bell"></i>
+    <span id="notificationBadge">0</span>
+  </a>
+    </header>
     <div class="announcement" id="ann-btn">  
       <div class="announcement-content">🛒Welcome to CYPX HOLDINGS 🛒 Recruiting investors and agents worldwide!</div>  
     </div>  
@@ -502,6 +538,23 @@ window.onload = function () {
   auth.onAuthStateChanged(function(user) {
     if (!user) { window.location.href = "auth.html"; return; }
     const uid = user.uid;
+    const badge = document.getElementById("notificationBadge");
+
+database.ref("notifications/" + uid).on("value", snap => {
+    let unread = 0;
+
+    snap.forEach(child => {
+        const n = child.val();
+        if (!n.read) unread++;
+    });
+
+    if (unread > 0) {
+        badge.style.display = "flex";
+        badge.textContent = unread;
+    } else {
+        badge.style.display = "none";
+    }
+});
     document.getElementById("user-email").textContent = user.email;
     const balanceRef = database.ref("users/" + uid + "/balance");
     balanceRef.on("value", snap => {
