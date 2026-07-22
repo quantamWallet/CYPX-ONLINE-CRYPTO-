@@ -132,7 +132,49 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 const storage = firebase.storage();
+function seedDefaultMerchants() {
 
+  const merchantsRef = db.ref("p2pMerchants");
+
+  merchantsRef.once("value").then(snapshot => {
+
+    if (snapshot.exists()) return;
+
+    const defaultMerchants = [
+      {
+        name: "LANGAT PRO TRADER",
+        phone: "254717427604",
+        paymentMethod: "MPESA KENYA",
+        availableUSD: 5000,
+        minTrade: 50,
+        maxTrade: 43000,
+        status: "active",
+        completedTrades: 1254,
+        completionRate: 99.8,
+        joinedAt: Date.now()
+      },
+      {
+        name: "HASSAN ABDI",
+        phone: "254750858351",
+        paymentMethod: "AIRTEL MONEY KENYA",
+        availableUSD: 5000,
+        minTrade: 50,
+        maxTrade: 43000,
+        status: "active",
+        completedTrades: 946,
+        completionRate: 99.6,
+        joinedAt: Date.now()
+      }
+    ];
+
+    defaultMerchants.forEach(merchant => {
+      merchantsRef.push(merchant);
+    });
+
+    console.log("Default merchants added.");
+  });
+
+            }
 let uid = null;
 let usdToKes = 150;
 let currentTrader = {};
@@ -161,6 +203,7 @@ async function fetchRate(){
 }
 
 fetchRate();
+seedDefaultMerchants();
 loadMerchants();
 setInterval(fetchRate,60000);
     
