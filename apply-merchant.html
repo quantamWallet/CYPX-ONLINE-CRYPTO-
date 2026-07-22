@@ -45,6 +45,11 @@ textarea.input{resize:vertical;}
 .merchantBtn:disabled{background:#666;cursor:not-allowed;}
 .merchantBtn:hover:not(:disabled){transform:translateY(-2px);background:#009944;}
 @media(max-width:600px){.balance{font-size:30px;}.card h2{font-size:20px;}}
+
+/* NEW: Toast Notification */
+.toast{position:fixed;top:20px;right:20px;background:#00b050;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;box-shadow:0 4px 15px rgba(0,0,0,.3);animation:slideIn.3s ease;}
+.toast.error{background:#ff5c5c;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
 </style>
 
 </head>
@@ -140,8 +145,6 @@ Complete the form below. All information must be accurate. False information may
 <label>Why do you want to become a CYPX Merchant?</label>
 <textarea id="reason" class="input" rows="5" placeholder="Tell us why you would like to become a merchant."></textarea>
 
-<!-- REMOVED FILE UPLOADS TO MAKE FORM LIGHTER -->
-
 <div style="margin-top:18px">
 <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
 <input type="checkbox" id="agree">
@@ -156,6 +159,9 @@ Submit Application
 
 </div>
 </div>
+
+<!-- NEW: Toast Container -->
+<div id="toast" class="toast"></div>
 
 <script>
 const firebaseConfig = {
@@ -179,8 +185,18 @@ const statusMessage = document.getElementById("statusMessage");
 const continueBtn = document.getElementById("continueBtn");
 const submitBtn = document.getElementById("submitApplication");
 const agree = document.getElementById("agree");
+const applicationForm = document.getElementById("applicationForm");
+const toast = document.getElementById("toast");
 
 let currentUser=null;
+
+// NEW: Toast function
+function showToast(message, type="success"){
+    toast.innerHTML = `<i class="fas fa-${type==="success"?"check-circle":"exclamation-circle"}" style="margin-right:8px;"></i> ${message}`;
+    toast.className = `toast ${type==="error"?"error":""}`;
+    toast.style.display = "block";
+    setTimeout(()=>{toast.style.display="none";}, 4000);
+}
 
 agree.addEventListener("change", () => {
     submitBtn.disabled =!agree.checked;
@@ -199,7 +215,9 @@ try {
             walletBalance.innerHTML="Application Submitted";
             statusText.className="status";statusText.innerHTML="🟡 Pending Review";
             statusMessage.innerHTML="Your merchant application is currently under review.<br>Please wait for admin approval.";
-            continueBtn.innerHTML="Application Pending";continueBtn.disabled=true;progressBar.style.width="100%";return;
+            continueBtn.innerHTML="Application Pending";continueBtn.disabled=true;progressBar.style.width="100%";
+            applicationForm.style.display = "none"; // hide form if already pending
+            return;
         }
         if(app.status==="approved"){
             walletBalance.innerHTML="Merchant Approved";
@@ -207,7 +225,9 @@ try {
             statusMessage.innerHTML="Congratulations! You are already a CYPX Merchant.";
             continueBtn.innerHTML="Open Merchant Dashboard";continueBtn.disabled=false;continueBtn.classList.add("enabled");
             continueBtn.onclick=function(){location.href="merchant-dashboard.html";}
-            progressBar.style.width="100%";return;
+            progressBar.style.width="100%";
+            applicationForm.style.display = "none"; // hide form if approved
+            return;
         }
         if(app.status==="rejected"){
             statusText.className="status red";statusText.innerHTML="Application Rejected";
@@ -255,10 +275,10 @@ try {
 
 // Submit Application
 submitBtn.onclick = async () => {
-    if(!currentUser) return alert("Please login first");
-    
+    if(!currentUser) return showToast("Please login first", "error");
+
     const uid = currentUser.uid;
-    
+
     const applicationData = {
         fullName: document.getElementById("fullName").value.trim(),
         email: document.getElementById("email").value.trim(),
@@ -276,26 +296,30 @@ submitBtn.onclick = async () => {
 
     for(let key in applicationData){
         if(key!== "submittedAt" && key!== "status" && applicationData[key] === ""){
-            return alert("Please fill all fields");
+            return showToast("Please fill all fields", "error");
         }
     }
-    if(!agree.checked) return alert("Please agree to Terms and Conditions");
+    if(!agree.checked) return showToast("Please agree to Terms and Conditions", "error");
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
     try {
         await db.ref("merchantApplications/" + uid).set(applicationData);
-        alert("Application submitted successfully!");
-        location.reload();
+
+        showToast("Application submitted successfully!", "success");
+        applicationForm.style.display = "none"; // HIDE FORM
+        statusText.className="status";statusText.innerHTML="🟡 Pending Review";
+        statusMessage.innerHTML="Your merchant application is currently under review.<br>Please wait for admin approval.";
+        continueBtn.innerHTML="Application Pending";continueBtn.disabled=true;progressBar.style.width="100%";
+
     } catch(err){
         console.error(err);
-        alert("Failed to submit: " + err.message);
+        showToast("Failed to submit: " + err.message, "error");
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
     }
 }
-
-          </script>
+</script>
 </body>
-                                </html>
+  </html>
