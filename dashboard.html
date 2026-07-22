@@ -662,9 +662,6 @@ if (String(msg.sender).toLowerCase() === "admin" && msg.read !== true) {
     database.ref("users/" + uid + "/copyEarnings").on("value", loadTotalEarnings);
 
     const claimBtn = document.getElementById("claim-btn");
-    auth.onAuthStateChanged(function(user) {
-      if (!user) return;
-      const uid = user.uid;
       const claimedRef = database.ref("users/" + uid + "/hasClaimedBonus");
       const userRef = database.ref("users/" + uid);
       claimedRef.on("value", snap => {
