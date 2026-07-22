@@ -614,45 +614,48 @@ db.ref("users/" + uid + "/balance").once("value")
         });
 
     let percent = (balance / 1000) * 100;
-    if(percent > 100) percent = 100;
-    progressBar.style.width = percent + "%";
+if (percent > 100) percent = 100;
+progressBar.style.width = percent + "%";
 
-    let approvedDeposit = false;
+let approvedDeposit = false;
 
-    const depSnap = await db.ref("deposits/" + uid).once("value");
+const depSnap = await db.ref("financial/" + uid).once("value");
 
-    depSnap.forEach(child => {
-        const d = child.val();
+depSnap.forEach(child => {
+    const d = child.val();
 
-        if((d.status || "").toLowerCase() === "approved"){
-            approvedDeposit = true;
-        }
-    });
+    if (
+        (d.type || "").toLowerCase() === "deposit" &&
+        (d.status || "").toLowerCase() === "approved"
+    ) {
+        approvedDeposit = true;
+    }
+});
 
-    console.log("Approved Deposit:", approvedDeposit);
+console.log("Approved Deposit:", approvedDeposit);
 
-    if(balance >= 1000 && approvedDeposit){
+if (balance >= 1000 && approvedDeposit) {
 
     statusText.className = "status green";
     statusText.innerHTML = "🟢 Eligible";
 
     statusMessage.innerHTML =
-    "Congratulations! Your account qualifies to become a CYPX Merchant.";
+        "Congratulations! Your account qualifies to become a CYPX Merchant.";
 
     continueBtn.disabled = false;
     continueBtn.classList.add("enabled");
 
-    continueBtn.onclick = function(){
-
+    continueBtn.onclick = function () {
         document.getElementById("applicationForm").scrollIntoView({
-            behavior:"smooth"
+            behavior: "smooth"
         });
 
         document.getElementById("submitApplication").disabled = false;
-
     };
 
-}else{
+} else {
+    // Your existing "Not Eligible" code...
+}
 
         statusText.className = "status red";
         statusText.innerHTML = "🔴 Not Eligible";
