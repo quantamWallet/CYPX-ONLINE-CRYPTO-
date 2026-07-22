@@ -12,79 +12,20 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
 <style>
-body{
-background:#081426;
-font-family:Arial,sans-serif;
-color:#fff;
-margin:0;
-}
-
-header{
-background:#0d1b2a;
-padding:18px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-}
-
-.container{
-padding:15px;
-}
-
-.card{
-background:#132238;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
-}
-
-.card h3{
-margin:0 0 10px;
-color:#00d4ff;
-}
-
-.card p{
-margin:6px 0;
-font-size:14px;
-}
-
-img{
-width:100%;
-border-radius:10px;
-margin-top:10px;
-}
-
-.actions{
-display:flex;
-gap:10px;
-margin-top:15px;
-}
-
-button{
-flex:1;
-padding:12px;
-border:none;
-border-radius:8px;
-font-size:15px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.approve{
-background:#00c853;
-color:white;
-}
-
-.reject{
-background:#ff3b30;
-color:white;
-}
-
-.empty{
-text-align:center;
-padding:50px;
-color:#aaa;
-}
+body{background:#081426;font-family:Arial,sans-serif;color:#fff;margin:0;}
+header{background:#0d1b2a;padding:18px;text-align:center;font-size:22px;font-weight:bold;}
+.container{padding:15px;}
+.card{background:#132238;padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid rgba(255,255,255,.08);}
+.card h3{margin:0 0 10px;color:#00d4ff;}
+.card p{margin:6px 0;font-size:14px;line-height:1.5;}
+.actions{display:flex;gap:10px;margin-top:15px;}
+button{flex:1;padding:12px;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;}
+.approve{background:#00c853;color:white;}
+.reject{background:#ff3b30;color:white;}
+.empty{text-align:center;padding:50px;color:#aaa;}
+.toast{position:fixed;top:20px;right:20px;background:#00b050;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;box-shadow:0 4px 15px rgba(0,0,0,.3);animation:slideIn.3s ease;}
+.toast.error{background:#ff3b30;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
 </style>
 
 </head>
@@ -96,16 +37,12 @@ Merchant Applications
 </header>
 
 <div class="container" id="list">
-
-<div class="empty">
-Loading applications...
+<div class="empty">Loading applications...</div>
 </div>
 
-</div>
+<div id="toast" class="toast"></div>
 
 <script>
-
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -118,120 +55,95 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db=firebase.database();
-
 const list=document.getElementById("list");
+const toast=document.getElementById("toast");
+
+function showToast(message, type="success"){
+    toast.innerHTML = `<i class="fas fa-${type==="success"?"check-circle":"exclamation-circle"}" style="margin-right:8px;"></i> ${message}`;
+    toast.className = `toast ${type==="error"?"error":""}`;
+    toast.style.display = "block";
+    setTimeout(()=>{toast.style.display="none";}, 3000);
+}
 
 db.ref("merchantApplications").on("value",snap=>{
-
 list.innerHTML="";
+let hasPending = false;
 
 if(!snap.exists()){
-list.innerHTML='<div class="empty">No pending applications.</div>';
+list.innerHTML='<div class="empty">No applications found.</div>';
 return;
 }
 
 snap.forEach(user=>{
-
+const uid = user.key;
 const data=user.val();
 
-if(data.status!="pending") return;
+if(data.status!="pending") return; // only show pending
+hasPending = true;
 
 const card=document.createElement("div");
 card.className="card";
 
 card.innerHTML=`
-
-<h3>${data.fullName}</h3>
-
-<p><b>Email:</b> ${data.email}</p>
-
-<p><b>Phone:</b> ${data.phone}</p>
-
-<p><b>Wallet Balance:</b> $${Number(data.balance).toFixed(2)}</p>
-
-<p><b>Experience:</b><br>${data.experience}</p>
-
-<p><b>Status:</b> ${data.status}</p>
-
-<img src="${data.idImage}" alt="ID">
+<h3>${data.fullName || "N/A"}</h3>
+<p><b>Email:</b> ${data.email || "N/A"}</p>
+<p><b>Phone:</b> ${data.phone || "N/A"}</p>
+<p><b>Country:</b> ${data.country || "N/A"}</p>
+<p><b>ID Number:</b> ${data.idNumber || "N/A"}</p>
+<p><b>Payment Method:</b> ${data.paymentMethod || "N/A"}</p>
+<p><b>Payment Number:</b> ${data.paymentNumber || "N/A"}</p>
+<p><b>Experience:</b> ${data.experience || "N/A"}</p>
+<p><b>Daily Capacity:</b> $${data.capacity || 0}</p>
+<p><b>Reason:</b><br>${data.reason || "N/A"}</p>
+<p><b>Submitted:</b> ${data.submittedAt ? new Date(data.submittedAt).toLocaleString() : "N/A"}</p>
 
 <div class="actions">
-
-<button class="approve" onclick="approve('${user.key}')">
-
-Approve
-
-</button>
-
-<button class="reject" onclick="reject('${user.key}')">
-
-Reject
-
-</button>
-
+<button class="approve" onclick="approve('${uid}')">Approve</button>
+<button class="reject" onclick="reject('${uid}')">Reject</button>
 </div>
-
 `;
-
 list.appendChild(card);
-
 });
+
+if(!hasPending){
+list.innerHTML='<div class="empty">No pending applications.</div>';
+}
 
 });
 
 function approve(uid){
-
 db.ref("merchantApplications/"+uid).once("value").then(snap=>{
-
 const app=snap.val();
+if(!app) return;
 
-db.ref("users/"+uid).update({
-merchantTrader:true
-});
-
-db.ref("merchantApplications/"+uid).update({
-status:"approved",
-approvedAt:Date.now()
-});
+db.ref("users/"+uid).update({merchantTrader:true});
+db.ref("merchantApplications/"+uid).update({status:"approved", approvedAt:Date.now()});
 
 db.ref("p2pMerchants/"+uid).set({
-
 uid:uid,
 name:app.fullName,
 phone:app.phone,
 paymentMethod:app.paymentMethod,
-balance:app.balance,
+paymentNumber:app.paymentNumber,
 status:"active",
 verified:true,
 availableUSD:5000,
 minTrade:50,
 maxTrade:43000,
 joined:Date.now()
-
 });
+showToast("Merchant Approved", "success");
 
-alert("Merchant Approved");
-
-});
-
-  }
+}).catch(err=>showToast("Error: "+err.message, "error"));
+}
 
 function reject(uid){
-
-db.ref("merchantApplications/"+uid).update({
-
-status:"rejected",
-rejectedAt:Date.now()
-
-});
-
-alert("Application rejected.");
-
+db.ref("merchantApplications/"+uid).update({status:"rejected", rejectedAt:Date.now()})
+.then(()=>showToast("Application rejected", "error"))
+.catch(err=>showToast("Error: "+err.message, "error"));
 }
 
 </script>
-
 </body>
 </html>
