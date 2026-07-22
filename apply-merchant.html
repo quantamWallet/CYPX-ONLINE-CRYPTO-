@@ -177,8 +177,14 @@ const progressBar = document.getElementById("progressBar");
 const statusText = document.getElementById("statusText");
 const statusMessage = document.getElementById("statusMessage");
 const continueBtn = document.getElementById("continueBtn");
+const submitBtn = document.getElementById("submitApplication");
+const agree = document.getElementById("agree");
 
 let currentUser=null;
+
+agree.addEventListener("change", () => {
+    submitBtn.disabled =!agree.checked;
+})
 
 auth.onAuthStateChanged(async(user)=>{
 if(!user){location.href="auth.html";return;}
@@ -230,7 +236,7 @@ try {
         continueBtn.disabled = false;continueBtn.classList.add("enabled");
         continueBtn.onclick = function () {
             document.getElementById("applicationForm").scrollIntoView({behavior: "smooth"});
-            document.getElementById("submitApplication").disabled = false;
+            submitBtn.disabled =!agree.checked;
         };
     } else {
         statusText.className = "status red";statusText.innerHTML = "🔴 Not Eligible";
@@ -246,6 +252,50 @@ try {
     statusMessage.innerHTML = "Error: " + err.message;
 }
 });
-</script>
+
+// Submit Application
+submitBtn.onclick = async () => {
+    if(!currentUser) return alert("Please login first");
+    
+    const uid = currentUser.uid;
+    
+    const applicationData = {
+        fullName: document.getElementById("fullName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        country: document.getElementById("country").value.trim(),
+        idNumber: document.getElementById("idNumber").value.trim(),
+        paymentMethod: document.getElementById("paymentMethod").value,
+        paymentNumber: document.getElementById("paymentNumber").value.trim(),
+        experience: document.getElementById("experience").value,
+        capacity: document.getElementById("capacity").value,
+        reason: document.getElementById("reason").value.trim(),
+        status: "pending",
+        submittedAt: Date.now()
+    };
+
+    for(let key in applicationData){
+        if(key!== "submittedAt" && key!== "status" && applicationData[key] === ""){
+            return alert("Please fill all fields");
+        }
+    }
+    if(!agree.checked) return alert("Please agree to Terms and Conditions");
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        await db.ref("merchantApplications/" + uid).set(applicationData);
+        alert("Application submitted successfully!");
+        location.reload();
+    } catch(err){
+        console.error(err);
+        alert("Failed to submit: " + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+    }
+}
+
+          </script>
 </body>
                                 </html>
