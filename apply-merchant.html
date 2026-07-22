@@ -600,7 +600,79 @@ statusMessage.innerHTML="You may submit another application.";
 
 }
 
-db.ref("users/"+uid+"/balance").on("value",async snap=>{
+db.ref("users/" + uid + "/balance").once("value")
+.then(async (snap) => {
+
+    console.log("Balance snapshot:", snap.val());
+
+    const balance = Number(snap.val() || 0);
+
+    walletBalance.innerHTML =
+        "$" + balance.toLocaleString(undefined,{
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        });
+
+    let percent = (balance / 1000) * 100;
+    if(percent > 100) percent = 100;
+    progressBar.style.width = percent + "%";
+
+    let approvedDeposit = false;
+
+    const depSnap = await db.ref("deposits/" + uid).once("value");
+
+    depSnap.forEach(child => {
+        const d = child.val();
+
+        if((d.status || "").toLowerCase() === "approved"){
+            approvedDeposit = true;
+        }
+    });
+
+    console.log("Approved Deposit:", approvedDeposit);
+
+    if(balance >= 1000 && approvedDeposit){
+
+        statusText.className = "status green";
+        statusText.innerHTML = "🟢 Eligible";
+
+        statusMessage.innerHTML =
+        "Congratulations! Your account qualifies to become a CYPX Merchant.";
+
+        continueBtn.disabled = false;
+        continueBtn.classList.add("enabled");
+
+    }else{
+
+        statusText.className = "status red";
+        statusText.innerHTML = "🔴 Not Eligible";
+
+        let reasons=[];
+
+        if(balance < 1000){
+            reasons.push(
+                "You need an additional <b>$" +
+                (1000-balance).toFixed(2) +
+                "</b>."
+            );
+        }
+
+        if(!approvedDeposit){
+            reasons.push(
+                "You must have at least one approved deposit."
+            );
+        }
+
+        statusMessage.innerHTML = reasons.join("<br><br>");
+
+    }
+
+})
+.catch(err=>{
+    console.error(err);
+    statusText.innerHTML = "Database Error";
+    statusMessage.innerHTML = err.message;
+});
 
 const balance=Number(snap.val()||0);
 
