@@ -67,55 +67,60 @@ function showToast(message, type="success"){
 }
 
 db.ref("merchantApplications").on("value",snap=>{
-list.innerHTML="";
-let hasPending = false;
+    list.innerHTML="";
+    let hasPending = false;
+    console.log("Data from Firebase:", snap.val()); // for debugging
 
-if(!snap.exists()){
-list.innerHTML='<div class="empty">No applications found.</div>';
-return;
-}
+    if(!snap.exists()){
+        list.innerHTML='<div class="empty">No applications found in database.</div>';
+        return;
+    }
 
-snap.forEach(user=>{
-const uid = user.key;
-const data=user.val();
+    snap.forEach(userSnap=>{
+        const uid = userSnap.key;
+        const data=userSnap.val();
 
-if(data.status!="pending") return; // only show pending
-hasPending = true;
+        if(!data || data.status!="pending") return; // only show pending
+        hasPending = true;
 
-const card=document.createElement("div");
-card.className="card";
+        const card=document.createElement("div");
+        card.className="card";
 
-card.innerHTML=`
-<h3>${data.fullName || "N/A"}</h3>
-<p><b>Email:</b> ${data.email || "N/A"}</p>
-<p><b>Phone:</b> ${data.phone || "N/A"}</p>
-<p><b>Country:</b> ${data.country || "N/A"}</p>
-<p><b>ID Number:</b> ${data.idNumber || "N/A"}</p>
-<p><b>Payment Method:</b> ${data.paymentMethod || "N/A"}</p>
-<p><b>Payment Number:</b> ${data.paymentNumber || "N/A"}</p>
-<p><b>Experience:</b> ${data.experience || "N/A"}</p>
-<p><b>Daily Capacity:</b> $${data.capacity || 0}</p>
-<p><b>Reason:</b><br>${data.reason || "N/A"}</p>
-<p><b>Submitted:</b> ${data.submittedAt ? new Date(data.submittedAt).toLocaleString() : "N/A"}</p>
+        card.innerHTML=`
+        <h3>${data.fullName || "N/A"}</h3>
+        <p><b>Email:</b> ${data.email || "N/A"}</p>
+        <p><b>Phone:</b> ${data.phone || "N/A"}</p>
+        <p><b>Country:</b> ${data.country || "N/A"}</p>
+        <p><b>ID Number:</b> ${data.idNumber || "N/A"}</p>
+        <p><b>Payment Method:</b> ${data.paymentMethod || "N/A"}</p>
+        <p><b>Payment Number:</b> ${data.paymentNumber || "N/A"}</p>
+        <p><b>Experience:</b> ${data.experience || "N/A"}</p>
+        <p><b>Daily Capacity:</b> $${data.capacity || 0}</p>
+        <p><b>Reason:</b><br>${data.reason || "N/A"}</p>
+        <p><b>Submitted:</b> ${data.submittedAt ? new Date(data.submittedAt).toLocaleString() : "N/A"}</p>
 
-<div class="actions">
-<button class="approve" onclick="approve('${uid}')">Approve</button>
-<button class="reject" onclick="reject('${uid}')">Reject</button>
-</div>
-`;
-list.appendChild(card);
-});
+        <div class="actions">
+        <button class="approve" onclick="approve('${uid}')">Approve</button>
+        <button class="reject" onclick="reject('${uid}')">Reject</button>
+        </div>
+        `;
+        list.appendChild(card);
+    });
 
-if(!hasPending){
-list.innerHTML='<div class="empty">No pending applications.</div>';
-}
+    if(!hasPending){
+        list.innerHTML='<div class="empty">No pending applications. All are approved/rejected.</div>';
+    }
 
+}, err=>{
+    console.error("Firebase Error:", err);
+    list.innerHTML = `<div class="empty" style="color:#ff5c5c;">Error: ${err.message}<br>Check Firebase Rules</div>`;
+    showToast("Database Permission Denied", "error");
 });
 
 function approve(uid){
 db.ref("merchantApplications/"+uid).once("value").then(snap=>{
 const app=snap.val();
-if(!app) return;
+if(!app) return showToast("Application not found", "error");
 
 db.ref("users/"+uid).update({merchantTrader:true});
 db.ref("merchantApplications/"+uid).update({status:"approved", approvedAt:Date.now()});
@@ -146,4 +151,4 @@ db.ref("merchantApplications/"+uid).update({status:"rejected", rejectedAt:Date.n
 
 </script>
 </body>
-</html>
+  </html>
