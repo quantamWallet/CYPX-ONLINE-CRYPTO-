@@ -42,12 +42,51 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
 .submit{width:100%;padding:12px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
 .close{float:right;font-size:22px;cursor:pointer;color:#94a3b8}
 .popup{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1a2440;padding:12px 18px;border-radius:10px;display:none;z-index:1001;border-left:4px solid #16a34a}
+.merchant-banner{
+    max-width:480px;
+    margin:12px auto;
+    padding:0 12px;
+}
+
+.merchant-btn{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    padding:14px 16px;
+    text-decoration:none;
+    color:#fff;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    border-radius:12px;
+    font-weight:600;
+    font-size:15px;
+    box-shadow:0 4px 15px rgba(37,99,235,.35);
+    transition:.25s;
+}
+
+.merchant-btn:hover{
+    transform:translateY(-2px);
+}
+
+.merchant-btn i:first-child{
+    font-size:18px;
+}
+
+.merchant-btn i:last-child{
+    opacity:.8;
+  }
 </style>
 </head>
 <body>
 
 <div class="header"><i class="fa-solid fa-handshake"></i> P2P Market</div>
-
+<div class="merchant-banner">
+    <a href="apply-merchant.html" class="merchant-btn">
+        <i class="fas fa-store"></i>
+        Apply to Become a P2P Merchant
+        <i class="fas fa-arrow-right"></i>
+    </a>
+</div>
 <div class="container">
   <div class="rate-card">
     <div class="label">USD to KES Rate</div>
