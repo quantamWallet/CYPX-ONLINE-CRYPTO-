@@ -181,22 +181,40 @@ list.appendChild(card);
 
 function approve(uid){
 
-db.ref("merchantApplications/"+uid).update({
+db.ref("merchantApplications/"+uid).once("value").then(snap=>{
 
-status:"approved",
-approvedAt:Date.now()
-
-});
+const app=snap.val();
 
 db.ref("users/"+uid).update({
-
 merchantTrader:true
+});
+
+db.ref("merchantApplications/"+uid).update({
+status:"approved",
+approvedAt:Date.now()
+});
+
+db.ref("p2pMerchants/"+uid).set({
+
+uid:uid,
+name:app.fullName,
+phone:app.phone,
+paymentMethod:app.paymentMethod,
+balance:app.balance,
+status:"active",
+verified:true,
+availableUSD:5000,
+minTrade:50,
+maxTrade:43000,
+joined:Date.now()
 
 });
 
-alert("Merchant approved.");
+alert("Merchant Approved");
 
-}
+});
+
+  }
 
 function reject(uid){
 
