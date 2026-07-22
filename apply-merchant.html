@@ -618,9 +618,21 @@ if (percent > 100) percent = 100;
 progressBar.style.width = percent + "%";
 
 let approvedDeposit = false;
+const depSnap = await db.ref("deposits/" + uid).once("value"); // <- changed from financial
 
-const depSnap = await db.ref("financial/" + uid).once("value");
+depSnap.forEach(child => {
+    const d = child.val();
+    if (
+        (d.type || "").toLowerCase() === "deposit" &&
+        (d.status || "").toLowerCase() === "approved"
+    ) {
+        approvedDeposit = true;
+    }
+});
 
+console.log("Approved Deposit:", approvedDeposit, "Balance:", balance);
+
+console.log("Approved Deposit:", approvedDeposit, "Balance:", balance);
 depSnap.forEach(child => {
     const d = child.val();
 
