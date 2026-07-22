@@ -88,12 +88,17 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
     </a>
 </div>
 <div class="container">
+
   <div class="rate-card">
     <div class="label">USD to KES Rate</div>
     <div class="rate" id="usdRate">KES 0.00</div>
     <div class="updated" id="updated">Loading...</div>
   </div>
+
+  <!-- Merchants will appear here -->
   <div id="merchantList"></div>
+
+</div>
       <div class="trader-info">
         <div class="avatar">H</div>
         <div><div class="trader-name">LANGAT PRO TRADER</div><div class="verified"><i class="fa fa-check-circle"></i> Verified</div></div>
@@ -168,7 +173,7 @@ async function fetchRate(){
     const data = await res.json();
     usdToKes = parseFloat(data.rates.KES);
     document.getElementById("usdRate").textContent = "KES " + usdToKes.toFixed(2);
-    document.getElementById("price2").textContent = "KES " + usdToKes.toFixed(2);
+    loadMerchants();
     document.getElementById("updated").textContent = "Updated " + new Date().toLocaleTimeString();
   }catch(e){console.log(e)}
 }
