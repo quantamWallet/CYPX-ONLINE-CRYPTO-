@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+q<!DOCTYPE html>  
 <html lang="en">  
   <head>  
     <meta charset="UTF-8" />  
@@ -700,8 +700,7 @@ if (String(msg.sender).toLowerCase() === "admin" && msg.read !== true) {
           showPopup("$0.80 successfully claimed");
           if (typeof loadTotalEarnings === "function") { loadTotalEarnings(); }
         });
-      };
-    });
+            };
 
     const vipRef = database.ref("users/" + uid + "/vipLevels");
     vipRef.on("value", snap => {
