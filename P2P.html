@@ -132,171 +132,40 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 const storage = firebase.storage();
-function seedDefaultMerchants() {
 
-  const merchantsRef = db.ref("p2pMerchants");
-
-  merchantsRef.once("value").then(snapshot => {
-
-    if (snapshot.exists()) return;
-
-    const defaultMerchants = [
-      {
-        name: "LANGAT PRO TRADER",
-        phone: "254717427604",
-        paymentMethod: "MPESA KENYA",
-        availableUSD: 5000,
-        minTrade: 50,
-        maxTrade: 43000,
-        status: "active",
-        completedTrades: 1254,
-        completionRate: 99.8,
-        joinedAt: Date.now()
-      },
-      {
-        name: "HASSAN ABDI",
-        phone: "254750858351",
-        paymentMethod: "AIRTEL MONEY KENYA",
-        availableUSD: 5000,
-        minTrade: 50,
-        maxTrade: 43000,
-        status: "active",
-        completedTrades: 946,
-        completionRate: 99.6,
-        joinedAt: Date.now()
-      }
-    ];
-
-    defaultMerchants.forEach(merchant => {
-      merchantsRef.push(merchant);
-    });
-
-    console.log("Default merchants added.");
-  });
-
-            }
 let uid = null;
 let usdToKes = 150;
 let currentTrader = {};
 
 auth.onAuthStateChanged((user) => {
-  if (user) uid = user.uid;
-  else window.location.href = "auth.html";
+  if (user) {
+    uid = user.uid;
+    loadMerchants(); // load after auth
+  } else {
+    window.location.href = "auth.html";
+  }
 });
 
 async function fetchRate(){
   try{
     const res = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
     const data = await res.json();
-
     usdToKes = parseFloat(data.rates.KES);
-
-    document.getElementById("usdRate").textContent =
-      "KES " + usdToKes.toFixed(2);
-
-    document.getElementById("updated").textContent =
-      "Updated " + new Date().toLocaleTimeString();
-
+    document.getElementById("usdRate").textContent = "KES " + usdToKes.toFixed(2);
+    document.getElementById("updated").textContent = "Updated " + new Date().toLocaleTimeString();
+    loadMerchants(); // reload with new rate
   }catch(e){
     console.log(e);
   }
 }
 
 fetchRate();
-seedDefaultMerchants();
-loadMerchants();
 setInterval(fetchRate,60000);
-    
-function loadMerchants(){
 
-const container=document.getElementById("merchantList");
-
-db.ref("p2pMerchants")
-.orderByChild("status")
-.equalTo("active")
-.on("value",snap=>{
-
-container.innerHTML="";
-
-if(!snap.exists()){
-
-container.innerHTML=`
-<div style="text-align:center;padding:40px;color:#94a3b8">
-No merchant traders available.
-</div>
-`;
-
-return;
-
-}
-
-snap.forEach(child=>{
-
-const m=child.val();
-
-const card=document.createElement("div");
-
-card.className="listing";
-
-card.innerHTML=`
-
-<div class="listing-top">
-
-<div class="trader-info">
-
-<div class="avatar">
-
-${m.name.charAt(0).toUpperCase()}
-
-</div>
-
-<div>
-
-<div class="trader-name">
-
-${m.name}
-
-</div>
-
-<div class="verified">
-
-<i class="fa fa-check-circle"></i>
-
-Verified Merchant
-
-</div>
-
-</div>
-
-</div>
-
-<div class="price">
-
-KES ${usdToKes.toFixed(2)}
-
-</div>
-
-</div>
-
-<div class="details">
-
-<div class="detail">
-
-Limits:
-
-<span>
-
-$${m.minTrade} - $${m.maxTrade}
-
-</span>
-
-</div>
-
-<div class="detail">
-
-
+// ONLY 1 VERSION OF THIS FUNCTION
 function loadMerchants(){
   const container=document.getElementById("merchantList");
+  container.innerHTML=`<div style="text-align:center;padding:40px;color:#94a3b8">Loading merchants...</div>`;
 
   db.ref("merchantApplications")
    .orderByChild("status")
@@ -319,7 +188,7 @@ function loadMerchants(){
         card.innerHTML=`
         <div class="listing-top">
           <div class="trader-info">
-            <div class="avatar">${m.fullName.charAt(0).toUpperCase()}</div>
+            <div class="avatar">${(m.fullName||"M").charAt(0).toUpperCase()}</div>
             <div>
               <div class="trader-name">${m.fullName}</div>
               <div class="verified"><i class="fa fa-check-circle"></i> Verified Merchant</div>
@@ -339,8 +208,11 @@ function loadMerchants(){
         `;
         container.appendChild(card);
       });
+  }, err => {
+    console.error(err);
+    container.innerHTML=`<div style="text-align:center;padding:40px;color:#ef4444">Permission denied. Check database rules.</div>`;
   });
-              }
+}
 
 document.getElementById("buyAmount").addEventListener("input", e=>{
   const usd = parseFloat(e.target.value) || 0;
@@ -407,14 +279,11 @@ async function submitDeposit(){
       type: "deposit"
     };
 
-    console.log("Submitting:", depositData);
-
     await db.ref("deposits/" + uid + "/" + depositId).set(depositData);
     await db.ref("financial/" + uid + "/" + depositId).set(depositData);
 
     if(receipt){
-      storage.ref("receipts/" + uid + "/" + depositId).put(receipt)
-   .then(async(snap)=>{
+      storage.ref("receipts/" + uid + "/" + depositId).put(receipt).then(async(snap)=>{
         const url = await snap.ref.getDownloadURL();
         await db.ref("deposits/" + uid + "/" + depositId).update({receiptUrl: url});
         await db.ref("financial/" + uid + "/" + depositId).update({receiptUrl: url});
@@ -434,6 +303,6 @@ async function submitDeposit(){
     btn.disabled = false; btn.innerText = "Submit Deposit";
   }
 }
-</script>
+        </script>
 </body>
   </html>
