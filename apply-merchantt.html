@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Create Advertisement - CYPX Merchant</title>
+
+<meta name="theme-color" content="#007a54">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#08172d;
+color:#fff;
+padding-bottom:60px;
+}
+
+header{
+background:linear-gradient(135deg,#007a54,#003b74);
+padding:22px;
+text-align:center;
+box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+
+header h2{
+font-size:24px;
+font-weight:700;
+}
+
+header p{
+margin-top:6px;
+font-size:14px;
+opacity:.9;
+}
+
+.container{
+width:95%;
+max-width:700px;
+margin:25px auto;
+}
+
+.card{
+background:#102b4d;
+border-radius:18px;
+padding:22px;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+.card-title{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:22px;
+margin-bottom:20px;
+}
+
+.card-title i{
+color:#00d4ff;
+}
+
+.loading{
+text-align:center;
+padding:50px;
+color:#b8c8df;
+font-size:15px;
+}
+
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#00c853;
+padding:15px 18px;
+border-radius:12px;
+display:none;
+font-weight:600;
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+z-index:9999;
+}
+
+.toast.error{
+background:#e53935;
+}
+
+.input{
+width:100%;
+padding:14px;
+background:#0d2345;
+border:1px solid rgba(255,255,255,.08);
+border-radius:12px;
+color:#fff;
+font-size:15px;
+outline:none;
+transition:.25s;
+}
+
+.input:focus{
+border-color:#00d4ff;
+box-shadow:0 0 10px rgba(0,212,255,.3);
+}
+
+.input option{
+background:#0d2345;
+color:#fff;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h2>
+<i class="fas fa-bullhorn"></i>
+Create P2P Advertisement
+</h2>
+
+<p>
+Publish Buy or Sell advertisements to the CYPX P2P Market.
+</p>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<div class="card-title">
+<i class="fas fa-plus-circle"></i>
+New Advertisement
+</div>
+
+<div id="merchantStatus" class="loading">
+
+Checking merchant account...
+
+</div>
+
+<div id="adForm" style="display:none;">
+
+<label style="display:block;margin-bottom:8px;font-weight:600;">
+Advertisement Type
+</label>
+
+<select id="adType" class="input">
+    <option value="">Select Advertisement Type</option>
+    <option value="buy">BUY USDT</option>
+    <option value="sell">SELL USDT</option>
+</select>
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Exchange Rate (KES per USDT)
+</label>
+
+<input
+type="number"
+id="rate"
+class="input"
+placeholder="Example: 150.50">
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Available USDT
+</label>
+
+<input
+type="number"
+id="availableUSD"
+class="input"
+placeholder="Example: 5000">
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Minimum Trade (USD)
+</label>
+
+<input
+type="number"
+id="minTrade"
+class="input"
+placeholder="Minimum trade">
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Maximum Trade (USD)
+</label>
+
+<input
+type="number"
+id="maxTrade"
+class="input"
+placeholder="Maximum trade">
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Payment Method
+</label>
+
+<select id="paymentMethod" class="input">
+    <option value="">Select Payment Method</option>
+    <option>M-PESA Kenya</option>
+    <option>Airtel Money Kenya</option>
+    <option>Bank Transfer</option>
+</select>
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Payment Account / Phone Number
+</label>
+
+<input
+type="text"
+id="paymentNumber"
+class="input"
+placeholder="07XXXXXXXX or Bank Account">
+
+<label style="display:block;margin:18px 0 8px;font-weight:600;">
+Advertisement Status
+</label>
+
+<select id="status" class="input">
+    <option value="active">Active</option>
+    <option value="paused">Paused</option>
+</select>
+
+<div style="
+margin-top:25px;
+padding:16px;
+background:#0d2345;
+border-radius:14px;
+border:1px solid rgba(255,255,255,.08);
+">
+
+<h3 style="margin-bottom:12px;color:#00d4ff;">
+<i class="fas fa-circle-info"></i>
+Advertisement Summary
+</h3>
+
+<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+<span>Type</span>
+<b id="previewType">--</b>
+</div>
+
+<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+<span>Rate</span>
+<b id="previewRate">KES 0.00</b>
+</div>
+
+<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+<span>Available</span>
+<b id="previewAvailable">$0</b>
+</div>
+
+<div style="display:flex;justify-content:space-between;">
+<span>Limits</span>
+<b id="previewLimits">$0 - $0</b>
+</div>
+
+</div>
+
+<button
+id="createAdBtn"
+style="
+margin-top:25px;
+width:100%;
+padding:16px;
+border:none;
+border-radius:12px;
+background:#00c853;
+color:#fff;
+font-size:17px;
+font-weight:700;
+cursor:pointer;
+">
+
+<i class="fas fa-plus-circle"></i>
+
+Create Advertisement
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+if(!firebase.apps.length){
+firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+let merchant = null;
+
+function showToast(message,type="success"){
+
+const toast=document.getElementById("toast");
+
+toast.innerHTML=message;
+
+toast.className="toast";
+
+if(type==="error"){
+toast.classList.add("error");
+}
+
+toast.style.display="block";
+
+setTimeout(()=>{
+toast.style.display="none";
+},3000);
+
+}
+
+auth.onAuthStateChanged(async(user)=>{
+
+if(!user){
+
+location.href="auth.html";
+return;
+
+}
+
+currentUser=user;
+
+try{
+
+const snap=await db.ref("merchantApplications/"+user.uid).once("value");
+
+if(!snap.exists()){
+
+location.href="merchant-apply.html";
+return;
+
+}
+
+merchant=snap.val();
+
+if(merchant.status!=="approved"){
+
+location.href="merchant-apply.html";
+return;
+
+}
+
+document.getElementById("merchantStatus").style.display="none";
+document.getElementById("adForm").style.display="block";
+
+}catch(err){
+
+showToast(err.message,"error");
+
+}
+
+});
+// ==========================
+// LIVE PREVIEW
+// ==========================
+
+const fields = [
+"adType",
+"rate",
+"availableUSD",
+"minTrade",
+"maxTrade"
+];
+
+fields.forEach(id=>{
+document.getElementById(id).addEventListener("input",updatePreview);
+document.getElementById(id).addEventListener("change",updatePreview);
+});
+
+function updatePreview(){
+
+document.getElementById("previewType").textContent =
+document.getElementById("adType").value.toUpperCase() || "--";
+
+document.getElementById("previewRate").textContent =
+"KES " + (Number(document.getElementById("rate").value)||0).toFixed(2);
+
+document.getElementById("previewAvailable").textContent =
+"$" + (Number(document.getElementById("availableUSD").value)||0);
+
+document.getElementById("previewLimits").textContent =
+"$" +
+(Number(document.getElementById("minTrade").value)||0)
++
+" - $"
++
+(Number(document.getElementById("maxTrade").value)||0);
+
+}
+
+// ==========================
+// CREATE ADVERTISEMENT
+// ==========================
+
+document.getElementById("createAdBtn").onclick = async ()=>{
+
+try{
+
+const type=document.getElementById("adType").value;
+const rate=Number(document.getElementById("rate").value);
+const availableUSD=Number(document.getElementById("availableUSD").value);
+const minTrade=Number(document.getElementById("minTrade").value);
+const maxTrade=Number(document.getElementById("maxTrade").value);
+const paymentMethod=document.getElementById("paymentMethod").value;
+const paymentNumber=document.getElementById("paymentNumber").value.trim();
+const status=document.getElementById("status").value;
+
+if(
+!type||
+!rate||
+!availableUSD||
+!minTrade||
+!maxTrade||
+!paymentMethod||
+paymentNumber==""
+){
+
+showToast("Please complete all fields.","error");
+return;
+
+}
+
+if(minTrade<50){
+
+showToast("Minimum trade is $50.","error");
+return;
+
+}
+
+if(maxTrade<minTrade){
+
+showToast("Maximum trade must be greater than minimum.","error");
+return;
+
+}
+
+// Prevent duplicate ACTIVE ad of same type
+
+const existing=await db.ref("p2pAds")
+.orderByChild("merchantUid")
+.equalTo(currentUser.uid)
+.once("value");
+
+let duplicate=false;
+
+existing.forEach(child=>{
+
+const ad=child.val();
+
+if(
+ad.type===type &&
+ad.status==="active"
+){
+
+duplicate=true;
+
+}
+
+});
+
+if(duplicate){
+
+showToast(
+"You already have an active "+type.toUpperCase()+" advertisement.",
+"error"
+);
+
+return;
+
+}
+
+const adId=db.ref().push().key;
+
+const adData={
+
+id:adId,
+
+merchantUid:currentUser.uid,
+
+merchantName:merchant.fullName,
+
+merchantEmail:merchant.email,
+
+merchantPhone:merchant.phone,
+
+paymentMethod,
+
+paymentNumber,
+
+type,
+
+rate,
+
+availableUSD,
+
+minTrade,
+
+maxTrade,
+
+status,
+
+verified:true,
+
+createdAt:Date.now()
+
+};
+
+// Save Advertisement
+await db.ref("p2pAds/"+adId).set(adData);
+
+// Update Merchant Statistics
+const statsRef = db.ref("merchantStats/"+currentUser.uid);
+
+const statsSnap = await statsRef.once("value");
+const stats = statsSnap.val() || {};
+
+await statsRef.update({
+
+activeAds:(stats.activeAds || 0)+1,
+
+lastAdvertisement:Date.now()
+
+});
+
+// Save Merchant Activity
+const activityId=db.ref().push().key;
+
+await db.ref("merchantActivity/"+currentUser.uid+"/"+activityId).set({
+
+type:"advert",
+
+title:"Advertisement Created",
+
+message:
+"You published a new "+
+type.toUpperCase()+
+" advertisement.",
+
+time:new Date().toLocaleString(),
+
+timestamp:Date.now()
+
+});
+
+// Merchant Notification
+const notificationId=db.ref().push().key;
+
+await db.ref("notifications/"+currentUser.uid+"/"+notificationId).set({
+
+title:"Advertisement Created",
+
+message:
+"Your "+
+type.toUpperCase()+
+" advertisement is now "+
+status.toUpperCase()+".",
+
+read:false,
+
+time:new Date().toLocaleString(),
+
+timestamp:Date.now()
+
+});
+
+showToast("Advertisement created successfully.");
+
+setTimeout(()=>{
+
+location.href="my-ads.html";
+
+},1500);
+
+}catch(err){
+
+console.error(err);
+
+showToast(err.message,"error");
+
+}
+
+};
+</script>
+
+</body>
+  </html>
