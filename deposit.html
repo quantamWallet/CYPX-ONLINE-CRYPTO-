@@ -84,6 +84,11 @@
       opacity: 0.9;
     }
 
+    .deposit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .info-box {
       margin-top: 25px;
       background: rgba(255,255,255,0.06);
@@ -94,6 +99,26 @@
       line-height: 1.7;
       color: #dddddd;
     }
+
+    /* COMING SOON POPUP */
+    .popup{
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #10233d;
+      padding: 22px 26px;
+      border-radius: 16px;
+      border-left: 4px solid #ffcc00;
+      display: none;
+      z-index: 9999;
+      text-align: center;
+      font-weight: 600;
+      min-width: 300px;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+      animation: popupFade .25s ease;
+    }
+    @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%)}to{opacity:1;transform:translate(-50%,-50%)}}
   </style>
 
   <!-- Firebase JS SDK -->
@@ -116,6 +141,13 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
+
+    function showPopup(msg){
+      const popup = document.getElementById("popup");
+      popup.textContent = msg;
+      popup.style.display = "block";
+      setTimeout(()=>popup.style.display="none", 3000);
+    }
   </script>
 </head>
 
@@ -150,7 +182,7 @@
         and complete your account funding quickly.
       </p>
 
-      <button class="deposit-btn" onclick="window.location.href='P2P.html'">
+      <button class="deposit-btn" onclick="showPopup('P2P Trading is coming soon. We are still building this page.')">
         Proceed to P2P Trading
       </button>
     </div>
@@ -163,6 +195,9 @@
     Incorrect transfers may lead to delays or loss of funds. 
     Always verify payment details carefully before confirming transactions.
   </div>
+
+  <div id="popup" class="popup"></div>
+
 <script src="js/app-back.js"></script>
 </body>
 </html>
