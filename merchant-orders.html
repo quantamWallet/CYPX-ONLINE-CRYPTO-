@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Merchant Orders - CYPX Merchant</title>
+
+<meta name="theme-color" content="#007a54">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#08172d;
+color:#fff;
+padding-bottom:80px;
+}
+
+header{
+background:linear-gradient(135deg,#007a54,#003b74);
+padding:22px;
+text-align:center;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+header h2{
+font-size:24px;
+font-weight:700;
+}
+
+header p{
+margin-top:6px;
+font-size:14px;
+opacity:.9;
+}
+
+.container{
+width:95%;
+max-width:900px;
+margin:25px auto;
+}
+
+.filters{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+margin-bottom:20px;
+}
+
+.filter-btn{
+padding:13px;
+border:none;
+border-radius:12px;
+background:#102b4d;
+color:#fff;
+font-weight:600;
+cursor:pointer;
+transition:.25s;
+border:1px solid rgba(255,255,255,.08);
+}
+
+.filter-btn.active{
+background:#00c853;
+}
+
+.card{
+background:#102b4d;
+border-radius:18px;
+padding:20px;
+margin-bottom:18px;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.loading{
+text-align:center;
+padding:60px 20px;
+color:#bfcfe2;
+font-size:15px;
+}
+
+.empty{
+text-align:center;
+padding:70px 20px;
+color:#bfcfe2;
+}
+
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#00c853;
+padding:15px 18px;
+border-radius:12px;
+display:none;
+font-weight:600;
+z-index:9999;
+box-shadow:0 10px 25px rgba(0,0,0,.35);
+}
+
+.toast.error{
+background:#e53935;
+}
+
+@media(max-width:700px){
+
+.filters{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h2>
+<i class="fas fa-handshake"></i>
+Merchant Orders
+</h2>
+
+<p>
+Manage customer BUY and SELL orders.
+</p>
+
+</header>
+
+<div class="container">
+
+<div class="filters">
+
+<button class="filter-btn active" id="allBtn">
+All
+</button>
+
+<button class="filter-btn" id="pendingBtn">
+Pending
+</button>
+
+<button class="filter-btn" id="paidBtn">
+Paid
+</button>
+
+<button class="filter-btn" id="completedBtn">
+Completed
+</button>
+
+</div>
+
+<div id="ordersContainer">
+
+<div class="loading">
+
+<i class="fas fa-spinner fa-spin"></i>
+
+<br><br>
+
+Loading merchant orders...
+
+</div>
+
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script>
+
+// ==========================
+// FIREBASE CONFIGURATION
+// ==========================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+if(!firebase.apps.length){
+firebase.initializeApp(firebaseConfig);
+}
+
+const auth=firebase.auth();
+const db=firebase.database();
+
+let currentUser=null;
+let merchant=null;
+let allOrders=[];
+let currentFilter="all";
+
+// ==========================
+// TOAST
+// ==========================
+
+function showToast(message,type="success"){
+
+const toast=document.getElementById("toast");
+
+toast.innerHTML=message;
+
+toast.className="toast";
+
+if(type==="error"){
+toast.classList.add("error");
+}
+
+toast.style.display="block";
+
+setTimeout(()=>{
+toast.style.display="none";
+},3000);
+
+}
+
+// ==========================
+// AUTHENTICATION
+// ==========================
+
+auth.onAuthStateChanged(async(user)=>{
+
+if(!user){
+
+location.href="auth.html";
+return;
+
+}
+
+currentUser=user;
+
+try{
+
+const merchantSnap=await db.ref("merchantApplications/"+user.uid).once("value");
+
+if(!merchantSnap.exists()){
+
+location.href="merchant-apply.html";
+return;
+
+}
+
+merchant=merchantSnap.val();
+
+if(merchant.status!=="approved"){
+
+location.href="merchant-apply.html";
+return;
+
+}
+
+// Load Merchant Orders
+loadMerchantOrders();
+
+}catch(err){
+
+console.error(err);
+
+showToast(err.message,"error");
+
+}
+
+});
+
+
+// ==========================
+// LOAD MERCHANT ORDERS
+// ==========================
+
+function loadMerchantOrders(){
+
+db.ref("p2pOrders")
+.orderByChild("merchantUid")
+.equalTo(currentUser.uid)
+.on("value",(snapshot)=>{
+
+allOrders=[];
+
+snapshot.forEach(child=>{
+
+allOrders.unshift({
+
+id:child.key,
+
+...child.val()
+
+});
+
+});
+
+renderOrders();
+
+});
+
+}
+// ==========================
+// RENDER ORDERS
+// ==========================
+
+function renderOrders(){
+
+const container=document.getElementById("ordersContainer");
+
+container.innerHTML="";
+
+let orders=allOrders;
+
+if(currentFilter!=="all"){
+
+orders=orders.filter(order=>order.status===currentFilter);
+
+}
+
+if(orders.length===0){
+
+container.innerHTML=`
+
+<div class="empty">
+
+<i class="fas fa-folder-open"
+style="font-size:60px;color:#00d4ff;"></i>
+
+<br><br>
+
+<h3>No Orders Found</h3>
+
+<p>There are no ${currentFilter==="all"?"":currentFilter+" "}orders.</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+orders.forEach(order=>{
+
+const card=document.createElement("div");
+
+card.className="card";
+
+const created=order.createdAt||Date.now();
+
+const expiry=(created+15*60*1000)-Date.now();
+
+let timer="Expired";
+
+if(expiry>0){
+
+const mins=Math.floor(expiry/60000);
+
+const secs=Math.floor((expiry%60000)/1000);
+
+timer=mins+"m "+secs+"s";
+
+}
+
+let statusColor="#00c853";
+
+if(order.status==="pending") statusColor="#ff9800";
+if(order.status==="paid") statusColor="#2196f3";
+if(order.status==="completed") statusColor="#00c853";
+if(order.status==="cancelled") statusColor="#e53935";
+
+card.innerHTML=`
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
+
+<div>
+
+<h3 style="margin-bottom:5px;">
+
+${(order.type||"BUY").toUpperCase()} USDT
+
+</h3>
+
+<div style="font-size:13px;color:#bfcfe2;">
+
+Order ID:
+${order.id}
+
+</div>
+
+</div>
+
+<div style="
+background:${statusColor};
+padding:6px 14px;
+border-radius:20px;
+font-size:13px;
+font-weight:600;
+">
+
+${String(order.status||"pending").toUpperCase()}
+
+</div>
+
+</div>
+
+<hr style="margin:18px 0;border:none;border-top:1px solid rgba(255,255,255,.08);">
+
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px;">
+
+<div>
+
+<b>Customer</b>
+
+<br>
+
+${order.customerName||"Unknown"}
+
+</div>
+
+<div>
+
+<b>Amount</b>
+
+<br>
+
+$${Number(order.amount||0).toLocaleString()}
+
+</div>
+
+<div>
+
+<b>Rate</b>
+
+<br>
+
+KES ${Number(order.rate||0).toFixed(2)}
+
+</div>
+
+<div>
+
+<b>Payment</b>
+
+<br>
+
+${order.paymentMethod||"-"}
+
+</div>
+
+<div>
+
+<b>Total</b>
+
+<br>
+
+KES ${Number(order.totalKES||0).toLocaleString()}
+
+</div>
+
+<div>
+
+<b>Time Left</b>
+
+<br>
+
+<span style="color:#ffd54f;">
+
+${timer}
+
+</span>
+
+</div>
+
+</div>
+
+<div id="actions-${order.id}" style="margin-top:20px;"></div>
+
+`;
+
+container.appendChild(card);
+
+renderOrderButtons(order);
+
+});
+
+}
+
+// ==========================
+// FILTER BUTTONS
+// ==========================
+
+document.getElementById("allBtn").onclick=()=>{
+currentFilter="all";
+setActiveButton("allBtn");
+renderOrders();
+};
+
+document.getElementById("pendingBtn").onclick=()=>{
+currentFilter="pending";
+setActiveButton("pendingBtn");
+renderOrders();
+};
+
+document.getElementById("paidBtn").onclick=()=>{
+currentFilter="paid";
+setActiveButton("paidBtn");
+renderOrders();
+};
+
+document.getElementById("completedBtn").onclick=()=>{
+currentFilter="completed";
+setActiveButton("completedBtn");
+renderOrders();
+};
+
+function setActiveButton(id){
+
+document.querySelectorAll(".filter-btn").forEach(btn=>{
+btn.classList.remove("active");
+});
+
+document.getElementById(id).classList.add("active");
+
+}
+
+// ==========================
+// ORDER ACTION BUTTONS
+// ==========================
+
+function renderOrderButtons(order){
+
+const box=document.getElementById("actions-"+order.id);
+
+if(!box) return;
+
+box.innerHTML="";
+
+if(order.status==="pending"){
+
+box.innerHTML=`
+<button
+onclick="updateOrderStatus('${order.id}','paid')"
+style="
+width:100%;
+padding:14px;
+background:#2196f3;
+color:#fff;
+border:none;
+border-radius:12px;
+font-weight:700;
+cursor:pointer;
+">
+<i class="fas fa-check-circle"></i>
+Mark as Paid
+</button>
+`;
+
+}
+
+else if(order.status==="paid"){
+
+box.innerHTML=`
+<button
+onclick="updateOrderStatus('${order.id}','completed')"
+style="
+width:100%;
+padding:14px;
+background:#00c853;
+color:#fff;
+border:none;
+border-radius:12px;
+font-weight:700;
+cursor:pointer;
+">
+<i class="fas fa-handshake"></i>
+Complete Order
+</button>
+`;
+
+}
+
+else{
+
+box.innerHTML=`
+<div style="
+text-align:center;
+padding:12px;
+background:#0d2345;
+border-radius:10px;
+color:#bfcfe2;
+">
+No actions available.
+</div>
+`;
+
+}
+
+}
+
+// ==========================
+// SEND NOTIFICATION & ACTIVITY
+// ==========================
+
+async function notifyOrderUpdate(orderId,status){
+
+try{
+
+const snap=await db.ref("p2pOrders/"+orderId).once("value");
+
+if(!snap.exists()) return;
+
+const order=snap.val();
+
+// Notify customer
+const notificationId=db.ref().push().key;
+
+await db.ref("notifications/"+order.customerUid+"/"+notificationId).set({
+
+title:"P2P Order Updated",
+
+message:"Your "+(order.type||"BUY").toUpperCase()+" order is now "+status.toUpperCase()+".",
+
+read:false,
+
+time:new Date().toLocaleString(),
+
+timestamp:Date.now()
+
+});
+
+// Merchant Activity
+const activityId=db.ref().push().key;
+
+await db.ref("merchantActivity/"+currentUser.uid+"/"+activityId).set({
+
+type:"order",
+
+title:"Order "+status.toUpperCase(),
+
+message:"Order "+orderId+" changed to "+status.toUpperCase()+".",
+
+time:new Date().toLocaleString(),
+
+timestamp:Date.now()
+
+});
+
+// Update Merchant Statistics
+if(status==="completed"){
+
+const statsRef=db.ref("merchantStats/"+currentUser.uid);
+
+const statsSnap=await statsRef.once("value");
+
+const stats=statsSnap.val()||{};
+
+await statsRef.update({
+
+completedOrders:(stats.completedOrders||0)+1,
+
+totalVolume:(stats.totalVolume||0)+Number(order.amount||0),
+
+lastUpdated:Date.now()
+
+});
+
+}
+
+}catch(err){
+
+console.error(err);
+
+}
+
+}
+
+// ==========================
+// OVERRIDE STATUS UPDATE
+// ==========================
+
+async function updateOrderStatus(orderId,status){
+
+try{
+
+await db.ref("p2pOrders/"+orderId).update({
+
+status:status,
+
+updatedAt:Date.now()
+
+});
+
+await notifyOrderUpdate(orderId,status);
+
+showToast("Order updated successfully.");
+
+}catch(err){
+
+console.error(err);
+
+showToast(err.message,"error");
+
+}
+
+}
+</script>
+
+</body>
+</html>
