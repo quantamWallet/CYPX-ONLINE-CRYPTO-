@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Funded Trading - CYPX</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',Arial,sans-serif;background:#050814;color:#e2e8f0;padding-bottom:90px}
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#0a1120;border-bottom:1px solid #1a2440;position:sticky;top:0;z-index:50}
+.header.left{display:flex;align-items:center;gap:12px}
+.header.logo{font-size:22px;color:#38bdf8}
+.live-badge{background:linear-gradient(135deg,#ef4444,#dc2626);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;box-shadow:0 0 15px rgba(239,68,68,.4)}
+.live-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px #fff}50%{opacity:.3}}
+
+.pending-banner{display:none;position:sticky;top:60px;z-index:49;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:12px 16px;font-weight:700;text-align:center;box-shadow:0 0 20px rgba(245,158,11,.5)}
+
+.container{max-width:600px;margin:0 auto;padding:16px}
+.page-title{font-size:24px;font-weight:800;margin:16px 0 8px;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.page-sub{font-size:13px;color:#94a3b8;margin-bottom:18px}
+
+.account-card{background:linear-gradient(180deg,#0f1729,#0a1120);border:1px solid #1e293b;border-radius:18px;padding:18px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 0 25px rgba(56,189,248,.08)}
+.account-card.popular{border:1px solid #fbbf24;box-shadow:0 0 30px rgba(251,191,36,.25)}
+.popular-tag{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 0 12px rgba(251,191,36,.6)}
+.account-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.account-name{font-size:18px;font-weight:700}
+.account-step{font-size:12px;color:#94a3b8}
+.funded-amount{font-size:32px;font-weight:800;background:linear-gradient(135deg,#38bdf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:14px;text-shadow:0 0 20px rgba(56,189,248,.4)}
+.funded-amount span{font-size:14px;color:#94a3b8;font-weight:400;text-shadow:none}
+
+.stats{display:grid;gap:10px;margin-bottom:16px}
+.stat-row{display:flex;justify-content:space-between;font-size:13px}
+.stat-row.label{color:#94a3b8}
+.stat-row.value{font-weight:600}
+
+.btn-get{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;box-shadow:0 0 20px rgba(6,182,212,.4)}
+.btn-get:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(6,182,212,.6)}
+.btn-get.gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;box-shadow:0 0 20px rgba(251,191,36,.4)}
+
+.features{margin-top:30px;display:grid;gap:12px}
+.feature{background:linear-gradient(180deg,#0f1729,#0a1120);border:1px solid #1e293b;padding:14px;border-radius:14px;display:flex;gap:12px;box-shadow:0 0 15px rgba(56,189,248,.05)}
+.feature i{font-size:20px;color:#38bdf8;margin-top:2px;text-shadow:0 0 10px rgba(56,189,248,.6)}
+.feature h4{font-size:14px;margin-bottom:4px}
+.feature p{font-size:12px;color:#94a3b8}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-content{background:linear-gradient(180deg,#0f1729,#0a1120);border:1px solid #1e293b;border-radius:18px;padding:20px;width:100%;max-width:420px;box-shadow:0 0 40px rgba(56,189,248,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-size:18px}
+.close{font-size:24px;cursor:pointer;color:#94a3b8}
+.modal-row{display:flex;justify-content:space-between;margin:10px 0;font-size:14px}
+.modal-row span:last-child{font-weight:600;color:#38bdf8}
+.btn-row{display:flex;gap:10px;margin-top:18px}
+.btn-cancel{flex:1;padding:12px;border:1px solid #334155;background:none;color:#e2e8f0;border-radius:10px;cursor:pointer;font-weight:600}
+.btn-proceed{flex:1;padding:12px;border:none;background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;border-radius:10px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 0 15px rgba(6,182,212,.4)}
+
+.pay-box{background:#0a1120;border:1px solid #1e293b;border-radius:12px;padding:12px;margin:10px 0}
+.pay-label{font-size:11px;color:#94a3b8;margin-bottom:4px}
+.pay-value{font-family:monospace;font-size:13px;word-break:break-all;display:flex;justify-content:space-between;align-items:center;color:#22d3ee}
+.copy-icon{cursor:pointer;color:#38bdf8}
+
+.toast-container{position:fixed;top:20px;right:20px;z-index:1001;display:flex;flex-direction:column;gap:10px}
+.toast{background:#1e293b;border-left:4px solid #06b6d4;padding:12px 16px;border-radius:10px;min-width:280px;animation:slideIn.3s;box-shadow:0 0 20px rgba(6,182,212,.3)}
+.toast.error{border-color:#ef4444;box-shadow:0 0 20px rgba(239,68,68,.3)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="left">
+    <i class="fa fa-arrow-left logo" onclick="history.back()"></i>
+  </div>
+  <div class="live-badge"><span class="live-dot"></span> Live Trading</div>
+  <i class="fa fa-bars"></i>
+</div>
+
+<div class="pending-banner" id="pendingBanner">
+  <i class="fa fa-clock"></i> You have a pending payment. Awaiting admin approval.
+</div>
+
+<div class="container">
+  <div class="page-title">Choose your capital</div>
+  <div class="page-sub">Pass the evaluation to unlock live capital and keep up to 90% of your profits.</div>
+
+  <div id="accountsList"></div>
+
+  <div class="features">
+    <div class="feature"><i class="fa fa-infinity"></i><div><h4>No time limits</h4><p>Take the time you need to hit the profit targets. No pressure trades.</p></div></div>
+    <div class="feature"><i class="fa fa-newspaper"></i><div><h4>News trading allowed</h4><p>Trade your strategy through major economic events without breach risk.</p></div></div>
+    <div class="feature"><i class="fa fa-calendar-week"></i><div><h4>Weekend holding</h4><p>Hold positions over the weekend on all accounts.</p></div></div>
+    <div class="feature"><i class="fa fa-rotate-left"></i><div><h4>Refundable fee</h4><p>Your evaluation fee is refunded with your first funded payout.</p></div></div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <div class="modal-head"><h3 id="confirmTitle">Confirm Account</h3><span class="close" onclick="closeModal('confirmModal')">&times;</span></div>
+    <div class="modal-row"><span>Funded capital</span><span id="confCapital">$0</span></div>
+    <div class="modal-row"><span>Evaluation fee</span><span id="confFee">$0</span></div>
+    <div class="modal-row"><span>Profit split</span><span>Up to 90%</span></div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn-proceed" onclick="proceedToPayment()"><i class="fa fa-sparkles"></i> Proceed to payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal" id="paymentModal">
+  <div class="modal-content">
+    <div class="modal-head"><h3 id="payTitle">Pay $199 for funded account</h3><span class="close" onclick="closeModal('paymentModal')">&times;</span></div>
+    <div class="pay-box">
+      <div class="pay-label">AMOUNT</div>
+      <div class="pay-value"><span id="payAmount">0 USDT (TRC-20)</span></div>
+    </div>
+    <div class="pay-box">
+      <div class="pay-label">ADDRESS</div>
+      <div class="pay-value"><span id="payAddress">YOUR_USDT_TRC20_ADDRESS_HERE</span><i class="fa fa-copy copy-icon" onclick="copyText('payAddress')"></i></div>
+    </div>
+    <div class="pay-box">
+      <div class="pay-label">REFERENCE</div>
+      <div class="pay-value"><span id="payRef">REF-XXXX</span><i class="fa fa-copy copy-icon" onclick="copyText('payRef')"></i></div>
+    </div>
+    <p style="font-size:11px;color:#94a3b8;margin:8px 0">Send exact amount. After sending click "I have Paid" below.</p>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal('paymentModal')">Close</button>
+      <button class="btn-proceed" onclick="submitPayment()"><i class="fa fa-check"></i> I have Paid</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+const accounts = [
+  {name:"10K Account", capital:10000, fee:99, popular:false},
+  {name:"25K Account", capital:25000, fee:199, popular:false},
+  {name:"50K Account", capital:50000, fee:299, popular:true},
+  {name:"100K Account", capital:100000, fee:499, popular:false},
+  {name:"200K Account", capital:200000, fee:999, popular:false},
+];
+
+let selectedAccount = null;
+let currentUser = null;
+const USDT_RATE = 1;
+
+auth.onAuthStateChanged(user=>{
+  if(!user) return window.location.href="auth.html";
+  currentUser = user;
+  checkPendingPayment();
+  renderAccounts();
+});
+
+function checkPendingPayment(){
+  db.ref("fundedPayments/"+currentUser.uid).orderByChild("status").equalTo("pending").limitToLast(1).on("value", snap=>{
+    if(snap.exists()){
+      document.getElementById("pendingBanner").style.display = "block";
+      document.querySelectorAll(".btn-get").forEach(btn=>btn.disabled=true);
+    }else{
+      document.getElementById("pendingBanner").style.display = "none";
+    }
+  });
+}
+
+function renderAccounts(){
+  const wrap = document.getElementById("accountsList");
+  wrap.innerHTML = "";
+  accounts.forEach(acc=>{
+    const card = document.createElement("div");
+    card.className = "account-card" + (acc.popular? " popular" : "");
+    card.innerHTML = `
+      ${acc.popular? '<div class="popular-tag">MOST POPULAR</div>' : ''}
+      <div class="account-head">
+        <div class="account-name">${acc.name}</div>
+        <div class="account-step">2-step</div>
+      </div>
+      <div class="funded-amount">$${acc.capital.toLocaleString()} <span>funded capital</span></div>
+      <div class="stats">
+        <div class="stat-row"><span class="label">Profit target</span><span class="value">8% / 5%</span></div>
+        <div class="stat-row"><span class="label">Daily loss limit</span><span class="value">5%</span></div>
+        <div class="stat-row"><span class="label">Max total loss</span><span class="value">10%</span></div>
+        <div class="stat-row"><span class="label">Min trading days</span><span class="value">5 Days</span></div>
+        <div class="stat-row"><span class="label">Time limit</span><span class="value">None</span></div>
+        <div class="stat-row"><span class="label">Profit split</span><span class="value">Up to 90%</span></div>
+      </div>
+      <button class="btn-get ${acc.popular? 'gold' : ''}" onclick="openConfirm('${acc.name}', ${acc.capital}, ${acc.fee})">
+        <i class="fa fa-sparkles"></i> Get started — $${acc.fee}
+      </button>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function openConfirm(name, capital, fee){
+  selectedAccount = {name, capital, fee};
+  document.getElementById("confirmTitle").textContent = `Confirm ${name}`;
+  document.getElementById("confCapital").textContent = `$${capital.toLocaleString()}`;
+  document.getElementById("confFee").textContent = `$${fee}`;
+  document.getElementById("confirmModal").style.display = "flex";
+}
+
+function proceedToPayment(){
+  closeModal('confirmModal');
+  const usdtAmount = (selectedAccount.fee / USDT_RATE).toFixed(6);
+  const ref = 'REF-' + crypto.randomUUID().split('-')[0].toUpperCase();
+
+  document.getElementById("payTitle").textContent = `Pay $${selectedAccount.fee} for funded account`;
+  document.getElementById("payAmount").textContent = `${usdtAmount} USDT (TRC-20)`;
+  document.getElementById("payRef").textContent = ref;
+  document.getElementById("payAddress").textContent = "TJ11MuXqF9r5gwAL6n779ResW2enPNeo84"; // CHANGE THIS
+
+  document.getElementById("paymentModal").style.display = "flex";
+  showToast(`Invoice generated for ${selectedAccount.name}`, "success");
+}
+
+function submitPayment(){
+  if(!currentUser) return;
+  const paymentId = db.ref().push().key;
+  const data = {
+    id: paymentId,
+    accountName: selectedAccount.name,
+    fundedCapital: selectedAccount.capital,
+    feeUSD: selectedAccount.fee,
+    feeUSDT: parseFloat(document.getElementById("payAmount").textContent),
+    address: document.getElementById("payAddress").textContent,
+    reference: document.getElementById("payRef").textContent,
+    status: "pending",
+    timestamp: Date.now(),
+    type: "funded_account_purchase"
+  };
+
+  // 1. Save for admin approval
+  db.ref("fundedPayments/"+currentUser.uid+"/"+paymentId).set(data);
+  // 2. Also record in financial.html path
+  db.ref("financial/"+currentUser.uid+"/"+paymentId).set(data);
+
+  closeModal('paymentModal');
+  showToast("Payment submitted. Awaiting admin approval.", "success");
+}
+
+function closeModal(id){ document.getElementById(id).style.display = "none"; }
+
+function copyText(id){
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text);
+  showToast("Copied to clipboard", "success");
+}
+
+function showToast(msg, type="success"){
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  document.getElementById("toastContainer").appendChild(toast);
+  setTimeout(()=>toast.remove(), 4000);
+}
+</script>
+</body>
+  </html>
