@@ -22,20 +22,23 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 .trader-card{background:var(--card);padding:18px;border-radius:18px;margin-bottom:15px;border:1px solid #23354d;transition:.2s}
 .trader-card:hover{border-color:var(--accent)}
 .trader-top{display:flex;justify-content:space-between;align-items:center}
-.verified{color:var(--accent);font-size:12px;font-weight:700}
+.verified{color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px}
 .stats{margin-top:12px;display:flex;justify-content:space-between;font-size:13px;color:#bbb}
 .rate{color:var(--accent);font-weight:800}
 .trade-btn{width:100%;margin-top:15px;padding:13px;border:none;border-radius:12px;background:var(--accent);color:white;font-size:16px;font-weight:bold;cursor:pointer}
 .trade-btn.sell{background:var(--danger)}
 .trade-btn:disabled{opacity:.5;cursor:not-allowed}
+.link-btn{background:none;border:none;color:var(--danger);font-size:14px;cursor:pointer;padding:8px;text-decoration:underline}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;z-index:999;padding:10px}
 .modal-content{width:100%;max-width:500px;background:var(--card);padding:20px;border-radius:20px;max-height:90vh;overflow-y:auto}
 .close{float:right;color:#ff5252;font-size:22px;cursor:pointer}
+.trade-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.chat-icon-btn{background:var(--card2);border:none;color:white;padding:8px 12px;border-radius:10px;cursor:pointer}
 #chatBox{height:220px;overflow-y:auto;background:var(--card2);padding:10px;border-radius:10px;margin:15px 0;display:flex;flex-direction:column;gap:8px}
 .chat-msg{background:#23354d;padding:8px 12px;border-radius:10px;max-width:80%;align-self:flex-start;font-size:14px}
 .chat-me{align-self:flex-end;background:var(--accent)}
 .kes-preview{color:var(--accent);font-size:14px;margin-top:8px;font-weight:700}
-#tradeTimer{font-size:24px;font-weight:800;text-align:center;margin:10px 0;color:var(--warn)}
+#tradeTimer{font-size:20px;font-weight:800;text-align:center;color:var(--warn)}
 .toast{position:fixed;top:20px;right:20px;background:var(--danger);color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;animation:slideIn .3s ease}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 .payment-info div{background:var(--card2);padding:12px;border-radius:10px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;font-size:14px}
@@ -44,6 +47,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 .order-note{background:#1e2f47;padding:10px;border-radius:10px;font-size:12px;margin:10px 0}
 .status-badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
 .status-pending{background:#ff9800} .status-sent{background:#2196f3} .status-completed{background:var(--accent)} .status-cancelled{background:#555} .status-disputed{background:var(--danger)}
+.user-badge{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -53,13 +57,17 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 <!-- TRADE ROOM -->
 <div class="modal" id="tradeRoom">
 <div class="modal-content">
+<div class="trade-header">
+<h2 style="margin:0">P2P Trade Room</h2>
+<button class="chat-icon-btn" onclick="toggleChat()"><i class="fa-solid fa-comments"></i></button>
 <span class="close" onclick="closeTradeRoom()">×</span>
-<h2>P2P Trade Room</h2>
+</div>
 <div id="tradeTimer">15:00</div>
 <div id="tradeDetails">Loading trade...</div>
 <button class="trade-btn" id="btnPaid" onclick="markPaid()">I Have Paid</button>
-<button class="trade-btn sell" onclick="cancelTrade()">Cancel Trade</button>
-<button class="trade-btn" onclick="openDispute()">Open Dispute</button>
+<button class="link-btn" onclick="cancelTrade()">Cancel Order</button>
+<button class="link-btn" onclick="openDispute()">Open Dispute</button>
+<div id="chatSection" style="display:none">
 <div id="chatBox"></div>
 <div style="display:flex;gap:8px">
 <input id="chatMessage" placeholder="Type message">
@@ -67,8 +75,8 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 </div>
 </div>
 </div>
-
-<!-- HEADER -->
+  </div>
+  <!-- HEADER -->
 <div class="header">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
 <button onclick="window.location.href='apply-merchant.html'" style="background:#fff;color:#00695c;border:none;padding:10px 15px;border-radius:10px;font-weight:bold;cursor:pointer;">
@@ -91,7 +99,12 @@ Wallet Balance: <b id="walletBalance">$0.00 USDT</b>
 <button class="trade-btn" onclick="openMyTrades()"><i class="fa-solid fa-list"></i> My Active Trades</button>
 <label>Payment Method</label>
 <select id="paymentFilter" onchange="filterTraders()">
-<option>All Methods</option><option>M-Pesa</option><option>Airtel Money</option><option>Bank Transfer</option>
+<option>All Methods</option>
+<option>M-Pesa Kenya</option>
+<option>Airtel Kenya</option>
+<option>Bank Transfer</option>
+<option>MTN Uganda</option>
+<option>Airtel Uganda</option>
 </select>
 <input id="filterAmount" placeholder="Filter by USDT Amount" type="number" oninput="filterTraders()">
 </div>
@@ -103,7 +116,6 @@ Wallet Balance: <b id="walletBalance">$0.00 USDT</b>
 <div class="modal-content">
 <span class="close" onclick="closeTrade()">×</span>
 <h2 id="traderName"></h2>
-<p id="traderLimits" style="color:#aaa;font-size:13px"></p>
 <input id="tradeAmount" placeholder="USDT Amount" type="number" oninput="calcKES()">
 <div class="kes-preview" id="kesPreview"></div>
 <label>Select Payment Method</label>
@@ -151,8 +163,10 @@ let currentOrder = "";
 let tradeTimerInterval;
 let allTraders = [];
 
+function formatNumber(num){ return Number(num).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) }
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",3000); }
 function copyText(text){ navigator.clipboard.writeText(text); showToast("Copied: " + text); }
+function toggleChat(){ const c=document.getElementById("chatSection"); c.style.display = c.style.display==="none"?"block":"none"; }
 
 function switchTab(type,btn){
   currentTab = type;
@@ -165,19 +179,19 @@ function calcKES(){
   const usd = parseFloat(document.getElementById("tradeAmount").value) || 0;
   const rate = selectedTrader.rate || 129;
   const kes = usd * rate;
-  document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab==="buy"?"Pay":"Receive"}: KES ${kes.toFixed(2)} @ ${rate}` : "";
+  document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab==="buy"?"Pay":"Receive"}: KES ${formatNumber(kes)} @ ${formatNumber(rate)}` : "";
 }
 
 function openTrade(trader,id){
   selectedTrader = {id,...trader};
   document.getElementById("tradeModal").style.display="flex";
-  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${trader.username}`;
-  document.getElementById("traderLimits").innerHTML = `Limits: KES ${trader.minAmount?.toLocaleString() || 0} - ${trader.maxAmount?.toLocaleString() || 0} | Available: ${trader.available} USDT`;
-  document.getElementById("tradeAmount").max = trader.available;
-  document.getElementById("tradeAmount").placeholder = `Max: ${trader.available} USDT`;
+  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${trader.username} ${trader.verified?'<i class="fa-solid fa-circle-check" style="color:var(--accent)"></i>':''}`;
   
   const paySel = document.getElementById("payment");
-  paySel.innerHTML = `<option>${trader.paymentMethod}</option>`;
+  paySel.innerHTML = "";
+  ["M-Pesa Kenya","Airtel Kenya","Bank Transfer","MTN Uganda","Airtel Uganda"].forEach(p=>{
+    paySel.innerHTML += `<option>${p}</option>`;
+  });
 }
 
 async function createTrade(){
@@ -189,7 +203,7 @@ async function createTrade(){
 
   const kesAmount = amount * selectedTrader.rate;
   if(kesAmount < selectedTrader.minAmount || kesAmount > selectedTrader.maxAmount) 
-    return showToast(`Amount must be between KES ${selectedTrader.minAmount} and ${selectedTrader.maxAmount}`);
+    return showToast(`Amount must be between KES ${formatNumber(selectedTrader.minAmount)} and ${formatNumber(selectedTrader.maxAmount)}`);
 
   try{
     if(currentTab === "buy"){
@@ -207,14 +221,13 @@ async function createTrade(){
     await set(orderRef,{
       buyerUid: currentTab==="buy" ? user.uid : selectedTrader.id,
       sellerUid: currentTab==="buy" ? selectedTrader.id : user.uid,
-      sellerName: selectedTrader.username,
-      buyerName: currentUser.username || "User",
+      sellerName: selectedTrader.username, sellerVerified: selectedTrader.verified,
+      buyerName: currentUser.username || "User", buyerVerified: currentUser.verified,
       amount, paymentMethod:payment, rate: selectedTrader.rate,
       paybill: selectedTrader.paybill || "", account: selectedTrader.account || "",
       bankName: selectedTrader.bankName || "", bankAccount: selectedTrader.bankAccount || "",
-      minAmount: selectedTrader.minAmount, maxAmount: selectedTrader.maxAmount,
       status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
-      createdAt:serverTimestamp(), expiresAt:Date.now()+15*60*1000 // 15 min like binance
+      createdAt:serverTimestamp(), expiresAt:Date.now()+15*60*1000
     });
     document.getElementById("tradeModal").style.display="none";
     showToast("Order created. Pay within 15 minutes");
@@ -236,17 +249,26 @@ function openTradeRoom(orderId){
     let paidBtn = document.getElementById("btnPaid");
     if(order.status !== "pending_payment") paidBtn.style.display="none";
     
+    const otherUser = auth.currentUser.uid === order.buyerUid ? order.sellerName : order.buyerName;
+    const otherVerified = auth.currentUser.uid === order.buyerUid ? order.sellerVerified : order.buyerVerified;
+    
     document.getElementById("tradeDetails").innerHTML = `
-    <h3>${order.sellerName}</h3>
-    <p>Amount: <b>${order.amount} USDT</b> | <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p>
-    <p>KES Amount: <b>KES ${(order.amount * order.rate).toFixed(2)}</b> @ ${order.rate}</p>
+    <div class="user-badge">
+      <h3 style="margin:0">${otherUser}</h3>
+      ${otherVerified?'<span class="verified"><i class="fa-solid fa-circle-check"></i> Verified</span>':''}
+    </div>
+    <p>Amount: <b>${formatNumber(order.amount)} USDT</b> | <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p>
+    <p>KES Amount: <b>KES ${formatNumber(order.amount * order.rate)}</b> @ ${formatNumber(order.rate)}</p>
     <div class="payment-info">
-      ${order.paymentMethod==="M-Pesa"?`
+      ${order.paymentMethod.includes("M-Pesa")?`
         <div><span><div class="label">Paybill</div>${order.paybill}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paybill}')"></i></div>
         <div><span><div class="label">Account</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
       `:''}
-      ${order.paymentMethod==="Airtel Money"?`
-        <div><span><div class="label">Airtel No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+      ${order.paymentMethod.includes("Airtel")?`
+        <div><span><div class="label">${order.paymentMethod} No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+      `:''}
+      ${order.paymentMethod.includes("MTN")?`
+        <div><span><div class="label">${order.paymentMethod} No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
       `:''}
       ${order.paymentMethod==="Bank Transfer"?`
         <div><span><div class="label">Bank</div>${order.bankName}</span></div>
@@ -254,7 +276,7 @@ function openTradeRoom(orderId){
       `:''}
       <div><span><div class="label">Reference</div>${orderId}</span><i class="fa-regular fa-copy" onclick="copyText('${orderId}')"></i></div>
     </div>
-    <div class="order-note">1. Transfer exact KES amount 2. Use reference 3. Upload proof after payment</div>
+    <div class="order-note">1. Transfer exact amount 2. Use reference 3. Tap "I Have Paid" after payment</div>
     ${releaseButton}
     `;
   });
@@ -364,12 +386,12 @@ function openMyTrades(){
     snapshot.forEach((child)=>{
       const order = child.val();
       if(order.buyerUid === user.uid || order.sellerUid === user.uid){
-        box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>${order.amount} USDT - KES ${(order.amount*order.rate).toFixed(2)}</p><p>Payment: ${order.paymentMethod}</p><p>Status: <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">Open Trade</button></div>`;
+        box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>${formatNumber(order.amount)} USDT - KES ${formatNumber(order.amount*order.rate)}</p><p>Payment: ${order.paymentMethod}</p><p>Status: <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">Open Trade</button></div>`;
       }
     });
   });
 }
-  function closeMyTrades(){ document.getElementById("myTradesModal").style.display="none"; }
+function closeMyTrades(){ document.getElementById("myTradesModal").style.display="none"; }
 
 function filterTraders(){ renderTraders(allTraders); }
 
@@ -380,16 +402,16 @@ function renderTraders(snapshot){
   const amountFilter = parseFloat(document.getElementById("filterAmount").value) || 0;
   snapshot.forEach((child)=>{
     const trader = child.val(); if(trader.active === false) return;
-    if(filter !== "All Methods" && trader.paymentMethod !== filter) return;
+    if(filter !== "All Methods" && !trader.paymentMethods?.includes(filter)) return;
     const available = Number(trader.available || 0);
     if(amountFilter > 0 && available < amountFilter) return;
     tradersBox.innerHTML += `
     <div class="trader-card">
-      <div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? "Verified ✔️" : ""}</span></div>
-      <div class="stats"><span class="rate">1 USDT = ${trader.rate} KES</span><span>${trader.completion || 0}% Completion</span></div>
-      <div class="stats"><span>Available: ${available} USDT</span><span>${trader.trades || 0} Trades</span></div>
-      <div class="stats"><span>Limits: KES ${trader.minAmount?.toLocaleString()} - ${trader.maxAmount?.toLocaleString()}</span><span>${trader.paymentMethod}</span></div>
-            <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
+      <div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
+      <div class="stats"><span class="rate">1 USDT = ${formatNumber(trader.rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
+      <div class="stats"><span>Available: ${formatNumber(available)} USDT</span><span>${trader.trades || 0} Trades</span></div>
+      <div class="stats"><span>Limits: KES ${formatNumber(trader.minAmount)} - ${formatNumber(trader.maxAmount)}</span><span>${trader.paymentMethods?.join(", ") || trader.paymentMethod}</span></div>
+      <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
     </div>`;
   });
 }
@@ -406,7 +428,7 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
           available: c.val().balance,
           verified: c.val().kycStatus === "verified",
           completion: 100, trades: 0, active: true,
-          paymentMethod: c.val().paymentMethod || "M-Pesa",
+          paymentMethods: c.val().paymentMethods || ["M-Pesa Kenya"],
           rate: c.val().rate || 130,
           minAmount: c.val().minAmount || 1000,
           maxAmount: c.val().maxAmount || 500000,
@@ -421,28 +443,16 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
 
 onAuthStateChanged(auth,(user)=>{
   if(user){ currentUser = user;
-    onValue(ref(db,"users/"+user.uid+"/balance"),(s)=>{ userBalance=Number(s.val()||0); document.getElementById("walletBalance").innerHTML="$"+userBalance.toFixed(2)+" USDT"; });
-    onValue(ref(db,"users/"+user.uid+"/username"),(s)=>{ currentUser.username = s.val() || "User"; });
+    onValue(ref(db,"users/"+user.uid+"/balance"),(s)=>{ userBalance=Number(s.val()||0); document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT"; });
+    onValue(ref(db,"users/"+user.uid),(s)=>{ const d=s.val(); currentUser.username = d?.username || "User"; currentUser.verified = d?.kycStatus==="verified"; });
   }
 });
 
-// Expose functions to window
-window.openTrade=openTrade; 
-window.closeTrade=closeTrade; 
-window.createTrade=createTrade; 
-window.switchTab=switchTab;
-window.openTradeRoom=openTradeRoom; 
-window.closeTradeRoom=closeTradeRoom; 
-window.sendMessage=sendMessage;
-window.markPaid=markPaid; 
-window.releaseUSDT=releaseUSDT; 
-window.openMyTrades=openMyTrades;
-window.closeMyTrades=closeMyTrades; 
-window.cancelTrade=cancelTrade; 
-window.openDispute=openDispute; 
-window.calcKES=calcKES; 
-window.filterTraders=filterTraders; 
-window.copyText=copyText;
+window.openTrade=openTrade; window.closeTrade=closeTrade; window.createTrade=createTrade; window.switchTab=switchTab;
+window.openTradeRoom=openTradeRoom; window.closeTradeRoom=closeTradeRoom; window.sendMessage=sendMessage;
+window.markPaid=markPaid; window.releaseUSDT=releaseUSDT; window.openMyTrades=openMyTrades;
+window.closeMyTrades=closeMyTrades; window.cancelTrade=cancelTrade; window.openDispute=openDispute; 
+window.calcKES=calcKES; window.filterTraders=filterTraders; window.copyText=copyText; window.toggleChat=toggleChat;
 </script>
 </body>
-</html>
+  </html>
