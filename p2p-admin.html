@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>VORTEX MARKETS - P2P Admin</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+
+body{
+
+margin:0;
+background:#07111f;
+color:white;
+
+}
+
+
+.header{
+
+padding:20px;
+background:linear-gradient(135deg,#00c853,#00695c);
+border-radius:0 0 25px 25px;
+
+}
+
+
+.container{
+
+padding:20px;
+
+}
+
+
+.order-card{
+
+background:#101c30;
+border:1px solid #23354d;
+padding:18px;
+border-radius:18px;
+margin-bottom:15px;
+
+}
+
+
+.status{
+
+padding:6px 12px;
+border-radius:20px;
+background:#18283d;
+display:inline-block;
+font-size:13px;
+
+}
+
+
+.action-btn{
+
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:12px;
+background:#00c853;
+color:white;
+font-weight:bold;
+
+}
+
+
+.cancel{
+
+background:#e53935;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+<h2>
+<i class="fa-solid fa-shield-halved"></i>
+ P2P Admin Panel
+</h2>
+
+</div>
+
+
+
+<div class="container">
+
+
+<div id="orders">
+
+<p>
+Loading orders...
+</p>
+
+</div>
+
+
+</div>
+
+<div>
+
+<h2>
+Disputed Trades
+</h2>
+
+<div id="disputes">
+
+Loading...
+
+</div>
+
+</div>
+
+<script type="module">
+
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+getAuth,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { 
+getDatabase,
+ref,
+onValue,
+set
+} from 
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+
+const firebaseConfig = {
+
+apiKey:"YOUR_API_KEY",
+
+authDomain:"YOUR_PROJECT.firebaseapp.com",
+
+databaseURL:"YOUR_DATABASE_URL",
+
+projectId:"YOUR_PROJECT_ID",
+
+storageBucket:"YOUR_BUCKET",
+
+messagingSenderId:"YOUR_SENDER_ID",
+
+appId:"YOUR_APP_ID"
+
+};
+
+
+
+const app = initializeApp(firebaseConfig);
+
+
+const db = getDatabase(app);
+
+const auth = getAuth(app);
+
+
+onAuthStateChanged(auth, async(user)=>{
+
+
+if(!user){
+
+window.location.href="login.html";
+
+return;
+
+}
+
+
+
+const adminRef = ref(
+db,
+"admins/"+user.uid
+);
+
+
+
+onValue(adminRef,(snapshot)=>{
+
+
+const admin = snapshot.val();
+
+
+if(!admin || 
+(admin.role !== "admin" && admin.role !== "superadmin")){
+
+
+alert("Access denied");
+
+
+window.location.href="dashboard.html";
+
+
+}
+
+
+});
+
+
+});
+
+
+const ordersRef = ref(db,"p2p_orders");
+
+
+
+onValue(ordersRef,(snapshot)=>{
+
+
+const box = document.getElementById("orders");
+
+
+box.innerHTML="";
+
+
+
+if(!snapshot.exists()){
+
+box.innerHTML="<p>No P2P orders</p>";
+
+return;
+
+}
+
+let found = false;
+
+snapshot.forEach((child)=>{
+
+
+const order = child.val();
+
+
+box.innerHTML += `
+
+
+<div class="order-card">
+
+
+<h3>
+Order ID:
+${child.key}
+</h3>
+
+
+<p>
+Seller:
+<b>${order.sellerName}</b>
+</p>
+
+
+<p>
+Amount:
+<b>${order.amount} USDT</b>
+</p>
+
+
+<p>
+Payment:
+${order.paymentMethod}
+</p>
+
+
+<p>
+Status:
+<span class="status">
+${order.status}
+</span>
+</p>
+
+
+
+<button class="action-btn"
+onclick="completeOrder('${child.key}')">
+
+Complete Trade
+
+</button>
+
+
+
+<button class="action-btn cancel"
+onclick="cancelOrder('${child.key}')">
+
+Cancel Trade
+
+</button>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+});
+
+const disputeRef = ref(
+db,
+"p2p_orders"
+);
+
+
+onValue(disputeRef,(snapshot)=>{
+
+
+const box =
+document.getElementById("disputes");
+
+
+box.innerHTML="";
+
+
+let found = false;
+
+
+snapshot.forEach((child)=>{
+
+
+const order = child.val();
+
+
+
+if(order.status==="disputed"){
+
+
+found = true;
+
+
+box.innerHTML += `
+
+<div class="order-card">
+
+<h3>
+Dispute
+</h3>
+
+
+<p>
+Seller:
+${order.sellerName}
+</p>
+
+
+<p>
+Amount:
+${order.amount} USDT
+</p>
+
+
+<button class="action-btn"
+onclick="resolveDispute('${child.key}')">
+
+Release Trade
+
+</button>
+
+
+<button class="action-btn cancel"
+onclick="cancelOrder('${child.key}')">
+
+Refund / Cancel
+
+</button>
+
+
+</div>
+
+`;
+
+}
+
+
+});
+
+
+if(!found){
+
+box.innerHTML="<p>No disputes</p>";
+
+}
+
+
+});
+
+
+async function verifySeller(id){
+
+
+await set(
+
+ref(db,
+"p2p_sellers/"+id+"/verified"),
+
+true
+
+);
+
+
+}
+
+async function freezeSeller(id){
+
+
+await set(
+
+ref(db,
+"p2p_sellers/"+id+"/active"),
+
+false
+
+);
+
+
+}
+
+
+
+async function completeOrder(id){
+
+
+await set(
+
+ref(db,"p2p_orders/"+id+"/status"),
+
+"completed"
+
+);
+
+
+}
+
+
+
+
+async function cancelOrder(id){
+
+
+await set(
+
+ref(db,"p2p_orders/"+id+"/status"),
+
+"cancelled"
+
+);
+
+
+}
+
+
+
+window.completeOrder = completeOrder;
+
+window.cancelOrder = cancelOrder;
+
+window.verifySeller = verifySeller;
+window.freezeSeller = freezeSeller;
+
+</script>
+
+
+</body>
+
+  </html>
