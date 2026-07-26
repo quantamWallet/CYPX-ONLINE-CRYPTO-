@@ -3,56 +3,125 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>P2P Trading - CYPX HOLDINGS</title>
+  <title>Deposit - CYPX HOLDINGS</title>
 
   <style>
-    * {margin: 0; padding: 0; box-sizing: border-box;}
-    body {font-family: 'Poppins', Arial, sans-serif; background: linear-gradient(to bottom, #050814, #0a1120); color: white; padding: 20px; padding-bottom:90px}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    .header {text-align: center; margin-bottom: 25px;}
-    .header h1 {background: linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent; font-size: 26px; font-weight:800; margin-bottom: 8px;}
-    .header p {color: #94a3b8; font-size: 13px;}
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #071426, #0d1b2a);
+      color: white;
+      padding: 20px;
+    }
 
-    .balance-card{background:linear-gradient(180deg,#0f1729,#0a1120);border:1px solid #1e293b;border-radius:16px;padding:16px;margin-bottom:20px;box-shadow:0 0 20px rgba(56,189,248,.1)}
-    .balance-card h3{font-size:12px;color:#94a3b8;margin-bottom:6px}
-    .balance-card .amt{font-size:24px;font-weight:800;background:linear-gradient(135deg,#38bdf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-    .deposit-container {display: flex; flex-direction: column; gap: 16px;}
-    .deposit-card {background: linear-gradient(180deg,#0f1729,#0a1120); border:1px solid #1e293b; border-radius: 16px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: transform 0.2s ease;}
-    .deposit-card:hover {transform: translateY(-3px); box-shadow:0 0 25px rgba(56,189,248,.15)}
-    .deposit-card h2 {color: #38bdf8; margin-bottom: 8px; font-size: 18px; font-weight:700}
-    .deposit-card p {color: #94a3b8; line-height: 1.6; font-size: 13px; margin-bottom: 14px;}
+    .header h1 {
+      color: #ffcc00;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
 
-    .seller-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1e293b}
-    .seller-info{display:flex;gap:10px;align-items:center}
-    .seller-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#0891b2);display:flex;align-items:center;justify-content:center;font-weight:700}
-    .seller-name{font-size:14px;font-weight:600}
-    .seller-rate{font-size:12px;color:#94a3b8}
-    .buy-btn{padding:8px 14px;border:none;border-radius:10px;background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 0 12px rgba(6,182,212,.3)}
+    .header p {
+      color: #cccccc;
+      font-size: 14px;
+    }
 
-    .deposit-btn {width: 100%; border: none; outline: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #000; transition: 0.3s ease; box-shadow:0 0 15px rgba(251,191,36,.4)}
-    .deposit-btn:hover {opacity: 0.9; transform:translateY(-2px)}
+    .deposit-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
-    .modal-content{background:linear-gradient(180deg,#0f1729,#0a1120);border:1px solid #1e293b;border-radius:18px;padding:20px;width:100%;max-width:420px;box-shadow:0 0 40px rgba(56,189,248,.2)}
-    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .modal-head h3{font-size:18px}
-    .close{font-size:24px;cursor:pointer;color:#94a3b8}
-    .input-group{margin:12px 0}
-    .input-group label{font-size:12px;color:#94a3b8;margin-bottom:6px;display:block}
-    .input-group input{width:100%;padding:12px;background:#0a1120;border:1px solid #334155;border-radius:10px;color:#fff;font-size:14px}
-    .pay-box{background:#0a1120;border:1px solid #1e293b;border-radius:12px;padding:12px;margin:10px 0}
-    .pay-label{font-size:11px;color:#94a3b8;margin-bottom:4px}
-    .pay-value{font-family:monospace;font-size:13px;color:#22d3ee}
-    .btn-row{display:flex;gap:10px;margin-top:18px}
-    .btn-cancel{flex:1;padding:12px;border:1px solid #334155;background:none;color:#e2e8f0;border-radius:10px;cursor:pointer;font-weight:600}
-    .btn-proceed{flex:1;padding:12px;border:none;background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;border-radius:10px;cursor:pointer;font-weight:700}
+    .deposit-card {
+      background: #10233d;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease;
+    }
 
-    .toast-container{position:fixed;top:20px;right:20px;z-index:1001;display:flex;flex-direction:column;gap:10px}
-    .toast{background:#1e293b;border-left:4px solid #06b6d4;padding:12px 16px;border-radius:10px;min-width:280px;animation:slideIn.3s}
-    @keyframes slideIn{from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1}}
+    .deposit-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .deposit-card h2 {
+      color: #ffcc00;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .deposit-card p {
+      color: #d1d1d1;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .deposit-btn {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(to right, #ffcc00, #f5b800);
+      color: #071426;
+      transition: 0.3s ease;
+    }
+
+    .deposit-btn:hover {
+      opacity: 0.9;
+    }
+
+    .deposit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .info-box {
+      margin-top: 25px;
+      background: rgba(255,255,255,0.06);
+      border-left: 4px solid #ffcc00;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #dddddd;
+    }
+
+    /* COMING SOON POPUP */
+    .popup{
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #10233d;
+      padding: 22px 26px;
+      border-radius: 16px;
+      border-left: 4px solid #ffcc00;
+      display: none;
+      z-index: 9999;
+      text-align: center;
+      font-weight: 600;
+      min-width: 300px;
+      box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+      animation: popupFade .25s ease;
+    }
+    @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%)}to{opacity:1;transform:translate(-50%,-50%)}}
   </style>
 
+  <!-- Firebase JS SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -65,115 +134,19 @@
       projectId: "quantum-rio",
       storageBucket: "quantum-rio.firebasestorage.app",
       messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database();
+    const database = firebase.database();
 
-    let currentUser = null;
-    let selectedSeller = null;
-    const USD_TO_KES = 130; // Update with live rate
-
-    auth.onAuthStateChanged(user=>{
-      if(!user) return window.location.href="auth.html";
-      currentUser = user;
-      loadSellers();
-      loadBalance();
-    });
-
-    function loadBalance(){
-      db.ref("users/"+currentUser.uid+"/balance").on("value", snap=>{
-        document.getElementById("usdBalance").textContent = "$"+(snap.val()||0).toFixed(2);
-      })
-    }
-
-    function loadSellers(){
-      // Mock sellers. Later pull from db.ref("p2pSellers")
-      const sellers = [
-        {id:1, name:"CYPX Official", rate:129.5, min:10, max:1000, method:"M-Pesa Kenya"},
-        {id:2, name:"Victor Trader", rate:129.8, min:20, max:500, method:"MTN Zambia"},
-        {id:3, name:"Amina P2P", rate:130.1, min:50, max:2000, method:"Bank Transfer"}
-      ];
-      const wrap = document.getElementById("sellersList");
-      wrap.innerHTML = "";
-      sellers.forEach(s=>{
-        wrap.innerHTML += `
-        <div class="seller-row">
-          <div class="seller-info">
-            <div class="seller-avatar">${s.name[0]}</div>
-            <div>
-              <div class="seller-name">${s.name}</div>
-              <div class="seller-rate">${s.method} • Rate: KES ${s.rate}</div>
-            </div>
-          </div>
-          <button class="buy-btn" onclick='openBuyModal(${JSON.stringify(s)})'>Buy USD</button>
-        </div>`
-      })
-    }
-
-    function openBuyModal(seller){
-      selectedSeller = seller;
-      document.getElementById("sellerName").textContent = seller.name;
-      document.getElementById("sellerRate").textContent = "KES "+seller.rate;
-      document.getElementById("buyModal").style.display="flex";
-    }
-
-    function calculateKES(){
-      const usd = parseFloat(document.getElementById("usdAmount").value) || 0;
-      const kes = usd * selectedSeller.rate;
-      document.getElementById("kesAmount").textContent = "KES "+kes.toFixed(2);
-    }
-
-    function confirmBuy(){
-      const usd = parseFloat(document.getElementById("usdAmount").value);
-      if(!usd || usd < selectedSeller.min) return showToast(`Min order is $${selectedSeller.min}`,"error");
-      
-      const orderId = db.ref().push().key;
-      const data = {
-        id: orderId,
-        type: "p2p_buy",
-        seller: selectedSeller.name,
-        buyerId: currentUser.uid,
-        usdAmount: usd,
-        kesAmount: usd * selectedSeller.rate,
-        rate: selectedSeller.rate,
-        method: selectedSeller.method,
-        status: "pending_payment",
-        timestamp: Date.now()
-      };
-
-      db.ref("p2pOrders/"+orderId).set(data);
-      db.ref("financial/"+currentUser.uid+"/"+orderId).set(data);
-
-      closeModal('buyModal');
-      showToast("Order created. Contact seller to pay.","success");
-      openPaymentModal(data);
-    }
-
-    function openPaymentModal(order){
-      document.getElementById("payOrderId").textContent = order.id;
-      document.getElementById("payAmount").textContent = "KES "+order.kesAmount.toFixed(2);
-      document.getElementById("payMethod").textContent = order.method;
-      document.getElementById("paymentModal").style.display="flex";
-    }
-
-    function iHavePaid(){
-      const orderId = document.getElementById("payOrderId").textContent;
-      db.ref("p2pOrders/"+orderId).update({status:"paid_awaiting_release"});
-      closeModal('paymentModal');
-      showToast("Marked as paid. Seller will release USD.","success");
-    }
-
-    function closeModal(id){ document.getElementById(id).style.display = "none"; }
-
-    function showToast(msg, type="success"){
-      const toast = document.createElement("div");
-      toast.className = `toast`;
-      toast.style.borderColor = type==="error"?"#ef4444":"#06b6d4";
-      toast.textContent = msg;
-      document.getElementById("toastContainer").appendChild(toast);
-      setTimeout(()=>toast.remove(), 4000);
+    function showPopup(msg){
+      const popup = document.getElementById("popup");
+      popup.textContent = msg;
+      popup.style.display = "block";
+      setTimeout(()=>popup.style.display="none", 3000);
     }
   </script>
 </head>
@@ -181,70 +154,50 @@
 <body>
 
   <div class="header">
-    <h1>P2P Trading</h1>
-    <p>Buy USD directly from verified traders. Fast and secure.</p>
-  </div>
-
-  <div class="balance-card">
-    <h3>Your USD Balance</h3>
-    <div class="amt" id="usdBalance">$0.00</div>
+    <h1>Deposit Center</h1>
+    <p>Select your preferred deposit method to fund your CYPX HOLDINGS account securely.</p>
   </div>
 
   <div class="deposit-container">
-    <div class="deposit-card">
-      <h2>Active Sellers</h2>
-      <p>Select a seller and buy USD. Payment goes directly to seller.</p>
-      <div id="sellersList"></div>
-    </div>
 
+    <!-- Crypto Deposit - NOW FIRST -->
     <div class="deposit-card">
       <h2>Crypto Deposit</h2>
-      <p>Deposit cryptocurrency directly into your CYPX HOLDINGS wallet. Supported: USDT TRC20, BEP20, BNB</p>
+      <p>
+        Deposit cryptocurrency directly into your CYPX HOLDINGS wallet. 
+        Supported networks may include TRC20, BEP20, TRX, USDT, BNB, and other supported assets.
+      </p>
+
       <button class="deposit-btn" onclick="window.location.href='crypto.html'">
         Proceed to Crypto Deposit
       </button>
     </div>
-  </div>
 
-  <!-- BUY MODAL -->
-  <div class="modal" id="buyModal">
-    <div class="modal-content">
-      <div class="modal-head"><h3>Buy from <span id="sellerName"></span></h3><span class="close" onclick="closeModal('buyModal')">&times;</span></div>
-      <div class="input-group">
-        <label>Rate</label>
-        <div class="pay-box"><div class="pay-value" id="sellerRate">KES 0</div></div>
-      </div>
-      <div class="input-group">
-        <label>Enter USD Amount</label>
-        <input type="number" id="usdAmount" placeholder="Min $10" oninput="calculateKES()">
-      </div>
-      <div class="input-group">
-        <label>You Pay</label>
-        <div class="pay-box"><div class="pay-value" id="kesAmount">KES 0.00</div></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn-cancel" onclick="closeModal('buyModal')">Cancel</button>
-        <button class="btn-proceed" onclick="confirmBuy()">Place Order</button>
-      </div>
+    <!-- P2P Trading - NOW LAST -->
+    <div class="deposit-card">
+      <h2>P2P Trading</h2>
+      <p>
+        Deposit funds through peer-to-peer (P2P) trading. 
+        This method allows you to transfer money safely through approved traders 
+        and complete your account funding quickly.
+      </p>
+
+      <button class="deposit-btn" onclick="window.location.href='p2p.html'">
+        Proceed to P2P Trading
+      </button>
     </div>
+
   </div>
 
-  <!-- PAYMENT MODAL -->
-  <div class="modal" id="paymentModal">
-    <div class="modal-content">
-      <div class="modal-head"><h3>Complete Payment</h3><span class="close" onclick="closeModal('paymentModal')">&times;</span></div>
-      <p style="font-size:13px;color:#94a3b8;margin-bottom:10px">Send exact amount to seller via the method below. Then click "I Have Paid"</p>
-      <div class="pay-box"><div class="pay-label">ORDER ID</div><div class="pay-value" id="payOrderId"></div></div>
-      <div class="pay-box"><div class="pay-label">AMOUNT</div><div class="pay-value" id="payAmount"></div></div>
-      <div class="pay-box"><div class="pay-label">PAYMENT METHOD</div><div class="pay-value" id="payMethod"></div></div>
-      <div class="btn-row">
-        <button class="btn-cancel" onclick="closeModal('paymentModal')">Cancel</button>
-        <button class="btn-proceed" onclick="iHavePaid()">I Have Paid</button>
-      </div>
-    </div>
+  <div class="info-box">
+    <strong>Important Notice:</strong><br>
+    Please ensure you choose the correct deposit method and network before making payments. 
+    Incorrect transfers may lead to delays or loss of funds. 
+    Always verify payment details carefully before confirming transactions.
   </div>
 
-  <div class="toast-container" id="toastContainer"></div>
+  <div id="popup" class="popup"></div>
 
+<script src="js/app-back.js"></script>
 </body>
-          </html>
+</html>
