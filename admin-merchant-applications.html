@@ -203,16 +203,18 @@ function approve(uid){
     });
 }
 
-db.ref("merchantApplications/"+uid).update({
-    status: "removed",
-    removedAt: Date.now()
-})
-.then(()=>{
-    showToast("Application rejected","error");
-})
-.catch(err=>{
-    showToast("Error: "+err.message,"error");
-});
+function reject(uid){
+    db.ref("merchantApplications/" + uid).update({
+        status: "removed",
+        removedAt: Date.now()
+    })
+    .then(() => {
+        showToast("Application rejected", "error");
+    })
+    .catch(err => {
+        showToast("Error: " + err.message, "error");
+    });
+}
 
 function toggleMerchant(uid, active){
 
