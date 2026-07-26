@@ -114,9 +114,8 @@ Complete the form below. All information must be accurate. False information may
 <label>Email Address</label>
 <input type="email" id="email" class="input" placeholder="Enter your email">
 
-<label>Phone Number</label>
-<input type="tel" id="phone" class="input" placeholder="07XXXXXXXX">
-
+<label>Phone Number (Country Code Required)</label>    
+<input type="tel" id="phone" class="input" placeholder="254732364593">
 <label>Country</label>
 <input type="text" id="country" class="input" placeholder="Kenya">
 
@@ -309,6 +308,14 @@ submitBtn.onclick = async () => {
     if(hasError) return showToast("Please fill all required fields", "error");
     if(!agree.checked) return showToast("Please agree to Terms and Conditions", "error");
 
+// Phone validation - country code required without +
+const phone = applicationData.phone;
+
+if(!/^[0-9]{10,15}$/.test(phone) || phone.startsWith("0") || phone.startsWith("+")){
+    document.getElementById("phone").classList.add("error");
+    return showToast("Enter phone number with country code only. Example: 254732364593", "error");
+}
+  
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
