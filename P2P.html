@@ -831,11 +831,13 @@ return;
 }
 
 
-await set(
-ref(db,"p2p_orders/"+currentOrder+"/status"),
-"payment_sent"
+await update(
+ref(db,"p2p_orders/"+currentOrder),
+{
+buyerConfirmed:true,
+status:"payment_sent"
+}
 );
-
 
 }
 
@@ -887,7 +889,10 @@ const balanceSnap = await get(buyerBalanceRef);
 const currentBalance = Number(
 balanceSnap.val() || 0
 );
-
+    
+if(order.buyerConfirmed !== true){
+return;
+    }
 
 // Add USDT to buyer
 
@@ -903,7 +908,30 @@ await set(
 ref(db,"p2p_orders/"+orderId+"/status"),
 "completed"
 );
+const sellerRef = ref(
+db,
+"p2p_sellers/"+order.sellerUid
+);
 
+
+const sellerSnap = await get(sellerRef);
+
+const seller = sellerSnap.val();
+
+
+if(seller){
+
+await update(sellerRef,{
+
+locked:
+Math.max(
+Number(seller.locked || 0)-amount,
+0
+)
+
+});
+
+}
 
 // Save completion time
 
