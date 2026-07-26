@@ -986,7 +986,78 @@ Merchant Wallet
 </div>
 
 </div>
+<div class="card">
 
+<div class="card-title">
+<i class="fas fa-th-large"></i>
+Quick Actions
+</div>
+
+<div class="stats-grid">
+
+<div class="stat-card" onclick="location.href='merchant-transactions.html'">
+<div class="stat-icon blue">
+<i class="fas fa-list"></i>
+</div>
+<div class="stat-info">
+<h4>Transactions</h4>
+<h2><i class="fas fa-arrow-right"></i></h2>
+</div>
+</div>
+
+<div class="stat-card" onclick="location.href='merchant-escrow.html'">
+<div class="stat-icon green">
+<i class="fas fa-handshake"></i>
+</div>
+<div class="stat-info">
+<h4>Escrow</h4>
+<h2><i class="fas fa-arrow-right"></i></h2>
+</div>
+</div>
+
+<div class="stat-card" onclick="location.href='merchant-disputes.html'">
+<div class="stat-icon orange">
+<i class="fas fa-gavel"></i>
+</div>
+<div class="stat-info">
+<h4>Disputes</h4>
+<h2><i class="fas fa-arrow-right"></i></h2>
+</div>
+</div>
+
+<div class="stat-card" onclick="location.href='merchant-analytics.html'">
+<div class="stat-icon purple">
+<i class="fas fa-chart-line"></i>
+</div>
+<div class="stat-info">
+<h4>Analytics</h4>
+<h2><i class="fas fa-arrow-right"></i></h2>
+</div>
+</div>
+
+<div class="stat-card" onclick="location.href='merchant-profile.html'">
+<div class="stat-icon gold">
+<i class="fas fa-user"></i>
+</div>
+<div class="stat-info">
+<h4>Profile</h4>
+<h2><i class="fas fa-arrow-right"></i></h2>
+</div>
+</div>
+
+<div class="stat-card" onclick="location.href='merchant-settings.html'">
+<div class="stat-icon blue">
+<i class="fas fa-cog"></i>
+</div>
+<div class="stat-info">
+<h4>Settings</h4>
+<h2><i class="fas fa-arrow-right"></i></h2>
+</div>
+</div>
+
+</div>
+
+</div>
 <!-- =========================
 LIVE MERCHANT OVERVIEW
 ========================= -->
@@ -1090,7 +1161,6 @@ LIVE MERCHANT OVERVIEW
 </div>
 
 <script>
-
 // Firebase Configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -1309,7 +1379,9 @@ function updateClock(){
 }
 updateClock();
 setInterval(updateClock,1000);
-
+document.getElementById("settingsBtn").onclick = function () {
+    window.location.href = "merchant-settings.html";
+};
 </script>
 </body>
-</html>
+    </html>
