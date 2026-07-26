@@ -22,7 +22,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:1
 .verified{color:#00e676;font-size:13px;}
 .stats{margin-top:12px;display:flex;justify-content:space-between;font-size:14px;}
 .trade-btn{width:100%;margin-top:15px;padding:13px;border:none;border-radius:12px;background:#00c853;color:white;font-size:16px;font-weight:bold;cursor:pointer;}
-.trade-btn.sell{background:#e53935;} /* RED SELL BUTTON */
+.trade-btn.sell{background:#e53935;}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:999;}
 .modal-content{width:90%;max-width:500px;background:#101c30;padding:20px;border-radius:20px;}
 .close{float:right;color:red;font-size:20px;cursor:pointer;}
@@ -132,8 +132,8 @@ const db = getDatabase(app);
 const USD_TO_KES = 129; 
 let currentUser = null;
 let userBalance = 0;
-let selectedSeller = "";
-let selectedSellerId = "";
+let selectedTrader = "";
+let selectedTraderId = "";
 let currentTab = "buy";
 let currentOrder = "";
 let tradeTimerInterval;
@@ -146,8 +146,9 @@ currentTab = type;
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 document.querySelectorAll(".trade-btn").forEach(button=>{
+    if(button.onclick && button.onclick.toString().includes("openMyTrades")) return;
     button.innerHTML = type==="sell" ? "Sell USDT" : "Buy USDT";
-    button.className = type==="sell" ? "trade-btn sell" : "trade-btn"; // RED FOR SELL
+    button.className = type==="sell" ? "trade-btn sell" : "trade-btn";
 });
 filterTraders();
 }
@@ -159,7 +160,7 @@ document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab===
 }
 
 function openTrade(name, id, maxAmount){
-selectedSeller = name; selectedSellerId = id;
+selectedTrader = name; selectedTraderId = id;
 document.getElementById("tradeModal").style.display="flex";
 document.getElementById("traderName").innerHTML = (currentTab==="buy"?"Buy from ":"Sell to ") + name;
 document.getElementById("tradeAmount").max = maxAmount;
@@ -168,43 +169,50 @@ document.getElementById("tradeAmount").placeholder = `USDT Amount - Max: ${maxAm
 
 async function createTrade(){
 const user = auth.currentUser;
-if(!user || !selectedSellerId) return;
+if(!user || !selectedTraderId) return;
 const amount = Number(document.getElementById("tradeAmount").value);
 const payment = document.getElementById("payment").value;
 if(!amount || amount <= 0) return showToast("Enter amount");
 
+try{
 if(currentTab === "buy"){
-  const sellerSnap = await get(ref(db,"p2p_sellers/"+selectedSellerId));
+  const sellerSnap = await get(ref(db,"p2p_sellers/"+selectedTraderId));
   const sellerData = sellerSnap.val();
-  if(!sellerData) return showToast("Seller not found");
-  if(Number(sellerData.available) < amount) return showToast("Seller doesn't have enough USDT");
+  if(!sellerData) return showToast("Trader not found");
+  if(Number(sellerData.available) < amount) return showToast("Trader doesn't have enough USDT");
   
-  // REALTIME UPDATE: use transaction style with update
-  await update(ref(db,"p2p_sellers/"+selectedSellerId),{
+  await update(ref(db,"p2p_sellers/"+selectedTraderId),{
     available: Number(sellerData.available)-amount,
     locked: (Number(sellerData.locked)||0)+amount
   });
 }
 
 if(currentTab === "sell"){
-  if(userBalance < amount) return showToast("Not enough balance in wallet");
+  const userSnap = await get(ref(db,"users/"+user.uid+"/balance"));
+  const balance = Number(userSnap.val() || 0);
+  if(balance < amount) return showToast("Not enough balance in wallet");
+  
   await update(ref(db,"users/"+user.uid),{
-    balance: userBalance - amount
+    balance: balance - amount
   });
 }
 
 const orderRef = push(ref(db,"p2p_orders"));
 await set(orderRef,{
-  buyerUid: currentTab==="buy" ? user.uid : selectedSellerId,
-  sellerUid: currentTab==="buy" ? selectedSellerId : user.uid,
-  sellerName: selectedSeller,
-  buyerName: currentUser.username || "You",
+  buyerUid: currentTab==="buy" ? user.uid : selectedTraderId,
+  sellerUid: currentTab==="buy" ? selectedTraderId : user.uid,
+  sellerName: selectedTrader,
+  buyerName: currentUser.username || "User",
   amount:amount, paymentMethod:payment, rate: USD_TO_KES,
   status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
   createdAt:serverTimestamp(), expiresAt:Date.now()+10*60*1000
 });
 document.getElementById("tradeModal").style.display="none";
 showToast("Order created");
+}catch(e){
+  showToast("Failed to create order: " + e.message);
+  console.error(e);
+}
 }
 
 function openTradeRoom(orderId){
@@ -294,7 +302,8 @@ async function releaseUSDT(orderId){
 const user = auth.currentUser; if(!user || !orderId) return;
 const orderSnap = await get(ref(db,"p2p_orders/"+orderId)); const order = orderSnap.val(); if(!order || order.status !== "payment_sent" || order.sellerUid !== user.uid) return;
 const amount = Number(order.amount);
-await update(ref(db,"users/"+order.buyerUid),{ balance: (await get(ref(db,"users/"+order.buyerUid+"/balance"))).val() + amount });
+const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
+await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val() || 0) + amount });
 await update(ref(db,"p2p_orders/"+orderId),{ status:"completed", completedAt:serverTimestamp() });
 const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
 if(sellerSnap.exists()){ await update(ref(db,"p2p_sellers/"+order.sellerUid),{ locked: Math.max(Number(sellerSnap.val().locked || 0)-amount, 0) }); }
@@ -303,12 +312,13 @@ if(sellerSnap.exists()){ await update(ref(db,"p2p_sellers/"+order.sellerUid),{ l
 async function cancelTrade(){
 if(!currentOrder) return;
 const orderSnap = await get(ref(db,"p2p_orders/"+currentOrder)); const order = orderSnap.val(); if(!order) return;
-if(order.sellerUid){
+if(order.sellerUid && ref(db,"p2p_sellers/"+order.sellerUid)){
   const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
   if(sellerSnap.exists()){ const amount = Number(order.amount); await update(ref(db,"p2p_sellers/"+order.sellerUid),{ available: Number(sellerSnap.val().available || 0) + amount, locked: Math.max(Number(sellerSnap.val().locked || 0) - amount, 0) }); }
 }
 if(order.buyerUid && currentTab==="sell"){
-  await update(ref(db,"users/"+order.buyerUid),{ balance: (await get(ref(db,"users/"+order.buyerUid+"/balance"))).val() + Number(order.amount) });
+  const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
+  await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val() || 0) + Number(order.amount) });
 }
 await update(ref(db,"p2p_orders/"+currentOrder),{ status:"cancelled" });
 }
@@ -325,22 +335,45 @@ const amountFilter = parseFloat(document.getElementById("filterAmount").value) |
 snapshot.forEach((child)=>{
 const trader = child.val(); if(trader.active === false) return;
 if(filter !== "All Methods" && trader.paymentMethod !== filter) return;
-if(amountFilter > 0 && trader.available < amountFilter) return;
+const available = Number(trader.available || trader.balance || 0);
+if(amountFilter > 0 && available < amountFilter) return;
 tradersBox.innerHTML += `
 <div class="trader-card">
 <div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? "Verified ✔️" : ""}</span></div>
-<div class="stats"><span>Rate: 1 USDT = ${USD_TO_KES} KES</span><span>${trader.completion}% Completion</span></div>
-<div class="stats"><span>Available: ${trader.available} USDT</span><span>${trader.trades} Trades</span></div>
-<button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick="openTrade('${trader.username}', '${child.key}', ${trader.available})">${currentTab==="buy"?"Buy":"Sell"} USDT</button>
+<div class="stats"><span>Rate: 1 USDT = ${USD_TO_KES} KES</span><span>${trader.completion || 0}% Completion</span></div>
+<div class="stats"><span>Available: ${available} USDT</span><span>${trader.trades || 0} Trades</span></div>
+<button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick="openTrade('${trader.username}', '${child.key}', ${available})">${currentTab==="buy"?"Buy":"Sell"} USDT</button>
 </div>`;
 });
 }
 
-onValue(ref(db,"p2p_sellers"),(snapshot)=>{ allTraders = snapshot; renderTraders(snapshot); });
+// LOAD BOTH SELLERS AND BUYERS
+onValue(ref(db,"p2p_sellers"),(snapshot)=>{ 
+  allTraders = snapshot; 
+  // Also load users who are merchants
+  onValue(ref(db,"users"),(userSnap)=>{
+    let combined = {};
+    snapshot.forEach(c=>combined[c.key]=c.val());
+    userSnap.forEach(c=>{
+      if(c.val().merchantTrader === true){
+        combined[c.key] = {
+          username: c.val().username,
+          available: c.val().balance,
+          verified: c.val().kycStatus === "verified",
+          completion: 100,
+          trades: 0,
+          active: true,
+          paymentMethod: "M-Pesa"
+        }
+      }
+    });
+    renderTraders({exists:()=>true, forEach:fn=>Object.entries(combined).forEach(([k,v])=>fn({key:k,val:()=>v}))});
+  });
+});
 
 onAuthStateChanged(auth,(user)=>{
 if(user){ currentUser = user;
-onValue(ref(db,"users/"+user.uid+"/balance"),(snapshot)=>{ // REALTIME BALANCE
+onValue(ref(db,"users/"+user.uid+"/balance"),(snapshot)=>{
 userBalance = Number(snapshot.val() || 0);
 document.getElementById("walletBalance").innerHTML = "$"+userBalance.toFixed(2)+" USDT";
 });
