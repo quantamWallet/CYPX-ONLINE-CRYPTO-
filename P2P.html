@@ -3,64 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CYPX HOLDINGS- P2P Trading</title>
+<title>CYPX HOLDINGS - P2P Trading</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-*{box-sizing:border-box;font-family:Arial, sans-serif;}
-body{margin:0;background:#07111f;color:white;}
-.header{padding:20px;background:linear-gradient(135deg,#00c853,#00695c);border-radius:0 0 25px 25px;}
-.header h2{margin:0;}
-.balance{margin-top:15px;background:rgba(255,255,255,.15);padding:15px;border-radius:15px;}
-.container{padding:20px;}
-.tabs{display:flex;background:#101c30;border-radius:15px;overflow:hidden;margin-bottom:20px;}
-.tabs button{flex:1;padding:15px;border:none;background:none;color:white;font-weight:bold;cursor:pointer;}
-.tabs button.active{background:#00c853;}
-.filter-box{background:#101c30;padding:15px;border-radius:15px;margin-bottom:20px;}
-select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:10px;background:#18283d;color:white;}
-.trader-card{background:#101c30;padding:18px;border-radius:18px;margin-bottom:15px;border:1px solid #23354d;}
-.trader-top{display:flex;justify-content:space-between;}
-.verified{color:#00e676;font-size:13px;}
-.stats{margin-top:12px;display:flex;justify-content:space-between;font-size:14px;}
-.trade-btn{width:100%;margin-top:15px;padding:13px;border:none;border-radius:12px;background:#00c853;color:white;font-size:16px;font-weight:bold;cursor:pointer;}
-.trade-btn.sell{background:#e53935;}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:999;}
-.modal-content{width:90%;max-width:500px;background:#101c30;padding:20px;border-radius:20px;}
-.close{float:right;color:red;font-size:20px;cursor:pointer;}
-.confirm{background:#00c853;}
-#chatBox{height:200px;overflow-y:auto;background:#18283d;padding:10px;border-radius:10px;margin:15px 0;display:flex;flex-direction:column;gap:8px}
-.chat-msg{background:#23354d;padding:8px 12px;border-radius:10px;max-width:80%;align-self:flex-start}
-.chat-me{align-self:flex-end;background:#00c853}
-.kes-preview{color:#00e676;font-size:14px;margin-top:8px;font-weight:700}
-#tradeTimer{font-size:24px;font-weight:800;text-align:center;margin:10px 0;color:#ff9800}
-.toast{position:fixed;top:20px;right:20px;background:#ff3b30;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;animation:slideIn .3s ease;}
-@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+:root{--bg:#07111f;--card:#101c30;--card2:#18283d;--accent:#00c853;--danger:#e53935;--warn:#ff9800}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}
+body{margin:0;background:var(--bg);color:white;}
+.header{padding:20px;background:linear-gradient(135deg,#00c853,#00695c);border-radius:0 0 25px 25px;position:sticky;top:0;z-index:10}
+.header h2{margin:0;font-size:18px}
+.balance{margin-top:15px;background:rgba(255,255,255,.15);padding:15px;border-radius:15px;font-size:14px}
+.container{padding:20px;max-width:900px;margin:0 auto}
+.tabs{display:flex;background:var(--card);border-radius:15px;overflow:hidden;margin-bottom:20px}
+.tabs button{flex:1;padding:15px;border:none;background:none;color:white;font-weight:bold;cursor:pointer;transition:.2s}
+.tabs button.active{background:var(--accent)}
+.filter-box{background:var(--card);padding:15px;border-radius:15px;margin-bottom:20px}
+label{font-size:12px;color:#aaa}
+select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6px;background:var(--card2);color:white}
+.trader-card{background:var(--card);padding:18px;border-radius:18px;margin-bottom:15px;border:1px solid #23354d;transition:.2s}
+.trader-card:hover{border-color:var(--accent)}
+.trader-top{display:flex;justify-content:space-between;align-items:center}
+.verified{color:var(--accent);font-size:12px;font-weight:700}
+.stats{margin-top:12px;display:flex;justify-content:space-between;font-size:13px;color:#bbb}
+.rate{color:var(--accent);font-weight:800}
+.trade-btn{width:100%;margin-top:15px;padding:13px;border:none;border-radius:12px;background:var(--accent);color:white;font-size:16px;font-weight:bold;cursor:pointer}
+.trade-btn.sell{background:var(--danger)}
+.trade-btn:disabled{opacity:.5;cursor:not-allowed}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;z-index:999;padding:10px}
+.modal-content{width:100%;max-width:500px;background:var(--card);padding:20px;border-radius:20px;max-height:90vh;overflow-y:auto}
+.close{float:right;color:#ff5252;font-size:22px;cursor:pointer}
+#chatBox{height:220px;overflow-y:auto;background:var(--card2);padding:10px;border-radius:10px;margin:15px 0;display:flex;flex-direction:column;gap:8px}
+.chat-msg{background:#23354d;padding:8px 12px;border-radius:10px;max-width:80%;align-self:flex-start;font-size:14px}
+.chat-me{align-self:flex-end;background:var(--accent)}
+.kes-preview{color:var(--accent);font-size:14px;margin-top:8px;font-weight:700}
+#tradeTimer{font-size:24px;font-weight:800;text-align:center;margin:10px 0;color:var(--warn)}
+.toast{position:fixed;top:20px;right:20px;background:var(--danger);color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.payment-info div{background:var(--card2);padding:12px;border-radius:10px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.payment-info i{color:var(--accent);cursor:pointer;font-size:16px}
+.payment-info .label{color:#aaa;font-size:12px}
+.order-note{background:#1e2f47;padding:10px;border-radius:10px;font-size:12px;margin:10px 0}
+.status-badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.status-pending{background:#ff9800} .status-sent{background:#2196f3} .status-completed{background:var(--accent)} .status-cancelled{background:#555} .status-disputed{background:var(--danger)}
 </style>
 </head>
 <body>
 
 <div id="toast" class="toast"></div>
 
+<!-- TRADE ROOM -->
 <div class="modal" id="tradeRoom">
 <div class="modal-content">
 <span class="close" onclick="closeTradeRoom()">×</span>
 <h2>P2P Trade Room</h2>
+<div id="tradeTimer">15:00</div>
 <div id="tradeDetails">Loading trade...</div>
-<div id="tradeTimer">10:00</div>
-<button class="trade-btn" onclick="markPaid()">I Have Paid</button>
-<button class="trade-btn" style="background:#e53935" onclick="cancelTrade()">Cancel Trade</button>
+<button class="trade-btn" id="btnPaid" onclick="markPaid()">I Have Paid</button>
+<button class="trade-btn sell" onclick="cancelTrade()">Cancel Trade</button>
 <button class="trade-btn" onclick="openDispute()">Open Dispute</button>
 <div id="chatBox"></div>
+<div style="display:flex;gap:8px">
 <input id="chatMessage" placeholder="Type message">
-<button class="trade-btn" onclick="sendMessage()">Send</button>
+<button class="trade-btn" style="width:auto;padding:13px 20px" onclick="sendMessage()">Send</button>
+</div>
 </div>
 </div>
 
+<!-- HEADER -->
 <div class="header">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
 <button onclick="window.location.href='apply-merchant.html'" style="background:#fff;color:#00695c;border:none;padding:10px 15px;border-radius:10px;font-weight:bold;cursor:pointer;">
-<i class="fa-solid fa-store"></i> Apply to be P2P Merchant
+<i class="fa-solid fa-store"></i> Become Merchant
 </button>
-<h2 style="margin:0;"><i class="fa-solid fa-arrows-rotate"></i> P2P Trading</h2>
+<h2><i class="fa-solid fa-arrows-rotate"></i> CYPX P2P</h2>
 </div>
 <div class="balance">
 Wallet Balance: <b id="walletBalance">$0.00 USDT</b>
@@ -74,40 +88,39 @@ Wallet Balance: <b id="walletBalance">$0.00 USDT</b>
 </div>
 
 <div class="filter-box">
-<button class="trade-btn" onclick="openMyTrades()">My Active Trades</button>
+<button class="trade-btn" onclick="openMyTrades()"><i class="fa-solid fa-list"></i> My Active Trades</button>
 <label>Payment Method</label>
-<select id="paymentFilter">
-<option>All Methods</option>
-<option>M-Pesa</option>
-<option>Airtel Money</option>
-<option>Bank Transfer</option>
+<select id="paymentFilter" onchange="filterTraders()">
+<option>All Methods</option><option>M-Pesa</option><option>Airtel Money</option><option>Bank Transfer</option>
 </select>
-<input id="filterAmount" placeholder="Enter Amount (USDT)" oninput="filterTraders()">
+<input id="filterAmount" placeholder="Filter by USDT Amount" type="number" oninput="filterTraders()">
 </div>
 
 <div id="traders"><p style="text-align:center">Loading traders...</p></div>
 
+<!-- TRADE MODAL -->
 <div class="modal" id="tradeModal">
 <div class="modal-content">
 <span class="close" onclick="closeTrade()">×</span>
 <h2 id="traderName"></h2>
+<p id="traderLimits" style="color:#aaa;font-size:13px"></p>
 <input id="tradeAmount" placeholder="USDT Amount" type="number" oninput="calcKES()">
 <div class="kes-preview" id="kesPreview"></div>
-<select id="payment">
-<option>M-Pesa</option>
-<option>Airtel Money</option>
-<option>Bank Transfer</option>
-</select>
+<label>Select Payment Method</label>
+<select id="payment"></select>
 <button class="trade-btn confirm" onclick="createTrade()">Confirm Trade</button>
 </div>
 </div>
 
+<!-- MY TRADES -->
 <div class="modal" id="myTradesModal">
 <div class="modal-content">
 <span class="close" onclick="closeMyTrades()">×</span>
 <h2>My P2P Trades</h2>
 <div id="myTradesList">Loading trades...</div>
 </div>
+</div>
+
 </div>
 
 <script type="module">
@@ -129,228 +142,260 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-const USD_TO_KES = 129; 
+
 let currentUser = null;
 let userBalance = 0;
-let selectedTrader = "";
-let selectedTraderId = "";
+let selectedTrader = {};
 let currentTab = "buy";
 let currentOrder = "";
 let tradeTimerInterval;
 let allTraders = [];
 
 function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",3000); }
+function copyText(text){ navigator.clipboard.writeText(text); showToast("Copied: " + text); }
 
 function switchTab(type,btn){
-currentTab = type;
-document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
-document.querySelectorAll(".trade-btn").forEach(button=>{
-    if(button.onclick && button.onclick.toString().includes("openMyTrades")) return;
-    button.innerHTML = type==="sell" ? "Sell USDT" : "Buy USDT";
-    button.className = type==="sell" ? "trade-btn sell" : "trade-btn";
-});
-filterTraders();
+  currentTab = type;
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  filterTraders();
 }
 
 function calcKES(){
-const usd = parseFloat(document.getElementById("tradeAmount").value) || 0;
-const kes = usd * USD_TO_KES;
-document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab==="buy"?"Pay":"Receive"}: KES ${kes.toFixed(2)}` : "";
+  const usd = parseFloat(document.getElementById("tradeAmount").value) || 0;
+  const rate = selectedTrader.rate || 129;
+  const kes = usd * rate;
+  document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab==="buy"?"Pay":"Receive"}: KES ${kes.toFixed(2)} @ ${rate}` : "";
 }
 
-function openTrade(name, id, maxAmount){
-selectedTrader = name; selectedTraderId = id;
-document.getElementById("tradeModal").style.display="flex";
-document.getElementById("traderName").innerHTML = (currentTab==="buy"?"Buy from ":"Sell to ") + name;
-document.getElementById("tradeAmount").max = maxAmount;
-document.getElementById("tradeAmount").placeholder = `USDT Amount - Max: ${maxAmount}`;
+function openTrade(trader,id){
+  selectedTrader = {id,...trader};
+  document.getElementById("tradeModal").style.display="flex";
+  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${trader.username}`;
+  document.getElementById("traderLimits").innerHTML = `Limits: KES ${trader.minAmount?.toLocaleString() || 0} - ${trader.maxAmount?.toLocaleString() || 0} | Available: ${trader.available} USDT`;
+  document.getElementById("tradeAmount").max = trader.available;
+  document.getElementById("tradeAmount").placeholder = `Max: ${trader.available} USDT`;
+  
+  const paySel = document.getElementById("payment");
+  paySel.innerHTML = `<option>${trader.paymentMethod}</option>`;
 }
 
 async function createTrade(){
-const user = auth.currentUser;
-if(!user || !selectedTraderId) return;
-const amount = Number(document.getElementById("tradeAmount").value);
-const payment = document.getElementById("payment").value;
-if(!amount || amount <= 0) return showToast("Enter amount");
+  const user = auth.currentUser;
+  if(!user || !selectedTrader.id) return;
+  const amount = Number(document.getElementById("tradeAmount").value);
+  const payment = document.getElementById("payment").value;
+  if(!amount || amount <= 0) return showToast("Enter valid amount");
 
-try{
-if(currentTab === "buy"){
-  const sellerSnap = await get(ref(db,"p2p_sellers/"+selectedTraderId));
-  const sellerData = sellerSnap.val();
-  if(!sellerData) return showToast("Trader not found");
-  if(Number(sellerData.available) < amount) return showToast("Trader doesn't have enough USDT");
-  
-  await update(ref(db,"p2p_sellers/"+selectedTraderId),{
-    available: Number(sellerData.available)-amount,
-    locked: (Number(sellerData.locked)||0)+amount
-  });
-}
+  const kesAmount = amount * selectedTrader.rate;
+  if(kesAmount < selectedTrader.minAmount || kesAmount > selectedTrader.maxAmount) 
+    return showToast(`Amount must be between KES ${selectedTrader.minAmount} and ${selectedTrader.maxAmount}`);
 
-if(currentTab === "sell"){
-  const userSnap = await get(ref(db,"users/"+user.uid+"/balance"));
-  const balance = Number(userSnap.val() || 0);
-  if(balance < amount) return showToast("Not enough balance in wallet");
-  
-  await update(ref(db,"users/"+user.uid),{
-    balance: balance - amount
-  });
-}
+  try{
+    if(currentTab === "buy"){
+      if(Number(selectedTrader.available) < amount) return showToast("Trader doesn't have enough USDT");
+      await update(ref(db,"p2p_sellers/"+selectedTrader.id),{
+        available: Number(selectedTrader.available)-amount,
+        locked: (Number(selectedTrader.locked)||0)+amount
+      });
+    }else{
+      if(userBalance < amount) return showToast("Not enough balance in wallet");
+      await update(ref(db,"users/"+user.uid),{ balance: userBalance - amount });
+    }
 
-const orderRef = push(ref(db,"p2p_orders"));
-await set(orderRef,{
-  buyerUid: currentTab==="buy" ? user.uid : selectedTraderId,
-  sellerUid: currentTab==="buy" ? selectedTraderId : user.uid,
-  sellerName: selectedTrader,
-  buyerName: currentUser.username || "User",
-  amount:amount, paymentMethod:payment, rate: USD_TO_KES,
-  status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
-  createdAt:serverTimestamp(), expiresAt:Date.now()+10*60*1000
-});
-document.getElementById("tradeModal").style.display="none";
-showToast("Order created");
-}catch(e){
-  showToast("Failed to create order: " + e.message);
-  console.error(e);
-}
+    const orderRef = push(ref(db,"p2p_orders"));
+    await set(orderRef,{
+      buyerUid: currentTab==="buy" ? user.uid : selectedTrader.id,
+      sellerUid: currentTab==="buy" ? selectedTrader.id : user.uid,
+      sellerName: selectedTrader.username,
+      buyerName: currentUser.username || "User",
+      amount, paymentMethod:payment, rate: selectedTrader.rate,
+      paybill: selectedTrader.paybill || "", account: selectedTrader.account || "",
+      bankName: selectedTrader.bankName || "", bankAccount: selectedTrader.bankAccount || "",
+      minAmount: selectedTrader.minAmount, maxAmount: selectedTrader.maxAmount,
+      status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
+      createdAt:serverTimestamp(), expiresAt:Date.now()+15*60*1000 // 15 min like binance
+    });
+    document.getElementById("tradeModal").style.display="none";
+    showToast("Order created. Pay within 15 minutes");
+    openTradeRoom(orderRef.key);
+  }catch(e){ showToast("Failed: " + e.message) }
 }
 
 function openTradeRoom(orderId){
-currentOrder = orderId; startTradeTimer(orderId);
-document.getElementById("tradeRoom").style.display="flex";
-const orderRef = ref(db,"p2p_orders/"+orderId);
-onValue(orderRef,(snapshot)=>{
-const order = snapshot.val(); if(!order) return;
-const currentUser = auth.currentUser;
-let releaseButton = "";
-if(currentUser && order.sellerUid === currentUser.uid){
-  releaseButton = `<button class="trade-btn" onclick="releaseUSDT('${orderId}')">Release USDT</button>`;
+  currentOrder = orderId; 
+  document.getElementById("tradeRoom").style.display="flex";
+  const orderRef = ref(db,"p2p_orders/"+orderId);
+  onValue(orderRef,(snapshot)=>{
+    const order = snapshot.val(); if(!order) return;
+    startTradeTimer(order);
+    let releaseButton = "";
+    if(auth.currentUser && order.sellerUid === auth.currentUser.uid && order.status==="payment_sent"){
+      releaseButton = `<button class="trade-btn" onclick="releaseUSDT('${orderId}')"><i class="fa-solid fa-lock-open"></i> Release USDT</button>`;
+    }
+    let paidBtn = document.getElementById("btnPaid");
+    if(order.status !== "pending_payment") paidBtn.style.display="none";
+    
+    document.getElementById("tradeDetails").innerHTML = `
+    <h3>${order.sellerName}</h3>
+    <p>Amount: <b>${order.amount} USDT</b> | <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p>
+    <p>KES Amount: <b>KES ${(order.amount * order.rate).toFixed(2)}</b> @ ${order.rate}</p>
+    <div class="payment-info">
+      ${order.paymentMethod==="M-Pesa"?`
+        <div><span><div class="label">Paybill</div>${order.paybill}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paybill}')"></i></div>
+        <div><span><div class="label">Account</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+      `:''}
+      ${order.paymentMethod==="Airtel Money"?`
+        <div><span><div class="label">Airtel No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+      `:''}
+      ${order.paymentMethod==="Bank Transfer"?`
+        <div><span><div class="label">Bank</div>${order.bankName}</span></div>
+        <div><span><div class="label">Account</div>${order.bankAccount}</span><i class="fa-regular fa-copy" onclick="copyText('${order.bankAccount}')"></i></div>
+      `:''}
+      <div><span><div class="label">Reference</div>${orderId}</span><i class="fa-regular fa-copy" onclick="copyText('${orderId}')"></i></div>
+    </div>
+    <div class="order-note">1. Transfer exact KES amount 2. Use reference 3. Upload proof after payment</div>
+    ${releaseButton}
+    `;
+  });
+  loadChat(orderId);
 }
-document.getElementById("tradeDetails").innerHTML = `
-<h3>${order.sellerName}</h3>
-<p>Amount: <b>${order.amount} USDT</b></p>
-<p>KES Amount: <b>KES ${(order.amount * order.rate).toFixed(2)}</b></p>
-<p>Payment: ${order.paymentMethod}</p>
-<p>Status: ${order.status}</p>
-${releaseButton}
-`;
-});
-loadChat(orderId);
+
+function startTradeTimer(order){
+  clearInterval(tradeTimerInterval);
+  tradeTimerInterval = setInterval(()=>{
+    const remaining = order.expiresAt - Date.now();
+    if(remaining <= 0){ 
+      document.getElementById("tradeTimer").innerHTML = "EXPIRED"; 
+      clearInterval(tradeTimerInterval); 
+      if(order.status==="pending_payment") cancelTradeAuto(order); 
+      return; 
+    }
+    const m = Math.floor(remaining / 60000); const s = Math.floor((remaining % 60000) / 1000);
+    document.getElementById("tradeTimer").innerHTML = `${m}:${s<10?"0":""}${s}`;
+  },1000);
+}
+
+async function cancelTradeAuto(order){
+  await update(ref(db,"p2p_orders/"+currentOrder),{status:"expired"});
+  if(order.sellerUid){
+    const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
+    if(sellerSnap.exists()){
+      await update(ref(db,"p2p_sellers/"+order.sellerUid),{
+        available: Number(sellerSnap.val().available||0)+Number(order.amount),
+        locked: Math.max(Number(sellerSnap.val().locked||0)-Number(order.amount),0)
+      });
+    }
+  }
+  showToast("Order expired and cancelled");
 }
 
 function closeTradeRoom(){ document.getElementById("tradeRoom").style.display="none"; clearInterval(tradeTimerInterval); }
+function closeTrade(){ document.getElementById("tradeModal").style.display="none"; }
 
 function loadChat(orderId){
-const chatRef = ref(db,"trade_messages/"+orderId);
-onValue(chatRef,(snapshot)=>{
-const box = document.getElementById("chatBox"); box.innerHTML="";
-snapshot.forEach(child=>{
-const msg = child.val();
-const div = document.createElement("div");
-div.className = "chat-msg " + (msg.senderUid === currentUser.uid ? "chat-me" : "");
-div.textContent = msg.message;
-box.appendChild(div);
-});
-box.scrollTop = box.scrollHeight;
-});
+  const chatRef = ref(db,"trade_messages/"+orderId);
+  onValue(chatRef,(snapshot)=>{
+    const box = document.getElementById("chatBox"); box.innerHTML="";
+    snapshot.forEach(child=>{
+      const msg = child.val();
+      const div = document.createElement("div");
+      div.className = "chat-msg " + (msg.senderUid === auth.currentUser.uid ? "chat-me" : "");
+      div.textContent = msg.message;
+      box.appendChild(div);
+    });
+    box.scrollTop = box.scrollHeight;
+  });
 }
 
 async function sendMessage(){
-const user = auth.currentUser; const message = document.getElementById("chatMessage").value;
-if(!message || !currentOrder) return;
-await push(ref(db,"trade_messages/"+currentOrder),{ senderUid:user.uid, message:message, timestamp:serverTimestamp() });
-document.getElementById("chatMessage").value="";
+  const message = document.getElementById("chatMessage").value.trim();
+  if(!message || !currentOrder) return;
+  await push(ref(db,"trade_messages/"+currentOrder),{ senderUid:auth.currentUser.uid, message, timestamp:serverTimestamp() });
+  document.getElementById("chatMessage").value="";
 }
-
-function startTradeTimer(orderId){
-const orderRef = ref(db,"p2p_orders/"+orderId);
-onValue(orderRef,(snapshot)=>{
-const order = snapshot.val(); if(!order || !order.expiresAt) return;
-clearInterval(tradeTimerInterval);
-tradeTimerInterval = setInterval(()=>{
-const remaining = order.expiresAt - Date.now();
-if(remaining <= 0){ document.getElementById("tradeTimer").innerHTML = "Expired"; clearInterval(tradeTimerInterval); update(ref(db,"p2p_orders/"+orderId),{status:"expired"}); return; }
-const minutes = Math.floor(remaining / 60000); const seconds = Math.floor((remaining % 60000) / 1000);
-document.getElementById("tradeTimer").innerHTML = `${minutes}:${seconds < 10 ? "0":""}${seconds}`;
-},1000);
-});
-}
-
-function openMyTrades(){
-const user = auth.currentUser; if(!user) return;
-document.getElementById("myTradesModal").style.display="flex";
-onValue(ref(db,"p2p_orders"),(snapshot)=>{
-const box = document.getElementById("myTradesList"); box.innerHTML="";
-snapshot.forEach((child)=>{
-const order = child.val();
-if(order.buyerUid === user.uid || order.sellerUid === user.uid){
-box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>Amount: <b>${order.amount} USDT</b></p><p>Payment: ${order.paymentMethod}</p><p>Status: ${order.status}</p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">Open Trade</button></div>`;
-}
-});
-});
-}
-
-function closeMyTrades(){ document.getElementById("myTradesModal").style.display="none"; }
-function closeTrade(){ document.getElementById("tradeModal").style.display="none"; }
 
 async function markPaid(){
-if(!currentOrder) return;
-await update(ref(db,"p2p_orders/"+currentOrder),{ buyerConfirmed:true, status:"payment_sent" });
+  if(!currentOrder) return;
+  await update(ref(db,"p2p_orders/"+currentOrder),{ buyerConfirmed:true, status:"payment_sent" });
+  showToast("Marked as paid. Waiting for seller to release");
 }
 
 async function releaseUSDT(orderId){
-const user = auth.currentUser; if(!user || !orderId) return;
-const orderSnap = await get(ref(db,"p2p_orders/"+orderId)); const order = orderSnap.val(); if(!order || order.status !== "payment_sent" || order.sellerUid !== user.uid) return;
-const amount = Number(order.amount);
-const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
-await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val() || 0) + amount });
-await update(ref(db,"p2p_orders/"+orderId),{ status:"completed", completedAt:serverTimestamp() });
-const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
-if(sellerSnap.exists()){ await update(ref(db,"p2p_sellers/"+order.sellerUid),{ locked: Math.max(Number(sellerSnap.val().locked || 0)-amount, 0) }); }
+  const orderSnap = await get(ref(db,"p2p_orders/"+orderId)); const order = orderSnap.val(); 
+  if(!order || order.status !== "payment_sent" || order.sellerUid !== auth.currentUser.uid) return;
+  const amount = Number(order.amount);
+  const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
+  await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val() || 0) + amount });
+  await update(ref(db,"p2p_orders/"+orderId),{ status:"completed", completedAt:serverTimestamp() });
+  const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
+  if(sellerSnap.exists()){ await update(ref(db,"p2p_sellers/"+order.sellerUid),{ locked: Math.max(Number(sellerSnap.val().locked||0)-amount,0) }); }
+  showToast("USDT Released Successfully");
 }
 
 async function cancelTrade(){
-if(!currentOrder) return;
-const orderSnap = await get(ref(db,"p2p_orders/"+currentOrder)); const order = orderSnap.val(); if(!order) return;
-if(order.sellerUid && ref(db,"p2p_sellers/"+order.sellerUid)){
-  const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
-  if(sellerSnap.exists()){ const amount = Number(order.amount); await update(ref(db,"p2p_sellers/"+order.sellerUid),{ available: Number(sellerSnap.val().available || 0) + amount, locked: Math.max(Number(sellerSnap.val().locked || 0) - amount, 0) }); }
-}
-if(order.buyerUid && currentTab==="sell"){
-  const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
-  await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val() || 0) + Number(order.amount) });
-}
-await update(ref(db,"p2p_orders/"+currentOrder),{ status:"cancelled" });
+  if(!currentOrder) return;
+  if(!confirm("Cancel this order? Your completion rate will drop.")) return;
+  const orderSnap = await get(ref(db,"p2p_orders/"+currentOrder)); const order = orderSnap.val(); if(!order) return;
+  if(order.sellerUid){
+    const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
+    if(sellerSnap.exists()){
+      await update(ref(db,"p2p_sellers/"+order.sellerUid),{
+        available: Number(sellerSnap.val().available||0)+Number(order.amount),
+        locked: Math.max(Number(sellerSnap.val().locked||0)-Number(order.amount),0)
+      });
+    }
+  }
+  if(order.buyerUid && currentTab==="sell"){
+    const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
+    await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val()||0)+Number(order.amount) });
+  }
+  await update(ref(db,"p2p_orders/"+currentOrder),{ status:"cancelled" });
+  closeTradeRoom();
 }
 
-async function openDispute(){ if(!currentOrder) return; await update(ref(db,"p2p_orders/"+currentOrder),{ status:"disputed" }); }
+function openDispute(){ if(!currentOrder) return; update(ref(db,"p2p_orders/"+currentOrder),{ status:"disputed" }); showToast("Dispute opened. Admin will review"); }
+
+function openMyTrades(){
+  const user = auth.currentUser; if(!user) return;
+  document.getElementById("myTradesModal").style.display="flex";
+  onValue(ref(db,"p2p_orders"),(snapshot)=>{
+    const box = document.getElementById("myTradesList"); box.innerHTML="";
+    snapshot.forEach((child)=>{
+      const order = child.val();
+      if(order.buyerUid === user.uid || order.sellerUid === user.uid){
+        box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>${order.amount} USDT - KES ${(order.amount*order.rate).toFixed(2)}</p><p>Payment: ${order.paymentMethod}</p><p>Status: <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">Open Trade</button></div>`;
+      }
+    });
+  });
+}
+  function closeMyTrades(){ document.getElementById("myTradesModal").style.display="none"; }
 
 function filterTraders(){ renderTraders(allTraders); }
 
 function renderTraders(snapshot){
-const tradersBox = document.getElementById("traders"); tradersBox.innerHTML="";
-if(!snapshot.exists()){ tradersBox.innerHTML="<p>No traders available</p>"; return; }
-const filter = document.getElementById("paymentFilter").value;
-const amountFilter = parseFloat(document.getElementById("filterAmount").value) || 0;
-snapshot.forEach((child)=>{
-const trader = child.val(); if(trader.active === false) return;
-if(filter !== "All Methods" && trader.paymentMethod !== filter) return;
-const available = Number(trader.available || trader.balance || 0);
-if(amountFilter > 0 && available < amountFilter) return;
-tradersBox.innerHTML += `
-<div class="trader-card">
-<div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? "Verified ✔️" : ""}</span></div>
-<div class="stats"><span>Rate: 1 USDT = ${USD_TO_KES} KES</span><span>${trader.completion || 0}% Completion</span></div>
-<div class="stats"><span>Available: ${available} USDT</span><span>${trader.trades || 0} Trades</span></div>
-<button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick="openTrade('${trader.username}', '${child.key}', ${available})">${currentTab==="buy"?"Buy":"Sell"} USDT</button>
-</div>`;
-});
+  const tradersBox = document.getElementById("traders"); tradersBox.innerHTML="";
+  if(!snapshot.exists()){ tradersBox.innerHTML="<p>No traders available</p>"; return; }
+  const filter = document.getElementById("paymentFilter").value;
+  const amountFilter = parseFloat(document.getElementById("filterAmount").value) || 0;
+  snapshot.forEach((child)=>{
+    const trader = child.val(); if(trader.active === false) return;
+    if(filter !== "All Methods" && trader.paymentMethod !== filter) return;
+    const available = Number(trader.available || 0);
+    if(amountFilter > 0 && available < amountFilter) return;
+    tradersBox.innerHTML += `
+    <div class="trader-card">
+      <div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? "Verified ✔️" : ""}</span></div>
+      <div class="stats"><span class="rate">1 USDT = ${trader.rate} KES</span><span>${trader.completion || 0}% Completion</span></div>
+      <div class="stats"><span>Available: ${available} USDT</span><span>${trader.trades || 0} Trades</span></div>
+      <div class="stats"><span>Limits: KES ${trader.minAmount?.toLocaleString()} - ${trader.maxAmount?.toLocaleString()}</span><span>${trader.paymentMethod}</span></div>
+            <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
+    </div>`;
+  });
 }
 
-// LOAD BOTH SELLERS AND BUYERS
 onValue(ref(db,"p2p_sellers"),(snapshot)=>{ 
   allTraders = snapshot; 
-  // Also load users who are merchants
   onValue(ref(db,"users"),(userSnap)=>{
     let combined = {};
     snapshot.forEach(c=>combined[c.key]=c.val());
@@ -360,10 +405,13 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
           username: c.val().username,
           available: c.val().balance,
           verified: c.val().kycStatus === "verified",
-          completion: 100,
-          trades: 0,
-          active: true,
-          paymentMethod: "M-Pesa"
+          completion: 100, trades: 0, active: true,
+          paymentMethod: c.val().paymentMethod || "M-Pesa",
+          rate: c.val().rate || 130,
+          minAmount: c.val().minAmount || 1000,
+          maxAmount: c.val().maxAmount || 500000,
+          paybill: c.val().paybill || "", account: c.val().account || "",
+          bankName: c.val().bankName || "", bankAccount: c.val().bankAccount || ""
         }
       }
     });
@@ -372,22 +420,29 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
 });
 
 onAuthStateChanged(auth,(user)=>{
-if(user){ currentUser = user;
-onValue(ref(db,"users/"+user.uid+"/balance"),(snapshot)=>{
-userBalance = Number(snapshot.val() || 0);
-document.getElementById("walletBalance").innerHTML = "$"+userBalance.toFixed(2)+" USDT";
-});
-onValue(ref(db,"users/"+user.uid+"/username"),(snapshot)=>{
-currentUser.username = snapshot.val() || "User";
-});
-}
+  if(user){ currentUser = user;
+    onValue(ref(db,"users/"+user.uid+"/balance"),(s)=>{ userBalance=Number(s.val()||0); document.getElementById("walletBalance").innerHTML="$"+userBalance.toFixed(2)+" USDT"; });
+    onValue(ref(db,"users/"+user.uid+"/username"),(s)=>{ currentUser.username = s.val() || "User"; });
+  }
 });
 
-window.openTrade = openTrade; window.closeTrade = closeTrade; window.createTrade = createTrade; window.switchTab = switchTab;
-window.openTradeRoom = openTradeRoom; window.closeTradeRoom = closeTradeRoom; window.sendMessage = sendMessage;
-window.markPaid = markPaid; window.releaseUSDT = releaseUSDT; window.openMyTrades = openMyTrades;
-window.closeMyTrades = closeMyTrades; window.startTradeTimer = startTradeTimer; window.cancelTrade = cancelTrade;
-window.openDispute = openDispute; window.calcKES = calcKES; window.filterTraders = filterTraders;
+// Expose functions to window
+window.openTrade=openTrade; 
+window.closeTrade=closeTrade; 
+window.createTrade=createTrade; 
+window.switchTab=switchTab;
+window.openTradeRoom=openTradeRoom; 
+window.closeTradeRoom=closeTradeRoom; 
+window.sendMessage=sendMessage;
+window.markPaid=markPaid; 
+window.releaseUSDT=releaseUSDT; 
+window.openMyTrades=openMyTrades;
+window.closeMyTrades=closeMyTrades; 
+window.cancelTrade=cancelTrade; 
+window.openDispute=openDispute; 
+window.calcKES=calcKES; 
+window.filterTraders=filterTraders; 
+window.copyText=copyText;
 </script>
 </body>
 </html>
