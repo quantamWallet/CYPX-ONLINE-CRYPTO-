@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Merchant Customers - CYPX Merchant</title>
+
+<meta name="theme-color" content="#007a54">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#08172d;
+color:#fff;
+padding-bottom:80px;
+}
+
+.header{
+background:linear-gradient(135deg,#007a54,#003b74);
+padding:22px;
+text-align:center;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+.header h2{
+font-size:25px;
+margin-bottom:6px;
+}
+
+.header p{
+font-size:14px;
+opacity:.9;
+}
+
+.container{
+width:95%;
+max-width:1100px;
+margin:20px auto;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.stat-card{
+background:#102b4d;
+border-radius:18px;
+padding:18px;
+text-align:center;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.stat-card i{
+font-size:28px;
+color:#00d4ff;
+margin-bottom:10px;
+}
+
+.stat-card h2{
+font-size:26px;
+margin-bottom:6px;
+}
+
+.stat-card p{
+color:#bfcfe2;
+font-size:14px;
+}
+
+.card{
+background:#102b4d;
+border-radius:18px;
+padding:18px;
+margin-bottom:20px;
+border:1px solid rgba(255,255,255,.08);
+}
+
+#searchInput{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#0b1d35;
+color:#fff;
+outline:none;
+font-size:15px;
+}
+
+.loading,
+.empty{
+text-align:center;
+padding:70px 20px;
+color:#bfcfe2;
+}
+
+.customer-card{
+background:#102b4d;
+border-radius:18px;
+padding:18px;
+margin-bottom:16px;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.modal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+align-items:center;
+justify-content:center;
+z-index:9999;
+}
+
+.modal-content{
+width:92%;
+max-width:650px;
+background:#102b4d;
+border-radius:18px;
+padding:22px;
+position:relative;
+max-height:90vh;
+overflow:auto;
+}
+
+#closeModal{
+position:absolute;
+right:18px;
+top:12px;
+font-size:28px;
+cursor:pointer;
+}
+
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#00c853;
+padding:15px 20px;
+border-radius:12px;
+display:none;
+font-weight:600;
+z-index:99999;
+}
+
+.toast.error{
+background:#e53935;
+}
+
+@media(max-width:768px){
+
+.stats{
+grid-template-columns:1fr;
+}
+
+}
+.view-btn{
+    width:100%;
+    margin-top:18px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#00bcd4;
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.view-btn:hover{
+    background:#0097a7;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+<h2>
+<i class="fas fa-users"></i>
+Merchant Customers
+</h2>
+
+<p>Manage customers who have traded with you.</p>
+
+</header>
+
+<div class="container">
+
+<div class="stats">
+
+<div class="stat-card">
+<i class="fas fa-users"></i>
+<h2 id="totalCustomers">0</h2>
+<p>Total Customers</p>
+</div>
+
+<div class="stat-card">
+<i class="fas fa-user-check"></i>
+<h2 id="activeCustomers">0</h2>
+<p>Active Customers</p>
+</div>
+
+<div class="stat-card">
+<i class="fas fa-coins"></i>
+<h2 id="totalVolume">$0</h2>
+<p>Total Trade Volume</p>
+</div>
+
+</div>
+
+<div class="card">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search customer by name or email...">
+
+</div>
+
+<div id="customersContainer">
+
+<div class="loading">
+
+<i class="fas fa-spinner fa-spin"></i>
+
+<br><br>
+
+Loading customers...
+
+</div>
+
+</div>
+
+</div>
+
+<div id="customerModal" class="modal">
+
+<div class="modal-content">
+
+<span id="closeModal">&times;</span>
+
+<h3>
+<i class="fas fa-user-circle"></i>
+Customer Details
+</h3>
+
+<div id="customerDetails"></div>
+
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script>
+
+// ==========================
+// FIREBASE CONFIGURATION
+// ==========================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+let customers = [];
+
+
+// ==========================
+// TOAST
+// ==========================
+
+function showToast(message, type = "success") {
+
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.className = "toast";
+
+    if(type === "error"){
+        toast.classList.add("error");
+    }
+
+    toast.style.display = "block";
+
+    setTimeout(()=>{
+        toast.style.display = "none";
+    },3000);
+
+}
+
+
+// ==========================
+// AUTH
+// ==========================
+
+auth.onAuthStateChanged(user=>{
+
+    if(!user){
+
+        location.href="auth.html";
+        return;
+
+    }
+
+    currentUser = user;
+
+    loadCustomers();
+
+});
+
+// ==========================
+// LOAD CUSTOMERS
+// ==========================
+
+function loadCustomers(){
+
+db.ref("escrowTransactions")
+.orderByChild("merchantUid")
+.equalTo(currentUser.uid)
+.on("value",snapshot=>{
+
+customers = [];
+
+const customerMap = {};
+
+let activeCustomers = 0;
+let totalVolume = 0;
+
+snapshot.forEach(child=>{
+
+const tx = child.val();
+
+const customerId =
+tx.customerUid ||
+tx.customerEmail ||
+tx.customerName ||
+child.key;
+
+if(!customerMap[customerId]){
+
+customerMap[customerId] = {
+
+id: customerId,
+
+name: tx.customerName || "Unknown Customer",
+
+email: tx.customerEmail || "-",
+
+phone: tx.customerPhone || "-",
+
+transactions:0,
+
+volume:0,
+
+lastTrade: tx.createdAt || tx.timestamp || Date.now(),
+
+status:"Active"
+
+};
+
+}
+
+customerMap[customerId].transactions++;
+
+customerMap[customerId].volume += Number(tx.amount || 0);
+
+if((tx.createdAt || tx.timestamp || 0) > customerMap[customerId].lastTrade){
+
+customerMap[customerId].lastTrade =
+tx.createdAt || tx.timestamp;
+
+}
+
+totalVolume += Number(tx.amount || 0);
+
+});
+
+customers = Object.values(customerMap);
+
+activeCustomers = customers.length;
+
+document.getElementById("totalCustomers").textContent =
+customers.length;
+
+document.getElementById("activeCustomers").textContent =
+activeCustomers;
+
+document.getElementById("totalVolume").textContent =
+"$" + totalVolume.toLocaleString();
+customers.sort((a, b) => (b.lastTrade || 0) - (a.lastTrade || 0));
+renderCustomers();
+
+});
+
+}
+
+// ==========================
+// RENDER CUSTOMERS
+// ==========================
+
+function renderCustomers(){
+
+const container = document.getElementById("customersContainer");
+
+container.innerHTML = "";
+
+if(customers.length === 0){
+
+container.innerHTML = `
+<div class="empty">
+
+<i class="fas fa-users"
+style="font-size:70px;color:#00d4ff;"></i>
+
+<br><br>
+
+<h3>No Customers Found</h3>
+
+<p>Your customers will appear here after successful trades.</p>
+
+</div>
+`;
+
+return;
+
+}
+
+customers.forEach(customer=>{
+
+const card = document.createElement("div");
+
+card.className = "customer-card";
+
+card.innerHTML = `
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+
+<div>
+
+<h3>${customer.name}</h3>
+
+<p style="color:#bfcfe2;font-size:14px;">
+${customer.email}
+</p>
+
+</div>
+
+<span style="
+background:#00c853;
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;">
+${customer.status}
+</span>
+
+</div>
+
+<div style="
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+margin-top:10px;">
+
+<div>
+<b>Transactions</b><br>
+${customer.transactions}
+</div>
+
+<div>
+<b>Volume</b><br>
+$${customer.volume.toLocaleString()}
+</div>
+
+<div style="grid-column:1 / span 2;">
+<b>Last Trade</b><br>
+${customer.lastTrade
+    ? new Date(customer.lastTrade).toLocaleString()
+    : "-"}
+</div>
+
+</div>
+
+<button
+class="view-btn"
+onclick="viewCustomer('${customer.id}')">
+
+<i class="fas fa-user"></i>
+
+View Profile
+
+</button>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}
+
+// ==========================
+// VIEW CUSTOMER
+// ==========================
+
+function viewCustomer(id){
+
+const customer = customers.find(c => c.id === id);
+
+if(!customer){
+
+showToast("Customer not found.","error");
+
+return;
+
+}
+
+document.getElementById("customerDetails").innerHTML = `
+
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px;">
+
+<div>
+<b>Customer Name</b><br>
+${customer.name}
+</div>
+
+<div>
+<b>Status</b><br>
+<span style="color:#00c853;font-weight:600;">
+${customer.status}
+</span>
+</div>
+
+<div>
+<b>Email</b><br>
+${customer.email}
+</div>
+
+<div>
+<b>Phone</b><br>
+${customer.phone}
+</div>
+
+<div>
+<b>Total Transactions</b><br>
+${customer.transactions}
+</div>
+
+<div>
+<b>Total Volume</b><br>
+$${Number(customer.volume).toLocaleString()}
+</div>
+
+<div style="grid-column:1 / span 2;">
+<b>Last Trade</b><br>
+${customer.lastTrade
+    ? new Date(customer.lastTrade).toLocaleString()
+    : "-"}
+</div>
+</div>
+
+`;
+
+document.getElementById("customerModal").style.display = "flex";
+
+}
+
+// ==========================
+// SEARCH CUSTOMERS
+// ==========================
+
+document.getElementById("searchInput").addEventListener("input", searchCustomers);
+
+function searchCustomers(){
+
+const search = document.getElementById("searchInput")
+.value
+.toLowerCase()
+.trim();
+
+const container = document.getElementById("customersContainer");
+
+container.innerHTML = "";
+
+const filtered = customers.filter(customer => {
+
+return (
+
+(customer.name || "")
+.toLowerCase()
+.includes(search)
+
+||
+
+(customer.email || "")
+.toLowerCase()
+.includes(search)
+
+||
+
+(customer.phone || "")
+.toLowerCase()
+.includes(search)
+
+);
+
+});
+
+if(filtered.length === 0){
+
+container.innerHTML = `
+
+<div class="empty">
+
+<i class="fas fa-search"
+style="font-size:70px;color:#00d4ff;"></i>
+
+<br><br>
+
+<h3>No Customers Found</h3>
+
+<p>No customer matches your search.</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+filtered.forEach(customer=>{
+
+const card = document.createElement("div");
+
+card.className = "customer-card";
+
+card.innerHTML = `
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+
+<div>
+
+<h3>${customer.name}</h3>
+
+<p style="color:#bfcfe2;font-size:14px;">
+${customer.email}
+</p>
+
+</div>
+
+<span style="
+background:#00c853;
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;">
+${customer.status}
+</span>
+
+</div>
+
+<div style="
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;">
+
+<div>
+<b>Transactions</b><br>
+${customer.transactions}
+</div>
+
+<div>
+<b>Volume</b><br>
+$${Number(customer.volume).toLocaleString()}
+</div>
+
+<div style="grid-column:1 / span 2;">
+<b>Last Trade</b><br>
+${customer.lastTrade
+    ? new Date(customer.lastTrade).toLocaleString()
+    : "-"}
+</div>
+
+</div>
+
+<button
+class="view-btn"
+onclick="viewCustomer('${customer.id}')">
+
+<i class="fas fa-user"></i>
+
+View Profile
+
+</button>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}
+
+// ==========================
+// MODAL CONTROLS
+// ==========================
+
+// Close with X
+document.getElementById("closeModal").addEventListener("click", () => {
+
+    document.getElementById("customerModal").style.display = "none";
+
+});
+
+// Close when clicking outside
+window.addEventListener("click", (e) => {
+
+    const modal = document.getElementById("customerModal");
+
+    if(e.target === modal){
+
+        modal.style.display = "none";
+
+    }
+
+});
+
+// Close with ESC key
+document.addEventListener("keydown", (e) => {
+
+    if(e.key === "Escape"){
+
+        document.getElementById("customerModal").style.display = "none";
+
+    }
+
+});
+
+</script>
+
+</body>
+  </html>
