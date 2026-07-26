@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Merchant Disputes - CYPX Merchant</title>
+
+<meta name="theme-color" content="#007a54">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#08172d;
+color:#fff;
+padding-bottom:90px;
+}
+
+.header{
+background:linear-gradient(135deg,#007a54,#003b74);
+padding:22px;
+text-align:center;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+.header h2{
+font-size:25px;
+margin-bottom:6px;
+}
+
+.header p{
+font-size:14px;
+opacity:.9;
+}
+
+.container{
+width:95%;
+max-width:1000px;
+margin:20px auto;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.stat-card{
+background:#102b4d;
+border-radius:18px;
+padding:18px;
+text-align:center;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.stat-card i{
+font-size:28px;
+color:#00d4ff;
+margin-bottom:10px;
+}
+
+.stat-card h2{
+font-size:26px;
+margin-bottom:6px;
+}
+
+.stat-card p{
+color:#bfcfe2;
+font-size:14px;
+}
+
+.dispute-card{
+background:#102b4d;
+border-radius:18px;
+padding:18px;
+margin-bottom:16px;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.loading,
+.empty{
+text-align:center;
+padding:70px 20px;
+color:#bfcfe2;
+}
+
+.status{
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:700;
+}
+
+.status.open{
+background:#ff9800;
+color:#fff;
+}
+
+.status.resolved{
+background:#00c853;
+color:#fff;
+}
+
+.action-btn{
+margin-top:15px;
+width:100%;
+padding:13px;
+border:none;
+border-radius:12px;
+background:#00bcd4;
+color:#fff;
+font-weight:700;
+cursor:pointer;
+}
+
+.action-btn:hover{
+background:#0097a7;
+}
+
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#00c853;
+padding:15px 20px;
+border-radius:12px;
+display:none;
+font-weight:600;
+z-index:9999;
+}
+
+.toast.error{
+background:#e53935;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+<h2><i class="fas fa-gavel"></i> Merchant Disputes</h2>
+
+<p>View and manage disputed escrow transactions.</p>
+
+</header>
+
+<div class="container">
+
+<div class="stats">
+
+<div class="stat-card">
+<i class="fas fa-exclamation-circle"></i>
+<h2 id="openDisputes">0</h2>
+<p>Open Disputes</p>
+</div>
+
+<div class="stat-card">
+<i class="fas fa-check-circle"></i>
+<h2 id="resolvedDisputes">0</h2>
+<p>Resolved</p>
+</div>
+
+</div>
+
+<div id="disputesContainer">
+
+<div class="loading">
+
+<i class="fas fa-spinner fa-spin"></i>
+
+<br><br>
+
+Loading disputes...
+
+</div>
+
+</div>
+
+  </div> <!-- End container -->
+
+<div id="toast" class="toast"></div>
+
+<script>
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+if(!firebase.apps.length){
+firebase.initializeApp(firebaseConfig);
+}
+
+const auth=firebase.auth();
+const db=firebase.database();
+
+let currentUser=null;
+let disputes=[];
+
+function showToast(message,type="success"){
+
+const toast=document.getElementById("toast");
+
+toast.textContent=message;
+toast.className="toast";
+
+if(type==="error"){
+toast.classList.add("error");
+}
+
+toast.style.display="block";
+
+setTimeout(()=>{
+toast.style.display="none";
+},3000);
+
+}
+
+auth.onAuthStateChanged(user=>{
+
+if(!user){
+location.href="auth.html";
+return;
+}
+
+currentUser=user;
+loadDisputes();
+
+});
+
+function loadDisputes(){
+
+db.ref("escrowTransactions")
+.orderByChild("merchantUid")
+.equalTo(currentUser.uid)
+.on("value",snapshot=>{
+
+disputes=[];
+
+let open=0;
+let resolved=0;
+
+snapshot.forEach(child=>{
+
+const tx=child.val();
+
+if(tx.dispute===true){
+
+tx.id=child.key;
+disputes.push(tx);
+
+if(tx.disputeStatus==="resolved"){
+resolved++;
+}else{
+open++;
+}
+
+}
+
+});
+
+document.getElementById("openDisputes").textContent=open;
+document.getElementById("resolvedDisputes").textContent=resolved;
+
+renderDisputes();
+
+});
+
+}
+
+function renderDisputes(){
+
+const container=document.getElementById("disputesContainer");
+
+container.innerHTML="";
+
+if(disputes.length===0){
+
+container.innerHTML=`
+<div class="empty">
+<i class="fas fa-check-circle" style="font-size:70px;color:#00c853;"></i>
+<br><br>
+<h3>No Disputes</h3>
+<p>You currently have no disputed transactions.</p>
+</div>
+`;
+
+return;
+
+}
+
+disputes.forEach(tx=>{
+
+container.innerHTML+=`
+
+<div class="dispute-card">
+
+<div style="display:flex;justify-content:space-between;align-items:center;">
+
+<h3>${tx.customerName||"Customer"}</h3>
+
+<span class="status ${tx.disputeStatus==="resolved"?"resolved":"open"}">
+${tx.disputeStatus==="resolved"?"Resolved":"Open"}
+</span>
+
+</div>
+
+<p style="margin-top:12px;"><b>Amount:</b> $${Number(tx.amount||0).toLocaleString()}</p>
+
+<p><b>Reason:</b> ${tx.disputeReason||"No reason provided."}</p>
+
+<p><b>Date:</b> ${new Date(tx.createdAt||tx.timestamp||Date.now()).toLocaleString()}</p>
+
+<button class="action-btn" onclick="viewDispute('${tx.id}')">
+
+<i class="fas fa-eye"></i>
+
+View Details
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+function viewDispute(id){
+
+const tx=disputes.find(d=>d.id===id);
+
+if(!tx){
+showToast("Dispute not found.","error");
+return;
+}
+
+alert(
+"Customer: "+(tx.customerName||"-")+
+"\n\nAmount: $"+Number(tx.amount||0).toLocaleString()+
+"\n\nReason: "+(tx.disputeReason||"-")+
+"\n\nStatus: "+(tx.disputeStatus||"Open")
+);
+
+}
+window.addEventListener("beforeunload", () => {
+    db.ref("escrowTransactions")
+      .orderByChild("merchantUid")
+      .equalTo(currentUser.uid)
+      .off();
+});
+</script>
+
+</body>
+</html>
