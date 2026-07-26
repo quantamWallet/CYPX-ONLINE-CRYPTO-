@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Merchant Analytics - CYPX Merchant</title>
+
+<meta name="theme-color" content="#007a54">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#08172d;
+color:#fff;
+padding-bottom:90px;
+}
+
+.header{
+background:linear-gradient(135deg,#007a54,#003b74);
+padding:22px;
+text-align:center;
+box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+
+.header h2{
+font-size:25px;
+margin-bottom:6px;
+}
+
+.header p{
+font-size:14px;
+opacity:.9;
+}
+
+.container{
+width:95%;
+max-width:1100px;
+margin:20px auto;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.stat-card{
+background:#102b4d;
+padding:20px;
+border-radius:18px;
+text-align:center;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.stat-card i{
+font-size:30px;
+color:#00d4ff;
+margin-bottom:10px;
+}
+
+.stat-card h2{
+font-size:28px;
+margin-bottom:5px;
+}
+
+.stat-card p{
+color:#bfcfe2;
+font-size:14px;
+}
+
+.card{
+background:#102b4d;
+padding:20px;
+border-radius:18px;
+margin-bottom:20px;
+border:1px solid rgba(255,255,255,.08);
+box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+.card h3{
+margin-bottom:15px;
+}
+
+.loading,
+.empty{
+text-align:center;
+padding:70px 20px;
+color:#bfcfe2;
+}
+
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#00c853;
+padding:15px 20px;
+border-radius:12px;
+display:none;
+font-weight:600;
+z-index:9999;
+}
+
+.toast.error{
+background:#e53935;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+<h2><i class="fas fa-chart-line"></i> Merchant Analytics</h2>
+
+<p>Track your trading performance.</p>
+
+</header>
+
+<div class="container">
+
+<div class="stats">
+
+<div class="stat-card">
+<i class="fas fa-exchange-alt"></i>
+<h2 id="totalTrades">0</h2>
+<p>Total Trades</p>
+</div>
+
+<div class="stat-card">
+<i class="fas fa-dollar-sign"></i>
+<h2 id="totalVolume">$0</h2>
+<p>Total Volume</p>
+</div>
+
+<div class="stat-card">
+<i class="fas fa-check-circle"></i>
+<h2 id="completedTrades">0</h2>
+<p>Completed Trades</p>
+</div>
+
+<div class="stat-card">
+<i class="fas fa-times-circle"></i>
+<h2 id="cancelledTrades">0</h2>
+<p>Cancelled Trades</p>
+</div>
+
+</div>
+
+<div class="card">
+
+<h3><i class="fas fa-chart-bar"></i> Summary</h3>
+
+<div id="summaryContainer">
+
+<div class="loading">
+
+<i class="fas fa-spinner fa-spin"></i>
+
+<br><br>
+
+Loading analytics...
+
+</div>
+
+</div>
+
+</div>
+<div id="toast" class="toast"></div>
+
+</div>
+
+<script>
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+if(!firebase.apps.length){
+firebase.initializeApp(firebaseConfig);
+}
+
+const auth=firebase.auth();
+const db=firebase.database();
+
+let currentUser=null;
+
+function showToast(message,type="success"){
+
+const toast=document.getElementById("toast");
+
+toast.textContent=message;
+toast.className="toast";
+
+if(type==="error"){
+toast.classList.add("error");
+}
+
+toast.style.display="block";
+
+setTimeout(()=>{
+toast.style.display="none";
+},3000);
+
+}
+
+auth.onAuthStateChanged(user=>{
+
+if(!user){
+location.href="auth.html";
+return;
+}
+
+currentUser=user;
+loadAnalytics();
+
+});
+
+function loadAnalytics(){
+
+db.ref("escrowTransactions")
+.orderByChild("merchantUid")
+.equalTo(currentUser.uid)
+.on("value",snapshot=>{
+
+let totalTrades=0;
+let completedTrades=0;
+let cancelledTrades=0;
+let totalVolume=0;
+
+snapshot.forEach(child=>{
+
+const tx=child.val();
+
+totalTrades++;
+totalVolume+=Number(tx.amount||0);
+
+if(tx.status==="completed"){
+completedTrades++;
+}
+
+if(tx.status==="cancelled"){
+cancelledTrades++;
+}
+
+});
+
+document.getElementById("totalTrades").textContent=totalTrades;
+document.getElementById("completedTrades").textContent=completedTrades;
+document.getElementById("cancelledTrades").textContent=cancelledTrades;
+document.getElementById("totalVolume").textContent="$"+totalVolume.toLocaleString();
+
+let successRate=0;
+
+if(totalTrades>0){
+successRate=((completedTrades/totalTrades)*100).toFixed(1);
+}
+
+document.getElementById("summaryContainer").innerHTML=`
+
+<p><b>Success Rate:</b> ${successRate}%</p>
+<br>
+<p><b>Total Revenue Processed:</b> $${totalVolume.toLocaleString()}</p>
+<br>
+<p><b>Completed Trades:</b> ${completedTrades}</p>
+<br>
+<p><b>Cancelled Trades:</b> ${cancelledTrades}</p>
+
+`;
+
+});
+
+}
+
+window.addEventListener("beforeunload",()=>{
+
+db.ref("escrowTransactions")
+.orderByChild("merchantUid")
+.equalTo(currentUser.uid)
+.off();
+
+});
+
+</script>
+
+</body>
+</html>
