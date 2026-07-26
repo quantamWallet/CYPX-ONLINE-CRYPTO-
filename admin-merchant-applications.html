@@ -39,7 +39,29 @@ Merchant Applications
 <div class="container" id="list">
 <div class="empty">Loading applications...</div>
 </div>
+<h2 style="margin:25px 0 15px;">
+<i class="fas fa-store"></i> Approved Merchants
+</h2>
 
+<div id="merchantList">
+<div class="empty">Loading merchants...</div>
+  <div class="actions">
+    <button class="approve" onclick="editMerchant('${uid}')">
+        <i class="fas fa-pen"></i> Edit
+    </button>
+
+    <button style="background:#ff9800;color:#fff;"
+        onclick="toggleMerchant('${uid}', '${merchant.status}')">
+        <i class="fas fa-ban"></i>
+        ${merchant.status==="active"?"Suspend":"Activate"}
+    </button>
+
+    <button class="reject" onclick="removeMerchant('${uid}')">
+        <i class="fas fa-trash"></i> Remove
+    </button>
+  </div>
+  
+</div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -58,7 +80,76 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 const list=document.getElementById("list");
 const toast=document.getElementById("toast");
+const merchantList = document.getElementById("merchantList");
 
+db.ref("p2pMerchants").on("value", snap=>{
+
+merchantList.innerHTML="";
+
+if(!snap.exists()){
+merchantList.innerHTML='<div class="empty">No merchants found.</div>';
+return;
+}
+
+snap.forEach(child=>{
+
+const uid=child.key;
+const merchant=child.val();
+
+merchantList.innerHTML += `
+<div class="card">
+
+<h3>${merchant.name}</h3>
+
+<p><b>Phone:</b> ${merchant.phone}</p>
+
+<p><b>Payment:</b> ${merchant.paymentMethod}</p>
+
+<p><b>Status:</b> ${merchant.status}</p>
+
+<p><b>Min Trade:</b> $${merchant.minTrade}</p>
+
+<p><b>Max Trade:</b> $${merchant.maxTrade}</p>
+
+<div class="actions">
+
+<button class="approve"
+onclick="editMerchant('${uid}')">
+<i class="fas fa-pen"></i> Edit
+</button>
+
+<button style="background:#ff9800;color:white"
+onclick="toggleMerchant('${uid}','${merchant.status}')">
+${merchant.status==="active"?"Suspend":"Activate"}
+</button>
+
+<button class="reject"
+onclick="removeMerchant('${uid}')">
+<i class="fas fa-trash"></i> Remove
+</button>
+
+</div>
+
+</div>
+`;
+
+});
+
+});
+
+  function toggleMerchant(uid,status){
+
+const newStatus =
+status==="active" ? "suspended" : "active";
+
+db.ref("p2pMerchants/"+uid).update({
+status:newStatus
+});
+
+showToast("Merchant updated");
+
+  }
+  
 function showToast(message, type="success"){
     toast.innerHTML = `<i class="fas fa-${type==="success"?"check-circle":"exclamation-circle"}" style="margin-right:8px;"></i> ${message}`;
     toast.className = `toast ${type==="error"?"error":""}`;
