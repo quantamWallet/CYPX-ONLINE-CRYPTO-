@@ -48,6 +48,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 .status-badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
 .status-pending{background:#ff9800} .status-sent{background:#2196f3} .status-completed{background:var(--accent)} .status-cancelled{background:#555} .status-disputed{background:var(--danger)}
 .user-badge{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.warning{background:#ff9800;padding:10px;border-radius:10px;font-size:13px;margin:10px 0}
 </style>
 </head>
 <body>
@@ -74,7 +75,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 <div class="modal" id="chatModal">
 <div class="modal-content">
 <div class="trade-header">
-<h2 style="margin:0"><i class="fa-solid fa-comments"></i> Chat with Support</h2>
+<h2 style="margin:0"><i class="fa-solid fa-comments"></i> Chat</h2>
 <span class="close" onclick="closeChatPage()">×</span>
 </div>
 <div id="chatBox"></div>
@@ -191,13 +192,14 @@ function calcKES(){
 function openTrade(trader,id){
   selectedTrader = {id,...trader};
   document.getElementById("tradeModal").style.display="flex";
-  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${trader.fullName || trader.username} ${trader.verified?'<i class="fa-solid fa-circle-check" style="color:var(--accent)"></i>':''}`;
+  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${trader.fullName} ${trader.verified?'<i class="fa-solid fa-circle-check" style="color:var(--accent)"></i>':''}`;
   
   const paySel = document.getElementById("payment");
   paySel.innerHTML = "";
-  (trader.paymentMethods || ["M-Pesa Kenya"]).forEach(p=>{
+  (trader.paymentMethods || []).forEach(p=>{
     paySel.innerHTML += `<option>${p}</option>`;
   });
+  if(paySel.innerHTML === "") paySel.innerHTML = `<option>M-Pesa Kenya</option>`;
 }
 
 async function createTrade(){
@@ -227,8 +229,8 @@ async function createTrade(){
     await set(orderRef,{
       buyerUid: currentTab==="buy" ? user.uid : selectedTrader.id,
       sellerUid: currentTab==="buy" ? selectedTrader.id : user.uid,
-      sellerName: selectedTrader.fullName || selectedTrader.username, sellerVerified: selectedTrader.verified,
-      buyerName: currentUser.fullName || currentUser.username, buyerVerified: currentUser.verified,
+      sellerName: selectedTrader.fullName, sellerVerified: selectedTrader.verified,
+      buyerName: currentUser.fullName, buyerVerified: currentUser.verified,
       amount, paymentMethod:payment, rate: selectedTrader.rate,
       paybill: selectedTrader.paybill || "", account: selectedTrader.account || "",
       bankName: selectedTrader.bankName || "", bankAccount: selectedTrader.bankAccount || "",
@@ -242,6 +244,7 @@ async function createTrade(){
 }
 
 function openTradeRoom(orderId){
+  closeMyTrades();
   currentOrder = orderId; 
   document.getElementById("tradeRoom").style.display="flex";
   const orderRef = ref(db,"p2p_orders/"+orderId);
@@ -259,6 +262,27 @@ function openTradeRoom(orderId){
     const otherUser = isBuyer ? order.sellerName : order.buyerName;
     const otherVerified = isBuyer ? order.sellerVerified : order.buyerVerified;
     
+    let paymentHTML = "";
+    if(order.paybill || order.account || order.bankAccount){
+      paymentHTML = `
+      <div class="payment-info">
+        ${order.paymentMethod.includes("M-Pesa") && order.paybill?`
+          <div><span><div class="label">Paybill</div>${order.paybill}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paybill}')"></i></div>
+          <div><span><div class="label">Account</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+        `:''}
+        ${(order.paymentMethod.includes("Airtel") || order.paymentMethod.includes("MTN")) && order.account?`
+          <div><span><div class="label">${order.paymentMethod} No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+        `:''}
+        ${order.paymentMethod==="Bank Transfer" && order.bankAccount?`
+          <div><span><div class="label">Bank</div>${order.bankName}</span></div>
+          <div><span><div class="label">Account</div>${order.bankAccount}</span><i class="fa-regular fa-copy" onclick="copyText('${order.bankAccount}')"></i></div>
+        `:''}
+        <div><span><div class="label">Reference</div>${orderId}</span><i class="fa-regular fa-copy" onclick="copyText('${orderId}')"></i></div>
+      </div>`;
+    } else {
+      paymentHTML = `<div class="warning"><i class="fa-solid fa-triangle-exclamation"></i> Seller payment details not set. Contact seller in chat.</div>`;
+    }
+    
     document.getElementById("tradeDetails").innerHTML = `
     <div class="user-badge">
       <h3 style="margin:0">${otherUser}</h3>
@@ -266,20 +290,7 @@ function openTradeRoom(orderId){
     </div>
     <p>Amount: <b>${formatNumber(order.amount)} USDT</b> | <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p>
     <p>KES Amount: <b>KES ${formatNumber(order.amount * order.rate)}</b> @ ${formatNumber(order.rate)}</p>
-    <div class="payment-info">
-      ${order.paymentMethod.includes("M-Pesa") && order.paybill?`
-        <div><span><div class="label">Paybill</div>${order.paybill}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paybill}')"></i></div>
-        <div><span><div class="label">Account</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
-      `:''}
-      ${(order.paymentMethod.includes("Airtel") || order.paymentMethod.includes("MTN")) && order.account?`
-        <div><span><div class="label">${order.paymentMethod} No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
-      `:''}
-      ${order.paymentMethod==="Bank Transfer" && order.bankAccount?`
-        <div><span><div class="label">Bank</div>${order.bankName}</span></div>
-        <div><span><div class="label">Account</div>${order.bankAccount}</span><i class="fa-regular fa-copy" onclick="copyText('${order.bankAccount}')"></i></div>
-      `:''}
-      <div><span><div class="label">Reference</div>${orderId}</span><i class="fa-regular fa-copy" onclick="copyText('${orderId}')"></i></div>
-    </div>
+    ${paymentHTML}
     <div class="order-note">1. Transfer exact amount 2. Use reference 3. Tap "I Have Paid" after payment</div>
     ${releaseButton}
     `;
@@ -411,10 +422,10 @@ function renderTraders(snapshot){
     if(amountFilter > 0 && available < amountFilter) return;
     tradersBox.innerHTML += `
     <div class="trader-card">
-      <div class="trader-top"><h3>${trader.fullName || trader.username}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
+      <div class="trader-top"><h3>${trader.fullName}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
       <div class="stats"><span class="rate">1 USDT = ${formatNumber(trader.rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
       <div class="stats"><span>Available: ${formatNumber(available)} USDT</span><span>${trader.trades || 0} Trades</span></div>
-      <div class="stats"><span>Limits: KES ${formatNumber(trader.minAmount)} - ${formatNumber(trader.maxAmount)}</span><span>${trader.paymentMethods?.join(", ") || trader.paymentMethod}</span></div>
+      <div class="stats"><span>Limits: KES ${formatNumber(trader.minAmount)} - ${formatNumber(trader.maxAmount)}</span><span>${trader.paymentMethods?.join(", ")}</span></div>
       <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
     </div>`;
   });
@@ -422,38 +433,24 @@ function renderTraders(snapshot){
 
 onValue(ref(db,"p2p_sellers"),(snapshot)=>{ 
   allTraders = snapshot; 
-  onValue(ref(db,"users"),(userSnap)=>{
-    let combined = {};
-    snapshot.forEach(c=>combined[c.key]=c.val());
-    userSnap.forEach(c=>{
-      if(c.val().merchantTrader === true){
-        combined[c.key] = {
-          username: c.val().username,
-          fullName: c.val().fullName || c.val().username, // USE FULL NAME FROM APPLICATION
-          available: c.val().balance,
-          verified: c.val().kycStatus === "verified",
-          completion: 100, trades: 0, active: true,
-          paymentMethods: c.val().paymentMethods || ["M-Pesa Kenya"],
-          rate: c.val().rate || 130,
-          minAmount: c.val().minAmount || 1000,
-          maxAmount: c.val().maxAmount || 500000,
-          paybill: c.val().paybill || "", account: c.val().account || "",
-          bankName: c.val().bankName || "", bankAccount: c.val().bankAccount || ""
-        }
-      }
-    });
-    renderTraders({exists:()=>true, forEach:fn=>Object.entries(combined).forEach(([k,v])=>fn({key:k,val:()=>v}))});
-  });
+  renderTraders(snapshot);
+  
+  const user = auth.currentUser;
+  if(user){
+    const mySellerData = snapshot.child(user.uid).val();
+    if(mySellerData){
+      userBalance = Number(mySellerData.balance || 0);
+      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT";
+    }
+  }
 });
 
 onAuthStateChanged(auth,(user)=>{
   if(user){ currentUser = user;
     onValue(ref(db,"users/"+user.uid),(s)=>{ 
       const d=s.val(); 
-      userBalance=Number(d?.balance||0); 
-      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT"; 
       currentUser.username = d?.username || "User"; 
-      currentUser.fullName = d?.fullName || d?.username; // GET FULL NAME
+      currentUser.fullName = d?.fullName || d?.username;
       currentUser.verified = d?.kycStatus==="verified"; 
     });
   }
