@@ -46,15 +46,14 @@ Merchant Applications
 <div class="empty">Loading applications...</div>
 </div>
 
-<h2 class="section-title"><i class="fas fa-store"></i> Approved Merchants</h2>
+<h2 class="section-title"><i class="fas fa-store"></i> Approved Sellers</h2>
 <div class="container" id="merchantList">
-<div class="empty">Loading merchants...</div>
+<div class="empty">Loading sellers...</div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -62,8 +61,7 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -83,7 +81,7 @@ function loadMerchants(){
 db.ref("p2p_sellers").on("value", snap=>{
   merchantList.innerHTML="";
   if(!snap.exists()){
-    merchantList.innerHTML='<div class="empty">No merchants found.</div>';
+    merchantList.innerHTML='<div class="empty">No sellers found.</div>';
     return;
   }
   snap.forEach(child=>{
@@ -95,26 +93,19 @@ db.ref("p2p_sellers").on("value", snap=>{
       <h3>${merchant.username || "N/A"}</h3>
       <p><b>Phone:</b> ${merchant.phone || "N/A"}</p>
       <p><b>Payment:</b> ${merchant.paymentMethod} - ${merchant.paymentNumber}</p>
-      <p><b>Status:</b>
-<span class="status-badge ${merchant.active ? 'status-active' : 'status-suspended'}">
-${merchant.active ? 'active' : 'suspended'}
-</span>
-</p>
+      <p><b>Status:</b> <span class="status-badge ${merchant.active ? 'status-active' : 'status-suspended'}">${merchant.active ? 'active' : 'suspended'}</span></p>
       <p><b>Available:</b> ${merchant.available || 0} USDT</p>
       <p><b>Range:</b> $${merchant.minTrade || 50} - $${merchant.maxTrade || 43000}</p>
       <div class="actions">
-        <button class="warn" onclick="editMerchant('${uid}')">
-          <i class="fas fa-pen"></i> Edit
-        </button>
-        <button class="warn" onclick="toggleMerchant('${uid}', ${merchant.active})">
-          <i class="fas fa-ban"></i> ${merchant.active ? "Suspend" : "Activate"}
-        </button>
-        <button class="reject" onclick="removeMerchant('${uid}')">
-          <i class="fas fa-trash"></i> Remove
-        </button>
+        <button class="warn" onclick="editMerchant('${uid}')"><i class="fas fa-pen"></i> Edit</button>
+        <button class="warn" onclick="toggleMerchant('${uid}', ${merchant.active})"><i class="fas fa-ban"></i> ${merchant.active ? "Suspend" : "Activate"}</button>
+        <button class="reject" onclick="removeMerchant('${uid}')"><i class="fas fa-trash"></i> Remove</button>
       </div>
     </div>`;
   });
+}, err=>{
+  console.error(err);
+  merchantList.innerHTML = `<div class="empty" style="color:#ff5c5c;">Permission Denied. Check Firebase Rules for p2p_sellers</div>`;
 });
 }
 
@@ -138,13 +129,9 @@ db.ref("merchantApplications").on("value",snap=>{
         <p><b>Email:</b> ${data.email || "N/A"}</p>
         <p><b>Phone:</b> ${data.phone || "N/A"}</p>
         <p><b>Country:</b> ${data.country || "N/A"}</p>
-        <p><b>ID Number:</b> ${data.idNumber || "N/A"}</p>
         <p><b>Payment Method:</b> ${data.paymentMethod || "N/A"}</p>
         <p><b>Payment Number:</b> ${data.paymentNumber || "N/A"}</p>
-        <p><b>Experience:</b> ${data.experience || "N/A"}</p>
         <p><b>Daily Capacity:</b> $${data.capacity || 0}</p>
-        <p><b>Reason:</b><br>${data.reason || "N/A"}</p>
-        <p><b>Submitted:</b> ${data.submittedAt ? new Date(data.submittedAt).toLocaleString() : "N/A"}</p>
         <div class="actions">
         <button class="approve" onclick="approve('${uid}')"><i class="fas fa-check"></i> Approve</button>
         <button class="reject" onclick="reject('${uid}')"><i class="fas fa-times"></i> Reject</button>
@@ -154,9 +141,6 @@ db.ref("merchantApplications").on("value",snap=>{
     if(!hasPending){
         list.innerHTML='<div class="empty">No pending applications.</div>';
     }
-}, err=>{
-    list.innerHTML = `<div class="empty" style="color:#ff5c5c;">Error: ${err.message}</div>`;
-    showToast("Database Permission Denied", "error");
 });
 }
 
@@ -165,39 +149,34 @@ function approve(uid){
         const app = snap.val();
         if(!app) return showToast("Application not found","error");
 
-        db.ref("users/"+uid).update({
-            merchantTrader: true
-        });
-
-        db.ref("merchantApplications/"+uid).update({
-            status: "approved",
-            approvedAt: Date.now()
-        });
-
-        db.ref("p2p_sellers/"+uid).set({
+        const sellerData = {
             uid: uid,
             username: app.fullName,
             phone: app.phone,
             paymentMethod: app.paymentMethod,
             paymentNumber: app.paymentNumber,
-
             verified: true,
             active: true,
-
             available: 5000,
             locked: 0,
-
             rate: 150,
             trades: 0,
             completion: 100,
-
             minTrade: 50,
             maxTrade: 43000,
-
             joinedAt: Date.now()
+        }
+
+        // Use update instead of set to avoid overwriting + add error catch
+        db.ref("p2p_sellers/"+uid).set(sellerData).then(()=>{
+            db.ref("users/"+uid).update({merchantTrader: true});
+            db.ref("merchantApplications/"+uid).update({status: "approved", approvedAt: Date.now()});
+            showToast("Seller Added to p2p_sellers","success");
+        }).catch(err=>{
+            console.error(err);
+            showToast("Failed to write to p2p_sellers: "+err.message,"error");
         });
 
-        showToast("Merchant Approved","success");
     }).catch(err=>{
         showToast("Error: "+err.message,"error");
     });
@@ -205,31 +184,17 @@ function approve(uid){
 
 function reject(uid){
     db.ref("merchantApplications/" + uid).update({
-        status: "removed",
-        removedAt: Date.now()
+        status: "rejected", // FIXED: was "removed"
+        rejectedAt: Date.now()
     })
-    .then(() => {
-        showToast("Application rejected", "error");
-    })
-    .catch(err => {
-        showToast("Error: " + err.message, "error");
-    });
+    .then(() => { showToast("Application rejected", "error"); })
+    .catch(err => { showToast("Error: " + err.message, "error"); });
 }
 
 function toggleMerchant(uid, active){
-
-    const newActive = !active;
-
-    db.ref("p2p_sellers/" + uid).update({
-        active: newActive
-    })
-    .then(() => {
-        showToast("Merchant " + (newActive ? "activated" : "suspended"));
-    })
-    .catch(err => {
-        showToast("Error: " + err.message, "error");
-    });
-
+    db.ref("p2p_sellers/" + uid).update({ active: !active })
+    .then(() => { showToast("Seller " + (!active ? "activated" : "suspended")); })
+    .catch(err => { showToast("Error: " + err.message, "error"); });
 }
 
 function editMerchant(uid){
@@ -237,20 +202,16 @@ function editMerchant(uid){
   const newMax = prompt("Enter new Max Trade USD:");
   if(newMin && newMax){
    db.ref("p2p_sellers/"+uid).update({minTrade:parseFloat(newMin), maxTrade:parseFloat(newMax)})
-    .then(()=>showToast("Merchant updated"))
+    .then(()=>showToast("Seller updated"))
     .catch(err=>showToast("Error: "+err.message, "error"));
   }
 }
 
 function removeMerchant(uid){
-  if(confirm("Are you sure you want to remove this merchant?")){
+  if(confirm("Are you sure you want to remove this seller?")){
     db.ref("p2p_sellers/"+uid).remove()
-.then(()=>{
-    showToast("Merchant removed","error");
-})
-.catch(err=>{
-    showToast("Error: "+err.message,"error");
-});
+    .then(()=>{ showToast("Seller removed","error"); })
+    .catch(err=>{ showToast("Error: "+err.message,"error"); });
   }
 }
 
