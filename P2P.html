@@ -22,6 +22,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:1
 .verified{color:#00e676;font-size:13px;}
 .stats{margin-top:12px;display:flex;justify-content:space-between;font-size:14px;}
 .trade-btn{width:100%;margin-top:15px;padding:13px;border:none;border-radius:12px;background:#00c853;color:white;font-size:16px;font-weight:bold;cursor:pointer;}
+.trade-btn.sell{background:#e53935;} /* RED SELL BUTTON */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center;z-index:999;}
 .modal-content{width:90%;max-width:500px;background:#101c30;padding:20px;border-radius:20px;}
 .close{float:right;color:red;font-size:20px;cursor:pointer;}
@@ -31,9 +32,13 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:1
 .chat-me{align-self:flex-end;background:#00c853}
 .kes-preview{color:#00e676;font-size:14px;margin-top:8px;font-weight:700}
 #tradeTimer{font-size:24px;font-weight:800;text-align:center;margin:10px 0;color:#ff9800}
+.toast{position:fixed;top:20px;right:20px;background:#ff3b30;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;animation:slideIn .3s ease;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
 </style>
 </head>
 <body>
+
+<div id="toast" class="toast"></div>
 
 <div class="modal" id="tradeRoom">
 <div class="modal-content">
@@ -110,7 +115,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getDatabase, ref, onValue, push, set, get, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -127,6 +131,7 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 const USD_TO_KES = 129; 
 let currentUser = null;
+let userBalance = 0;
 let selectedSeller = "";
 let selectedSellerId = "";
 let currentTab = "buy";
@@ -134,12 +139,15 @@ let currentOrder = "";
 let tradeTimerInterval;
 let allTraders = [];
 
+function showToast(msg){ const t=document.getElementById("toast"); t.innerText=msg; t.style.display="block"; setTimeout(()=>t.style.display="none",3000); }
+
 function switchTab(type,btn){
 currentTab = type;
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 document.querySelectorAll(".trade-btn").forEach(button=>{
     button.innerHTML = type==="sell" ? "Sell USDT" : "Buy USDT";
+    button.className = type==="sell" ? "trade-btn sell" : "trade-btn"; // RED FOR SELL
 });
 filterTraders();
 }
@@ -163,16 +171,25 @@ const user = auth.currentUser;
 if(!user || !selectedSellerId) return;
 const amount = Number(document.getElementById("tradeAmount").value);
 const payment = document.getElementById("payment").value;
-if(!amount || amount <= 0) return alert("Enter amount");
+if(!amount || amount <= 0) return showToast("Enter amount");
 
 if(currentTab === "buy"){
   const sellerSnap = await get(ref(db,"p2p_sellers/"+selectedSellerId));
   const sellerData = sellerSnap.val();
-  if(!sellerData) return alert("Seller not found");
-  if(Number(sellerData.available) < amount) return alert("Not enough USDT available");
+  if(!sellerData) return showToast("Seller not found");
+  if(Number(sellerData.available) < amount) return showToast("Seller doesn't have enough USDT");
+  
+  // REALTIME UPDATE: use transaction style with update
   await update(ref(db,"p2p_sellers/"+selectedSellerId),{
     available: Number(sellerData.available)-amount,
     locked: (Number(sellerData.locked)||0)+amount
+  });
+}
+
+if(currentTab === "sell"){
+  if(userBalance < amount) return showToast("Not enough balance in wallet");
+  await update(ref(db,"users/"+user.uid),{
+    balance: userBalance - amount
   });
 }
 
@@ -187,7 +204,7 @@ await set(orderRef,{
   createdAt:serverTimestamp(), expiresAt:Date.now()+10*60*1000
 });
 document.getElementById("tradeModal").style.display="none";
-alert("Order created. Check My Active Trades");
+showToast("Order created");
 }
 
 function openTradeRoom(orderId){
@@ -244,7 +261,7 @@ const order = snapshot.val(); if(!order || !order.expiresAt) return;
 clearInterval(tradeTimerInterval);
 tradeTimerInterval = setInterval(()=>{
 const remaining = order.expiresAt - Date.now();
-if(remaining <= 0){ document.getElementById("tradeTimer").innerHTML = "Expired"; clearInterval(tradeTimerInterval); set(ref(db,"p2p_orders/"+orderId+"/status"),"expired"); return; }
+if(remaining <= 0){ document.getElementById("tradeTimer").innerHTML = "Expired"; clearInterval(tradeTimerInterval); update(ref(db,"p2p_orders/"+orderId),{status:"expired"}); return; }
 const minutes = Math.floor(remaining / 60000); const seconds = Math.floor((remaining % 60000) / 1000);
 document.getElementById("tradeTimer").innerHTML = `${minutes}:${seconds < 10 ? "0":""}${seconds}`;
 },1000);
@@ -262,7 +279,7 @@ if(order.buyerUid === user.uid || order.sellerUid === user.uid){
 box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>Amount: <b>${order.amount} USDT</b></p><p>Payment: ${order.paymentMethod}</p><p>Status: ${order.status}</p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">Open Trade</button></div>`;
 }
 });
-}); // FIXED: was missing this closing
+});
 }
 
 function closeMyTrades(){ document.getElementById("myTradesModal").style.display="none"; }
@@ -272,25 +289,31 @@ async function markPaid(){
 if(!currentOrder) return;
 await update(ref(db,"p2p_orders/"+currentOrder),{ buyerConfirmed:true, status:"payment_sent" });
 }
+
 async function releaseUSDT(orderId){
 const user = auth.currentUser; if(!user || !orderId) return;
 const orderSnap = await get(ref(db,"p2p_orders/"+orderId)); const order = orderSnap.val(); if(!order || order.status !== "payment_sent" || order.sellerUid !== user.uid) return;
 const amount = Number(order.amount);
-const balanceSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
-await set(ref(db,"users/"+order.buyerUid+"/balance"), Number(balanceSnap.val() || 0) + amount);
-await set(ref(db,"p2p_orders/"+orderId+"/status"),"completed");
+await update(ref(db,"users/"+order.buyerUid),{ balance: (await get(ref(db,"users/"+order.buyerUid+"/balance"))).val() + amount });
+await update(ref(db,"p2p_orders/"+orderId),{ status:"completed", completedAt:serverTimestamp() });
 const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
 if(sellerSnap.exists()){ await update(ref(db,"p2p_sellers/"+order.sellerUid),{ locked: Math.max(Number(sellerSnap.val().locked || 0)-amount, 0) }); }
-await set(ref(db,"p2p_orders/"+orderId+"/completedAt"),serverTimestamp());
 }
+
 async function cancelTrade(){
 if(!currentOrder) return;
 const orderSnap = await get(ref(db,"p2p_orders/"+currentOrder)); const order = orderSnap.val(); if(!order) return;
-const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
-if(sellerSnap.exists()){ const amount = Number(order.amount); await update(ref(db,"p2p_sellers/"+order.sellerUid),{ available: Number(sellerSnap.val().available || 0) + amount, locked: Math.max(Number(sellerSnap.val().locked || 0) - amount, 0) }); }
-await set(ref(db,"p2p_orders/"+currentOrder+"/status"),"cancelled");
+if(order.sellerUid){
+  const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
+  if(sellerSnap.exists()){ const amount = Number(order.amount); await update(ref(db,"p2p_sellers/"+order.sellerUid),{ available: Number(sellerSnap.val().available || 0) + amount, locked: Math.max(Number(sellerSnap.val().locked || 0) - amount, 0) }); }
 }
-async function openDispute(){ if(!currentOrder) return; await set(ref(db,"p2p_orders/"+currentOrder+"/status"),"disputed"); }
+if(order.buyerUid && currentTab==="sell"){
+  await update(ref(db,"users/"+order.buyerUid),{ balance: (await get(ref(db,"users/"+order.buyerUid+"/balance"))).val() + Number(order.amount) });
+}
+await update(ref(db,"p2p_orders/"+currentOrder),{ status:"cancelled" });
+}
+
+async function openDispute(){ if(!currentOrder) return; await update(ref(db,"p2p_orders/"+currentOrder),{ status:"disputed" }); }
 
 function filterTraders(){ renderTraders(allTraders); }
 
@@ -308,7 +331,7 @@ tradersBox.innerHTML += `
 <div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? "Verified ✔️" : ""}</span></div>
 <div class="stats"><span>Rate: 1 USDT = ${USD_TO_KES} KES</span><span>${trader.completion}% Completion</span></div>
 <div class="stats"><span>Available: ${trader.available} USDT</span><span>${trader.trades} Trades</span></div>
-<button class="trade-btn" onclick="openTrade('${trader.username}', '${child.key}', ${trader.available})">${currentTab==="buy"?"Buy":"Sell"} USDT</button>
+<button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick="openTrade('${trader.username}', '${child.key}', ${trader.available})">${currentTab==="buy"?"Buy":"Sell"} USDT</button>
 </div>`;
 });
 }
@@ -317,11 +340,11 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{ allTraders = snapshot; renderTraders
 
 onAuthStateChanged(auth,(user)=>{
 if(user){ currentUser = user;
-onValue(ref(db,"users/"+user.uid+"/balance"),(snapshot)=>{
-let balance = snapshot.val() || 0;
-document.getElementById("walletBalance").innerHTML = "$"+Number(balance).toFixed(2)+" USDT";
+onValue(ref(db,"users/"+user.uid+"/balance"),(snapshot)=>{ // REALTIME BALANCE
+userBalance = Number(snapshot.val() || 0);
+document.getElementById("walletBalance").innerHTML = "$"+userBalance.toFixed(2)+" USDT";
 });
-onValue(ref(db,"users/"+user.uid+"/username"),(snapshot)=>{ // ADD: get username for orders
+onValue(ref(db,"users/"+user.uid+"/username"),(snapshot)=>{
 currentUser.username = snapshot.val() || "User";
 });
 }
