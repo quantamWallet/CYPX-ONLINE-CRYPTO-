@@ -27,7 +27,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:1
 .close{float:right;color:red;font-size:20px;cursor:pointer;}
 .confirm{background:#00c853;}
 #chatBox{height:200px;overflow-y:auto;background:#18283d;padding:10px;border-radius:10px;margin:15px 0;display:flex;flex-direction:column;gap:8px}
-.chat-msg{background:#23354d;padding:8px 12px;border-radius:10px;max-width:80%}
+.chat-msg{background:#23354d;padding:8px 12px;border-radius:10px;max-width:80%;align-self:flex-start}
 .chat-me{align-self:flex-end;background:#00c853}
 .kes-preview{color:#00e676;font-size:14px;margin-top:8px;font-weight:700}
 #tradeTimer{font-size:24px;font-weight:800;text-align:center;margin:10px 0;color:#ff9800}
@@ -125,66 +125,69 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-const USD_TO_KES = 129; // FIXED RATE
+const USD_TO_KES = 129; 
 let currentUser = null;
 let selectedSeller = "";
+let selectedSellerId = "";
+let currentTab = "buy";
 let currentOrder = "";
 let tradeTimerInterval;
 let allTraders = [];
 
 function switchTab(type,btn){
+currentTab = type;
 document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
 document.querySelectorAll(".trade-btn").forEach(button=>{
     button.innerHTML = type==="sell" ? "Sell USDT" : "Buy USDT";
 });
+filterTraders();
 }
 
 function calcKES(){
 const usd = parseFloat(document.getElementById("tradeAmount").value) || 0;
 const kes = usd * USD_TO_KES;
-document.getElementById("kesPreview").innerHTML = usd > 0 ? `You Pay: KES ${kes.toFixed(2)}` : "";
+document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab==="buy"?"Pay":"Receive"}: KES ${kes.toFixed(2)}` : "";
 }
 
-function openTrade(name, maxAmount){
-selectedSeller = name;
+function openTrade(name, id, maxAmount){
+selectedSeller = name; selectedSellerId = id;
 document.getElementById("tradeModal").style.display="flex";
-document.getElementById("traderName").innerHTML = "Trade with " + name;
-document.getElementById("tradeAmount").max = maxAmount; // Max = seller available
+document.getElementById("traderName").innerHTML = (currentTab==="buy"?"Buy from ":"Sell to ") + name;
+document.getElementById("tradeAmount").max = maxAmount;
 document.getElementById("tradeAmount").placeholder = `USDT Amount - Max: ${maxAmount}`;
 }
 
 async function createTrade(){
 const user = auth.currentUser;
-if(!user || !selectedSeller) return;
+if(!user || !selectedSellerId) return;
 const amount = Number(document.getElementById("tradeAmount").value);
 const payment = document.getElementById("payment").value;
 if(!amount || amount <= 0) return alert("Enter amount");
 
-const sellerQuery = ref(db,"p2p_sellers");
-onValue(sellerQuery, async(snapshot)=>{
-let sellerId = null; let sellerData = null;
-snapshot.forEach((child)=>{
-if(child.val().username === selectedSeller){ sellerId = child.key; sellerData = child.val(); }
-});
-if(!sellerId) return alert("Seller not found");
-if(Number(sellerData.available) < amount) return alert("Seller doesn't have enough USDT");
-
-await update(ref(db,"p2p_sellers/"+sellerId),{
-available: Number(sellerData.available)-amount,
-locked: (Number(sellerData.locked)||0)+amount
-});
+if(currentTab === "buy"){
+  const sellerSnap = await get(ref(db,"p2p_sellers/"+selectedSellerId));
+  const sellerData = sellerSnap.val();
+  if(!sellerData) return alert("Seller not found");
+  if(Number(sellerData.available) < amount) return alert("Not enough USDT available");
+  await update(ref(db,"p2p_sellers/"+selectedSellerId),{
+    available: Number(sellerData.available)-amount,
+    locked: (Number(sellerData.locked)||0)+amount
+  });
+}
 
 const orderRef = push(ref(db,"p2p_orders"));
 await set(orderRef,{
-buyerUid:user.uid, sellerUid:sellerId, sellerName:selectedSeller,
-amount:amount, paymentMethod:payment, rate: USD_TO_KES,
-status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
-createdAt:serverTimestamp(), expiresAt:Date.now()+10*60*1000
+  buyerUid: currentTab==="buy" ? user.uid : selectedSellerId,
+  sellerUid: currentTab==="buy" ? selectedSellerId : user.uid,
+  sellerName: selectedSeller,
+  buyerName: currentUser.username || "You",
+  amount:amount, paymentMethod:payment, rate: USD_TO_KES,
+  status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
+  createdAt:serverTimestamp(), expiresAt:Date.now()+10*60*1000
 });
 document.getElementById("tradeModal").style.display="none";
-alert("Order created. Go to My Active Trades");
-},{onlyOnce:true});
+alert("Order created. Check My Active Trades");
 }
 
 function openTradeRoom(orderId){
@@ -196,7 +199,7 @@ const order = snapshot.val(); if(!order) return;
 const currentUser = auth.currentUser;
 let releaseButton = "";
 if(currentUser && order.sellerUid === currentUser.uid){
-releaseButton = `<button class="trade-btn" onclick="releaseUSDT('${orderId}')">Release USDT</button>`;
+  releaseButton = `<button class="trade-btn" onclick="releaseUSDT('${orderId}')">Release USDT</button>`;
 }
 document.getElementById("tradeDetails").innerHTML = `
 <h3>${order.sellerName}</h3>
@@ -207,12 +210,12 @@ document.getElementById("tradeDetails").innerHTML = `
 ${releaseButton}
 `;
 });
-loadChat(orderId); // LOAD CHAT
+loadChat(orderId);
 }
 
 function closeTradeRoom(){ document.getElementById("tradeRoom").style.display="none"; clearInterval(tradeTimerInterval); }
 
-function loadChat(orderId){ // NEW CHAT LISTENER
+function loadChat(orderId){
 const chatRef = ref(db,"trade_messages/"+orderId);
 onValue(chatRef,(snapshot)=>{
 const box = document.getElementById("chatBox"); box.innerHTML="";
@@ -259,7 +262,9 @@ if(order.buyerUid === user.uid || order.sellerUid === user.uid){
 box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>Amount: <b>${order.amount} USDT</b></p><p>Payment: ${order.paymentMethod}</p><p>Status: ${order.status}</p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">Open Trade</button></div>`;
 }
 });
+}); // FIXED: was missing this closing
 }
+
 function closeMyTrades(){ document.getElementById("myTradesModal").style.display="none"; }
 function closeTrade(){ document.getElementById("tradeModal").style.display="none"; }
 
@@ -303,7 +308,7 @@ tradersBox.innerHTML += `
 <div class="trader-top"><h3>${trader.username}</h3><span class="verified">${trader.verified ? "Verified ✔️" : ""}</span></div>
 <div class="stats"><span>Rate: 1 USDT = ${USD_TO_KES} KES</span><span>${trader.completion}% Completion</span></div>
 <div class="stats"><span>Available: ${trader.available} USDT</span><span>${trader.trades} Trades</span></div>
-<button class="trade-btn" onclick="openTrade('${trader.username}', ${trader.available})">Buy USDT</button>
+<button class="trade-btn" onclick="openTrade('${trader.username}', '${child.key}', ${trader.available})">${currentTab==="buy"?"Buy":"Sell"} USDT</button>
 </div>`;
 });
 }
@@ -314,7 +319,10 @@ onAuthStateChanged(auth,(user)=>{
 if(user){ currentUser = user;
 onValue(ref(db,"users/"+user.uid+"/balance"),(snapshot)=>{
 let balance = snapshot.val() || 0;
-document.getElementById("walletBalance").innerHTML = "$"+Number(balance).toFixed(2)+" USDT"; // SHOWS ACTUAL USER BALANCE
+document.getElementById("walletBalance").innerHTML = "$"+Number(balance).toFixed(2)+" USDT";
+});
+onValue(ref(db,"users/"+user.uid+"/username"),(snapshot)=>{ // ADD: get username for orders
+currentUser.username = snapshot.val() || "User";
 });
 }
 });
@@ -326,4 +334,4 @@ window.closeMyTrades = closeMyTrades; window.startTradeTimer = startTradeTimer; 
 window.openDispute = openDispute; window.calcKES = calcKES; window.filterTraders = filterTraders;
 </script>
 </body>
-    </html>
+</html>
