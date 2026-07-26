@@ -15,17 +15,22 @@
 body{background:#081426;font-family:Arial,sans-serif;color:#fff;margin:0;}
 header{background:#0d1b2a;padding:18px;text-align:center;font-size:22px;font-weight:bold;}
 .container{padding:15px;}
+.section-title{margin:25px 15px 15px;font-size:18px;color:#00d4ff}
 .card{background:#132238;padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid rgba(255,255,255,.08);}
 .card h3{margin:0 0 10px;color:#00d4ff;}
 .card p{margin:6px 0;font-size:14px;line-height:1.5;}
-.actions{display:flex;gap:10px;margin-top:15px;}
-button{flex:1;padding:12px;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;}
+.actions{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap}
+button{flex:1;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;}
 .approve{background:#00c853;color:white;}
 .reject{background:#ff3b30;color:white;}
+.warn{background:#ff9800;color:white;}
 .empty{text-align:center;padding:50px;color:#aaa;}
 .toast{position:fixed;top:20px;right:20px;background:#00b050;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;box-shadow:0 4px 15px rgba(0,0,0,.3);animation:slideIn.3s ease;}
 .toast.error{background:#ff3b30;}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.status-badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.status-active{background:#00c853}
+.status-suspended{background:#ff9800}
 </style>
 
 </head>
@@ -36,32 +41,16 @@ button{flex:1;padding:12px;border:none;border-radius:8px;font-size:15px;font-wei
 Merchant Applications
 </header>
 
+<div class="section-title"><i class="fas fa-inbox"></i> Pending Applications</div>
 <div class="container" id="list">
 <div class="empty">Loading applications...</div>
 </div>
-<h2 style="margin:25px 0 15px;">
-<i class="fas fa-store"></i> Approved Merchants
-</h2>
 
-<div id="merchantList">
+<h2 class="section-title"><i class="fas fa-store"></i> Approved Merchants</h2>
+<div class="container" id="merchantList">
 <div class="empty">Loading merchants...</div>
-  <div class="actions">
-    <button class="approve" onclick="editMerchant('${uid}')">
-        <i class="fas fa-pen"></i> Edit
-    </button>
-
-    <button style="background:#ff9800;color:#fff;"
-        onclick="toggleMerchant('${uid}', '${merchant.status}')">
-        <i class="fas fa-ban"></i>
-        ${merchant.status==="active"?"Suspend":"Activate"}
-    </button>
-
-    <button class="reject" onclick="removeMerchant('${uid}')">
-        <i class="fas fa-trash"></i> Remove
-    </button>
-  </div>
-  
 </div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -72,111 +61,72 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 };
 
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db=firebase.database();
 const list=document.getElementById("list");
 const toast=document.getElementById("toast");
 const merchantList = document.getElementById("merchantList");
 
+auth.onAuthStateChanged(user=>{
+  if(!user) return window.location.href="auth.html";
+  loadApplications();
+  loadMerchants();
+})
+
+function loadMerchants(){
 db.ref("p2pMerchants").on("value", snap=>{
-
-merchantList.innerHTML="";
-
-if(!snap.exists()){
-merchantList.innerHTML='<div class="empty">No merchants found.</div>';
-return;
-}
-
-snap.forEach(child=>{
-
-const uid=child.key;
-const merchant=child.val();
-
-merchantList.innerHTML += `
-<div class="card">
-
-<h3>${merchant.name}</h3>
-
-<p><b>Phone:</b> ${merchant.phone}</p>
-
-<p><b>Payment:</b> ${merchant.paymentMethod}</p>
-
-<p><b>Status:</b> ${merchant.status}</p>
-
-<p><b>Min Trade:</b> $${merchant.minTrade}</p>
-
-<p><b>Max Trade:</b> $${merchant.maxTrade}</p>
-
-<div class="actions">
-
-<button class="approve"
-onclick="editMerchant('${uid}')">
-<i class="fas fa-pen"></i> Edit
-</button>
-
-<button style="background:#ff9800;color:white"
-onclick="toggleMerchant('${uid}','${merchant.status}')">
-${merchant.status==="active"?"Suspend":"Activate"}
-</button>
-
-<button class="reject"
-onclick="removeMerchant('${uid}')">
-<i class="fas fa-trash"></i> Remove
-</button>
-
-</div>
-
-</div>
-`;
-
-});
-
-});
-
-  function toggleMerchant(uid,status){
-
-const newStatus =
-status==="active" ? "suspended" : "active";
-
-db.ref("p2pMerchants/"+uid).update({
-status:newStatus
-});
-
-showToast("Merchant updated");
-
+  merchantList.innerHTML="";
+  if(!snap.exists()){
+    merchantList.innerHTML='<div class="empty">No merchants found.</div>';
+    return;
   }
-  
-function showToast(message, type="success"){
-    toast.innerHTML = `<i class="fas fa-${type==="success"?"check-circle":"exclamation-circle"}" style="margin-right:8px;"></i> ${message}`;
-    toast.className = `toast ${type==="error"?"error":""}`;
-    toast.style.display = "block";
-    setTimeout(()=>{toast.style.display="none";}, 3000);
+  snap.forEach(child=>{
+    const uid=child.key;
+    const merchant=child.val();
+
+    merchantList.innerHTML += `
+    <div class="card">
+      <h3>${merchant.name || "N/A"}</h3>
+      <p><b>Phone:</b> ${merchant.phone || "N/A"}</p>
+      <p><b>Payment:</b> ${merchant.paymentMethod} - ${merchant.paymentNumber}</p>
+      <p><b>Status:</b> <span class="status-badge ${merchant.status==='active'?'status-active':'status-suspended'}">${merchant.status}</span></p>
+      <p><b>Balance:</b> $${merchant.availableUSD || 0}</p>
+      <p><b>Range:</b> $${merchant.minTrade} - $${merchant.maxTrade}</p>
+      <div class="actions">
+        <button class="warn" onclick="editMerchant('${uid}')">
+          <i class="fas fa-pen"></i> Edit
+        </button>
+        <button class="warn" onclick="toggleMerchant('${uid}', '${merchant.status}')">
+          <i class="fas fa-ban"></i> ${merchant.status==="active"?"Suspend":"Activate"}
+        </button>
+        <button class="reject" onclick="removeMerchant('${uid}')">
+          <i class="fas fa-trash"></i> Remove
+        </button>
+      </div>
+    </div>`;
+  });
+});
 }
 
+function loadApplications(){
 db.ref("merchantApplications").on("value",snap=>{
     list.innerHTML="";
     let hasPending = false;
-    console.log("Data from Firebase:", snap.val()); // for debugging
-
     if(!snap.exists()){
-        list.innerHTML='<div class="empty">No applications found in database.</div>';
+        list.innerHTML='<div class="empty">No applications found.</div>';
         return;
     }
-
     snap.forEach(userSnap=>{
         const uid = userSnap.key;
         const data=userSnap.val();
-
-        if(!data || data.status!="pending") return; // only show pending
+        if(!data || data.status!="pending") return;
         hasPending = true;
-
         const card=document.createElement("div");
         card.className="card";
-
         card.innerHTML=`
         <h3>${data.fullName || "N/A"}</h3>
         <p><b>Email:</b> ${data.email || "N/A"}</p>
@@ -189,48 +139,41 @@ db.ref("merchantApplications").on("value",snap=>{
         <p><b>Daily Capacity:</b> $${data.capacity || 0}</p>
         <p><b>Reason:</b><br>${data.reason || "N/A"}</p>
         <p><b>Submitted:</b> ${data.submittedAt ? new Date(data.submittedAt).toLocaleString() : "N/A"}</p>
-
         <div class="actions">
-        <button class="approve" onclick="approve('${uid}')">Approve</button>
-        <button class="reject" onclick="reject('${uid}')">Reject</button>
-        </div>
-        `;
+        <button class="approve" onclick="approve('${uid}')"><i class="fas fa-check"></i> Approve</button>
+        <button class="reject" onclick="reject('${uid}')"><i class="fas fa-times"></i> Reject</button>
+        </div>`;
         list.appendChild(card);
     });
-
     if(!hasPending){
-        list.innerHTML='<div class="empty">No pending applications. All are approved/rejected.</div>';
+        list.innerHTML='<div class="empty">No pending applications.</div>';
     }
-
 }, err=>{
-    console.error("Firebase Error:", err);
-    list.innerHTML = `<div class="empty" style="color:#ff5c5c;">Error: ${err.message}<br>Check Firebase Rules</div>`;
+    list.innerHTML = `<div class="empty" style="color:#ff5c5c;">Error: ${err.message}</div>`;
     showToast("Database Permission Denied", "error");
 });
+}
 
 function approve(uid){
 db.ref("merchantApplications/"+uid).once("value").then(snap=>{
-const app=snap.val();
-if(!app) return showToast("Application not found", "error");
-
-db.ref("users/"+uid).update({merchantTrader:true});
-db.ref("merchantApplications/"+uid).update({status:"approved", approvedAt:Date.now()});
-
-db.ref("p2pMerchants/"+uid).set({
-uid:uid,
-name:app.fullName,
-phone:app.phone,
-paymentMethod:app.paymentMethod,
-paymentNumber:app.paymentNumber,
-status:"active",
-verified:true,
-availableUSD:5000,
-minTrade:50,
-maxTrade:43000,
-joined:Date.now()
-});
-showToast("Merchant Approved", "success");
-
+  const app=snap.val();
+  if(!app) return showToast("Application not found", "error");
+  db.ref("users/"+uid).update({merchantTrader:true});
+  db.ref("merchantApplications/"+uid).update({status:"approved", approvedAt:Date.now()});
+  db.ref("p2pMerchants/"+uid).set({
+    uid:uid,
+    name:app.fullName,
+    phone:app.phone,
+    paymentMethod:app.paymentMethod,
+    paymentNumber:app.paymentNumber,
+    status:"active",
+    verified:true,
+    availableUSD:5000,
+    minTrade:50,
+    maxTrade:43000,
+    joined:Date.now()
+  });
+  showToast("Merchant Approved", "success");
 }).catch(err=>showToast("Error: "+err.message, "error"));
 }
 
@@ -240,6 +183,37 @@ db.ref("merchantApplications/"+uid).update({status:"rejected", rejectedAt:Date.n
 .catch(err=>showToast("Error: "+err.message, "error"));
 }
 
+function toggleMerchant(uid,status){
+  const newStatus = status==="active" ? "suspended" : "active";
+  db.ref("p2pMerchants/"+uid).update({status:newStatus})
+  .then(()=>showToast("Merchant status updated to "+newStatus))
+  .catch(err=>showToast("Error: "+err.message, "error"));
+}
+
+function editMerchant(uid){
+  const newMin = prompt("Enter new Min Trade USD:");
+  const newMax = prompt("Enter new Max Trade USD:");
+  if(newMin && newMax){
+    db.ref("p2pMerchants/"+uid).update({minTrade:parseFloat(newMin), maxTrade:parseFloat(newMax)})
+    .then(()=>showToast("Merchant updated"))
+    .catch(err=>showToast("Error: "+err.message, "error"));
+  }
+}
+
+function removeMerchant(uid){
+  if(confirm("Are you sure you want to remove this merchant?")){
+    db.ref("p2pMerchants/"+uid).remove()
+    .then(()=>showToast("Merchant removed", "error"))
+    .catch(err=>showToast("Error: "+err.message, "error"));
+  }
+}
+
+function showToast(message, type="success"){
+    toast.innerHTML = `<i class="fas fa-${type==="success"?"check-circle":"exclamation-circle"}" style="margin-right:8px;"></i> ${message}`;
+    toast.className = `toast ${type==="error"?"error":""}`;
+    toast.style.display = "block";
+    setTimeout(()=>{toast.style.display="none";}, 3000);
+}
 </script>
 </body>
-  </html>
+</html>
