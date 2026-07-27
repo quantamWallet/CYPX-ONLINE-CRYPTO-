@@ -216,10 +216,8 @@ async function createTrade(){
   if(!amount || amount <= 0) return showToast("Enter valid amount");
 
   const rate = selectedTrader.rate || 129;
-  const kesAmount = amount * rate;
-  if(kesAmount < selectedTrader.minAmount || kesAmount > selectedTrader.maxAmount) 
-    return showToast(`Amount must be between KES ${formatNumber(selectedTrader.minAmount)} and ${formatNumber(selectedTrader.maxAmount)}`);
-
+  if(amount < 50 || amount > Number(selectedTrader.available)) 
+    return showToast(`Amount must be between 50 USDT and ${formatNumber(selectedTrader.available)} USDT`);
   try{
     if(currentTab === "buy"){
       if(Number(selectedTrader.available) < amount) return showToast("Trader doesn't have enough USDT");
@@ -445,7 +443,7 @@ function renderTraders(snapshot){
       <div class="trader-top"><h3>${name}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
       <div class="stats"><span class="rate">1 USDT = ${formatNumber(rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
       <div class="stats"><span>Available: ${formatNumber(available)} USDT</span><span>${trader.trades || 0} Trades</span></div>
-      <div class="stats"><span>Limits: KES ${formatNumber(trader.minAmount)} - ${formatNumber(trader.maxAmount)}</span><span>${methods.join(", ")}</span></div>
+      <div class="stats"><span>Limits: $${formatNumber(50)} - ${formatNumber(trader.available)}</span><span>${methods.join(", ")}</span></div>
       <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
     </div>`;
   });
