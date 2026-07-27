@@ -17,21 +17,11 @@
 body{font-family:'Poppins',Arial,sans-serif;background:radial-gradient(1200px 600px at 20% -10%, #1e3a8a22, transparent),radial-gradient(800px 400px at 120% 10%, #06b6d422, transparent),#030712;color:#e2e8f0;padding-bottom:90px}
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(10,17,32,0.8);backdrop-filter:blur(12px);border-bottom:1px solid #1a2440;position:sticky;top:0;z-index:50}
 .header.left{display:flex;align-items:center;gap:12px}
-.header.right{display:flex;align-items:center;gap:12px}
 .header.logo{font-size:22px;color:#38bdf8;cursor:pointer;transition:.2s}
 .header.logo:hover{transform:scale(1.1)}
-.live-badge{background:linear-gradient(135deg,#ef4444,#dc2626);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;box-shadow:0 0 15px rgba(239,68,68,.4)}
-.live-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite}
-.menu-icon{font-size:20px;color:#e2e8f0;cursor:pointer}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 8px #fff}50%{opacity:.3}}
-
-.loading-screen{position:fixed;inset:0;background:#030712;display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:12px}
-.loading-screen.spinner{width:40px;height:40px;border:3px solid #1e293b;border-top:3px solid #38bdf8;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-
 .pending-banner{display:none;position:sticky;top:60px;z-index:49;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;padding:12px 16px;font-weight:700;text-align:center;box-shadow:0 0 20px rgba(245,158,11,.5)}
 
-.container{max-width:700px;margin:0 auto;padding:20px;display:none}
+.container{max-width:700px;margin:0 auto;padding:20px;display:block} /* Changed to block */
 .page-title{font-size:28px;font-weight:800;margin:16px 0 8px;background:linear-gradient(135deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .page-sub{font-size:14px;color:#94a3b8;margin-bottom:24px}
 
@@ -84,18 +74,12 @@ body{font-family:'Poppins',Arial,sans-serif;background:radial-gradient(1200px 60
 </head>
 <body>
 
-<div class="loading-screen" id="loadingScreen">
-  <div class="spinner"></div>
-  <div>Checking login...</div>
-</div>
-
 <div class="header">
   <div class="left">
     <i class="fa fa-arrow-left logo" onclick="history.back()"></i>
   </div>
   <div class="right">
-    <div class="live-badge"><span class="live-dot"></span> Live Trading</div>
-    <i class="fa fa-bars menu-icon"></i>
+    <!-- REMOVED Live Trading + Menu Icon -->
   </div>
 </div>
 
@@ -157,6 +141,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:radial-gradient(1200px 60
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -167,6 +152,7 @@ const firebaseConfig = {
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
 };
+  
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -184,14 +170,12 @@ let selectedAccount = null;
 let currentUser = null;
 const USDT_RATE = 1;
 
-// FIX: Wait for auth to load before redirecting
+// NO LOADING SCREEN - Direct load
 auth.onAuthStateChanged(user=>{
-  document.getElementById("loadingScreen").style.display = "none";
   if(!user){
     return window.location.href="auth.html";
   }
   currentUser = user;
-  document.getElementById("mainContainer").style.display = "block";
   checkPendingPayment();
   renderAccounts();
 });
@@ -300,4 +284,4 @@ function showToast(msg, type="success"){
 }
 </script>
   </body>
-                                                                                    </html>
+  </html>
