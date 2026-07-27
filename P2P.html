@@ -456,12 +456,20 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
 
 onAuthStateChanged(auth,(user)=>{
   if(user){ currentUser = user;
+    console.log("UID:", user.uid) // for debugging
     onValue(ref(db,"users/"+user.uid),(s)=>{ 
-      const d=s.val(); 
+      const d = s.val(); 
+      console.log("Firebase data:", d) // check what firebase returns
+      
       userBalance = Number(d?.balance || 0);
-      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT"; // <-- use userBalance here
-      currentUser.username = d?.username || "User"; 
-      currentUser.fullName = d?.fullName || d?.username;
+      
+      // If balance is still 0, try 'Balance' with capital B
+      if(userBalance === 0 && d?.Balance) userBalance = Number(d.Balance)
+      
+      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT";
+      
+      currentUser.username = d?.username || d?.Username || "User"; 
+      currentUser.fullName = d?.fullName || d?.FullName || d?.username;
       currentUser.verified = d?.kycStatus==="verified"; 
     });
   }
