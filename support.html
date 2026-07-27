@@ -16,6 +16,12 @@ header{
 .online-dot{width:9px;height:9px;background:#25d366;border-radius:50%;box-shadow:0 0 10px #25d366;animation:pulse 2s infinite;}
 .offline-dot{background:#888 !important;box-shadow:none !important;animation:none !important;}
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+
+/* TOAST NOTIFICATION */
+.toast{position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#e53935,#c62828);color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;display:none;animation:slideIn .3s ease;box-shadow:0 4px 15px rgba(229,57,53,0.4)}
+.toast.success{background:linear-gradient(135deg,#00c853,#00a843)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
 .chat-box{flex:1;overflow-y:auto;padding:15px;background:rgba(0,0,0,0.15);padding-bottom:90px;}
 .msg{margin:10px 0;padding:13px 16px;border-radius:18px;max-width:80%;word-wrap:break-word;font-size:14px;line-height:1.5;animation:fadeIn 0.3s;position:relative;}
 .user{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;margin-left:auto;border-bottom-right-radius:4px;font-weight:500;}
@@ -41,6 +47,9 @@ header{
 </style>
 </head>
 <body>
+
+<div id="toast" class="toast"></div> <!-- ADDED TOAST -->
+
 <header>
   <i class="fas fa-headset"></i> CYPX Live Support 
   <div class="online-dot" id="adminStatus"></div>
@@ -77,6 +86,15 @@ const db = firebase.database();
 const auth = firebase.auth();
 const chatBox = document.getElementById('chatBox');
 const msgInput = document.getElementById('msgInput');
+
+// TOAST FUNCTION - REPLACES ALERT
+function showToast(msg, type='error'){
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.className = "toast " + (type === 'success' ? 'success' : '');
+  t.style.display = "block";
+  setTimeout(()=>t.style.display="none", 3000);
+}
 
 auth.onAuthStateChanged(user=>{
   if(!user) location.href="auth.html";
@@ -115,7 +133,7 @@ auth.onAuthStateChanged(user=>{
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
-  // 4. LISTEN FOR MESSAGES - FIXED
+  // 4. LISTEN FOR MESSAGES
   chatRef.on("value", snap=>{
     chatBox.innerHTML="";
     let unreadCount = 0;
@@ -129,19 +147,16 @@ auth.onAuthStateChanged(user=>{
       div.innerHTML = `${m.message}<div class="time">${time}</div>`;
       chatBox.appendChild(div);
 
-      // Only count admin unread messages
       if(m.sender === "admin" && !m.read){
         unreadCount++;
-        updates[`support_chats/${user.uid}/${child.key}/read`] = true; // mark as read
+        updates[`support_chats/${user.uid}/${child.key}/read`] = true;
       }
     });
     
-    // Batch mark as read
     if(Object.keys(updates).length > 0){
       db.ref().update(updates);
     }
 
-    // Update badge
     if(unreadCount > 0){
       document.getElementById('unreadBadge').style.display = "inline-block";
       document.getElementById('unreadBadge').textContent = unreadCount;
@@ -155,19 +170,20 @@ auth.onAuthStateChanged(user=>{
     chatBox.scrollTop = chatBox.scrollHeight;
   });
 
-  // FIXED: SEND MESSAGE NOW WORKS
+  // SEND MESSAGE - NO ALERT
   window.sendMsg = ()=>{
     const text = msgInput.value.trim();
-    if(!text) return;
+    if(!text) return showToast("Please type a message");
     chatRef.push({
       sender: "user",
       message: text,
       timestamp: Date.now(),
-      read: true // user messages are always read
+      read: true
     }).then(()=>{
       msgInput.value="";
+      showToast("Message sent", 'success');
     }).catch(e=>{
-      alert("Failed to send: " + e.message)
+      showToast("Failed to send: " + e.message)
     });
   }
 
