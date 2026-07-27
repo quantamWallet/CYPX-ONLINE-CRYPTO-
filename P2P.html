@@ -473,34 +473,20 @@ onAuthStateChanged(auth, (user) => {
 
   currentUser = user;
 
-  // Read balance exactly like apply-merchant.html
-  onValue(ref(db, "users/" + user.uid + "/balance"), (snapshot) => {
+  // Read balance - works if balance is number OR if balance is inside an object
+  onValue(ref(db, "users/" + user.uid), (snapshot) => {
+    if (!snapshot.exists()) return;
+    const d = snapshot.val();
 
-    userBalance = Number(snapshot.val() || 0);
+    // THIS IS THE FIX: check if balance is number or object
+    userBalance = Number(d?.balance ?? d?.Balance ?? 0);
 
     document.getElementById("walletBalance").textContent =
       "$" + formatNumber(userBalance) + " USDT";
-  });
 
-  // Read the rest of the user's profile
-  onValue(ref(db, "users/" + user.uid), (snapshot) => {
-    if (!snapshot.exists()) return;
-
-    const d = snapshot.val();
-
-    currentUser.username =
-      d.username ??
-      d.Username ??
-      "User";
-
-    currentUser.fullName =
-      d.fullName ??
-      d.FullName ??
-      currentUser.username;
-
-    currentUser.verified =
-      d.verified === true ||
-      d.kycStatus === "verified";
+    currentUser.username = d.username ?? d.Username ?? "User";
+    currentUser.fullName = d.fullName ?? d.FullName ?? currentUser.username;
+    currentUser.verified = d.verified === true || d.kycStatus === "verified";
   });
 });
   
