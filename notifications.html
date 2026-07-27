@@ -207,47 +207,48 @@ function initNotifications(){
   let unreadNotif = 0;
 
   markAll.onclick = () => {
+    let updates = {};
     userCache.forEach(n=>{
       if(!n.read){
-        database.ref(`notifications/${uid}/${n.key}/read`).set(true);
+        updates[`notifications/${uid}/${n.key}/read`] = true;
       }
     })
+    if(Object.keys(updates).length > 0) database.ref().update(updates);
   }
 
   // THIS LISTENS TO ALL PAST + NEW MESSAGES FOR THIS USER
   notifRef.orderByChild('timestamp').limitToLast(100).on("value", snap => {
     userCache = [];
+    let updates = {}; // batch update
+    
     if (snap.exists()) {
+      snap.forEach(child => {
+          const data = child.val() || {};
+          userCache.push({
+              key: child.key,
+              title: data.title || "",
+              body: data.body || "",
+              timestamp: data.timestamp || 0,
+              read: data.read === true,
+              isBroadcast: data.type === "broadcast",
+              url: data.url || ""
+          });
 
-    console.log("Notifications found:");
-    console.log(snap.val());
+          // AUTO MARK AS READ WHEN PAGE OPENS
+          if(data.read !== true){
+            updates[`notifications/${uid}/${child.key}/read`] = true;
+          }
+      });
+    } 
+    
+    // Mark everything as read 1 time when page loads
+    if(Object.keys(updates).length > 0){
+      database.ref().update(updates);
+    }
 
-    snap.forEach(child => {
-
-        const data = child.val() || {};
-
-        console.log("Notification:", child.key, data);
-
-        userCache.push({
-            key: child.key,
-            title: data.title || "",
-            body: data.body || "",
-            timestamp: data.timestamp || 0,
-            read: data.read === true,
-            isBroadcast: data.type === "broadcast",
-            url: data.url || ""
-        });
-
-    });
-
-} else {
-
-    console.log("No notifications exist for UID:", uid);
-
-  }
-      render();
+    render();
   }, (error) => {
-    console.error("Firebase read error:", error); // Will show if rules block
+    console.error("Firebase read error:", error);
     list.innerHTML = '<div class="notif-empty">Error loading. Check Firebase Rules</div>';
   });
 
@@ -265,7 +266,7 @@ function initNotifications(){
     }
 
     finalArr.forEach(n=>{
-      if(!n.read) unreadNotif++;
+      if(!n.read) unreadNotif++; // this will now always be 0 after first load
       const time = n.timestamp? new Date(n.timestamp).toLocaleString() : '';
       const div = document.createElement("div");
       div.className = "notif-item" + (n.read? " read" : "") + (n.isBroadcast? " broadcast" : "");
@@ -282,7 +283,7 @@ function initNotifications(){
     badgeTop.style.display = unreadNotif > 0? "inline-block" : "none";
     badgeTop.textContent = unreadNotif + " new";
   }
-}
+  }
 </script>
 
 </body>
