@@ -98,7 +98,7 @@ function showToast(msg, type='error'){
 
 auth.onAuthStateChanged(user=>{
   if(!user) location.href="auth.html";
-  const chatRef = db.ref("support_chats/"+user.uid);
+  const chatRef = db.ref("supportChats/"+user.uid+"/messages");
   const typingRef = db.ref("support_typing/"+user.uid);
   const adminStatusRef = db.ref("support_admin_status/"+user.uid);
   
