@@ -131,10 +131,13 @@ auth.onAuthStateChanged(user=>{
     }
   });
 
-  // 4. LISTEN FOR MESSAGES - LOGIC UNCHANGED
+  // 4. LISTEN FOR MESSAGES - NOW MARKS AS READ
   chatRef.on("value", snap=>{
     chatBox.innerHTML="";
     let msgCount = 0;
+    let newUnread = 0; // reset count each time
+    let updates = {}; // batch update read status
+    
     snap.forEach(child=>{
       msgCount++;
       const m = child.val();
@@ -144,30 +147,34 @@ auth.onAuthStateChanged(user=>{
       div.innerHTML = `${m.message}<div class="time">${time}</div>`;
       chatBox.appendChild(div);
 
+      // Count unread admin messages
       if(m.sender === "admin" && !m.read){
-        unreadCount++;
+        newUnread++;
+        // Queue this message to be marked as read
+        updates[`support_chats/${user.uid}/${child.key}/read`] = true;
       }
     });
+
+    // Mark all unread messages as read in 1 go
+    if(Object.keys(updates).length > 0){
+      db.ref().update(updates);
+    }
+
+    unreadCount = newUnread; // update global count
     
-    if(msgCount > lastMessageCount && unreadCount > 0){
+    if(unreadCount > 0){
       document.getElementById('unreadBadge').style.display = "inline-block";
       document.getElementById('unreadBadge').textContent = unreadCount;
       document.title = `(${unreadCount}) CYPX Support`;
+    } else {
+      document.getElementById('unreadBadge').style.display = "none";
+      document.title = "CYPX Support";
     }
+    
     lastMessageCount = msgCount;
 
     chatBox.appendChild(document.getElementById('typingIndicator'));
     chatBox.scrollTop = chatBox.scrollHeight;
-
-    snap.forEach(child=>{
-      const m = child.val();
-      if(m.sender === "admin" && !m.read){
-        db.ref(`support_chats/${user.uid}/${child.key}/read`).set(true);
-        unreadCount = 0;
-        document.getElementById('unreadBadge').style.display = "none";
-        document.title = "CYPX Support";
-      }
-    });
   });
 
   window.sendMsg = ()=>{
