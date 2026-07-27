@@ -449,7 +449,10 @@ if (trader.balance != null) {
       <div class="trader-top"><h3>${name}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
       <div class="stats"><span class="rate">1 USDT = ${formatNumber(rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
       <div class="stats"><span>Available: ${formatNumber(available)} USDT</span><span>${trader.trades || 0} Trades</span></div>
-      <div class="stats"><span>Limits: $${formatNumber(50)} - ${formatNumber(trader.available)}</span><span>${methods.join(", ")}</span></div>
+      <div class="stats">
+    <span>Limits: ${formatNumber(Math.min(50, available))} - ${formatNumber(available)} USDT</span>
+    <span>${methods.join(", ")}</span>
+</div>
       <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
     </div>`;
   });
