@@ -84,8 +84,8 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 <button class="trade-btn" style="width:auto;padding:13px 20px" onclick="sendMessage()">Send</button>
 </div>
 </div>
-</div>
-<!-- HEADER -->
+  </div>
+  <!-- HEADER -->
 <div class="header">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
 <button onclick="window.location.href='apply-merchant.html'" style="background:#fff;color:#00695c;border:none;padding:10px 15px;border-radius:10px;font-weight:bold;cursor:pointer;">
@@ -184,22 +184,29 @@ function switchTab(type,btn){
 
 function calcKES(){
   const usd = parseFloat(document.getElementById("tradeAmount").value) || 0;
-  const rate = selectedTrader.rate || 129;
+  const rate = selectedTrader.rate || 129; // FIXED TO 129
   const kes = usd * rate;
   document.getElementById("kesPreview").innerHTML = usd > 0 ? `You ${currentTab==="buy"?"Pay":"Receive"}: KES ${formatNumber(kes)} @ ${formatNumber(rate)}` : "";
+}
+
+function getPaymentMethods(trader){
+  // Handles both array and string
+  if(Array.isArray(trader.paymentMethods)) return trader.paymentMethods;
+  if(typeof trader.paymentMethod === 'string') return [trader.paymentMethod];
+  return ["M-Pesa Kenya"];
 }
 
 function openTrade(trader,id){
   selectedTrader = {id,...trader};
   document.getElementById("tradeModal").style.display="flex";
-  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${trader.fullName} ${trader.verified?'<i class="fa-solid fa-circle-check" style="color:var(--accent)"></i>':''}`;
+  const name = trader.fullName || trader.username || "Trader";
+  document.getElementById("traderName").innerHTML = `${currentTab==="buy"?"Buy from ":"Sell to "}${name} ${trader.verified?'<i class="fa-solid fa-circle-check" style="color:var(--accent)"></i>':''}`;
   
   const paySel = document.getElementById("payment");
   paySel.innerHTML = "";
-  (trader.paymentMethods || []).forEach(p=>{
+  getPaymentMethods(trader).forEach(p=>{
     paySel.innerHTML += `<option>${p}</option>`;
   });
-  if(paySel.innerHTML === "") paySel.innerHTML = `<option>M-Pesa Kenya</option>`;
 }
 
 async function createTrade(){
@@ -209,7 +216,8 @@ async function createTrade(){
   const payment = document.getElementById("payment").value;
   if(!amount || amount <= 0) return showToast("Enter valid amount");
 
-  const kesAmount = amount * selectedTrader.rate;
+  const rate = selectedTrader.rate || 129;
+  const kesAmount = amount * rate;
   if(kesAmount < selectedTrader.minAmount || kesAmount > selectedTrader.maxAmount) 
     return showToast(`Amount must be between KES ${formatNumber(selectedTrader.minAmount)} and ${formatNumber(selectedTrader.maxAmount)}`);
 
@@ -229,9 +237,9 @@ async function createTrade(){
     await set(orderRef,{
       buyerUid: currentTab==="buy" ? user.uid : selectedTrader.id,
       sellerUid: currentTab==="buy" ? selectedTrader.id : user.uid,
-      sellerName: selectedTrader.fullName, sellerVerified: selectedTrader.verified,
-      buyerName: currentUser.fullName, buyerVerified: currentUser.verified,
-      amount, paymentMethod:payment, rate: selectedTrader.rate,
+      sellerName: selectedTrader.fullName || selectedTrader.username, sellerVerified: selectedTrader.verified,
+      buyerName: currentUser.fullName || currentUser.username, buyerVerified: currentUser.verified,
+      amount, paymentMethod:payment, rate: rate,
       paybill: selectedTrader.paybill || "", account: selectedTrader.account || "",
       bankName: selectedTrader.bankName || "", bankAccount: selectedTrader.bankAccount || "",
       status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
@@ -417,38 +425,35 @@ function renderTraders(snapshot){
   const amountFilter = parseFloat(document.getElementById("filterAmount").value) || 0;
   snapshot.forEach((child)=>{
     const trader = child.val(); if(trader.active === false) return;
-    if(filter !== "All Methods" && !trader.paymentMethods?.includes(filter)) return;
+    const methods = getPaymentMethods(trader);
+    if(filter !== "All Methods" && !methods.includes(filter)) return;
     const available = Number(trader.available || 0);
     if(amountFilter > 0 && available < amountFilter) return;
+    const name = trader.fullName || trader.username || "Trader";
+    const rate = trader.rate || 129;
     tradersBox.innerHTML += `
     <div class="trader-card">
-      <div class="trader-top"><h3>${trader.fullName}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
-      <div class="stats"><span class="rate">1 USDT = ${formatNumber(trader.rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
+      <div class="trader-top"><h3>${name}</h3><span class="verified">${trader.verified ? '<i class="fa-solid fa-circle-check"></i> Verified' : ''}</span></div>
+      <div class="stats"><span class="rate">1 USDT = ${formatNumber(rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
       <div class="stats"><span>Available: ${formatNumber(available)} USDT</span><span>${trader.trades || 0} Trades</span></div>
-      <div class="stats"><span>Limits: KES ${formatNumber(trader.minAmount)} - ${formatNumber(trader.maxAmount)}</span><span>${trader.paymentMethods?.join(", ")}</span></div>
+      <div class="stats"><span>Limits: KES ${formatNumber(trader.minAmount)} - ${formatNumber(trader.maxAmount)}</span><span>${methods.join(", ")}</span></div>
       <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
     </div>`;
   });
 }
 
+// FIX 1: Read balance from users, not p2p_sellers
 onValue(ref(db,"p2p_sellers"),(snapshot)=>{ 
   allTraders = snapshot; 
   renderTraders(snapshot);
-  
-  const user = auth.currentUser;
-  if(user){
-    const mySellerData = snapshot.child(user.uid).val();
-    if(mySellerData){
-      userBalance = Number(mySellerData.balance || 0);
-      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT";
-    }
-  }
 });
 
 onAuthStateChanged(auth,(user)=>{
   if(user){ currentUser = user;
     onValue(ref(db,"users/"+user.uid),(s)=>{ 
       const d=s.val(); 
+      userBalance = Number(d?.balance || 0); // FIX: balance from users
+      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT";
       currentUser.username = d?.username || "User"; 
       currentUser.fullName = d?.fullName || d?.username;
       currentUser.verified = d?.kycStatus==="verified"; 
