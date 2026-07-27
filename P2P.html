@@ -86,6 +86,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 </div>
 </div>
 </div>
+
 <!-- HEADER -->
 <div class="header">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
@@ -130,6 +131,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 <button class="trade-btn confirm" onclick="createTrade()">Confirm Trade</button>
 </div>
 </div>
+
 <!-- MY TRADES -->
 <div class="modal" id="myTradesModal">
 <div class="modal-content trade-room-content">
@@ -138,7 +140,6 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 <div id="myTradesList">Loading trades...</div>
 </div>
 </div>
-
 </div>
 
 <script type="module">
@@ -207,8 +208,7 @@ function openTrade(trader,id){
     paySel.innerHTML += `<option>${p}</option>`;
   });
 }
-
-async function createTrade(){
+  async function createTrade(){
   const user = auth.currentUser;
   if(!user || !selectedTrader.id) return;
   const amount = Number(document.getElementById("tradeAmount").value);
@@ -238,7 +238,7 @@ async function createTrade(){
       buyerName: currentUser.fullName || currentUser.username, buyerVerified: currentUser.verified,
       amount, paymentMethod:payment, rate: rate,
       paybill: selectedTrader.paybill || "", 
-      paymentNumber: selectedTrader.paymentNumber || "", // FIX: PULL paymentNumber
+      paymentNumber: selectedTrader.paymentNumber || "",
       bankName: selectedTrader.bankName || "", bankAccount: selectedTrader.bankAccount || "",
       status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
       createdAt:serverTimestamp(), expiresAt:Date.now()+15*60*1000
@@ -274,7 +274,6 @@ function openTradeRoom(orderId){
     const otherUser = isBuyer ? order.sellerName : order.buyerName;
     const otherVerified = isBuyer ? order.sellerVerified : order.buyerVerified;
     
-    // FIX: ALWAYS SHOW + USE paymentNumber
     let paymentHTML = "";
     if(order.paybill || order.paymentNumber || order.bankAccount){
       paymentHTML = `
@@ -375,8 +374,9 @@ async function releaseUSDT(orderId){
   const orderSnap = await get(ref(db,"p2p_orders/"+orderId)); const order = orderSnap.val(); 
   if(!order || order.status !== "payment_sent" || order.sellerUid !== auth.currentUser.uid) return;
   const amount = Number(order.amount);
-  const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
-  await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val() || 0) + amount });
+  const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid));
+  const currentBal = Number(buyerBalSnap.val()?.balance || 0);
+  await update(ref(db,"users/"+order.buyerUid),{ balance: currentBal + amount });
   await update(ref(db,"p2p_orders/"+orderId),{ status:"completed", completedAt:serverTimestamp() });
   const sellerSnap = await get(ref(db,"p2p_sellers/"+order.sellerUid));
   if(sellerSnap.exists()){ await update(ref(db,"p2p_sellers/"+order.sellerUid),{ locked: Math.max(Number(sellerSnap.val().locked||0)-amount,0) }); }
@@ -396,8 +396,9 @@ async function cancelTrade(){
     }
   }
   if(order.buyerUid && currentTab==="sell"){
-    const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid+"/balance"));
-    await update(ref(db,"users/"+order.buyerUid),{ balance: Number(buyerBalSnap.val()||0)+Number(order.amount) });
+    const buyerBalSnap = await get(ref(db,"users/"+order.buyerUid));
+    const currentBal = Number(buyerBalSnap.val()?.balance || 0);
+    await update(ref(db,"users/"+order.buyerUid),{ balance: currentBal + Number(order.amount) });
   }
   await update(ref(db,"p2p_orders/"+currentOrder),{ status:"cancelled" });
   closeTradeRoom();
@@ -435,12 +436,11 @@ function renderTraders(snapshot){
     const methods = getPaymentMethods(trader);
     if(filter !== "All Methods" && !methods.includes(filter)) return;
     let available = 0;
-
-if (trader.balance != null) {
-    available = Number(trader.balance);
-} else if (trader.available != null) {
-    available = Number(trader.available);
-  }
+    if (trader.balance != null) {
+        available = Number(trader.balance);
+    } else if (trader.available != null) {
+        available = Number(trader.available);
+    }
     if(amountFilter > 0 && available < amountFilter) return;
     const name = trader.fullName || trader.username || "Trader";
     const rate = trader.rate || 129;
@@ -450,9 +450,9 @@ if (trader.balance != null) {
       <div class="stats"><span class="rate">1 USDT = ${formatNumber(rate)} KES</span><span>${trader.completion || 0}% Completion</span></div>
       <div class="stats"><span>Available: ${formatNumber(available)} USDT</span><span>${trader.trades || 0} Trades</span></div>
       <div class="stats">
-    <span>Limits: ${formatNumber(Math.min(50, available))} - ${formatNumber(available)} USDT</span>
-    <span>${methods.join(", ")}</span>
-</div>
+        <span>Limits: ${formatNumber(Math.min(50, available))} - ${formatNumber(available)} USDT</span>
+        <span>${methods.join(", ")}</span>
+      </div>
       <button class="trade-btn ${currentTab==="sell"?"sell":""}" onclick='openTrade(${JSON.stringify(trader).replace(/"/g,"&quot;")}, "${child.key}")'>${currentTab==="buy"?"Buy":"Sell"} USDT</button>
     </div>`;
   });
@@ -463,23 +463,20 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
   renderTraders(snapshot);
 });
 
-onAuthStateChanged(auth, (user) => {
+// EXACT SAME AS VIP PAGE FOR READING BALANCE
+onAuthStateChanged(auth, user => {
   if (!user) {
-    currentUser = null;
-    userBalance = 0;
-    document.getElementById("walletBalance").textContent = "$0.00 USDT";
+    location.href = "auth.html";
     return;
   }
 
   currentUser = user;
+  const userRef = ref(db, "users/" + user.uid);
 
-  // Read balance - works if balance is number OR if balance is inside an object
-  onValue(ref(db, "users/" + user.uid), (snapshot) => {
-    if (!snapshot.exists()) return;
-    const d = snapshot.val();
-
-    // THIS IS THE FIX: check if balance is number or object
-    userBalance = Number(d?.balance ?? d?.Balance ?? 0);
+  onValue(userRef, snap => {
+    const d = snap.val() || { balance: 0 };
+    
+    userBalance = Number(d.balance ?? 0);
 
     document.getElementById("walletBalance").textContent =
       "$" + formatNumber(userBalance) + " USDT";
@@ -490,7 +487,6 @@ onAuthStateChanged(auth, (user) => {
   });
 });
   
-
 window.openTrade=openTrade; window.closeTrade=closeTrade; window.createTrade=createTrade; window.switchTab=switchTab;
 window.openTradeRoom=openTradeRoom; window.closeTradeRoom=closeTradeRoom; window.sendMessage=sendMessage;
 window.markPaid=markPaid; window.releaseUSDT=releaseUSDT; window.openMyTrades=openMyTrades;
