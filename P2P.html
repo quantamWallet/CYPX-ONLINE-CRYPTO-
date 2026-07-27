@@ -459,7 +459,7 @@ onAuthStateChanged(auth,(user)=>{
     onValue(ref(db,"users/"+user.uid),(s)=>{ 
       const d=s.val(); 
       userBalance = Number(d?.balance || 0);
-      document.getElementById("walletBalance").innerHTML="$"+formatNumber(500)+" USDT";
+      document.getElementById("walletBalance").innerHTML="$"+formatNumber(userBalance)+" USDT"; // <-- use userBalance here
       currentUser.username = d?.username || "User"; 
       currentUser.fullName = d?.fullName || d?.username;
       currentUser.verified = d?.kycStatus==="verified"; 
