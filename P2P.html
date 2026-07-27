@@ -463,8 +463,7 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
   renderTraders(snapshot);
 });
 
-onAuthStateChanged(auth, async (user) => {
-
+onAuthStateChanged(auth, (user) => {
   if (!user) {
     currentUser = null;
     userBalance = 0;
@@ -474,50 +473,35 @@ onAuthStateChanged(auth, async (user) => {
 
   currentUser = user;
 
-  console.log("Logged in UID:", user.uid);
+  // Read balance exactly like apply-merchant.html
+  onValue(ref(db, "users/" + user.uid + "/balance"), (snapshot) => {
 
-  const userRef = ref(db, "users/" + user.uid);
-  const snapshot = await get(userRef);
+    userBalance = Number(snapshot.val() || 0);
 
-  if (!snapshot.exists()) {
-    console.error("❌ No user found at users/" + user.uid);
-    showToast("User profile not found!");
-    return;
-  }
+    document.getElementById("walletBalance").textContent =
+      "$" + formatNumber(userBalance) + " USDT";
+  });
 
-  const d = snapshot.val();
+  // Read the rest of the user's profile
+  onValue(ref(db, "users/" + user.uid), (snapshot) => {
+    if (!snapshot.exists()) return;
 
-  console.log("✅ User Data:", d);
+    const d = snapshot.val();
 
-  // Read balance (supports different field names)
-  userBalance = Number(
-    d.balance ??
-    d.Balance ??
-    d.walletBalance ??
-    d.wallet ??
-    d.mainBalance ??
-    0
-  );
+    currentUser.username =
+      d.username ??
+      d.Username ??
+      "User";
 
-  document.getElementById("walletBalance").textContent =
-    "$" + formatNumber(userBalance) + " USDT";
+    currentUser.fullName =
+      d.fullName ??
+      d.FullName ??
+      currentUser.username;
 
-  currentUser.username =
-    d.username ??
-    d.Username ??
-    "User";
-
-  currentUser.fullName =
-    d.fullName ??
-    d.FullName ??
-    currentUser.username;
-
-  currentUser.verified =
-    d.verified === true ||
-    d.kycStatus === "verified";
-
-  console.log("Displayed Balance:", userBalance);
-
+    currentUser.verified =
+      d.verified === true ||
+      d.kycStatus === "verified";
+  });
 });
   
 
