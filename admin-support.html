@@ -217,7 +217,7 @@ function openSupportChat(uid, username, el){
   // THIS TELLS CLIENT THAT ADMIN IS ONLINE
   db.ref(`support_admin_status/${uid}`).set("online");
 
-  const chatRef = db.ref(`supportChats/${uid}/messages`);
+  const chatRef = db.ref(`support_chats/${uid}`);
   chatRef.on("value", snap=>{
     const chatBox = document.getElementById('chatBox');
     const typingIndicator = document.getElementById('typingIndicator');
@@ -270,7 +270,7 @@ function sendReply(){
 
   document.getElementById('typingIndicator').style.display="none";
 
-  db.ref(`supportChats/${currentChatUID}/messages`).push({
+  db.ref(`support_chats/${currentChatUID}`).push({
     sender: "admin",
     message: text,
     timestamp: Date.now(),
