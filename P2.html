@@ -96,7 +96,7 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 <h2><i class="fa-solid fa-arrows-rotate"></i> CYPX P2P</h2>
 </div>
 <div class="balance">
-<span>Wallet Balance:</span> <b id="walletBalance">$0.00 USDT</b>
+<span>Wallet Balance:</span> <b id="walletBalance">Loading...</b>
 </div>
 </div>
 
@@ -141,7 +141,6 @@ select,input{width:100%;padding:13px;border-radius:10px;border:none;margin-top:6
 </div>
 </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -208,7 +207,7 @@ function openTrade(trader,id){
     paySel.innerHTML += `<option>${p}</option>`;
   });
 }
-  async function createTrade(){
+async function createTrade(){
   const user = auth.currentUser;
   if(!user || !selectedTrader.id) return;
   const amount = Number(document.getElementById("tradeAmount").value);
@@ -435,12 +434,7 @@ function renderTraders(snapshot){
     const trader = child.val(); if(trader.active === false) return;
     const methods = getPaymentMethods(trader);
     if(filter !== "All Methods" && !methods.includes(filter)) return;
-    let available = 0;
-    if (trader.balance != null) {
-        available = Number(trader.balance);
-    } else if (trader.available != null) {
-        available = Number(trader.available);
-    }
+    let available = Number(trader.available || 0);
     if(amountFilter > 0 && available < amountFilter) return;
     const name = trader.fullName || trader.username || "Trader";
     const rate = trader.rate || 129;
@@ -463,7 +457,7 @@ onValue(ref(db,"p2p_sellers"),(snapshot)=>{
   renderTraders(snapshot);
 });
 
-// EXACT SAME AS VIP PAGE FOR READING BALANCE
+// FIX: EXACT SAME BALANCE PATH AS apply-merchant.html + LIVE UPDATE
 onAuthStateChanged(auth, user => {
   if (!user) {
     location.href = "auth.html";
@@ -471,16 +465,16 @@ onAuthStateChanged(auth, user => {
   }
 
   currentUser = user;
-  const userRef = ref(db, "users/" + user.uid);
+  const userRef = ref(db, "users/" + user.uid + "/balance"); // SAME PATH
 
   onValue(userRef, snap => {
-    const d = snap.val() || { balance: 0 };
-    
-    userBalance = Number(d.balance ?? 0);
+    userBalance = Number(snap.val() || 0);
+    document.getElementById("walletBalance").textContent = "$" + formatNumber(userBalance) + " USDT";
+  });
 
-    document.getElementById("walletBalance").textContent =
-      "$" + formatNumber(userBalance) + " USDT";
-
+  // also get user profile once
+  get(ref(db, "users/" + user.uid)).then(snap=>{
+    const d = snap.val() || {};
     currentUser.username = d.username ?? d.Username ?? "User";
     currentUser.fullName = d.fullName ?? d.FullName ?? currentUser.username;
     currentUser.verified = d.verified === true || d.kycStatus === "verified";
