@@ -434,7 +434,13 @@ function renderTraders(snapshot){
     const trader = child.val(); if(trader.active === false) return;
     const methods = getPaymentMethods(trader);
     if(filter !== "All Methods" && !methods.includes(filter)) return;
-    const available = Number(trader.available || 0);
+    let available = 0;
+
+if (trader.balance != null) {
+    available = Number(trader.balance);
+} else if (trader.available != null) {
+    available = Number(trader.available);
+  }
     if(amountFilter > 0 && available < amountFilter) return;
     const name = trader.fullName || trader.username || "Trader";
     const rate = trader.rate || 129;
