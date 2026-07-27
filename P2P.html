@@ -239,7 +239,8 @@ async function createTrade(){
       sellerName: selectedTrader.fullName || selectedTrader.username, sellerVerified: selectedTrader.verified,
       buyerName: currentUser.fullName || currentUser.username, buyerVerified: currentUser.verified,
       amount, paymentMethod:payment, rate: rate,
-      paybill: selectedTrader.paybill || "", account: selectedTrader.account || "",
+      paybill: selectedTrader.paybill || "", 
+      paymentNumber: selectedTrader.paymentNumber || "", // FIX: PULL paymentNumber
       bankName: selectedTrader.bankName || "", bankAccount: selectedTrader.bankAccount || "",
       status:"pending_payment", buyerConfirmed:false, sellerConfirmed:false,
       createdAt:serverTimestamp(), expiresAt:Date.now()+15*60*1000
@@ -275,17 +276,19 @@ function openTradeRoom(orderId){
     const otherUser = isBuyer ? order.sellerName : order.buyerName;
     const otherVerified = isBuyer ? order.sellerVerified : order.buyerVerified;
     
-    // FIX 1: ALWAYS SHOW PAYMENT DETAILS IF THEY EXIST IN FIREBASE
+    // FIX: ALWAYS SHOW + USE paymentNumber
     let paymentHTML = "";
-    if(order.paybill || order.account || order.bankAccount){
+    if(order.paybill || order.paymentNumber || order.bankAccount){
       paymentHTML = `
       <div class="payment-info">
         ${order.paymentMethod.includes("M-Pesa") && order.paybill?`
           <div><span><div class="label">Paybill</div>${order.paybill}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paybill}')"></i></div>
-          <div><span><div class="label">Account/Number</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
         `:''}
-        ${(order.paymentMethod.includes("Airtel") || order.paymentMethod.includes("MTN")) && order.account?`
-          <div><span><div class="label">${order.paymentMethod} No</div>${order.account}</span><i class="fa-regular fa-copy" onclick="copyText('${order.account}')"></i></div>
+        ${order.paymentMethod.includes("M-Pesa") && order.paymentNumber?`
+          <div><span><div class="label">Account/Number</div>${order.paymentNumber}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paymentNumber}')"></i></div>
+        `:''}
+        ${(order.paymentMethod.includes("Airtel") || order.paymentMethod.includes("MTN")) && order.paymentNumber?`
+          <div><span><div class="label">${order.paymentMethod} No</div>${order.paymentNumber}</span><i class="fa-regular fa-copy" onclick="copyText('${order.paymentNumber}')"></i></div>
         `:''}
         ${order.paymentMethod==="Bank Transfer" && order.bankAccount?`
           <div><span><div class="label">Bank</div>${order.bankName}</span></div>
@@ -413,7 +416,6 @@ function openMyTrades(){
     snapshot.forEach((child)=>{
       const order = child.val();
       if(order.buyerUid === user.uid || order.sellerUid === user.uid){
-        // FIX 2: ALLOW OPENING CLOSED TRADES
         const isClosed = ["cancelled","expired","completed","disputed"].includes(order.status);
         const btnText = isClosed ? "View Details" : "Open Trade";
         box.innerHTML += `<div class="trader-card"><h3>${order.sellerName}</h3><p>${formatNumber(order.amount)} USDT - KES ${formatNumber(order.amount*order.rate)}</p><p>Payment: ${order.paymentMethod}</p><p>Status: <span class="status-badge status-${order.status.replace('_','')}">${order.status}</span></p><button class="trade-btn" onclick="openTradeRoom('${child.key}')">${btnText}</button></div>`;
