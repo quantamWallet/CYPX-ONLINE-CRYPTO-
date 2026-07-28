@@ -308,10 +308,8 @@ auth.onAuthStateChanged(user => {
 
     db.ref(`users/${user.uid}`).once("value").then(snap => {
 
-      registeredPhone = snap.child("phone").val() || "";
-
-      phoneInput.value = registeredPhone;
-
+      registeredPhone = String(snap.child("phone").val() || "").trim();
+phoneInput.value = registeredPhone;
     });
 
     db.ref(`users/${user.uid}/balance`).on("value", snap => {
@@ -549,7 +547,10 @@ if (!committed) {
       amountInput.value = '';phoneInput.value = '';paypalEmailInput.value = '';cryptoAddressInput.value = '';
 
       let receiver = "";
-
+console.log("Method:", method);
+console.log("Phone:", phone);
+console.log("Valid:", isValidNumber(phone));
+      
   if (method === "mpesa" || method === "airtel") {
 
     receiver = maskPhone(registeredPhone);
