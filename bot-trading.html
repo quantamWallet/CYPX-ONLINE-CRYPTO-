@@ -180,8 +180,8 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
  <div class="live-price"><span class="live-dot"></span><span id="livePrice">$ 1.1424</span></div>
 
   <div class="input-group">
-    <label>TRADE AMOUNT (USD) - MIN $100</label>
-    <input type="number" id="amount" value="100" min="100">
+    <label>TRADE AMOUNT (USD) - MIN $50</label>
+    <input type="number" id="amount" value="50" min="50">
     <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;">
       <button class="duration-btn" onclick="setPercent(10)">10%</button>
       <button class="duration-btn" onclick="setPercent(15)">15%</button>
@@ -217,7 +217,7 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
   <div class="summary">
     <div class="sum-card"><small>BOT</small><div id="sumBot">None</div></div>
     <div class="sum-card"><small>MARKET</small><div id="sumMarket">EUR/USD</div></div>
-    <div class="sum-card"><small>AMOUNT</small><div id="sumAmount">$100.00</div></div>
+    <div class="sum-card"><small>AMOUNT</small><div id="sumAmount">$50.00</div></div>
     <div class="sum-card"><small>DURATION</small><div id="sumDur">1 hr</div></div>
   </div>
 
@@ -450,7 +450,7 @@ document.getElementById('amount').oninput = e=>{
 // PERCENT CALCULATOR
 function setPercent(p){
   const amt = Math.floor(balance * p / 100);
-  document.getElementById('amount').value = amt < 100 ? 100 : amt;
+  document.getElementById('amount').value = amt < 50 ? 50 : amt;
   document.getElementById('sumAmount').textContent = '$'+Number(document.getElementById('amount').value).toLocaleString();
 }
 
@@ -596,7 +596,7 @@ function determineResult(botName){
 function startTrade(){
   if(!selectedBot) return showToast('Please select a bot first', '#ff3b30');
   const amount = Number(document.getElementById('amount').value);
-  if(amount < 100) return showToast('Min trade $100', '#ff3b30');
+  if(amount < 50) return showToast('Min trade $50', '#ff3b30');
   if(amount > balance) return showToast('Insufficient balance', '#ff3b30');
 
   isTrading = true;
