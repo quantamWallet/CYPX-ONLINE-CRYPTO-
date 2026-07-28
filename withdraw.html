@@ -52,7 +52,7 @@ h2 i{margin-right:8px;}
 .btn:disabled{opacity:.7;cursor:not-allowed;}
 .small{text-align:center;margin-top:10px;color:#c9d7ec;font-size:13px;}
 .small strong{color:var(--gold2);}
-.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:10000;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade .25s ease;}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:320px;max-width:90%;padding:24px 20px;border-radius:20px;z-index:10000;display:none;text-align:center;font-weight:600;line-height:1.6;backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:popupFade.25s ease;} /* FIXED SPACE */
 .popup.success{background:linear-gradient(145deg,rgba(18,87,48,.95),rgba(10,55,29,.96));border:1px solid rgba(78,255,144,.22);color:#d7ffe7;}
 .popup.error{background:linear-gradient(145deg,rgba(90,22,22,.95),rgba(55,12,12,.96));border:1px solid rgba(255,90,90,.20);color:#ffe1e1;}
 .popup.confirm{background:linear-gradient(145deg,rgba(18,41,76,.98),rgba(8,24,48,.98));border:1px solid rgba(212,175,55,.18);color:#eaf3ff;}
@@ -219,8 +219,8 @@ select option{background:#10294d;color:white;}
         style="width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:#555;color:#fff;cursor:pointer;">
         Cancel
     </button>
-  </div>
-  <script>
+</div>
+<script>
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
@@ -328,54 +328,32 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// === NEW HELPER: Normalize phone to 254 format ===
-function normalizePhone(phone){
-  if(!phone) return "";
-  phone = phone.replace(/\D/g,''); // remove spaces, +, -
-  if(phone.startsWith('0')) phone = '254' + phone.slice(1); // 07... -> 2547...
-  return phone;
-}
+// === Phone validation ===
+function isValidNumber(phone) {
 
-// === Phone validation - UPDATED ===
-function isValidNumber(phone, method) {
-    phone = normalizePhone(phone); // auto convert 07... to 2547...
-
-    // Must contain only digits
-    if (!/^\d+$/.test(phone)) return false;
+    phone = phone.trim().replace(/\s+/g, "").replace(/^\+/, "");
 
     // Kenya
-    if (phone.startsWith("254")) {
-        return phone.length === 12;
-    }
+    if (/^(07|01)\d{8}$/.test(phone)) return true;
+    if (/^254(7|1)\d{8}$/.test(phone)) return true;
 
     // Tanzania
-    if (phone.startsWith("255")) {
-        return phone.length === 12;
-    }
+    if (/^(0)?7\d{8}$/.test(phone) || /^2557\d{8}$/.test(phone)) return true;
 
     // Uganda
-    if (phone.startsWith("256")) {
-        return phone.length === 12;
-    }
+    if (/^(0)?7\d{8}$/.test(phone) || /^2567\d{8}$/.test(phone)) return true;
 
     // Rwanda
-    if (phone.startsWith("250")) {
-        return phone.length === 12;
-    }
+    if (/^(0)?7\d{8}$/.test(phone) || /^2507\d{8}$/.test(phone)) return true;
 
     // Burundi
-    if (phone.startsWith("257")) {
-        return phone.length === 11;
-    }
+    if (/^257\d{8}$/.test(phone)) return true;
 
     // South Sudan
-    if (phone.startsWith("211")) {
-        return phone.length === 12;
-    }
+    if (/^211\d{9}$/.test(phone)) return true;
 
     return false;
-}
-
+  }
 // === BTC validation ===
 function isValidBTC(address){return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[0-9a-zA-Z]{39,59})$/.test(address);}
 
@@ -398,7 +376,6 @@ methodInput.addEventListener("change", () => {
 methodInput.dispatchEvent(new Event('change'));
 
 function maskPhone(phone) {
-    phone = normalizePhone(phone); // show masked in 254 format
     if (!phone || phone.length < 7) return phone;
     return phone.substring(0, 6) + "*****" + phone.substring(phone.length - 2);
 }
@@ -483,7 +460,7 @@ form.addEventListener('submit', async (e) => {
 
   const amount = Math.floor(Number(amountInput.value));
   const method = methodInput.value;
-  const phone = normalizePhone(registeredPhone); // UPDATED: normalize before using
+  const phone = registeredPhone;
   const paypalEmail = paypalEmailInput.value.trim();
   const cryptoAddress = cryptoAddressInput.value.trim();
 
@@ -491,7 +468,7 @@ form.addEventListener('submit', async (e) => {
 
   // Method validation
   if (method === "mpesa" || method === "airtel") {
-    if (!isValidNumber(phone, method)) {showPopup("Invalid Mobile Money number. Use 2547XXXXXXXX", "error");return;}
+    if (!isValidNumber(phone, method)) {showPopup("Invalid Mobile Money number", "error");return;}
   }
   if (method === "paypal") {
     if (!/^\S+@\S+\.\S+$/.test(paypalEmail)) {showPopup("Invalid PayPal email", "error");return;}
@@ -555,7 +532,7 @@ if (!committed) {
     try {
       const methodNames = {mpesa:"Mpesa",airtel:"Airtel Money",paypal:"PayPal",btc:"Bitcoin (BTC)",usdt_erc20:"USDT (ERC20)"};
       const payload = {amount: amount,method: methodNames[method],methodKey: method,status: "pending",timestamp: Date.now(),createdAt: Date.now()};
-      if (method === "mpesa" || method === "airtel") {payload.phone = phone;} // UPDATED: now sends 254 format
+      if (method === "mpesa" || method === "airtel") {payload.phone = phone;}
       else if (method === "paypal") {payload.paypalEmail = paypalEmail;}
       else if (method === "btc") {payload.btcAddress = cryptoAddress;}
       else if (method === "usdt_erc20") {payload.usdtAddress = cryptoAddress;payload.network = "ERC20";}
@@ -573,7 +550,7 @@ if (!committed) {
 
       let receiver = "";
 
-if (method === "mpesa" || method === "airtel") {
+  if (method === "mpesa" || method === "airtel") {
 
     receiver = maskPhone(registeredPhone);
 
