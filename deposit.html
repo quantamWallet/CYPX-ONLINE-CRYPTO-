@@ -39,6 +39,8 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      max-width: 500px;
+      margin: 0 auto;
     }
 
     .deposit-card {
@@ -98,6 +100,9 @@
       font-size: 13px;
       line-height: 1.7;
       color: #dddddd;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     /* COMING SOON POPUP */
@@ -155,17 +160,17 @@
 
   <div class="header">
     <h1>Deposit Center</h1>
-    <p>Select your preferred deposit method to fund your CYPX HOLDINGS account securely.</p>
+    <p>Deposit crypto to fund your CYPX HOLDINGS account securely.</p>
   </div>
 
   <div class="deposit-container">
 
-    <!-- Crypto Deposit - NOW FIRST -->
+    <!-- Crypto Deposit Only -->
     <div class="deposit-card">
       <h2>Crypto Deposit</h2>
       <p>
         Deposit cryptocurrency directly into your CYPX HOLDINGS wallet. 
-        Supported networks may include TRC20, BEP20, TRX, USDT, BNB, and other supported assets.
+        Supported networks include TRC20, BEP20, TRX, USDT, BNB, and other supported assets.
       </p>
 
       <button class="deposit-btn" onclick="window.location.href='crypto.html'">
@@ -173,27 +178,13 @@
       </button>
     </div>
 
-    <!-- P2P Trading - NOW LAST -->
-    <div class="deposit-card">
-      <h2>P2P Trading</h2>
-      <p>
-        Deposit funds through peer-to-peer (P2P) trading. 
-        This method allows you to transfer money safely through approved traders 
-        and complete your account funding quickly.
-      </p>
-
-      <button class="deposit-btn" onclick="window.location.href='P2P.html'">
-        Proceed to P2P Trading
-      </button>
-    </div>
-
   </div>
 
   <div class="info-box">
     <strong>Important Notice:</strong><br>
-    Please ensure you choose the correct deposit method and network before making payments. 
+    Please ensure you choose the correct network before making payments. 
     Incorrect transfers may lead to delays or loss of funds. 
-    Always verify payment details carefully before confirming transactions.
+    Always verify wallet address and network details carefully before confirming transactions.
   </div>
 
   <div id="popup" class="popup"></div>
