@@ -101,7 +101,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
       </div>
       <div class="price" id="price2">KES 0.00</div>
     </div>
-    <div class="details"><div class="detail">Limits: <span>$50 - $43000</span></div><div class="detail">Available: <span>$5000</span></div></div>
+    <div class="details"><div class="detail">Limits: <span>$20 - $43000</span></div><div class="detail">Available: <span>$5000</span></div></div>
     <div class="payment"><span class="pay-tag"><i class="fa fa-mobile"></i> AIRTEL MONEY KENYA</span></div>
     <div class="copy-box" onclick="copyNumber('254750858351')">254750858351<small>Tap to copy number</small></div>
     <button class="btn-buy" onclick="openBuyModal('AIRTEL MONEY KENYA', '254750858351', 'HASSAN ABDI')">Buy USD</button>
@@ -115,7 +115,7 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
     <div style="margin-bottom:10px">Trader: <b id="modalTrader"></b></div>
     <div style="margin-bottom:10px">Rate: <b id="modalRate"></b></div>
     <div id="kesPreview" style="margin-bottom:10px;color:#94a3b8;font-size:13px"></div>
-    <input type="number" id="buyAmount" class="input" placeholder="Enter USD amount. Min $50" step="0.01" min="50">
+    <input type="number" id="buyAmount" class="input" placeholder="Enter USD amount. Min $20" step="0.01" min="20">
     <input type="tel" id="buyPhone" class="input" placeholder="Your phone number">
     <input type="file" id="buyReceipt" class="input" accept="image/*">
     <button class="submit" id="submitBtn" onclick="submitDeposit()">Submit Deposit</button>
@@ -203,7 +203,7 @@ async function submitDeposit(){
   const receipt = document.getElementById("buyReceipt").files[0];
   const btn = document.getElementById("submitBtn");
 
-  if(isNaN(amount) || amount < 50) return showPopup("Enter valid amount. Min $50");
+  if(isNaN(amount) || amount < 20) return showPopup("Enter valid amount. Min $20");
   if(!phone) return showPopup("Enter phone");
   if(!receipt) return showPopup("Upload receipt");
 
