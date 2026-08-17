@@ -47,7 +47,6 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
     margin:12px auto;
     padding:0 12px;
 }
-
 .merchant-btn{
     display:flex;
     align-items:center;
@@ -63,15 +62,12 @@ body{font-family:'Poppins',Arial,sans-serif;background:#0b1120;color:#e2e8f0;pad
     box-shadow:0 4px 15px rgba(37,99,235,.35);
     transition:.25s;
 }
-
 .merchant-btn:hover{
     transform:translateY(-2px);
 }
-
 .merchant-btn i:first-child{
     font-size:18px;
 }
-
 .merchant-btn i:last-child{
     opacity:.8;
   }
@@ -235,7 +231,7 @@ async function submitDeposit(){
 
     if(receipt){
       storage.ref("receipts/" + uid + "/" + depositId).put(receipt)
-   .then(async(snap)=>{
+  .then(async(snap)=>{
         const url = await snap.ref.getDownloadURL();
         await db.ref("deposits/" + uid + "/" + depositId).update({receiptUrl: url});
         await db.ref("financial/" + uid + "/" + depositId).update({receiptUrl: url});
@@ -257,4 +253,4 @@ async function submitDeposit(){
 }
 </script>
 </body>
-</html>
+    </html>
