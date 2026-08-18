@@ -776,5 +776,6 @@ database.ref("notifications/" + uid).on("value", snap => {
       }
       firebase.auth().onAuthStateChanged(user => { if (user) { enableNotifications(); } });
     </script>
+    <script src="script.js"></script>
   </body>
 </html>
