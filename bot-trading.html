@@ -664,8 +664,7 @@ function finishTrade(amount){
   saveBotData('active_trade', null);
 
   const isWin = determineResult(selectedBot);
-  const potentialProfit = Number((amount * leverage * 0.03).toFixed(2));
-
+  const potentialProfit = Number((amount * leverage * 0.00444).toFixed(2));
   db.ref("users/" + userId + "/totalEarnings").once("value").then(snap => {
 
     let totalEarnings = Number(snap.val()) || 0;
