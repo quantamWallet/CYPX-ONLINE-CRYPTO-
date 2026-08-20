@@ -177,8 +177,6 @@ header{background:#001a33;padding:12px 15px;display:flex;justify-content:space-b
     </div>
   </div>
 
- <div class="live-price"><span class="live-dot"></span><span id="livePrice">$ 1.1424</span></div>
-
   <div class="input-group">
     <label>TRADE AMOUNT (USD) - MIN $50</label>
     <input type="number" id="amount" value="50" min="50">
@@ -385,29 +383,7 @@ function updateChart(symbol){
     "theme": "dark", "container_id": "tv_chart", "hide_top_toolbar": true
   });
 }
-
-// LIVE PRICE SIMULATOR
-function getLivePrice(symbol){
-  let base = 1.08;
-  if(symbol.includes('GBPUSD')) base = 1.26;
-  if(symbol.includes('USDJPY')) base = 150;
-  if(symbol.includes('BTC')) base = 62000;
-  if(symbol.includes('ETH')) base = 3200;
-  if(symbol.includes('XAU')) base = 4000;
-  if(symbol.includes('SPX')) base = 5200;
-  if(symbol.includes('NAS')) base = 18000;
-  if(symbol.includes('DJI')) base = 39000;
-  // add small random movement
-  return (base + (Math.random() - 0.5) * 0.02).toFixed(4);
-}
-
-function updateLivePrice(){
-  const price = getLivePrice(selectedAsset.symbol);
-  document.getElementById('livePrice').textContent = `$ ${Number(price).toLocaleString(undefined,{minimumFractionDigits:4})}`;
-}
-// update every 2 seconds
-setInterval(updateLivePrice, 2000);
-
+  
 document.querySelectorAll('.asset').forEach(a=>{
   a.onclick = ()=>{
     if(isTrading) return showToast('Cannot change asset while trade is running', '#ff3b30');
@@ -416,7 +392,6 @@ document.querySelectorAll('.asset').forEach(a=>{
     selectedAsset = {pair:a.dataset.pair, symbol:a.dataset.symbol};
     document.getElementById('sumMarket').textContent = a.dataset.pair.replace('USD','/USD').replace('USDT','/USDT');
     updateChart(a.dataset.symbol);
-    updateLivePrice();
   }
 })
 
