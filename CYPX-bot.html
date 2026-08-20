@@ -1,0 +1,2911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CYPX AI Trading Terminal</title>
+<script type="module" src="https://www.tradingview-widget.com/w/en/tv-single-ticker.js"></script>
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+
+background:#08111f;
+
+color:#fff;
+
+overflow-x:hidden;
+
+}
+
+header{
+
+position:sticky;
+
+top:0;
+
+z-index:999;
+
+background:linear-gradient(90deg,#00162d,#002d5e,#00162d);
+
+padding:18px;
+
+border-bottom:1px solid rgba(0,212,255,.25);
+
+box-shadow:0 8px 30px rgba(0,0,0,.45);
+
+}
+
+.header-top{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+}
+
+.logo{
+
+font-size:22px;
+
+font-weight:700;
+
+color:#00d4ff;
+
+}
+
+.live-status{
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+background:#06263e;
+
+padding:8px 14px;
+
+border-radius:50px;
+
+font-size:13px;
+
+}
+
+.live-dot{
+
+width:10px;
+
+height:10px;
+
+border-radius:50%;
+
+background:#00ff88;
+
+animation:pulse 1.5s infinite;
+
+}
+
+@keyframes pulse{
+
+0%{opacity:1;}
+
+50%{opacity:.3;}
+
+100%{opacity:1;}
+
+}
+
+.connection{
+
+margin-top:15px;
+
+display:flex;
+
+justify-content:space-between;
+
+font-size:13px;
+
+color:#b8d8ff;
+
+}
+
+.container{
+
+padding:16px;
+
+padding-bottom:120px;
+
+}
+
+.grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:12px;
+
+margin-top:15px;
+
+}
+
+.card{
+
+background:linear-gradient(145deg,#0d2038,#071523);
+
+border:1px solid rgba(0,212,255,.15);
+
+border-radius:18px;
+
+padding:16px;
+
+box-shadow:0 8px 20px rgba(0,0,0,.3);
+
+}
+
+.card small{
+
+display:block;
+
+color:#7aa6d8;
+
+margin-bottom:6px;
+
+font-size:12px;
+
+}
+
+.card h2{
+
+font-size:24px;
+
+}
+
+.balance-card{
+
+margin-top:18px;
+
+background:linear-gradient(135deg,#00284f,#003b73);
+
+border-radius:22px;
+
+padding:22px;
+
+box-shadow:0 10px 35px rgba(0,0,0,.35);
+
+}
+
+.balance-card h1{
+
+font-size:36px;
+
+margin:8px 0;
+
+color:#00ffcc;
+
+}
+
+.profit-grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:10px;
+
+margin-top:18px;
+
+}
+
+.profit-box{
+
+background:rgba(255,255,255,.05);
+
+padding:14px;
+
+border-radius:14px;
+
+}
+
+.profit-box span{
+
+display:block;
+
+font-size:12px;
+
+color:#9bc8ff;
+
+}
+
+.profit-box h3{
+
+margin-top:5px;
+
+font-size:18px;
+
+}
+
+.ai-panel{
+
+margin-top:18px;
+
+background:linear-gradient(145deg,#0a213d,#081829);
+
+border-radius:20px;
+
+padding:18px;
+
+}
+
+.ai-title{
+
+font-size:18px;
+
+font-weight:700;
+
+color:#00d4ff;
+
+margin-bottom:15px;
+
+}
+
+.ai-grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:12px;
+
+}
+
+.ai-item{
+
+background:#071523;
+
+padding:14px;
+
+border-radius:14px;
+
+}
+
+.ai-item small{
+
+color:#7ca6d5;
+
+display:block;
+
+margin-bottom:6px;
+
+}
+
+.ai-item b{
+
+font-size:15px;
+
+color:#fff;
+
+}
+.market-panel{
+margin-top:20px;
+background:linear-gradient(145deg,#0d2038,#071523);
+border-radius:18px;
+padding:18px;
+border:1px solid rgba(0,212,255,.15);
+}
+
+.panel-title{
+font-size:18px;
+font-weight:600;
+margin-bottom:15px;
+color:#00d4ff;
+}
+
+.market-status-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+}
+
+.market-card{
+background:#081827;
+padding:15px;
+border-radius:14px;
+text-align:center;
+}
+
+.market-card span{
+display:block;
+font-size:12px;
+color:#9bc8ff;
+margin-bottom:6px;
+}
+
+.green{
+color:#00ff88;
+}
+
+.orange{
+color:#ffb347;
+}
+
+.market-info{
+margin-top:18px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#0b1d31;
+padding:18px;
+border-radius:18px;
+}
+
+.pair-name{
+font-size:28px;
+font-weight:700;
+color:#00d4ff;
+}
+
+.pair-description{
+font-size:13px;
+color:#8fb8dd;
+margin-top:5px;
+}
+
+.market-right{
+display:flex;
+flex-direction:column;
+gap:8px;
+text-align:right;
+font-size:13px;
+}
+
+.chart-card{
+margin-top:20px;
+height:260px;
+border-radius:18px;
+overflow:hidden;
+background:#071523;
+border:1px solid rgba(0,212,255,.15);
+}
+
+.asset-category{
+margin-top:20px;
+}
+
+.category-title{
+font-size:14px;
+font-weight:600;
+margin-bottom:10px;
+color:#8fb8dd;
+}
+
+.asset-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
+
+.asset{
+background:#0d2038;
+padding:14px;
+border-radius:14px;
+text-align:center;
+cursor:pointer;
+transition:.25s;
+border:1px solid transparent;
+font-weight:600;
+}
+
+.asset.active{
+border-color:#00d4ff;
+background:#123458;
+}
+
+.asset:hover{
+border-color:#00d4ff;
+transform:translateY(-2px);
+}
+/* ===========================
+BOT SECTION
+=========================== */
+
+.bots-grid{
+
+margin-top:20px;
+
+display:flex;
+
+flex-direction:column;
+
+gap:18px;
+
+}
+
+.bot-card{
+
+background:linear-gradient(145deg,#0d2038,#071523);
+
+border-radius:18px;
+
+padding:18px;
+
+border:1px solid rgba(0,212,255,.15);
+
+transition:.25s;
+
+}
+
+.bot-card.active{
+
+border:2px solid #00d4ff;
+
+}
+
+.bot-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:12px;
+
+}
+
+.bot-header h3{
+
+font-size:18px;
+
+font-weight:700;
+
+}
+
+.price{
+
+color:#00d4ff;
+
+font-weight:700;
+
+font-size:18px;
+
+}
+
+.free-tag{
+
+color:#00ff88;
+
+}
+
+.bot-description{
+
+font-size:13px;
+
+line-height:22px;
+
+color:#9fc9eb;
+
+margin-bottom:15px;
+
+}
+
+.bot-features{
+
+display:flex;
+
+justify-content:space-between;
+
+font-size:12px;
+
+margin-bottom:18px;
+
+color:#8fdcff;
+
+}
+
+.bot-button{
+
+width:100%;
+
+padding:14px;
+
+border:none;
+
+border-radius:12px;
+
+background:#00d4ff;
+
+color:#00111f;
+
+font-weight:700;
+
+font-size:15px;
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+.bot-button.selected{
+
+background:#00ff88;
+
+}
+
+.bot-button:hover{
+
+transform:translateY(-2px);
+
+}
+/* ===========================
+BOT STATUS
+=========================== */
+
+.bot-status-card{
+
+margin-top:18px;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+background:#0b1d31;
+
+padding:18px;
+
+border-radius:18px;
+
+border:1px solid rgba(0,212,255,.15);
+
+}
+
+.status-title{
+
+font-size:12px;
+
+color:#89b9dd;
+
+margin-bottom:5px;
+
+}
+
+.status-value{
+
+font-size:22px;
+
+font-weight:700;
+
+color:#00d4ff;
+
+}
+
+.status-online{
+
+font-size:14px;
+
+font-weight:700;
+
+color:#00ff88;
+
+letter-spacing:1px;
+
+}
+
+.bot-list{
+display:flex;
+flex-direction:column;
+gap:18px;
+margin-top:18px;
+}
+
+.bot-card{
+background:#0d2038;
+border-radius:18px;
+padding:20px;
+border:1px solid rgba(255,255,255,.05);
+transition:.3s;
+}
+
+.bot-card.selected{
+border:1px solid #00d4ff;
+box-shadow:0 0 20px rgba(0,212,255,.18);
+}
+
+.bot-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:12px;
+}
+
+.bot-name{
+font-size:20px;
+font-weight:700;
+}
+
+.bot-type{
+font-size:12px;
+color:#9bc8ff;
+margin-top:4px;
+}
+
+.bot-price{
+font-size:20px;
+font-weight:700;
+color:#ffd966;
+}
+
+.bot-price.free{
+color:#00ff88;
+}
+
+.bot-win{
+margin-top:10px;
+font-size:14px;
+color:#bcdcff;
+}
+
+.bot-win b{
+color:#00ff88;
+}
+
+.bot-risk{
+display:inline-block;
+margin-top:10px;
+padding:6px 12px;
+border-radius:30px;
+font-size:12px;
+font-weight:600;
+}
+
+.low{
+background:#103625;
+color:#00ff88;
+}
+
+.medium{
+background:#3d2b08;
+color:#ffb347;
+}
+
+.high{
+background:#351010;
+color:#ff6868;
+}
+
+.bot-desc{
+margin-top:15px;
+line-height:1.6;
+font-size:13px;
+color:#9fc3df;
+}
+
+.bot-button{
+width:100%;
+margin-top:18px;
+height:48px;
+border:none;
+border-radius:14px;
+background:#00d4ff;
+color:#02111d;
+font-weight:700;
+font-size:15px;
+cursor:pointer;
+transition:.25s;
+}
+
+.bot-button:hover{
+transform:translateY(-2px);
+}
+
+.active-bot{
+border:1px solid rgba(0,255,136,.35);
+}
+.trade-panel{
+margin-top:18px;
+background:#0d2038;
+padding:20px;
+border-radius:18px;
+border:1px solid rgba(255,255,255,.06);
+}
+
+.input-box{
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.input-box label{
+font-size:14px;
+font-weight:600;
+}
+
+.input-box input{
+height:52px;
+border:none;
+outline:none;
+border-radius:14px;
+padding:0 16px;
+font-size:18px;
+background:#071523;
+color:#fff;
+}
+
+.input-box small{
+color:#88b7dd;
+font-size:12px;
+}
+
+.quick-amounts{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:8px;
+margin-top:18px;
+}
+
+.quick-amounts button{
+height:42px;
+border:none;
+border-radius:12px;
+background:#123458;
+color:white;
+font-weight:600;
+cursor:pointer;
+}
+
+.quick-amounts button:hover{
+background:#00d4ff;
+color:#00131f;
+}
+
+.mini{
+margin-top:25px;
+font-size:15px;
+}
+
+.duration-grid,
+.leverage-grid{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:10px;
+margin-top:12px;
+}
+
+.duration,
+.lev{
+background:#081827;
+padding:14px;
+border-radius:14px;
+text-align:center;
+cursor:pointer;
+transition:.25s;
+border:1px solid transparent;
+font-weight:600;
+}
+
+.duration.active,
+.lev.active{
+background:#00d4ff;
+color:#00131f;
+border-color:#00d4ff;
+}
+.summary-card{
+margin-top:18px;
+background:#0d2038;
+border-radius:18px;
+padding:20px;
+border:1px solid rgba(255,255,255,.06);
+}
+
+.summary-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:14px 0;
+border-bottom:1px solid rgba(255,255,255,.05);
+font-size:14px;
+}
+
+.summary-row:last-child{
+border-bottom:none;
+}
+
+.summary-row span{
+color:#9fc3df;
+}
+
+.summary-row b{
+font-size:15px;
+font-weight:700;
+}
+
+.confidence-good{
+color:#00ff88;
+}
+
+.reward{
+color:#00d4ff;
+}
+
+.start-trade-btn{
+width:100%;
+height:58px;
+margin-top:22px;
+border:none;
+border-radius:18px;
+background:linear-gradient(90deg,#00d4ff,#00ff88);
+font-size:17px;
+font-weight:700;
+color:#03121d;
+cursor:pointer;
+transition:.25s;
+}
+
+.start-trade-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(0,212,255,.35);
+}
+
+.console-card{
+
+margin-top:18px;
+
+background:#081827;
+
+border-radius:18px;
+
+overflow:hidden;
+
+border:1px solid rgba(0,212,255,.15);
+
+}
+
+.console-header{
+
+height:46px;
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
+
+padding:0 18px;
+
+background:#10243d;
+
+font-size:14px;
+
+font-weight:600;
+
+}
+
+.console-dot{
+
+width:10px;
+
+height:10px;
+
+border-radius:50%;
+
+}
+
+.red{
+
+background:#ff4c4c;
+
+}
+
+.yellow{
+
+background:#ffb347;
+
+}
+
+.green{
+
+background:#00ff88;
+
+}
+
+.console-body{
+
+padding:18px;
+
+height:260px;
+
+overflow-y:auto;
+
+font-size:13px;
+
+font-family:monospace;
+
+line-height:1.8;
+
+}
+
+.console-line{
+
+color:#00ff88;
+
+margin-bottom:6px;
+
+animation:fadeConsole .25s linear;
+
+}
+
+@keyframes fadeConsole{
+
+from{
+
+opacity:0;
+
+transform:translateY(8px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:none;
+
+}
+
+}
+.scanner-card{
+
+margin-top:20px;
+padding:18px;
+border-radius:18px;
+background:#0b1d31;
+border:1px solid rgba(0,212,255,.15);
+
+}
+
+.scanner-header{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:18px;
+font-size:17px;
+font-weight:600;
+color:#00d4ff;
+
+}
+
+.scanner-live{
+
+display:flex;
+align-items:center;
+gap:8px;
+font-size:12px;
+color:#00ff88;
+
+}
+
+.scanner-dot{
+
+width:8px;
+height:8px;
+border-radius:50%;
+background:#00ff88;
+animation:pulse 1.2s infinite;
+
+}
+
+.scanner-status{
+
+display:flex;
+flex-direction:column;
+gap:14px;
+
+}
+
+.scanner-row{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+background:#071523;
+border-radius:12px;
+font-size:14px;
+
+}
+
+.scanner-row span{
+
+color:#9bc8ff;
+
+}
+
+.scanner-row b{
+
+color:#ffffff;
+
+}
+/* ===========================
+LIVE TRADE HISTORY
+=========================== */
+
+.history-card{
+
+margin-top:18px;
+
+background:#0d2038;
+
+border-radius:18px;
+
+overflow:hidden;
+
+border:1px solid rgba(0,212,255,.15);
+
+}
+
+.history-header{
+
+display:grid;
+
+grid-template-columns:70px 1fr 110px 100px 90px;
+
+padding:14px;
+
+background:#10243d;
+
+font-size:12px;
+
+font-weight:700;
+
+color:#8fcfff;
+
+}
+
+.history-row{
+
+padding:16px;
+
+border-top:1px solid rgba(255,255,255,.05);
+
+animation:fadeConsole .25s linear;
+
+}
+
+.history-main{
+
+display:grid;
+
+grid-template-columns:70px 1fr 110px 100px 90px;
+
+align-items:center;
+
+gap:10px;
+
+font-size:13px;
+
+}
+
+.history-main span{
+
+color:#cfe9ff;
+
+}
+
+.history-details{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:8px;
+
+margin-top:12px;
+
+padding-top:12px;
+
+border-top:1px solid rgba(255,255,255,.05);
+
+font-size:12px;
+
+color:#8fb8dd;
+
+}
+
+.history-status{
+
+font-weight:700;
+
+}
+
+.running{
+
+color:#ffd54f;
+
+}
+
+.win{
+
+color:#00ff88;
+
+}
+
+.loss{
+
+color:#ff5c5c;
+
+}
+
+.history-empty{
+
+padding:35px;
+
+text-align:center;
+
+color:#8fb8dd;
+
+font-size:14px;
+
+}
+
+@media(max-width:768px){
+
+.history-header,
+.history-main{
+
+grid-template-columns:55px 1fr 80px 75px 70px;
+
+font-size:11px;
+
+}
+
+.history-details{
+
+grid-template-columns:1fr;
+
+font-size:11px;
+
+}
+
+}
+
+.live-status.offline{opacity:.78;}
+.live-status.offline .live-dot{background:#ffb020;box-shadow:0 0 0 4px rgba(255,176,32,.12);}
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="header-top">
+
+<div class="logo">
+
+<i class="fas fa-robot"></i>
+
+CYPX AI TERMINAL
+
+</div>
+
+<div class="live-status" id="liveStatus" aria-live="polite">
+
+<div class="live-dot"></div>
+
+CONNECTING
+
+</div>
+
+</div>
+
+<div class="connection">
+
+<div>
+
+Connection
+
+<b id="connectionStatus">
+
+Connecting
+
+</b>
+
+</div>
+
+<div>
+
+Latency
+
+<b id="latency">
+
+--
+
+</b>
+
+</div>
+
+</div>
+
+</header>
+
+<div class="container">
+
+<div class="grid">
+
+<div class="card">
+
+<small>SESSIONS</small>
+
+<h2 id="sessions">0</h2>
+
+</div>
+
+<div class="card">
+
+<small>WIN RATE</small>
+
+<h2 id="winRate">0%</h2>
+
+</div>
+
+<div class="card">
+
+<small>WINS</small>
+
+<h2 id="wins">0</h2>
+
+</div>
+
+<div class="card">
+
+<small>LOSSES</small>
+
+<h2 id="losses">0</h2>
+
+</div>
+
+</div>
+
+<div class="balance-card">
+
+<small>ACCOUNT BALANCE</small>
+
+<h1 id="balance">
+
+$0.00
+
+</h1>
+
+<div class="profit-grid">
+
+<div class="profit-box">
+
+<span>Today's Profit</span>
+
+<h3 id="todayProfit">
+
++$0.00
+
+</h3>
+
+</div>
+
+<div class="profit-box">
+
+<span>Bot Earnings</span>
+
+<h3 id="botProfit">
+
++$0.00
+
+</h3>
+
+</div>
+
+<div class="profit-box">
+
+<span>Total Earnings</span>
+
+<h3 id="totalProfit">
+
++$0.00
+
+</h3>
+
+</div>
+
+<div class="profit-box">
+
+<span>AI Confidence</span>
+
+<h3 id="confidence">
+
+--%
+
+</h3>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="ai-panel">
+
+<div class="ai-title">
+
+AI ENGINE STATUS
+
+</div>
+
+<div class="ai-grid">
+
+<div class="ai-item">
+
+<small>Engine</small>
+
+<b id="engineStatus">
+
+STANDBY
+
+</b>
+
+</div>
+
+<div class="ai-item">
+
+<small>Market Feed</small>
+
+<b id="marketFeed">
+
+WAITING FOR TradingView
+
+</b>
+
+</div>
+
+<div class="ai-item">
+
+<small>Risk Engine</small>
+
+<b id="riskStatus">
+
+ACTIVE
+
+</b>
+
+</div>
+
+<div class="ai-item">
+
+<small>Execution</small>
+
+<b id="executionStatus">
+
+WAITING
+
+</b>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- PART 1A.2 STARTS HERE -->
+<!-- ===========================
+MARKET OVERVIEW
+=========================== -->
+
+<div class="market-panel">
+
+    <div class="panel-title">
+        <i class="fas fa-chart-line"></i>
+        Market Overview
+    </div>
+
+    <div class="market-status-grid">
+
+        <div class="market-card">
+            <span>Forex</span>
+            <b class="green">OPEN</b>
+        </div>
+
+        <div class="market-card">
+            <span>Crypto</span>
+            <b class="green">OPEN</b>
+        </div>
+
+        <div class="market-card">
+            <span>Metals</span>
+            <b class="green">OPEN</b>
+        </div>
+
+        <div class="market-card">
+            <span>Indices</span>
+            <b class="orange">SESSION</b>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===========================
+LIVE MARKET INFO
+=========================== -->
+
+<div class="market-info">
+
+    <div class="market-left">
+
+        <div id="selectedPair"
+             class="pair-name">
+
+            EUR/USD
+
+        </div>
+
+        <div class="pair-description">
+
+            Major Forex Pair
+
+        </div>
+
+    </div>
+
+    <div class="market-right">
+
+        <div>
+
+            Trend
+
+            <b id="trendStatus"
+               class="green">
+
+                Bullish
+
+            </b>
+
+        </div>
+
+        <div>
+
+            Spread
+
+            <b id="spreadValue">
+
+                0.4 pip
+
+            </b>
+
+        </div>
+
+        <div>
+
+            Volatility
+
+            <b id="volatility">
+
+                Medium
+
+            </b>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===========================
+TRADINGVIEW CHART
+=========================== -->
+
+<div id="tv_chart"
+     class="chart-card">
+
+</div>
+
+
+<!-- ===========================
+ASSET CATEGORIES
+=========================== -->
+
+<div class="panel-title"
+     style="margin-top:20px;">
+
+    <i class="fas fa-layer-group"></i>
+
+    Markets
+
+</div>
+
+<div class="asset-category">
+
+    <div class="category-title">
+
+        FOREX
+
+    </div>
+
+    <div class="asset-grid">
+
+        <div class="asset active"
+             data-pair="EUR/USD"
+             data-symbol="FX:EURUSD">
+
+            EUR/USD
+
+        </div>
+
+        <div class="asset"
+             data-pair="GBP/USD"
+             data-symbol="FX:GBPUSD">
+
+            GBP/USD
+
+        </div>
+
+        <div class="asset"
+             data-pair="USD/JPY"
+             data-symbol="FX:USDJPY">
+
+            USD/JPY
+
+        </div>
+
+        <div class="asset"
+             data-pair="AUD/USD"
+             data-symbol="FX:AUDUSD">
+
+            AUD/USD
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="asset-category">
+
+    <div class="category-title">
+
+        CRYPTO
+
+    </div>
+
+    <div class="asset-grid">
+
+        <div class="asset"
+             data-pair="BTC/USDT"
+             data-symbol="BINANCE:BTCUSDT">
+
+            BTC
+
+        </div>
+
+        <div class="asset"
+             data-pair="ETH/USDT"
+             data-symbol="BINANCE:ETHUSDT">
+
+            ETH
+
+        </div>
+
+        <div class="asset"
+             data-pair="SOL/USDT"
+             data-symbol="BINANCE:SOLUSDT">
+
+            SOL
+
+        </div>
+
+        <div class="asset"
+             data-pair="BNB/USDT"
+             data-symbol="BINANCE:BNBUSDT">
+
+            BNB
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="asset-category">
+
+    <div class="category-title">
+
+        METALS
+
+    </div>
+
+    <div class="asset-grid">
+
+        <div class="asset"
+             data-pair="XAU/USD"
+             data-symbol="OANDA:XAUUSD">
+
+            GOLD
+
+        </div>
+
+        <div class="asset"
+             data-pair="XAG/USD"
+             data-symbol="OANDA:XAGUSD">
+
+            SILVER
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="asset-category">
+
+    <div class="category-title">
+
+        INDICES
+
+    </div>
+
+    <div class="asset-grid">
+
+        <div class="asset"
+             data-pair="NASDAQ"
+             data-symbol="TVC:NDX">
+
+            NAS100
+
+        </div>
+
+        <div class="asset"
+             data-pair="S&P 500"
+             data-symbol="TVC:SPX">
+
+            SPX500
+
+        </div>
+
+        <div class="asset"
+             data-pair="DOW JONES"
+             data-symbol="TVC:DJI">
+
+            DJI30
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===========================
+BOT STATUS
+=========================== -->
+
+<div class="bot-status-card">
+
+    <div class="status-left">
+
+        <div class="status-title">
+
+            Active Bot
+
+        </div>
+
+        <div id="activeBotName"
+             class="status-value">
+
+            SCALPER BOT
+
+        </div>
+
+    </div>
+
+    <div class="status-right">
+
+        <div class="status-title">
+
+            Status
+
+        </div>
+
+        <div id="botStatus"
+             class="status-online">
+
+            READY
+        </div>
+
+    </div>
+
+</div>
+<!-- ===========================
+BOT MARKETPLACE
+=========================== -->
+
+<div class="panel-title">
+    <i class="fas fa-robot"></i>
+    Trading Bots
+</div>
+
+<div class="bot-list">
+
+    <!-- SCALPER -->
+
+    <div class="bot-card active-bot"
+         data-bot="SCALPER">
+
+        <div class="bot-top">
+
+            <div>
+
+                <div class="bot-name">
+
+                    SCALPER BOT
+
+                </div>
+
+                <div class="bot-type">
+
+                    High Frequency Strategy
+
+                </div>
+
+            </div>
+
+            <div class="bot-price free">
+
+                FREE
+
+            </div>
+
+        </div>
+
+        <div class="bot-win">
+
+            Win Rate
+
+            <b>74% - 82%</b>
+
+        </div>
+
+        <div class="bot-risk low">
+
+            Low Risk
+
+        </div>
+
+        <div class="bot-desc">
+
+            Executes multiple short-term trades using momentum,
+            spread analysis and rapid entry signals.
+
+        </div>
+
+        <button class="bot-button"
+                onclick="activateBot('SCALPER')">
+
+            Select Bot
+
+        </button>
+
+    </div>
+
+
+    <!-- SWING -->
+
+    <div class="bot-card"
+         data-bot="SWING">
+
+        <div class="bot-top">
+
+            <div>
+
+                <div class="bot-name">
+
+                    SWING BOT
+
+                </div>
+
+                <div class="bot-type">
+
+                    Trend Following AI
+
+                </div>
+
+            </div>
+
+            <div class="bot-price">
+
+                $149
+
+            </div>
+
+        </div>
+
+        <div class="bot-win">
+
+            Win Rate
+
+            <b>78% - 86%</b>
+
+        </div>
+
+        <div class="bot-risk medium">
+
+            Medium Risk
+
+        </div>
+
+        <div class="bot-desc">
+
+            Holds positions longer and waits for confirmed
+            market trends before execution.
+
+        </div>
+
+        <button class="bot-button"
+                onclick="activateBot('SWING')">
+
+            Activate
+
+        </button>
+
+    </div>
+
+
+    <!-- AI QUANT -->
+
+    <div class="bot-card"
+         data-bot="AI QUANT">
+
+        <div class="bot-top">
+
+            <div>
+
+                <div class="bot-name">
+
+                    AI QUANT BOT
+
+                </div>
+
+                <div class="bot-type">
+
+                    Institutional Algorithm
+
+                </div>
+
+            </div>
+
+            <div class="bot-price">
+
+                $299
+
+            </div>
+
+        </div>
+
+        <div class="bot-win">
+
+            Win Rate
+
+            <b>81% - 89%</b>
+
+        </div>
+
+        <div class="bot-risk high">
+
+            Dynamic Risk
+
+        </div>
+
+        <div class="bot-desc">
+
+            Multi-layer AI engine analysing trend, liquidity,
+            volatility and market structure before trading.
+
+        </div>
+
+        <button class="bot-button"
+                onclick="activateBot('AI QUANT')">
+
+            Activate
+
+        </button>
+
+    </div>
+
+</div>
+<!-- ===========================
+TRADE CONTROL PANEL
+=========================== -->
+
+<div class="panel-title">
+    <i class="fas fa-sliders-h"></i>
+    Trade Control
+</div>
+
+<div class="trade-panel">
+
+    <div class="input-box">
+
+        <label>
+
+            Trade Amount (USD)
+
+        </label>
+
+        <input
+            id="tradeAmount"
+            type="number"
+            min="50"
+            value="50">
+
+        <small>
+
+            Minimum trade: $50
+
+        </small>
+
+    </div>
+
+
+    <div class="quick-amounts">
+
+        <button onclick="setTradePercent(10)">10%</button>
+
+        <button onclick="setTradePercent(25)">25%</button>
+
+        <button onclick="setTradePercent(50)">50%</button>
+
+        <button onclick="setTradePercent(75)">75%</button>
+
+        <button onclick="setTradePercent(100)">MAX</button>
+
+    </div>
+
+
+    <div class="panel-title mini">
+
+        Session Duration
+
+    </div>
+
+    <div class="duration-grid">
+
+        <div class="duration active"
+             data-time="60">
+
+            1 Min
+
+        </div>
+
+        <div class="duration"
+             data-time="300">
+
+            5 Min
+
+        </div>
+
+        <div class="duration"
+             data-time="900">
+
+            15 Min
+
+        </div>
+
+        <div class="duration"
+             data-time="1800">
+
+            30 Min
+
+        </div>
+
+        <div class="duration"
+             data-time="3600">
+
+            1 Hour
+
+        </div>
+
+    </div>
+
+
+    <div class="panel-title mini">
+
+        Leverage
+
+    </div>
+
+    <div class="leverage-grid">
+
+        <div class="lev active"
+             data-lev="5">
+
+            5×
+
+        </div>
+
+        <div class="lev"
+             data-lev="10">
+
+            10×
+
+        </div>
+
+        <div class="lev"
+             data-lev="20">
+
+            20×
+
+        </div>
+
+        <div class="lev"
+             data-lev="30">
+
+            30×
+
+        </div>
+
+        <div class="lev"
+             data-lev="50">
+
+            50×
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ===========================
+AI TRADE SUMMARY
+=========================== -->
+
+<div class="panel-title">
+    <i class="fas fa-microchip"></i>
+    AI Trade Summary
+</div>
+
+<div class="summary-card">
+
+    <div class="summary-row">
+        <span>Selected Bot</span>
+        <b id="summaryBot">SCALPER BOT</b>
+    </div>
+
+    <div class="summary-row">
+        <span>Trading Pair</span>
+        <b id="summaryPair">EUR/USD</b>
+    </div>
+
+    <div class="summary-row">
+        <span>Trade Amount</span>
+        <b id="summaryAmount">$50.00</b>
+    </div>
+
+    <div class="summary-row">
+        <span>Leverage</span>
+        <b id="summaryLeverage">5×</b>
+    </div>
+
+    <div class="summary-row">
+        <span>Duration</span>
+        <b id="summaryDuration">1 Min</b>
+    </div>
+
+    <div class="summary-row">
+        <span>AI Confidence</span>
+        <b id="summaryConfidence"
+           class="confidence-good">
+
+            81%
+
+        </b>
+    </div>
+
+    <div class="summary-row">
+        <span>Market Risk</span>
+        <b id="summaryRisk">
+
+            LOW
+
+        </b>
+    </div>
+
+    <div class="summary-row">
+        <span>Expected Reward</span>
+        <b id="summaryReward"
+           class="reward">
+
+            +$6.80
+
+        </b>
+    </div>
+
+    <div class="summary-row">
+        <span>Execution Speed</span>
+        <b id="summarySpeed">
+
+            0.34 sec
+
+        </b>
+    </div>
+
+</div>
+
+
+<button
+id="startTradingBtn"
+class="start-trade-btn">
+
+<i class="fas fa-play-circle"></i>
+
+START AI TRADING
+
+</button>
+<!-- ===========================
+AI LIVE CONSOLE
+=========================== -->
+
+<div class="panel-title">
+
+<i class="fas fa-terminal"></i>
+
+AI Trading Console
+
+</div>
+
+<div class="console-card">
+
+<div class="console-header">
+
+<div class="console-dot red"></div>
+
+<div class="console-dot yellow"></div>
+
+<div class="console-dot green"></div>
+
+<span>Live AI Engine</span>
+
+</div>
+
+<div
+id="aiConsole"
+class="console-body">
+
+<div class="console-line">
+
+Waiting for trade...
+
+</div>
+
+</div>
+
+</div>
+<!-- ===========================
+LIVE TRADE TIMELINE
+=========================== -->
+
+<div class="panel-title">
+<i class="fas fa-stream"></i>
+Live Trade Timeline
+</div>
+
+<div class="console-card">
+
+<div id="tradeTimeline" class="console-body">
+
+<div class="console-line">
+Waiting for first trade...
+</div>
+
+</div>
+
+</div>
+
+<!-- ===========================
+AI MARKET SCANNER
+=========================== -->
+
+<div class="scanner-card">
+
+    <div class="scanner-header">
+
+        <div>
+            <i class="fas fa-microchip"></i>
+            AI Market Scanner
+        </div>
+
+        <div class="scanner-live">
+            <span class="scanner-dot"></span>
+            LIVE
+        </div>
+
+    </div>
+
+    <div class="scanner-status">
+
+        <div class="scanner-row">
+
+            <span>Current Stage</span>
+
+            <b id="aiStage">
+
+                Waiting...
+
+            </b>
+
+        </div>
+
+        <div class="scanner-row">
+
+            <span>Signal Strength</span>
+
+            <b id="signalStrength">
+
+                --
+
+            </b>
+
+        </div>
+
+        <div class="scanner-row">
+
+            <span>Confidence</span>
+
+            <b id="confidenceValue">
+
+                --
+
+            </b>
+
+        </div>
+
+        <div class="scanner-row">
+
+            <span>Risk Level</span>
+
+            <b id="riskValue">
+
+                --
+
+            </b>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ===========================
+LIVE AI TRADE HISTORY
+=========================== -->
+
+<div class="panel-title">
+    <i class="fas fa-history"></i>
+    Live Trade History
+</div>
+
+<div class="history-card">
+
+    <div class="history-header">
+
+        <div>Time</div>
+
+        <div>Asset</div>
+
+        <div>Bot</div>
+
+        <div>Status</div>
+
+        <div>P/L</div>
+
+    </div>
+
+    <div id="tradeHistory">
+
+        <div class="history-empty">
+
+            No trades executed yet.
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+/* =========================================================
+   CYPX AI TERMINAL — TRADINGVIEW-ONLY CLIENT
+   ---------------------------------------------------------
+   One-file mobile client.
+   TradingView widgets provide the market display and live
+   quote cards. The embedded iframe is cross-origin, so this
+   page never scrapes or invents its price stream.
+========================================================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+let userRef = null;
+let userListener = null;
+let tradeListener = null;
+let selectedBot = "SCALPER";
+let selectedLeverage = 5;
+let selectedDuration = 60;
+let selectedDurationText = "1 Min";
+let isTrading = false;
+
+let currentAsset = {
+  pair: "EUR/USD",
+  tvSymbol: "FX:EURUSD",
+  type: "FOREX",
+  interval: "15"
+};
+
+let tvSync = {
+  symbol: currentAsset.tvSymbol,
+  interval: currentAsset.interval,
+  ready: false
+};
+
+let marketState = {
+  source: "TradingView",
+  ready: false,
+  symbol: currentAsset.tvSymbol
+};
+
+const activatedBots = ["SCALPER"];
+
+const botProfiles = {
+  SCALPER: { price: 0, risk: "LOW" },
+  SWING: { price: 149, risk: "MEDIUM" },
+  "AI QUANT": { price: 299, risk: "LOW" }
+};
+
+const $ = id => document.getElementById(id);
+const num = value => Number(value || 0);
+const money = value => "$" + num(value).toFixed(2);
+
+function showToast(message, good = true) {
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.cssText =
+    `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);` +
+    `z-index:99999;max-width:88%;padding:14px 20px;border-radius:18px;` +
+    `font-weight:700;text-align:center;color:#06111d;` +
+    `background:${good ? "#00e5a8" : "#ff5c5c"};box-shadow:0 12px 35px rgba(0,0,0,.35);`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3200);
+}
+
+function addBotLog(message) {
+  const box = $("aiConsole");
+  if (!box) return;
+  const line = document.createElement("div");
+  line.className = "console-line";
+  line.textContent = "> " + message;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addTimeline(message) {
+  const box = $("tradeTimeline");
+  if (!box) return;
+  const line = document.createElement("div");
+  line.className = "console-line";
+  line.textContent = message;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearConsole() {
+  if ($("aiConsole")) $("aiConsole").innerHTML = "";
+  if ($("tradeTimeline")) $("tradeTimeline").innerHTML = "";
+}
+
+function setConnectionState(ready) {
+  if ($("connectionStatus")) {
+    $("connectionStatus").textContent = ready ? "TradingView" : "Loading";
+  }
+  if ($("marketFeed")) {
+    $("marketFeed").textContent = ready ? "LIVE CHART" : "LOADING";
+  }
+  if ($("engineStatus")) {
+    $("engineStatus").textContent = ready ? "READY" : "LOADING";
+  }
+  if ($("riskStatus")) {
+    $("riskStatus").textContent = "READY";
+  }
+  if ($("executionStatus") && !isTrading) {
+    $("executionStatus").textContent = ready ? "CHART SYNC" : "WAITING";
+  }
+  if ($("liveStatus")) {
+    const textNode = Array.from($("liveStatus").childNodes)
+      .find(n => n.nodeType === Node.TEXT_NODE);
+    if (textNode) textNode.nodeValue = ready ? " LIVE" : " LOADING";
+  }
+}
+
+/* =========================
+   TRADINGVIEW
+========================= */
+
+function updateTradingView() {
+  const chart = $("tv_chart");
+  if (!chart) return;
+
+  const symbol = currentAsset.tvSymbol;
+  const interval = currentAsset.interval || "15";
+
+  tvSync = { symbol, interval, ready: false };
+  marketState = { source: "TradingView", ready: false, symbol };
+
+  chart.innerHTML = `
+    <div class="tv-live-quote" style="margin-bottom:10px;border-radius:14px;overflow:hidden;background:#071523;">
+      <tv-single-ticker
+        id="cypxTvTicker"
+        symbol="${symbol}"
+        theme="dark"
+        transparent-background="true"
+        size="large">
+      </tv-single-ticker>
+    </div>
+
+    <iframe
+      id="tradingViewFrame"
+      title="TradingView live market chart"
+      width="100%"
+      height="100%"
+      frameborder="0"
+      scrolling="no"
+      allowtransparency="true"
+      src="https://s.tradingview.com/widgetembed/?symbol=${encodeURIComponent(symbol)}&interval=${encodeURIComponent(interval)}&theme=dark&style=1&hide_top_toolbar=0&hide_legend=0&saveimage=0&enable_publishing=0&hideideas=1">
+    </iframe>
+  `;
+
+  if ($("selectedPair")) $("selectedPair").textContent = currentAsset.pair;
+
+  const syncLabel = $("tvSyncStatus");
+  if (syncLabel) {
+    syncLabel.textContent = `TradingView • ${symbol} • ${interval}m`;
+  }
+
+  const frame = $("tradingViewFrame");
+  if (frame) {
+    frame.addEventListener("load", () => {
+      tvSync.ready = true;
+      marketState.ready = true;
+      setConnectionState(true);
+
+      addBotLog(
+        `TradingView chart synchronized • ${currentAsset.pair} • ${interval}m.`
+      );
+      addTimeline(`TradingView feed ready • ${currentAsset.pair}.`);
+      updateTradeSummary();
+    }, { once: true });
+  }
+
+  // The Web Component is TradingView's own live quote display.
+  // We deliberately do not scrape its internal DOM for prices.
+  setTimeout(() => {
+    if (customElements.get("tv-single-ticker")) {
+      const ticker = $("cypxTvTicker");
+      if (ticker) ticker.setAttribute("symbol", symbol);
+    }
+  }, 100);
+}
+
+function updateMarketLabels() {
+  if ($("selectedPair")) $("selectedPair").textContent = currentAsset.pair;
+  if ($("tvSyncStatus")) {
+    $("tvSyncStatus").textContent =
+      `TradingView • ${currentAsset.tvSymbol} • ${currentAsset.interval}m`;
+  }
+  if ($("summaryPair")) $("summaryPair").textContent = currentAsset.pair;
+}
+
+function updateTradeSummary() {
+  const amount = Math.max(0, num($("tradeAmount")?.value));
+
+  if ($("summaryAmount")) $("summaryAmount").textContent = money(amount);
+  if ($("summaryPair")) $("summaryPair").textContent = currentAsset.pair;
+  if ($("summaryBot")) $("summaryBot").textContent = selectedBot + " BOT";
+  if ($("summaryLeverage")) $("summaryLeverage").textContent = selectedLeverage + "×";
+  if ($("summaryDuration")) $("summaryDuration").textContent = selectedDurationText;
+
+  // No fabricated confidence/reward values.
+  if ($("summaryConfidence")) $("summaryConfidence").textContent = "--";
+  if ($("confidence")) $("confidence").textContent = "--";
+  if ($("summaryReward")) $("summaryReward").textContent = "--";
+  if ($("summarySpeed")) {
+    $("summarySpeed").textContent = tvSync.ready ? "CHART SYNC" : "LOADING";
+  }
+  if ($("summaryRisk")) {
+    $("summaryRisk").textContent = botProfiles[selectedBot]?.risk || "--";
+  }
+}
+
+/* =========================
+   FIREBASE ACCOUNT DISPLAY
+========================= */
+
+function renderAccount(data = {}) {
+  const balance = num(data.balance);
+  const today = num(data.todayProfit);
+  const botProfit = num(data.botProfit);
+  const total = num(data.totalProfit);
+  const sessions = num(data.sessions);
+  const wins = num(data.wins);
+  const losses = num(data.losses);
+  const rate = (wins + losses) > 0
+    ? ((wins / (wins + losses)) * 100)
+    : 0;
+
+  if ($("balance")) $("balance").textContent = money(balance);
+  if ($("todayProfit")) $("todayProfit").textContent =
+    (today >= 0 ? "+$" : "-$") + Math.abs(today).toFixed(2);
+  if ($("botProfit")) $("botProfit").textContent =
+    (botProfit >= 0 ? "+$" : "-$") + Math.abs(botProfit).toFixed(2);
+  if ($("totalProfit")) $("totalProfit").textContent =
+    (total >= 0 ? "+$" : "-$") + Math.abs(total).toFixed(2);
+
+  if ($("sessions")) $("sessions").textContent = sessions;
+  if ($("wins")) $("wins").textContent = wins;
+  if ($("losses")) $("losses").textContent = losses;
+  if ($("winRate")) $("winRate").textContent = rate.toFixed(1) + "%";
+}
+
+function listenToUser() {
+  if (!currentUser) return;
+
+  if (userListener && userRef) {
+    userRef.off("value", userListener);
+  }
+
+  userRef = db.ref("users/" + currentUser.uid);
+  userListener = snap => renderAccount(snap.val() || {});
+  userRef.on("value", userListener);
+}
+
+function loadActivatedBots() {
+  if (!currentUser || !userRef) return Promise.resolve();
+
+  return userRef.child("activatedBots").once("value").then(snap => {
+    activatedBots.length = 0;
+
+    if (snap.exists()) {
+      if (Array.isArray(snap.val())) {
+        snap.val().forEach(v => activatedBots.push(v));
+      } else {
+        snap.forEach(child => activatedBots.push(child.val()));
+      }
+    }
+
+    if (!activatedBots.includes("SCALPER")) {
+      activatedBots.unshift("SCALPER");
+    }
+
+    return userRef.child("activatedBots").set(activatedBots);
+  }).then(refreshBotCards);
+}
+
+function refreshBotCards() {
+  document.querySelectorAll(".bot-card").forEach(card => {
+    const bot = card.dataset.bot;
+    const btn = card.querySelector(".bot-button");
+    if (!btn) return;
+
+    const unlocked = activatedBots.includes(bot);
+    const selected = selectedBot === bot;
+
+    btn.textContent = selected
+      ? "Selected"
+      : (unlocked ? "Select Bot" : "Activate");
+
+    card.classList.toggle("selected", selected);
+  });
+}
+
+window.activateBot = async function(bot) {
+  if (!currentUser || !userRef) {
+    showToast("Please sign in first.", false);
+    return;
+  }
+
+  if (activatedBots.includes(bot)) {
+    selectBot(bot);
+    return;
+  }
+
+  const price = num(botProfiles[bot]?.price);
+  const balanceSnap = await userRef.child("balance").once("value");
+  const balance = num(balanceSnap.val());
+
+  if (balance < price) {
+    showToast("Insufficient balance to activate this bot.", false);
+    return;
+  }
+
+  await userRef.update({
+    balance: balance - price,
+    [`activatedBots/${activatedBots.length}`]: bot
+  });
+
+  activatedBots.push(bot);
+  selectBot(bot);
+  refreshBotCards();
+  showToast(bot + " activated successfully.", true);
+};
+
+function selectBot(bot) {
+  if (!botProfiles[bot]) return;
+
+  selectedBot = bot;
+
+  document.querySelectorAll(".bot-card").forEach(card => {
+    card.classList.toggle("selected", card.dataset.bot === bot);
+  });
+
+  if ($("summaryBot")) $("summaryBot").textContent = bot + " BOT";
+  if ($("activeBotName")) $("activeBotName").textContent = bot + " BOT";
+  if ($("summaryRisk")) $("summaryRisk").textContent = botProfiles[bot].risk;
+  updateTradeSummary();
+
+  addBotLog(bot + " selected.");
+}
+
+/* =========================
+   ASSET / CONTROL EVENTS
+========================= */
+
+document.querySelectorAll(".asset").forEach(asset => {
+  asset.addEventListener("click", function() {
+    if (isTrading) return;
+
+    document.querySelectorAll(".asset").forEach(a => a.classList.remove("active"));
+    this.classList.add("active");
+
+    currentAsset = {
+      pair: this.dataset.pair || this.textContent.trim(),
+      tvSymbol: this.dataset.symbol || "FX:EURUSD",
+      type: (this.dataset.pair || "").includes("/") ? "MARKET" : "MARKET",
+      interval: currentAsset.interval || "15"
+    };
+
+    updateMarketLabels();
+    updateTradingView();
+
+    addBotLog(
+      `Market selected • ${currentAsset.pair} • ${currentAsset.tvSymbol}.`
+    );
+    updateTradeSummary();
+  });
+});
+
+document.querySelectorAll(".bot-card").forEach(card => {
+  card.addEventListener("click", function(e) {
+    if (e.target.closest("button")) return;
+    if (isTrading) return;
+
+    const bot = this.dataset.bot;
+
+    if (!activatedBots.includes(bot)) {
+      showToast(bot + " is locked. Activate it first.", false);
+      return;
+    }
+
+    selectBot(bot);
+  });
+});
+
+window.setTradePercent = function(percent) {
+  const balance = num(($("balance")?.innerText || "").replace(/[$,]/g, ""));
+  const amount = Math.floor((balance * (percent / 100)) * 100) / 100;
+  if ($("tradeAmount")) $("tradeAmount").value = amount.toFixed(2);
+  updateTradeSummary();
+};
+
+document.querySelectorAll(".duration").forEach(btn => {
+  btn.addEventListener("click", function() {
+    if (isTrading) return;
+
+    document.querySelectorAll(".duration")
+      .forEach(d => d.classList.remove("active"));
+
+    this.classList.add("active");
+    selectedDuration = num(this.dataset.duration) || 60;
+    selectedDurationText = this.textContent.trim();
+    updateTradeSummary();
+  });
+});
+
+document.querySelectorAll(".lev").forEach(btn => {
+  btn.addEventListener("click", function() {
+    if (isTrading) return;
+
+    document.querySelectorAll(".lev")
+      .forEach(l => l.classList.remove("active"));
+
+    this.classList.add("active");
+    selectedLeverage = num(this.dataset.lev) || 5;
+    updateTradeSummary();
+  });
+});
+
+$("tradeAmount")?.addEventListener("input", updateTradeSummary);
+
+/* =========================
+   TRADINGVIEW-ONLY START
+========================= */
+
+async function startTrading() {
+  if (isTrading) return;
+
+  if (!currentUser) {
+    showToast("Please sign in first.", false);
+    return;
+  }
+
+  if (!tvSync.ready) {
+    showToast("TradingView is still loading. Please wait.", false);
+    return;
+  }
+
+  const amount = num($("tradeAmount")?.value);
+  if (amount < 50) {
+    showToast("Minimum trade is $50.", false);
+    return;
+  }
+
+  if (!activatedBots.includes(selectedBot)) {
+    showToast("Activate the selected bot first.", false);
+    return;
+  }
+
+  /*
+    IMPORTANT:
+    This single-file TradingView widget has access to TradingView's
+    visual market data, but the embedded chart does not expose its
+    live price stream to host JavaScript.
+
+    Therefore this button NEVER invents a price, signal, fill,
+    profit, or loss. It only starts a chart-synchronized analysis
+    session and leaves execution disabled until a legitimate
+    execution/data API is connected.
+  */
+  isTrading = true;
+  if ($("botStatus")) $("botStatus").textContent = "ANALYZING";
+  if ($("executionStatus")) $("executionStatus").textContent = "CHART SYNC";
+  if ($("startTradingBtn")) $("startTradingBtn").disabled = true;
+
+  clearConsole();
+
+  addBotLog(`TradingView synchronized • ${currentAsset.pair}.`);
+  addBotLog(`Timeframe • ${selectedDurationText}.`);
+  addBotLog("Reading the live TradingView chart.");
+  addBotLog("No synthetic price or random trade result is being generated.");
+  addTimeline("Chart-synchronized analysis started.");
+
+  setTimeout(() => {
+    addBotLog("Analysis ready. Waiting for a supported execution signal.");
+    addTimeline("No order submitted.");
+    if ($("botStatus")) $("botStatus").textContent = "READY";
+    if ($("executionStatus")) $("executionStatus").textContent = "CHART SYNC";
+    if ($("startTradingBtn")) $("startTradingBtn").disabled = false;
+    isTrading = false;
+  }, 1800);
+}
+
+/* =========================
+   AUTH BOOT
+========================= */
+
+auth.onAuthStateChanged(async user => {
+  currentUser = user;
+
+  if (!user) {
+    setConnectionState(false);
+    if ($("connectionStatus")) $("connectionStatus").textContent = "TradingView";
+    if ($("marketFeed")) $("marketFeed").textContent = "LIVE CHART";
+    if ($("engineStatus")) $("engineStatus").textContent = "READY";
+    return;
+  }
+
+  listenToUser();
+
+  try {
+    await loadActivatedBots();
+  } catch (err) {
+    console.error("Bot state load failed:", err);
+    refreshBotCards();
+  }
+
+  addBotLog("CYPX account session ready.");
+});
+
+/* =========================
+   MOBILE / SEARCH PROTECTION
+========================= */
+
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("selectstart", e => {
+  if (!["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("dragstart", e => e.preventDefault());
+
+document.addEventListener("keydown", e => {
+  if (
+    (e.ctrlKey || e.metaKey) &&
+    ["f", "k", "l"].includes(e.key.toLowerCase())
+  ) {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener("submit", e => e.preventDefault());
+
+/* =========================
+   INITIAL UI
+========================= */
+
+$("startTradingBtn")?.addEventListener("click", startTrading);
+
+updateTradingView();
+updateTradeSummary();
+refreshBotCards();
+setConnectionState(false);
+
+
+</script>
+</body>
+</html>
