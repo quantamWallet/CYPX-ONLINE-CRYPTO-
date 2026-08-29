@@ -32,98 +32,237 @@ header h1 span{color:#fff;font-weight:400;font-size:12px;display:block;letter-sp
 .detail-label{font-size:11px;color:#8aa0b8;text-transform:uppercase;}
 .detail-value{font-weight:800;font-size:15px;color:#ffd700;word-break:break-all;text-align:right;}
 .copy-btn{background:#002f6c;border:none;color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;cursor:pointer;margin-left:10px;}
-.wa-btn{display:block;width:100%;padding:12px;background:#25D366;color:#000;font-weight:800;text-align:center;border-radius:10px;text-decoration:none;margin-top:10px;font-size:13px;}
-.wa-btn i{margin-right:6px;}
+.proceed-btn{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;text-align:center;border-radius:10px;border:none;cursor:pointer;margin-top:10px;font-size:13px;text-transform:uppercase;}
 .steps{font-size:12px;color:#cbd5e1;line-height:1.7;margin-top:10px;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px;}
-.steps b{color:#fff;}
-.support{text-align:center;margin-top:22px;font-size:11px;color:#8aa0b8;line-height:1.6;padding-bottom:20px;}
-.toast{position:fixed;top:20px;right:15px;background:#00C896;color:#000;padding:12px 16px;border-radius:10px;display:none;z-index:1000;font-weight:700;font-size:13px;}
+.toast{position:fixed;top:20px;right:15px;left:15px;background:#0a0f1a;border:1px solid #00C896;color:#00ffaa;padding:14px 16px;border-radius:12px;display:none;z-index:1000;font-weight:700;font-size:13px;text-align:center;}
+.toast.error{border-color:#ff4444;color:#ff8888;background:#1a0a0a;}
+#page2{display:none;}
+.back-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;cursor:pointer;margin-bottom:15px;}
+.page2-card{background:#001a33;border:1px solid rgba(255,215,0,0.3);border-radius:18px;padding:20px;}
+.page2-title{font-size:18px;font-weight:900;color:#ffd700;margin-bottom:4px;}
+.page2-sub{font-size:12px;color:#94e2cc;margin-bottom:18px;}
+.form-group{margin-bottom:14px;}
+.form-group label{font-size:11px;color:#8aa0b8;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:700;}
+.form-group input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);padding:13px 14px;border-radius:10px;color:#fff;font-size:14px;font-weight:600;outline:none;}
+.form-group input.input-error{border-color:#ff4444!important;background:rgba(255,68,68,0.08)!important;}
+.error-text{font-size:11px;color:#ff6b6b;margin-top:5px;display:none;}
+.convert-box{display:flex;gap:10px;align-items:center;}
+.eq{color:#ffd700;font-weight:900;font-size:18px;}
+.ugx-display{background:rgba(0,200,150,0.15)!important;border:1px solid rgba(0,200,150,0.3)!important;color:#00ffaa!important;font-weight:800!important;}
+.upload-box{border:2px dashed rgba(255,215,0,0.3);background:rgba(255,215,0,0.05);border-radius:12px;padding:18px;text-align:center;cursor:pointer;position:relative;overflow:hidden;}
+.upload-box.input-error{border-color:#ff4444!important;}
+.upload-box input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-box i{font-size:28px;color:#ffd700;margin-bottom:6px;display:block;}
+.upload-box span{font-size:12px;color:#cbd5e1;}
+#preview{width:100%;max-height:220px;object-fit:contain;margin-top:12px;border-radius:10px;display:none;border:1px solid rgba(255,255,255,0.1);}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;border:none;border-radius:12px;font-size:14px;cursor:pointer;margin-top:8px;}
+.submit-btn:disabled{opacity:0.5;}
+.receiver-tag{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.25);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;}
+.success-box{text-align:center;padding:30px 15px;display:none;}
+.success-box i{font-size:50px;color:#00C896;margin-bottom:12px;}
+.success-box h2{color:#ffd700;margin-bottom:8px;}
+.success-box p{font-size:13px;color:#cbd5e1;line-height:1.6;}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-icon"><i class="fas fa-microchip"></i></div>
-  <h1>CYPX MINING <span>UGANDA → KENYA PAYMENT</span></h1>
-</header>
-
-<div class="toast" id="toast">Copied!</div>
+<header><div class="logo-icon"><i class="fas fa-microchip"></i></div><h1>CYPX MINING <span>UGANDA → KENYA PAYMENT</span></h1></header>
+<div class="toast" id="toast"></div>
 
 <div class="container">
+  <div id="page1">
+    <div class="route-card">
+      <div style="text-align:center"><div class="flag">🇺🇬</div><div style="font-weight:800;margin-top:4px;">UGANDA</div><small style="color:#94e2cc;">Sender</small></div>
+      <div class="route-text"><div class="route-arrow"><i class="fas fa-exchange-alt"></i></div><small>Instant</small><div>UGX → KES</div></div>
+      <div style="text-align:center"><div class="flag">🇰🇪</div><div style="font-weight:800;margin-top:4px;">KENYA</div><small style="color:#94e2cc;">Receiver</small></div>
+    </div>
+    <div class="notice"><i class="fas fa-shield-alt"></i> Official CYPX receiving numbers. After sending, submit proof - it goes directly to CYPX platform.</div>
 
-  <div class="route-card">
-    <div style="text-align:center"><div class="flag">🇺🇬</div><div style="font-weight:800;margin-top:4px;">UGANDA</div><small style="color:#94e2cc;">Sender</small></div>
-    <div class="route-text"><div class="route-arrow"><i class="fas fa-exchange-alt"></i></div><small>Instant • Auto Convert</small><div>UGX → KES</div></div>
-    <div style="text-align:center"><div class="flag">🇰🇪</div><div style="font-weight:800;margin-top:4px;">KENYA</div><small style="color:#94e2cc;">Receiver</small></div>
+    <div class="method" style="border-color:rgba(0,180,77,0.5);">
+      <div class="method-header"><div class="method-icon safa"><i class="fas fa-mobile-alt"></i></div><div><div class="method-name">Safaricom M-PESA Kenya</div><div class="method-sub">Name: Jane Rotich - Primary</div></div></div>
+      <div class="detail-row"><div><div class="detail-label">M-PESA Number</div><div class="detail-value" id="safa-num">254708557123</div></div><button class="copy-btn" onclick="copyText('safa-num')">Copy</button></div>
+      <button class="proceed-btn" onclick="openPage2('Jane Rotich - M-PESA','254708557123')">I Sent to Jane - Submit Proof</button>
+    </div>
+
+    <div class="method" style="border-color:rgba(255,0,0,0.4);">
+      <div class="method-header"><div class="method-icon airtel"><i class="fas fa-sim-card"></i></div><div><div class="method-name">Airtel Money Kenya</div><div class="method-sub">Name: Hassan Abdi - Alternative</div></div></div>
+      <div class="detail-row"><div><div class="detail-label">Airtel Number</div><div class="detail-value" id="airtel-num">254750858351</div></div><button class="copy-btn" onclick="copyText('airtel-num')">Copy</button></div>
+      <button class="proceed-btn" style="background:#fff;color:#ff0000;" onclick="openPage2('Hassan Abdi - Airtel KE','254750858351')">I Sent to Hassan - Submit Proof</button>
+    </div>
   </div>
 
-  <div class="notice">
-    <i class="fas fa-shield-alt"></i> Official CYPX receiving numbers. Send from MTN MoMo / Airtel Money Uganda via International Transfer. After sending, tap WhatsApp button below.
+  <div id="page2">
+    <button class="back-btn" onclick="closePage2()"><i class="fas fa-arrow-left"></i> Back</button>
+    <div class="page2-card" id="formCard">
+      <div class="page2-title">Submit Payment to CYPX</div>
+      <div class="page2-sub">Direct to platform - no WhatsApp</div>
+      <div class="receiver-tag"><span>Receiver: <b id="selectedName">-</b></span><span id="selectedNumber" style="color:#ffd700;font-weight:800;">-</span></div>
+
+      <div class="form-group">
+        <label>Amount in USD ($) *</label>
+        <div class="convert-box">
+          <input type="number" id="usdAmount" placeholder="e.g. 20" oninput="convertToUGX()" style="flex:1;">
+          <span class="eq">=</span>
+          <input type="text" id="ugxAmount" class="ugx-display" placeholder="0 UGX" readonly style="flex:1;">
+        </div>
+        <div class="error-text" id="usdError">Enter amount</div>
+      </div>
+
+      <div class="form-group">
+        <label>Your UG Phone Number *</label>
+        <input type="tel" id="userPhone" placeholder="2567...">
+        <div class="error-text" id="phoneError">Enter phone</div>
+      </div>
+
+      <div class="form-group">
+        <label>Transaction ID (Optional)</label>
+        <input type="text" id="transId" placeholder="e.g. MP123...">
+      </div>
+
+      <div class="form-group">
+        <label>Screenshot Proof *</label>
+        <div class="upload-box" id="uploadBox">
+          <input type="file" id="screenshot" accept="image/*" onchange="previewImage(event)">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span id="uploadText">Click to upload<br><small>PNG, JPG</small></span>
+        </div>
+        <div class="error-text" id="screenError">Upload screenshot</div>
+        <img id="preview">
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitPayment()"><i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX</button>
+    </div>
+
+    <div class="page2-card success-box" id="successBox">
+      <i class="fas fa-check-circle"></i>
+      <h2>Payment Submitted!</h2>
+      <p>Submitted to CYPX platform<br><br><b id="successDetails"></b><br><br>Admin will verify in 5-15 mins.</p>
+      <button class="proceed-btn" onclick="closePage2()" style="margin-top:20px;">Done</button>
+    </div>
   </div>
-
-  <!-- SAFARICOM MPESA - JANE ROTICH -->
-  <div class="method" style="border-color:rgba(0,180,77,0.5);">
-    <div class="method-header">
-      <div class="method-icon safa"><i class="fas fa-mobile-alt"></i></div>
-      <div><div class="method-name">Safaricom M-PESA Kenya</div><div class="method-sub">Name: Jane Rotich - Primary</div></div>
-    </div>
-
-    <div class="detail-row">
-      <div><div class="detail-label">M-PESA Number</div><div class="detail-value" id="safa-num">254708557123</div></div>
-      <button class="copy-btn" onclick="copyText('safa-num')">Copy</button>
-    </div>
-    <div class="detail-row">
-      <div><div class="detail-label">Account Name</div><div class="detail-value" style="color:#fff;">Jane Rotich</div></div>
-    </div>
-
-    <div class="steps">
-      <b>MTN Uganda:</b> *165*1*3# → International → Kenya M-PESA → <b>254708557123</b><br>
-      <b>Airtel Uganda:</b> *185*1*4# → Kenya → <b>254708557123</b>
-    </div>
-
-    <a class="wa-btn" href="https://wa.me/254708557123?text=Hi%20CYPX%20Admin%20%F0%9F%91%8B%2C%0AI%20just%20sent%20money%20from%20UGANDA%20to%20KENYA%0A%0AReceiver%3A%20Jane%20Rotich%20-%20254708557123%0AAmount%20in%20UGX%3A%20%0ATransaction%20ID%2FCode%3A%20%0AMy%20UG%20Number%3A%20%0A%0APlease%20confirm%20my%20CYPX%20account%20credit.%20Thank%20you."><i class="fab fa-whatsapp"></i> I Sent to Jane - Send Proof on WhatsApp</a>
-  </div>
-
-  <!-- AIRTEL MONEY KENYA - HASSAN ABDI -->
-  <div class="method" style="border-color:rgba(255,0,0,0.4);">
-    <div class="method-header">
-      <div class="method-icon airtel"><i class="fas fa-sim-card"></i></div>
-      <div><div class="method-name">Airtel Money Kenya</div><div class="method-sub">Name: Hassan Abdi - Alternative</div></div>
-    </div>
-
-    <div class="detail-row">
-      <div><div class="detail-label">Airtel Number</div><div class="detail-value" id="airtel-num">254750858351</div></div>
-      <button class="copy-btn" onclick="copyText('airtel-num')">Copy</button>
-    </div>
-    <div class="detail-row">
-      <div><div class="detail-label">Account Name</div><div class="detail-value" style="color:#fff;">Hassan Abdi</div></div>
-    </div>
-
-    <div class="steps">
-      <b>Airtel Uganda:</b> International → Kenya Airtel Money → <b>254750858351</b> → Confirm <b>Hassan Abdi</b>
-    </div>
-
-    <a class="wa-btn" style="background:#fff;color:#ff0000;" href="https://wa.me/254750858351?text=Hi%20CYPX%20Admin%20%F0%9F%91%8B%2C%0AI%20just%20sent%20money%20from%20UGANDA%20to%20KENYA%0A%0AReceiver%3A%20Hassan%20Abdi%20-%20254750858351%20(Airtel%20KE)%0AAmount%20in%20UGX%3A%20%0ATransaction%20ID%2FCode%3A%20%0AMy%20UG%20Number%3A%20%0A%0APlease%20confirm%20my%20CYPX%20account%20credit.%20Thank%20you."><i class="fab fa-whatsapp"></i> I Sent to Hassan - Send Proof on WhatsApp</a>
-  </div>
-
-  <div class="support">
-    CYPX MINING © 2026 • Secure Payments<br>
-    Rate: 1 KES ≈ 28.5 UGX • Credit in 5-15 Mins<br>
-    Need help? Contact Admin on WhatsApp
-  </div>
-
 </div>
 
-<script>
-function copyText(id){
-  const text = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(()=>{
-    const t=document.getElementById('toast');
-    t.innerText = 'Copied: '+text;
-    t.style.display='block';
-    setTimeout(()=>t.style.display='none',2000);
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const USD_TO_UGX = 3750;
+let currentReceiver = {name:'', number:''};
+let compressedBase64 = '';
+let isSubmitting = false;
+
+function showToast(msg, isError=false){
+  const t=document.getElementById('toast');
+  t.innerText=msg; t.className = isError? 'toast error':'toast';
+  t.style.display='block'; setTimeout(()=>t.style.display='none',3500);
+}
+window.copyText = (id)=>{ navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>showToast('Copied')); }
+window.openPage2 = (n,num)=>{ currentReceiver={name:n,number:num}; document.getElementById('selectedName').innerText=n; document.getElementById('selectedNumber').innerText=num; document.getElementById('page1').style.display='none'; document.getElementById('page2').style.display='block'; document.getElementById('formCard').style.display='block'; document.getElementById('successBox').style.display='none'; }
+window.closePage2 = ()=>{ document.getElementById('page2').style.display='none'; document.getElementById('page1').style.display='block'; }
+window.convertToUGX = ()=>{ const v=parseFloat(document.getElementById('usdAmount').value); const o=document.getElementById('ugxAmount'); if(!v||v<=0){o.value='';return;} o.value=(v*USD_TO_UGX).toLocaleString()+' UGX'; }
+
+// Compress image to base64 to avoid Storage hang
+function compressImage(file){
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const maxW = 800;
+        if(w>maxW){ h = h*maxW/w; w=maxW; }
+        canvas.width=w; canvas.height=h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.6)); // compressed
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   });
+}
+
+window.previewImage = async (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  document.getElementById('uploadBox').classList.remove('input-error');
+  document.getElementById('screenError').style.display='none';
+  document.getElementById('uploadText').innerHTML='Compressing...';
+  compressedBase64 = await compressImage(file);
+  document.getElementById('uploadText').innerHTML=file.name+'<br><small style="color:#00C896;">✓ Ready</small>';
+  const prev=document.getElementById('preview'); prev.src=compressedBase64; prev.style.display='block';
+}
+
+window.submitPayment = async ()=>{
+  if(isSubmitting) return;
+  const usdEl=document.getElementById('usdAmount'), phoneEl=document.getElementById('userPhone'), btn=document.getElementById('submitBtn');
+  let err=false;
+  usdEl.classList.remove('input-error'); phoneEl.classList.remove('input-error'); document.getElementById('uploadBox').classList.remove('input-error');
+  document.getElementById('usdError').style.display='none'; document.getElementById('phoneError').style.display='none'; document.getElementById('screenError').style.display='none';
+  
+  if(!usdEl.value.trim()||parseFloat(usdEl.value)<=0){usdEl.classList.add('input-error');document.getElementById('usdError').style.display='block';err=true;}
+  if(!phoneEl.value.trim()){phoneEl.classList.add('input-error');document.getElementById('phoneError').style.display='block';err=true;}
+  if(!compressedBase64){document.getElementById('uploadBox').classList.add('input-error');document.getElementById('screenError').style.display='block';err=true;}
+  if(err){showToast('Fill required fields',true);return;}
+
+  const usd=usdEl.value.trim(), ugxText=document.getElementById('ugxAmount').value, phone=phoneEl.value.trim(), transId=document.getElementById('transId').value.trim();
+  
+  isSubmitting=true; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+  // Safety timeout - force reset after 15s if Firebase hangs
+  const timeout = setTimeout(()=>{
+    isSubmitting=false; btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX';
+    showToast('Network slow, please try again',true);
+  },15000);
+
+  try{
+    const paymentsRef = ref(db, 'cypx_payments');
+    const newRef = push(paymentsRef);
+    await set(newRef, {
+      receiverName: currentReceiver.name,
+      receiverNumber: currentReceiver.number,
+      amountUSD: parseFloat(usd),
+      amountUGX: parseFloat(usd)*USD_TO_UGX,
+      amountUGX_formatted: ugxText,
+      userPhone: phone,
+      transactionId: transId||'N/A',
+      screenshotBase64: compressedBase64, // directly in DB, no storage
+      status: 'pending',
+      timestamp: Date.now(),
+      date: new Date().toISOString()
+    });
+
+    clearTimeout(timeout);
+    document.getElementById('formCard').style.display='none';
+    document.getElementById('successBox').style.display='block';
+    document.getElementById('successDetails').innerHTML=`$${usd} = ${ugxText}<br>To: ${currentReceiver.name}`;
+    showToast('Submitted to CYPX!');
+    
+    usdEl.value=''; document.getElementById('ugxAmount').value=''; phoneEl.value=''; document.getElementById('transId').value='';
+    document.getElementById('screenshot').value=''; document.getElementById('preview').style.display='none';
+    document.getElementById('uploadText').innerHTML='Click to upload<br><small>PNG, JPG</small>'; compressedBase64='';
+
+  }catch(e){
+    clearTimeout(timeout);
+    console.log(e);
+    showToast('Failed: '+e.message,true);
+  }finally{
+    clearTimeout(timeout);
+    isSubmitting=false; btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX';
+  }
 }
 </script>
 </body>
-</html>
+  </html>
