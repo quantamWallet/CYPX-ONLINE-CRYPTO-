@@ -96,7 +96,7 @@ auth.onAuthStateChanged(user=>{
   if(user){
     userId = user.uid;
     loadData();
-    setInterval(checkMines, 60000);
+    setInterval(checkMines, 5000);
     setInterval(renderActive, 1000);
   }
 })
@@ -109,6 +109,7 @@ function loadData(){
     document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
     renderPlans();
     renderActive();
+    checkMines(); // check immediately after data load
   })
 }
 
@@ -198,14 +199,12 @@ function renderActive(){
   }
   container.innerHTML = Object.entries(activeMines).map(([id, m])=>{
     if(!m) return '';
-    
-    // FIX: FORCE TO NUMBER AND ADD FALLBACK FOR OLD MINES
     const endTime = Number(m.endTime) || (Number(m.startedAt) + (m.days * 24 * 60 * 60 * 1000));
     const startedAt = Number(m.startedAt) || (endTime - (m.days * 24 * 60 * 60 * 1000));
-    
+
     const timeLeft = endTime - Date.now();
     const totalTime = endTime - startedAt;
-    const progress = totalTime > 0 ? Math.min(100, ((Date.now() - startedAt) / totalTime) * 100) : 100;
+    const progress = totalTime > 0? Math.min(100, ((Date.now() - startedAt) / totalTime) * 100) : 100;
 
     return `
     <div class="mine-item">
@@ -226,14 +225,17 @@ function checkMines(){
     const mines = snap.val() || {};
     for(let id in mines){
       const m = mines[id];
-      const endTime = Number(m.endTime);
-      if(m && m.status === 'active' && Date.now() >= endTime){
+      if(!m) continue;
+      const endTime = Number(m.endTime) || (Number(m.startedAt) + (Number(m.days) * 24 * 60 * 60 * 1000));
+      if(m.status === 'active' && Date.now() >= endTime){
+        const creditAmount = Number(m.amount) + Number(m.profit);
+        const profitOnly = Number(m.profit);
 
-        db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) + m.amount + m.profit);
-        db.ref("users/" + userId + "/miningEarnings").transaction(c => (Number(c)||0) + m.profit);
+        db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) + creditAmount);
+        db.ref("users/" + userId + "/miningEarnings").transaction(c => (Number(c)||0) + profitOnly);
         db.ref(`users/${userId}/activeMining/${id}`).remove();
 
-        showToast(`${m.planName} completed! +$${(m.amount + m.profit).toFixed(2)}`);
+        showToast(`${m.planName} completed! +$${creditAmount.toFixed(2)} credited`);
       }
     }
   })
