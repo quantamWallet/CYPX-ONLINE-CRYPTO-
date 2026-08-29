@@ -76,9 +76,7 @@ header h1{color:#ffd700;font-size:18px;} header h1 span{color:#fff;font-weight:4
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// YOUR CONFIG - EXACT AS YOU SENT
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -92,43 +90,19 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const auth = getAuth(app);
 const USD_TO_UGX = 3750;
 let currentReceiver = {name:'', number:''};
 let compressedBase64 = '';
 let isSubmitting = false;
 
-function showToast(msg, isError=false){
-  const t=document.getElementById('toast');
-  t.innerText=msg; t.className=isError?'toast error':'toast'; t.style.display='block';
-  setTimeout(()=>t.style.display='none',3500);
-}
+function showToast(m,e=false){ const t=document.getElementById('toast'); t.innerText=m; t.className=e?'toast error':'toast'; t.style.display='block'; setTimeout(()=>t.style.display='none',3500); }
 window.copyText = (id)=>{ navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>showToast('Copied')); }
 window.openPage2 = (n,num)=>{ currentReceiver={name:n,number:num}; document.getElementById('selectedName').innerText=n; document.getElementById('selectedNumber').innerText=num; document.getElementById('page1').style.display='none'; document.getElementById('page2').style.display='block'; document.getElementById('formCard').style.display='block'; document.getElementById('successBox').style.display='none'; }
 window.closePage2 = ()=>{ document.getElementById('page2').style.display='none'; document.getElementById('page1').style.display='block'; }
 window.convertToUGX = ()=>{ const v=parseFloat(document.getElementById('usdAmount').value); const o=document.getElementById('ugxAmount'); if(!v||v<=0){o.value='';return;} o.value=(v*USD_TO_UGX).toLocaleString()+' UGX'; }
-function compressImage(file){
-  return new Promise((resolve)=>{
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-      const img=new Image();
-      img.onload=()=>{
-        const canvas=document.createElement('canvas');
-        let w=img.width,h=img.height; const maxW=800;
-        if(w>maxW){h=h*maxW/w;w=maxW;}
-        canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
-        resolve(canvas.toDataURL('image/jpeg',0.6));
-      }; img.src=e.target.result;
-    }; reader.readAsDataURL(file);
-  });
-}
-window.previewImage = async (e)=>{
-  const file=e.target.files[0]; if(!file) return;
-  document.getElementById('uploadText').innerHTML='Compressing...';
-  compressedBase64=await compressImage(file);
-  document.getElementById('uploadText').innerHTML=file.name+'<br><small style="color:#00C896;">✓ Ready</small>';
-  const p=document.getElementById('preview'); p.src=compressedBase64; p.style.display='block';
-}
+function compressImage(f){ return new Promise((r)=>{ const rd=new FileReader(); rd.onload=(e)=>{ const im=new Image(); im.onload=()=>{ const c=document.createElement('canvas'); let w=im.width,h=im.height; if(w>800){h=h*800/w;w=800;} c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h); r(c.toDataURL('image/jpeg',0.6)); }; im.src=e.target.result; }; rd.readAsDataURL(f); }); }
+window.previewImage = async (e)=>{ const file=e.target.files[0]; if(!file) return; document.getElementById('uploadText').innerHTML='Compressing...'; compressedBase64=await compressImage(file); document.getElementById('uploadText').innerHTML=file.name+'<br><small style="color:#00C896;">✓ Ready</small>'; const p=document.getElementById('preview'); p.src=compressedBase64; p.style.display='block'; }
+
 window.submitPayment = async ()=>{
   if(isSubmitting) return;
   const usdEl=document.getElementById('usdAmount'), phoneEl=document.getElementById('userPhone'), btn=document.getElementById('submitBtn');
@@ -142,28 +116,16 @@ window.submitPayment = async ()=>{
   isSubmitting=true; btn.disabled=true; btn.innerHTML='Submitting...';
 
   try{
-    let uid=null;
-    try{ uid=auth.currentUser?.uid||null; }catch(e){}
-    if(!uid){ uid=localStorage.getItem('cypx_userId')||localStorage.getItem('userId')||null; }
-    const effectiveUid = uid || phone.replace(/[^0-9]/g,'');
-    const txId=Date.now();
-
     const paymentData={
-      id:txId, transactionId:transId||'N/A', userId:effectiveUid, userPhone:phone, phone:phone,
       receiverName:currentReceiver.name, receiverNumber:currentReceiver.number,
-      amount:parseFloat(usd), amountUSD:parseFloat(usd), amountUGX:parseFloat(usd)*USD_TO_UGX, amountUGX_formatted:ugxText,
-      type:"deposit", method:"UGANDA_MOMO", status:"pending", screenshotBase64:compressedBase64,
+      amountUSD:parseFloat(usd), amountUGX:parseFloat(usd)*USD_TO_UGX, amountUGX_formatted:ugxText,
+      userPhone:phone, transactionId:transId||'N/A',
+      screenshotBase64:compressedBase64, status:'pending',
       timestamp:Date.now(), date:new Date().toISOString()
     };
 
-    // SYNC TO REALTIME DB - ALL PATHS financial.html can read
-    await set(push(ref(db,'cypx_payments')),paymentData);
-    await set(push(ref(db,'transactions')),paymentData);
-    await set(push(ref(db,'deposits')),paymentData);
-    await set(push(ref(db,'financial_transactions')),paymentData);
-    await set(ref(db,`users/${effectiveUid}/transactions/${txId}`),paymentData);
-    await set(ref(db,`users/${effectiveUid}/deposits/${txId}`),paymentData);
-    await set(ref(db,`userDeposits/${phone}/${txId}`),paymentData);
+    // ONLY cypx_payments - MATCHES YOUR RULES .write:true
+    await set(push(ref(db,'cypx_payments')), paymentData);
 
     document.getElementById('formCard').style.display='none';
     document.getElementById('successBox').style.display='block';
@@ -174,10 +136,11 @@ window.submitPayment = async ()=>{
 
   }catch(e){
     showToast('Failed: '+e.message,true);
+    console.error(e);
   }finally{
     isSubmitting=false; btn.disabled=false; btn.innerHTML='SUBMIT PAYMENT TO CYPX';
   }
 }
 </script>
 </body>
-                                                          </html>
+</html>
