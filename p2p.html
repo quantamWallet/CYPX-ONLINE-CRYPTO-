@@ -3,149 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uganda to Kenya Payment - CYPX Mining</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<title>CYPX Mining</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
 body{background:#0a0f1a;color:#fff;min-height:100vh;}
-header{background:#001a33;padding:18px;text-align:center;border-bottom:1px solid #002f6c;display:flex;align-items:center;justify-content:center;gap:12px;}
-.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,#007BFF,#00C896);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;box-shadow:0 0 15px rgba(0,200,150,0.4);}
-header h1{color:#ffd700;font-size:18px;letter-spacing:0.5px;}
-header h1 span{color:#fff;font-weight:400;font-size:12px;display:block;letter-spacing:1px;}
-.container{max-width:650px;margin:0 auto;padding:15px;}
-.route-card{background:linear-gradient(135deg,#001a33 0%,#002f6c 100%);border:1px solid rgba(255,215,0,0.25);border-radius:16px;padding:18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-.flag{font-size:32px;}
-.route-arrow{color:#ffd700;font-size:22px;animation: pulse 1.5s infinite;}
-@keyframes pulse{0%{transform:translateX(0)}50%{transform:translateX(5px)}100%{transform:translateX(0)}}
-.route-text{text-align:center;}
-.route-text small{color:#94e2cc;font-size:11px;text-transform:uppercase;}
-.route-text div{font-weight:800;margin-top:3px;}
-.notice{background:rgba(0,200,150,0.12);border:1px solid rgba(0,200,150,0.3);padding:12px;border-radius:12px;font-size:12px;color:#94e2cc;margin-bottom:18px;line-height:1.6;}
-.method{background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;margin-bottom:14px;}
-.method-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.method-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;}
-.safa{background:#00b44d;color:#fff;}
-.airtel{background:#ff0000;color:#fff;}
-.method-name{font-weight:800;font-size:15px;}
-.method-sub{font-size:11px;color:#94e2cc;margin-top:2px;}
-.detail-row{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.35);padding:12px;border-radius:10px;margin-bottom:8px;}
-.detail-label{font-size:11px;color:#8aa0b8;text-transform:uppercase;}
-.detail-value{font-weight:800;font-size:15px;color:#ffd700;word-break:break-all;text-align:right;}
-.copy-btn{background:#002f6c;border:none;color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;cursor:pointer;margin-left:10px;}
-.proceed-btn{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;text-align:center;border-radius:10px;border:none;cursor:pointer;margin-top:10px;font-size:13px;text-transform:uppercase;}
-.steps{font-size:12px;color:#cbd5e1;line-height:1.7;margin-top:10px;background:rgba(0,0,0,0.25);padding:12px;border-radius:10px;}
-.toast{position:fixed;top:20px;right:15px;left:15px;background:#0a0f1a;border:1px solid #00C896;color:#00ffaa;padding:14px 16px;border-radius:12px;display:none;z-index:1000;font-weight:700;font-size:13px;text-align:center;}
-.toast.error{border-color:#ff4444;color:#ff8888;background:#1a0a0a;}
-#page2{display:none;}
-.back-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;cursor:pointer;margin-bottom:15px;}
-.page2-card{background:#001a33;border:1px solid rgba(255,215,0,0.3);border-radius:18px;padding:20px;}
-.page2-title{font-size:18px;font-weight:900;color:#ffd700;margin-bottom:4px;}
-.page2-sub{font-size:12px;color:#94e2cc;margin-bottom:18px;}
-.form-group{margin-bottom:14px;}
-.form-group label{font-size:11px;color:#8aa0b8;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:700;}
-.form-group input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);padding:13px 14px;border-radius:10px;color:#fff;font-size:14px;font-weight:600;outline:none;}
-.form-group input.input-error{border-color:#ff4444!important;background:rgba(255,68,68,0.08)!important;}
-.error-text{font-size:11px;color:#ff6b6b;margin-top:5px;display:none;}
-.convert-box{display:flex;gap:10px;align-items:center;}
-.eq{color:#ffd700;font-weight:900;font-size:18px;}
-.ugx-display{background:rgba(0,200,150,0.15)!important;border:1px solid rgba(0,200,150,0.3)!important;color:#00ffaa!important;font-weight:800!important;}
-.upload-box{border:2px dashed rgba(255,215,0,0.3);background:rgba(255,215,0,0.05);border-radius:12px;padding:18px;text-align:center;cursor:pointer;position:relative;overflow:hidden;}
-.upload-box.input-error{border-color:#ff4444!important;}
-.upload-box input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.upload-box i{font-size:28px;color:#ffd700;margin-bottom:6px;display:block;}
-.upload-box span{font-size:12px;color:#cbd5e1;}
-#preview{width:100%;max-height:220px;object-fit:contain;margin-top:12px;border-radius:10px;display:none;border:1px solid rgba(255,255,255,0.1);}
-.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;border:none;border-radius:12px;font-size:14px;cursor:pointer;margin-top:8px;}
-.submit-btn:disabled{opacity:0.5;}
-.receiver-tag{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.25);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;}
-.success-box{text-align:center;padding:30px 15px;display:none;}
-.success-box i{font-size:50px;color:#00C896;margin-bottom:12px;}
-.success-box h2{color:#ffd700;margin-bottom:8px;}
-.success-box p{font-size:13px;color:#cbd5e1;line-height:1.6;}
+header{background:#001a33;padding:15px;text-align:center;border-bottom:1px solid #002f6c;}
+header h1{color:#ffd700;font-size:22px;}
+.container{padding:15px;max-width:600px;margin:0 auto;}
+.balance-card{background:linear-gradient(135deg,#007BFF 0%,#00C896 100%);padding:20px;border-radius:16px;margin-bottom:20px;text-align:center;}
+.balance-label{font-size:12px;color:rgba(255,255,255,0.9);text-transform:uppercase;}
+.balance-value{font-size:28px;font-weight:800;color:#ffd700;margin-top:5px;}
+.section-title{font-size:14px;margin:15px 0;color:#94e2cc;font-weight:600;}
+.plan-grid{display:grid;gap:12px;}
+.plan-card{background:rgba(0,26,51,0.7);backdrop-filter:blur(10px);padding:16px;border-radius:14px;border:2px solid rgba(255,255,255,0.08);}
+.plan-card.owned{border-color:#00C896;}
+.plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.plan-name{font-weight:800;font-size:16px;color:#fff;}
+.plan-price{color:#ffd700;font-weight:800;font-size:18px;}
+.plan-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;font-size:12px;}
+.plan-stat{background:rgba(255,255,255,0.05);padding:8px;border-radius:8px;text-align:center;}
+.plan-stat small{color:#94e2cc;}
+.plan-btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(90deg,#00C896,#007A54);color:#000;font-weight:800;cursor:pointer;}
+.plan-btn:disabled{background:#444;color:#888;cursor:not-allowed;}
+.active-mines{margin-top:25px;}
+.mine-item{background:#001a33;padding:14px;border-radius:12px;margin-bottom:10px;}
+.mine-top{display:flex;justify-content:space-between;margin-bottom:8px;}
+.mine-name{font-weight:700;}
+.mine-return{color:#00C896;font-weight:800;}
+.progress-bar{height:6px;background:#002f6c;border-radius:10px;overflow:hidden;margin:8px 0;}
+.progress{height:100%;background:linear-gradient(90deg,#00C896,#007BFF);}
+.timer{font-size:12px;color:#ffd700;margin-top:6px;text-align:center;font-weight:700;letter-spacing:1px;}
+.toast{position:fixed;top:20px;right:15px;background:#00C896;padding:12px 16px;border-radius:10px;display:none;z-index:1000;}
 </style>
 </head>
 <body>
 
-<header><div class="logo-icon"><i class="fas fa-microchip"></i></div><h1>CYPX MINING <span>UGANDA → KENYA PAYMENT</span></h1></header>
+<header><h1><i class="fas fa-microchip"></i> CYPX MINING</h1></header>
+
 <div class="toast" id="toast"></div>
 
 <div class="container">
-  <div id="page1">
-    <div class="route-card">
-      <div style="text-align:center"><div class="flag">🇺🇬</div><div style="font-weight:800;margin-top:4px;">UGANDA</div><small style="color:#94e2cc;">Sender</small></div>
-      <div class="route-text"><div class="route-arrow"><i class="fas fa-exchange-alt"></i></div><small>Instant</small><div>UGX → KES</div></div>
-      <div style="text-align:center"><div class="flag">🇰🇪</div><div style="font-weight:800;margin-top:4px;">KENYA</div><small style="color:#94e2cc;">Receiver</small></div>
-    </div>
-    <div class="notice"><i class="fas fa-shield-alt"></i> Official CYPX receiving numbers. After sending, submit proof - it goes directly to CYPX platform.</div>
-
-    <div class="method" style="border-color:rgba(0,180,77,0.5);">
-      <div class="method-header"><div class="method-icon safa"><i class="fas fa-mobile-alt"></i></div><div><div class="method-name">Safaricom M-PESA Kenya</div><div class="method-sub">Name: Jane Rotich - Primary</div></div></div>
-      <div class="detail-row"><div><div class="detail-label">M-PESA Number</div><div class="detail-value" id="safa-num">254708557123</div></div><button class="copy-btn" onclick="copyText('safa-num')">Copy</button></div>
-      <button class="proceed-btn" onclick="openPage2('Jane Rotich - M-PESA','254708557123')">I Sent to Jane - Submit Proof</button>
-    </div>
-
-    <div class="method" style="border-color:rgba(255,0,0,0.4);">
-      <div class="method-header"><div class="method-icon airtel"><i class="fas fa-sim-card"></i></div><div><div class="method-name">Airtel Money Kenya</div><div class="method-sub">Name: Hassan Abdi - Alternative</div></div></div>
-      <div class="detail-row"><div><div class="detail-label">Airtel Number</div><div class="detail-value" id="airtel-num">254750858351</div></div><button class="copy-btn" onclick="copyText('airtel-num')">Copy</button></div>
-      <button class="proceed-btn" style="background:#fff;color:#ff0000;" onclick="openPage2('Hassan Abdi - Airtel KE','254750858351')">I Sent to Hassan - Submit Proof</button>
-    </div>
+  <div class="balance-card">
+    <div class="balance-label">Available Balance</div>
+    <div class="balance-value" id="balance">$0.00</div>
   </div>
 
-  <div id="page2">
-    <button class="back-btn" onclick="closePage2()"><i class="fas fa-arrow-left"></i> Back</button>
-    <div class="page2-card" id="formCard">
-      <div class="page2-title">Submit Payment to CYPX</div>
-      <div class="page2-sub">Direct to platform - no WhatsApp</div>
-      <div class="receiver-tag"><span>Receiver: <b id="selectedName">-</b></span><span id="selectedNumber" style="color:#ffd700;font-weight:800;">-</span></div>
+  <div class="section-title">Select Mining Plan</div>
+  <div class="plan-grid" id="plans"></div>
 
-      <div class="form-group">
-        <label>Amount in USD ($) *</label>
-        <div class="convert-box">
-          <input type="number" id="usdAmount" placeholder="e.g. 20" oninput="convertToUGX()" style="flex:1;">
-          <span class="eq">=</span>
-          <input type="text" id="ugxAmount" class="ugx-display" placeholder="0 UGX" readonly style="flex:1;">
-        </div>
-        <div class="error-text" id="usdError">Enter amount</div>
-      </div>
-
-      <div class="form-group">
-        <label>Your UG Phone Number *</label>
-        <input type="tel" id="userPhone" placeholder="2567...">
-        <div class="error-text" id="phoneError">Enter phone</div>
-      </div>
-
-      <div class="form-group">
-        <label>Transaction ID (Optional)</label>
-        <input type="text" id="transId" placeholder="e.g. MP123...">
-      </div>
-
-      <div class="form-group">
-        <label>Screenshot Proof *</label>
-        <div class="upload-box" id="uploadBox">
-          <input type="file" id="screenshot" accept="image/*" onchange="previewImage(event)">
-          <i class="fas fa-cloud-upload-alt"></i>
-          <span id="uploadText">Click to upload<br><small>PNG, JPG</small></span>
-        </div>
-        <div class="error-text" id="screenError">Upload screenshot</div>
-        <img id="preview">
-      </div>
-
-      <button class="submit-btn" id="submitBtn" onclick="submitPayment()"><i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX</button>
-    </div>
-
-    <div class="page2-card success-box" id="successBox">
-      <i class="fas fa-check-circle"></i>
-      <h2>Payment Submitted!</h2>
-      <p>Submitted to CYPX platform<br><br><b id="successDetails"></b><br><br>Admin will verify in 5-15 mins.</p>
-      <button class="proceed-btn" onclick="closePage2()" style="margin-top:20px;">Done</button>
-    </div>
-  </div>
+  <div class="section-title">Your Active Mining</div>
+  <div class="active-mines" id="activeMines"></div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -153,115 +67,208 @@ const firebaseConfig = {
   projectId: "quantum-rio",
   storageBucket: "quantum-rio.firebasestorage.app",
   messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const USD_TO_UGX = 3750;
-let currentReceiver = {name:'', number:''};
-let compressedBase64 = '';
-let isSubmitting = false;
+let userId = null;
+let balance = 0;
+let activeMines = {};
 
-function showToast(msg, isError=false){
-  const t=document.getElementById('toast');
-  t.innerText=msg; t.className = isError? 'toast error':'toast';
-  t.style.display='block'; setTimeout(()=>t.style.display='none',3500);
-}
-window.copyText = (id)=>{ navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>showToast('Copied')); }
-window.openPage2 = (n,num)=>{ currentReceiver={name:n,number:num}; document.getElementById('selectedName').innerText=n; document.getElementById('selectedNumber').innerText=num; document.getElementById('page1').style.display='none'; document.getElementById('page2').style.display='block'; document.getElementById('formCard').style.display='block'; document.getElementById('successBox').style.display='none'; }
-window.closePage2 = ()=>{ document.getElementById('page2').style.display='none'; document.getElementById('page1').style.display='block'; }
-window.convertToUGX = ()=>{ const v=parseFloat(document.getElementById('usdAmount').value); const o=document.getElementById('ugxAmount'); if(!v||v<=0){o.value='';return;} o.value=(v*USD_TO_UGX).toLocaleString()+' UGX'; }
+const plans = [
+  {id:1, name:"Bronze Miner", price:25, roi:18, days:36},
+  {id:2, name:"Silver Miner", price:50, roi:20, days:36},
+  {id:3, name:"Gold Miner", price:100, roi:22, days:36},
+  {id:4, name:"Platinum Miner", price:250, roi:25, days:21},
+  {id:5, name:"Diamond Miner", price:500, roi:28, days:21},
+  {id:6, name:"Titanium Miner", price:1000, roi:30, days:21},
+  {id:7, name:"Elite Miner", price:2500, roi:33, days:14},
+  {id:8, name:"VIP Miner", price:5000, roi:35, days:14},
+  {id:9, name:"Quantum Miner", price:10000, roi:38, days:14},
+  {id:10, name:"CYPX Infinity", price:25000, roi:40, days:14}
+];
 
-// Compress image to base64 to avoid Storage hang
-function compressImage(file){
-  return new Promise((resolve)=>{
-    const reader = new FileReader();
-    reader.onload = (e)=>{
-      const img = new Image();
-      img.onload = ()=>{
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        const maxW = 800;
-        if(w>maxW){ h = h*maxW/w; w=maxW; }
-        canvas.width=w; canvas.height=h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img,0,0,w,h);
-        resolve(canvas.toDataURL('image/jpeg',0.6)); // compressed
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-window.previewImage = async (e)=>{
-  const file = e.target.files[0]; if(!file) return;
-  document.getElementById('uploadBox').classList.remove('input-error');
-  document.getElementById('screenError').style.display='none';
-  document.getElementById('uploadText').innerHTML='Compressing...';
-  compressedBase64 = await compressImage(file);
-  document.getElementById('uploadText').innerHTML=file.name+'<br><small style="color:#00C896;">✓ Ready</small>';
-  const prev=document.getElementById('preview'); prev.src=compressedBase64; prev.style.display='block';
-}
-
-window.submitPayment = async ()=>{
-  if(isSubmitting) return;
-  const usdEl=document.getElementById('usdAmount'), phoneEl=document.getElementById('userPhone'), btn=document.getElementById('submitBtn');
-  let err=false;
-  usdEl.classList.remove('input-error'); phoneEl.classList.remove('input-error'); document.getElementById('uploadBox').classList.remove('input-error');
-  document.getElementById('usdError').style.display='none'; document.getElementById('phoneError').style.display='none'; document.getElementById('screenError').style.display='none';
-  
-  if(!usdEl.value.trim()||parseFloat(usdEl.value)<=0){usdEl.classList.add('input-error');document.getElementById('usdError').style.display='block';err=true;}
-  if(!phoneEl.value.trim()){phoneEl.classList.add('input-error');document.getElementById('phoneError').style.display='block';err=true;}
-  if(!compressedBase64){document.getElementById('uploadBox').classList.add('input-error');document.getElementById('screenError').style.display='block';err=true;}
-  if(err){showToast('Fill required fields',true);return;}
-
-  const usd=usdEl.value.trim(), ugxText=document.getElementById('ugxAmount').value, phone=phoneEl.value.trim(), transId=document.getElementById('transId').value.trim();
-  
-  isSubmitting=true; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
-  // Safety timeout - force reset after 15s if Firebase hangs
-  const timeout = setTimeout(()=>{
-    isSubmitting=false; btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX';
-    showToast('Network slow, please try again',true);
-  },15000);
-
-  try{
-    const paymentsRef = ref(db, 'cypx_payments');
-    const newRef = push(paymentsRef);
-    await set(newRef, {
-      receiverName: currentReceiver.name,
-      receiverNumber: currentReceiver.number,
-      amountUSD: parseFloat(usd),
-      amountUGX: parseFloat(usd)*USD_TO_UGX,
-      amountUGX_formatted: ugxText,
-      userPhone: phone,
-      transactionId: transId||'N/A',
-      screenshotBase64: compressedBase64, // directly in DB, no storage
-      status: 'pending',
-      timestamp: Date.now(),
-      date: new Date().toISOString()
-    });
-
-    clearTimeout(timeout);
-    document.getElementById('formCard').style.display='none';
-    document.getElementById('successBox').style.display='block';
-    document.getElementById('successDetails').innerHTML=`$${usd} = ${ugxText}<br>To: ${currentReceiver.name}`;
-    showToast('Submitted to CYPX!');
-    
-    usdEl.value=''; document.getElementById('ugxAmount').value=''; phoneEl.value=''; document.getElementById('transId').value='';
-    document.getElementById('screenshot').value=''; document.getElementById('preview').style.display='none';
-    document.getElementById('uploadText').innerHTML='Click to upload<br><small>PNG, JPG</small>'; compressedBase64='';
-
-  }catch(e){
-    clearTimeout(timeout);
-    console.log(e);
-    showToast('Failed: '+e.message,true);
-  }finally{
-    clearTimeout(timeout);
-    isSubmitting=false; btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX';
+auth.signInAnonymously().catch(console.error);
+auth.onAuthStateChanged(user=>{
+  if(user){
+    userId = user.uid;
+    loadData();
+    setInterval(checkMines, 5000);
+    setInterval(renderActive, 1000);
   }
+})
+
+function loadData(){
+  db.ref('users/'+userId).on('value', snap=>{
+    const data = snap.val() || {};
+    balance = data.balance || 0;
+    activeMines = data.activeMining || {};
+    document.getElementById('balance').textContent = '$'+balance.toLocaleString(undefined,{minimumFractionDigits:2});
+    renderPlans();
+    renderActive();
+    checkMines();
+  })
+}
+
+function renderPlans(){
+  document.getElementById('plans').innerHTML = plans.map(p=>{
+    const profit = (p.price * p.roi / 100).toFixed(2);
+    const daily = (profit / p.days).toFixed(2);
+    const existingMine = Object.values(activeMines).find(m => m.planName === p.name && m.status === 'active');
+    let btnText = 'Activate $'+p.price;
+    let isDisabled = balance < p.price;
+    let cardClass = '';
+    if(existingMine){
+      const endTime = Number(existingMine.endTime) || (Number(existingMine.startedAt) + (existingMine.days * 24 * 60 * 60 * 1000));
+      const daysLeft = Math.max(0, Math.ceil((endTime - Date.now()) / (1000*60*60*24)));
+      btnText = `Wait ${daysLeft} days to claim`;
+      isDisabled = true;
+      cardClass = 'owned';
+    } else if(balance < p.price) {
+      btnText = 'Insufficient Balance';
+      isDisabled = true;
+    }
+    return `
+    <div class="plan-card ${cardClass}">
+      <div class="plan-header">
+        <div class="plan-name">${p.name}</div>
+        <div class="plan-price">$${p.price}</div>
+      </div>
+      <div class="plan-stats">
+        <div class="plan-stat"><small>Total ROI</small><div>${p.roi}%</div></div>
+        <div class="plan-stat"><small>Total Profit</small><div>$${profit}</div></div>
+        <div class="plan-stat"><small>Duration</small><div>${p.days} Days</div></div>
+        <div class="plan-stat"><small>Daily</small><div>$${daily}</div></div>
+      </div>
+      <button class="plan-btn" onclick="buyPlan(${p.id})" ${isDisabled? 'disabled' : ''}>
+        ${btnText}
+      </button>
+    </div>
+    `
+  }).join('');
+}
+
+function buyPlan(planId){
+  if(!userId) return;
+  const plan = plans.find(p=>p.id===planId);
+  if(!plan || balance < plan.price) return showToast('Insufficient Balance');
+
+  const mineId = Date.now();
+  const endTime = Date.now() + (plan.days * 24 * 60 * 60 * 1000);
+  const profit = plan.price * plan.roi / 100;
+  const txId = mineId;
+
+  // 1. Deduct balance (your existing logic)
+  db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) - plan.price);
+
+  // 2. Create active mining (your existing logic)
+  db.ref(`users/${userId}/activeMining/${mineId}`).set({
+    planName: plan.name,
+    amount: plan.price,
+    profit: profit,
+    roi: plan.roi,
+    days: plan.days,
+    startedAt: Date.now(),
+    endTime: endTime,
+    status: 'active'
+  });
+
+  // 3. NEW: Sync transaction to Realtime Database
+  const transactionData = {
+    transactionId: txId,
+    userId: userId,
+    type: "mining_purchase",
+    planId: plan.id,
+    planName: plan.name,
+    amount: plan.price,
+    profit: profit,
+    roi: plan.roi,
+    days: plan.days,
+    status: "active",
+    startedAt: Date.now(),
+    endTime: endTime,
+    timestamp: firebase.database.ServerValue.TIMESTAMP,
+    date: new Date().toISOString()
+  };
+
+  // Save to user's transaction history
+  db.ref(`users/${userId}/transactions/${txId}`).set(transactionData);
+  // Save to global transactions for admin view
+  db.ref(`transactions/${txId}`).set(transactionData);
+
+  showToast(`${plan.name} Activated for ${plan.days} days!`);
+
+  // 4. NEW: Redirect to transactions.html after 1.5s
+  setTimeout(()=>{
+    window.location.href = "financial.html";
+  }, 1500);
+}
+
+function formatTime(ms){
+  ms = Number(ms);
+  if(isNaN(ms) || ms <= 0) return "Claim Ready!";
+  const days = Math.floor(ms / (1000*60*60*24));
+  const hours = Math.floor((ms % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((ms % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((ms % (1000*60)) / 1000);
+  if(days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+}
+
+function renderActive(){
+  const container = document.getElementById('activeMines');
+  if(!activeMines || Object.keys(activeMines).length === 0){
+    container.innerHTML = '<div style="color:#666;text-align:center;">No active mining</div>';
+    return;
+  }
+  container.innerHTML = Object.entries(activeMines).map(([id, m])=>{
+    if(!m) return '';
+    const endTime = Number(m.endTime) || (Number(m.startedAt) + (m.days * 24 * 60 * 60 * 1000));
+    const startedAt = Number(m.startedAt) || (endTime - (m.days * 24 * 60 * 60 * 1000));
+    const timeLeft = endTime - Date.now();
+    const totalTime = endTime - startedAt;
+    const progress = totalTime > 0? Math.min(100, ((Date.now() - startedAt) / totalTime) * 100) : 100;
+    return `
+    <div class="mine-item">
+      <div class="mine-top">
+        <div class="mine-name">${m.planName} - ${m.days}D</div>
+        <div class="mine-return">+$${Number(m.profit).toFixed(2)}</div>
+      </div>
+      <div class="progress-bar"><div class="progress" style="width:${progress}%"></div></div>
+      <div class="timer"><i class="fas fa-clock"></i> ${formatTime(timeLeft)}</div>
+    </div>
+    `
+  }).join('');
+}
+
+function checkMines(){
+  if(!userId) return;
+  db.ref(`users/${userId}/activeMining`).once('value').then(snap=>{
+    const mines = snap.val() || {};
+    for(let id in mines){
+      const m = mines[id];
+      if(!m) continue;
+      const endTime = Number(m.endTime) || (Number(m.startedAt) + (Number(m.days) * 24 * 60 * 60 * 1000));
+      if(m.status === 'active' && Date.now() >= endTime){
+        const creditAmount = Number(m.amount) + Number(m.profit);
+        const profitOnly = Number(m.profit);
+        db.ref("users/" + userId + "/balance").transaction(c => (Number(c)||0) + creditAmount);
+        db.ref("users/" + userId + "/miningEarnings").transaction(c => (Number(c)||0) + profitOnly);
+        db.ref(`users/${userId}/activeMining/${id}`).remove();
+        showToast(`${m.planName} completed! +$${creditAmount.toFixed(2)} credited`);
+      }
+    }
+  })
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>t.style.display='none', 3000);
 }
 </script>
 </body>
