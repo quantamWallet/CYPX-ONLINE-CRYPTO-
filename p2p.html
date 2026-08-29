@@ -9,141 +9,76 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
 body{background:#0a0f1a;color:#fff;min-height:100vh;}
 header{background:#001a33;padding:18px;text-align:center;border-bottom:1px solid #002f6c;display:flex;align-items:center;justify-content:center;gap:12px;}
-.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,#007BFF,#00C896);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;box-shadow:0 0 15px rgba(0,200,150,0.4);}
-header h1{color:#ffd700;font-size:18px;letter-spacing:0.5px;}
-header h1 span{color:#fff;font-weight:400;font-size:12px;display:block;letter-spacing:1px;}
+.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,#007BFF,#00C896);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;}
+header h1{color:#ffd700;font-size:18px;} header h1 span{color:#fff;font-weight:400;font-size:12px;display:block;}
 .container{max-width:650px;margin:0 auto;padding:15px;}
 .route-card{background:linear-gradient(135deg,#001a33 0%,#002f6c 100%);border:1px solid rgba(255,215,0,0.25);border-radius:16px;padding:18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-.flag{font-size:32px;}
-.route-arrow{color:#ffd700;font-size:22px;animation: pulse 1.5s infinite;}
-@keyframes pulse{0%{transform:translateX(0)}50%{transform:translateX(5px)}100%{transform:translateX(0)}}
-.route-text{text-align:center;}
-.route-text small{color:#94e2cc;font-size:11px;text-transform:uppercase;}
-.route-text div{font-weight:800;margin-top:3px;}
-.notice{background:rgba(0,200,150,0.12);border:1px solid rgba(0,200,150,0.3);padding:12px;border-radius:12px;font-size:12px;color:#94e2cc;margin-bottom:18px;line-height:1.6;}
-.method{background:rgba(255,255,255,0.04);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;margin-bottom:14px;}
+.flag{font-size:32px;} .route-arrow{color:#ffd700;font-size:22px;}
+.notice{background:rgba(0,200,150,0.12);border:1px solid rgba(0,200,150,0.3);padding:12px;border-radius:12px;font-size:12px;color:#94e2cc;margin-bottom:18px;}
+.method{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;margin-bottom:14px;}
 .method-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
 .method-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;}
-.safa{background:#00b44d;color:#fff;}
-.airtel{background:#ff0000;color:#fff;}
-.method-name{font-weight:800;font-size:15px;}
-.method-sub{font-size:11px;color:#94e2cc;margin-top:2px;}
+.safa{background:#00b44d;color:#fff;} .airtel{background:#ff0000;color:#fff;}
 .detail-row{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,0.35);padding:12px;border-radius:10px;margin-bottom:8px;}
 .detail-label{font-size:11px;color:#8aa0b8;text-transform:uppercase;}
-.detail-value{font-weight:800;font-size:15px;color:#ffd700;word-break:break-all;text-align:right;}
-.copy-btn{background:#002f6c;border:none;color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;cursor:pointer;margin-left:10px;}
-.proceed-btn{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;text-align:center;border-radius:10px;border:none;cursor:pointer;margin-top:10px;font-size:13px;text-transform:uppercase;}
-.toast{position:fixed;top:20px;right:15px;left:15px;background:#0a0f1a;border:1px solid #00C896;color:#00ffaa;padding:14px 16px;border-radius:12px;display:none;z-index:1000;font-weight:700;font-size:13px;text-align:center;}
+.detail-value{font-weight:800;font-size:15px;color:#ffd700;}
+.copy-btn{background:#002f6c;border:none;color:#fff;padding:7px 11px;border-radius:8px;font-size:11px;cursor:pointer;}
+.proceed-btn{display:block;width:100%;padding:13px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;text-align:center;border-radius:10px;border:none;cursor:pointer;margin-top:10px;}
+.toast{position:fixed;top:20px;left:15px;right:15px;background:#0a0f1a;border:1px solid #00C896;color:#00ffaa;padding:14px;border-radius:12px;display:none;z-index:1000;text-align:center;font-weight:700;}
 .toast.error{border-color:#ff4444;color:#ff8888;background:#1a0a0a;}
 #page2{display:none;}
 .back-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;cursor:pointer;margin-bottom:15px;}
 .page2-card{background:#001a33;border:1px solid rgba(255,215,0,0.3);border-radius:18px;padding:20px;}
-.page2-title{font-size:18px;font-weight:900;color:#ffd700;margin-bottom:4px;}
-.page2-sub{font-size:12px;color:#94e2cc;margin-bottom:18px;}
-.form-group{margin-bottom:14px;}
-.form-group label{font-size:11px;color:#8aa0b8;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:700;}
-.form-group input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);padding:13px 14px;border-radius:10px;color:#fff;font-size:14px;font-weight:600;outline:none;}
-.form-group input.input-error{border-color:#ff4444!important;background:rgba(255,68,68,0.08)!important;}
+.form-group{margin-bottom:14px;} .form-group label{font-size:11px;color:#8aa0b8;text-transform:uppercase;display:block;margin-bottom:6px;font-weight:700;}
+.form-group input{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);padding:13px 14px;border-radius:10px;color:#fff;font-size:14px;outline:none;}
+.form-group input.input-error{border-color:#ff4444!important;}
 .error-text{font-size:11px;color:#ff6b6b;margin-top:5px;display:none;}
-.convert-box{display:flex;gap:10px;align-items:center;}
-.eq{color:#ffd700;font-weight:900;font-size:18px;}
+.convert-box{display:flex;gap:10px;align-items:center;} .eq{color:#ffd700;font-weight:900;font-size:18px;}
 .ugx-display{background:rgba(0,200,150,0.15)!important;border:1px solid rgba(0,200,150,0.3)!important;color:#00ffaa!important;font-weight:800!important;}
-.upload-box{border:2px dashed rgba(255,215,0,0.3);background:rgba(255,215,0,0.05);border-radius:12px;padding:18px;text-align:center;cursor:pointer;position:relative;overflow:hidden;}
-.upload-box.input-error{border-color:#ff4444!important;}
+.upload-box{border:2px dashed rgba(255,215,0,0.3);background:rgba(255,215,0,0.05);border-radius:12px;padding:18px;text-align:center;position:relative;overflow:hidden;}
 .upload-box input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.upload-box i{font-size:28px;color:#ffd700;margin-bottom:6px;display:block;}
-.upload-box span{font-size:12px;color:#cbd5e1;}
-#preview{width:100%;max-height:220px;object-fit:contain;margin-top:12px;border-radius:10px;display:none;border:1px solid rgba(255,255,255,0.1);}
+#preview{width:100%;max-height:220px;object-fit:contain;margin-top:12px;border-radius:10px;display:none;}
 .submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#ffd700,#ffb700);color:#000;font-weight:900;border:none;border-radius:12px;font-size:14px;cursor:pointer;margin-top:8px;}
 .submit-btn:disabled{opacity:0.5;}
-.receiver-tag{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.25);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;}
+.receiver-tag{background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.25);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:15px;display:flex;justify-content:space-between;}
 .success-box{text-align:center;padding:30px 15px;display:none;}
-.success-box i{font-size:50px;color:#00C896;margin-bottom:12px;}
-.success-box h2{color:#ffd700;margin-bottom:8px;}
-.success-box p{font-size:13px;color:#cbd5e1;line-height:1.6;}
 </style>
 </head>
 <body>
-
 <header><div class="logo-icon"><i class="fas fa-microchip"></i></div><h1>CYPX MINING <span>UGANDA → KENYA PAYMENT</span></h1></header>
 <div class="toast" id="toast"></div>
-
 <div class="container">
   <div id="page1">
     <div class="route-card">
-      <div style="text-align:center"><div class="flag">🇺🇬</div><div style="font-weight:800;margin-top:4px;">UGANDA</div><small style="color:#94e2cc;">Sender</small></div>
-      <div class="route-text"><div class="route-arrow"><i class="fas fa-exchange-alt"></i></div><small>Instant</small><div>UGX → KES</div></div>
-      <div style="text-align:center"><div class="flag">🇰🇪</div><div style="font-weight:800;margin-top:4px;">KENYA</div><small style="color:#94e2cc;">Receiver</small></div>
+      <div style="text-align:center"><div class="flag">🇺🇬</div><div style="font-weight:800;">UGANDA</div></div>
+      <div style="text-align:center"><div class="route-arrow"><i class="fas fa-exchange-alt"></i></div><div>UGX → KES</div></div>
+      <div style="text-align:center"><div class="flag">🇰🇪</div><div style="font-weight:800;">KENYA</div></div>
     </div>
-    <div class="notice"><i class="fas fa-shield-alt"></i> Official CYPX receiving numbers. After sending, submit proof - it goes directly to CYPX platform.</div>
-
-    <div class="method" style="border-color:rgba(0,180,77,0.5);">
-      <div class="method-header"><div class="method-icon safa"><i class="fas fa-mobile-alt"></i></div><div><div class="method-name">Safaricom M-PESA Kenya</div><div class="method-sub">Name: Jane Rotich - Primary</div></div></div>
-      <div class="detail-row"><div><div class="detail-label">M-PESA Number</div><div class="detail-value" id="safa-num">254708557123</div></div><button class="copy-btn" onclick="copyText('safa-num')">Copy</button></div>
-      <button class="proceed-btn" onclick="openPage2('Jane Rotich - M-PESA','254708557123')">I Sent to Jane - Submit Proof</button>
-    </div>
-
-    <div class="method" style="border-color:rgba(255,0,0,0.4);">
-      <div class="method-header"><div class="method-icon airtel"><i class="fas fa-sim-card"></i></div><div><div class="method-name">Airtel Money Kenya</div><div class="method-sub">Name: Hassan Abdi - Alternative</div></div></div>
-      <div class="detail-row"><div><div class="detail-label">Airtel Number</div><div class="detail-value" id="airtel-num">254750858351</div></div><button class="copy-btn" onclick="copyText('airtel-num')">Copy</button></div>
-      <button class="proceed-btn" style="background:#fff;color:#ff0000;" onclick="openPage2('Hassan Abdi - Airtel KE','254750858351')">I Sent to Hassan - Submit Proof</button>
-    </div>
+    <div class="notice">Official CYPX receiving numbers. After sending, submit proof.</div>
+    <div class="method"><div class="method-header"><div class="method-icon safa"><i class="fas fa-mobile-alt"></i></div><div><div style="font-weight:800;">Safaricom M-PESA</div><small>Jane Rotich</small></div></div><div class="detail-row"><div><div class="detail-label">Number</div><div class="detail-value" id="safa-num">254708557123</div></div><button class="copy-btn" onclick="copyText('safa-num')">Copy</button></div><button class="proceed-btn" onclick="openPage2('Jane Rotich - M-PESA','254708557123')">I Sent to Jane - Submit Proof</button></div>
+    <div class="method"><div class="method-header"><div class="method-icon airtel"><i class="fas fa-sim-card"></i></div><div><div style="font-weight:800;">Airtel Money</div><small>Hassan Abdi</small></div></div><div class="detail-row"><div><div class="detail-label">Number</div><div class="detail-value" id="airtel-num">254750858351</div></div><button class="copy-btn" onclick="copyText('airtel-num')">Copy</button></div><button class="proceed-btn" style="background:#fff;color:#ff0000;" onclick="openPage2('Hassan Abdi - Airtel KE','254750858351')">I Sent to Hassan - Submit Proof</button></div>
   </div>
-
   <div id="page2">
-    <button class="back-btn" onclick="closePage2()"><i class="fas fa-arrow-left"></i> Back</button>
+    <button class="back-btn" onclick="closePage2()">Back</button>
     <div class="page2-card" id="formCard">
-      <div class="page2-title">Submit Payment to CYPX</div>
-      <div class="page2-sub">Direct to platform - no WhatsApp</div>
-      <div class="receiver-tag"><span>Receiver: <b id="selectedName">-</b></span><span id="selectedNumber" style="color:#ffd700;font-weight:800;">-</span></div>
-
-      <div class="form-group">
-        <label>Amount in USD ($) *</label>
-        <div class="convert-box">
-          <input type="number" id="usdAmount" placeholder="e.g. 20" oninput="convertToUGX()" style="flex:1;">
-          <span class="eq">=</span>
-          <input type="text" id="ugxAmount" class="ugx-display" placeholder="0 UGX" readonly style="flex:1;">
-        </div>
-        <div class="error-text" id="usdError">Enter amount</div>
-      </div>
-
-      <div class="form-group">
-        <label>Your UG Phone Number *</label>
-        <input type="tel" id="userPhone" placeholder="2567...">
-        <div class="error-text" id="phoneError">Enter phone</div>
-      </div>
-
-      <div class="form-group">
-        <label>Transaction ID (Optional)</label>
-        <input type="text" id="transId" placeholder="e.g. MP123...">
-      </div>
-
-      <div class="form-group">
-        <label>Screenshot Proof *</label>
-        <div class="upload-box" id="uploadBox">
-          <input type="file" id="screenshot" accept="image/*" onchange="previewImage(event)">
-          <i class="fas fa-cloud-upload-alt"></i>
-          <span id="uploadText">Click to upload<br><small>PNG, JPG</small></span>
-        </div>
-        <div class="error-text" id="screenError">Upload screenshot</div>
-        <img id="preview">
-      </div>
-
-      <button class="submit-btn" id="submitBtn" onclick="submitPayment()"><i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX</button>
+      <div style="font-size:18px;font-weight:900;color:#ffd700;">Submit Payment to CYPX</div>
+      <div class="receiver-tag" style="margin-top:10px;"><span>Receiver: <b id="selectedName">-</b></span><span id="selectedNumber" style="color:#ffd700;font-weight:800;">-</span></div>
+      <div class="form-group"><label>Amount in USD ($) *</label><div class="convert-box"><input type="number" id="usdAmount" placeholder="e.g. 20" oninput="convertToUGX()" style="flex:1;"><span class="eq">=</span><input type="text" id="ugxAmount" class="ugx-display" placeholder="0 UGX" readonly style="flex:1;"></div><div class="error-text" id="usdError">Enter amount</div></div>
+      <div class="form-group"><label>Your UG Phone Number *</label><input type="tel" id="userPhone" placeholder="2567..."><div class="error-text" id="phoneError">Enter phone</div></div>
+      <div class="form-group"><label>Transaction ID (Optional)</label><input type="text" id="transId" placeholder="e.g. MP123..."></div>
+      <div class="form-group"><label>Screenshot Proof *</label><div class="upload-box" id="uploadBox"><input type="file" id="screenshot" accept="image/*" onchange="previewImage(event)"><i class="fas fa-cloud-upload-alt" style="font-size:28px;color:#ffd700;"></i><span id="uploadText">Click to upload<br><small>PNG, JPG</small></span></div><div class="error-text" id="screenError">Upload screenshot</div><img id="preview"></div>
+      <button class="submit-btn" id="submitBtn" onclick="submitPayment()">SUBMIT PAYMENT TO CYPX</button>
     </div>
-
-    <div class="page2-card success-box" id="successBox">
-      <i class="fas fa-check-circle"></i>
-      <h2>Payment Submitted!</h2>
-      <p>Submitted to CYPX platform<br><br><b id="successDetails"></b><br><br>Redirecting to financial...</p>
-    </div>
+    <div class="page2-card success-box" id="successBox"><i class="fas fa-check-circle" style="font-size:50px;color:#00C896;"></i><h2 style="color:#ffd700;">Payment Submitted!</h2><p id="successDetails" style="font-size:13px;color:#cbd5e1;"></p><p style="font-size:12px;color:#94e2cc;margin-top:10px;">Redirecting to financial.html...</p></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+// YOUR CONFIG - EXACT AS YOU SENT
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -157,6 +92,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 const USD_TO_UGX = 3750;
 let currentReceiver = {name:'', number:''};
 let compressedBase64 = '';
@@ -164,97 +100,84 @@ let isSubmitting = false;
 
 function showToast(msg, isError=false){
   const t=document.getElementById('toast');
-  t.innerText=msg; t.className = isError? 'toast error':'toast';
-  t.style.display='block'; setTimeout(()=>t.style.display='none',3500);
+  t.innerText=msg; t.className=isError?'toast error':'toast'; t.style.display='block';
+  setTimeout(()=>t.style.display='none',3500);
 }
 window.copyText = (id)=>{ navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>showToast('Copied')); }
 window.openPage2 = (n,num)=>{ currentReceiver={name:n,number:num}; document.getElementById('selectedName').innerText=n; document.getElementById('selectedNumber').innerText=num; document.getElementById('page1').style.display='none'; document.getElementById('page2').style.display='block'; document.getElementById('formCard').style.display='block'; document.getElementById('successBox').style.display='none'; }
 window.closePage2 = ()=>{ document.getElementById('page2').style.display='none'; document.getElementById('page1').style.display='block'; }
 window.convertToUGX = ()=>{ const v=parseFloat(document.getElementById('usdAmount').value); const o=document.getElementById('ugxAmount'); if(!v||v<=0){o.value='';return;} o.value=(v*USD_TO_UGX).toLocaleString()+' UGX'; }
-
 function compressImage(file){
   return new Promise((resolve)=>{
-    const reader = new FileReader();
-    reader.onload = (e)=>{
-      const img = new Image();
-      img.onload = ()=>{
-        const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        const maxW = 800;
-        if(w>maxW){ h = h*maxW/w; w=maxW; }
-        canvas.width=w; canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        let w=img.width,h=img.height; const maxW=800;
+        if(w>maxW){h=h*maxW/w;w=maxW;}
+        canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
         resolve(canvas.toDataURL('image/jpeg',0.6));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+      }; img.src=e.target.result;
+    }; reader.readAsDataURL(file);
   });
 }
-
 window.previewImage = async (e)=>{
-  const file = e.target.files[0]; if(!file) return;
-  document.getElementById('uploadBox').classList.remove('input-error');
-  document.getElementById('screenError').style.display='none';
+  const file=e.target.files[0]; if(!file) return;
   document.getElementById('uploadText').innerHTML='Compressing...';
-  compressedBase64 = await compressImage(file);
+  compressedBase64=await compressImage(file);
   document.getElementById('uploadText').innerHTML=file.name+'<br><small style="color:#00C896;">✓ Ready</small>';
-  const prev=document.getElementById('preview'); prev.src=compressedBase64; prev.style.display='block';
+  const p=document.getElementById('preview'); p.src=compressedBase64; p.style.display='block';
 }
-
 window.submitPayment = async ()=>{
   if(isSubmitting) return;
   const usdEl=document.getElementById('usdAmount'), phoneEl=document.getElementById('userPhone'), btn=document.getElementById('submitBtn');
   let err=false;
-  usdEl.classList.remove('input-error'); phoneEl.classList.remove('input-error'); document.getElementById('uploadBox').classList.remove('input-error');
-  document.getElementById('usdError').style.display='none'; document.getElementById('phoneError').style.display='none'; document.getElementById('screenError').style.display='none';
-  if(!usdEl.value.trim()||parseFloat(usdEl.value)<=0){usdEl.classList.add('input-error');document.getElementById('usdError').style.display='block';err=true;}
-  if(!phoneEl.value.trim()){phoneEl.classList.add('input-error');document.getElementById('phoneError').style.display='block';err=true;}
-  if(!compressedBase64){document.getElementById('uploadBox').classList.add('input-error');document.getElementById('screenError').style.display='block';err=true;}
+  if(!usdEl.value.trim()||parseFloat(usdEl.value)<=0){document.getElementById('usdError').style.display='block';err=true;}
+  if(!phoneEl.value.trim()){document.getElementById('phoneError').style.display='block';err=true;}
+  if(!compressedBase64){document.getElementById('screenError').style.display='block';err=true;}
   if(err){showToast('Fill required fields',true);return;}
 
   const usd=usdEl.value.trim(), ugxText=document.getElementById('ugxAmount').value, phone=phoneEl.value.trim(), transId=document.getElementById('transId').value.trim();
-  isSubmitting=true; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Submitting...';
-  const timeout = setTimeout(()=>{ isSubmitting=false; btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX'; showToast('Network slow, try again',true); },15000);
+  isSubmitting=true; btn.disabled=true; btn.innerHTML='Submitting...';
 
   try{
-    // SYNC TO REALTIME DATABASE - your existing logic
-    const paymentsRef = ref(db, 'cypx_payments');
-    const newRef = push(paymentsRef);
-    await set(newRef, {
-      receiverName: currentReceiver.name,
-      receiverNumber: currentReceiver.number,
-      amountUSD: parseFloat(usd),
-      amountUGX: parseFloat(usd)*USD_TO_UGX,
-      amountUGX_formatted: ugxText,
-      userPhone: phone,
-      transactionId: transId||'N/A',
-      screenshotBase64: compressedBase64,
-      status: 'pending',
-      timestamp: Date.now(),
-      date: new Date().toISOString()
-    });
+    let uid=null;
+    try{ uid=auth.currentUser?.uid||null; }catch(e){}
+    if(!uid){ uid=localStorage.getItem('cypx_userId')||localStorage.getItem('userId')||null; }
+    const effectiveUid = uid || phone.replace(/[^0-9]/g,'');
+    const txId=Date.now();
 
-    clearTimeout(timeout);
-    // Show success
+    const paymentData={
+      id:txId, transactionId:transId||'N/A', userId:effectiveUid, userPhone:phone, phone:phone,
+      receiverName:currentReceiver.name, receiverNumber:currentReceiver.number,
+      amount:parseFloat(usd), amountUSD:parseFloat(usd), amountUGX:parseFloat(usd)*USD_TO_UGX, amountUGX_formatted:ugxText,
+      type:"deposit", method:"UGANDA_MOMO", status:"pending", screenshotBase64:compressedBase64,
+      timestamp:Date.now(), date:new Date().toISOString()
+    };
+
+    // SYNC TO REALTIME DB - ALL PATHS financial.html can read
+    await set(push(ref(db,'cypx_payments')),paymentData);
+    await set(push(ref(db,'transactions')),paymentData);
+    await set(push(ref(db,'deposits')),paymentData);
+    await set(push(ref(db,'financial_transactions')),paymentData);
+    await set(ref(db,`users/${effectiveUid}/transactions/${txId}`),paymentData);
+    await set(ref(db,`users/${effectiveUid}/deposits/${txId}`),paymentData);
+    await set(ref(db,`userDeposits/${phone}/${txId}`),paymentData);
+
     document.getElementById('formCard').style.display='none';
     document.getElementById('successBox').style.display='block';
     document.getElementById('successDetails').innerHTML=`$${usd} = ${ugxText}<br>To: ${currentReceiver.name}`;
-    showToast('Payment synced to CYPX!');
+    showToast('Payment synced!');
 
-    // REDIRECT TO financial.html - ONLY NEW ADDITION
-    setTimeout(()=>{
-      window.location.href = "financial.html";
-    }, 1500);
+    setTimeout(()=>{ window.location.href="financial.html"; },1500);
 
   }catch(e){
-    clearTimeout(timeout);
     showToast('Failed: '+e.message,true);
   }finally{
-    clearTimeout(timeout);
-    isSubmitting=false; btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> SUBMIT PAYMENT TO CYPX';
+    isSubmitting=false; btn.disabled=false; btn.innerHTML='SUBMIT PAYMENT TO CYPX';
   }
 }
 </script>
 </body>
-</html>
+                                                          </html>
