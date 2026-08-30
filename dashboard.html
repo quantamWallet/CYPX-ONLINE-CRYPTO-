@@ -750,6 +750,14 @@ database.ref("notifications/" + uid).on("value", snap => {
         .then(reg => { console.log("SW registered:", reg.scope); })
         .catch(err => { console.error("SW failed:", err); });
       }
+      document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('touchstart', e => {
+  if(e.touches.length > 1) e.preventDefault(); // block pinch
+});
+document.addEventListener('touchend', e => {
+  if(e.touches.length > 1) e.preventDefault();
+});
+      
     </script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-messaging-compat.js"></script>
     <script>
