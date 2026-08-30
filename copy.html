@@ -374,6 +374,14 @@ function showToast(message, type = "info"){
   toast.innerText = message;
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
+  document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('touchstart', e => {
+  if(e.touches.length > 1) e.preventDefault(); // block pinch
+});
+document.addEventListener('touchend', e => {
+  if(e.touches.length > 1) e.preventDefault();
+});
+  
 </script>
 </body>
 </html>
