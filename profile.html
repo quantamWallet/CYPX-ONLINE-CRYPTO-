@@ -508,6 +508,14 @@ document.getElementById("confirmLogout").addEventListener("click", function (e) 
 setTimeout(()=>{
   document.getElementById("loader").style.display = "none";
 }, 4000);
+  document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('touchstart', e => {
+  if(e.touches.length > 1) e.preventDefault(); // block pinch
+});
+document.addEventListener('touchend', e => {
+  if(e.touches.length > 1) e.preventDefault();
+});
+  
 </script>
 </body>
   <script src="js/app-back.js"></script>
