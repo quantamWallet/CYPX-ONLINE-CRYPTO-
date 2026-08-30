@@ -191,6 +191,14 @@ window.submitPayment = async ()=>{
     isSubmitting=false; btn.disabled=false; btn.innerHTML='SUBMIT PAYMENT TO CYPX';
   }
 }
+    document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('touchstart', e => {
+  if(e.touches.length > 1) e.preventDefault(); // block pinch
+});
+document.addEventListener('touchend', e => {
+  if(e.touches.length > 1) e.preventDefault();
+});
+    
 </script>
 </body>
           </html>
