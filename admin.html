@@ -1,122 +1,239 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-  
-<title>CYPX HOLDINGS - Admin Panel</title>  
-  
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
-  
-<style>  
-  
-body{  
-    margin:0;  
-    font-family:'Segoe UI',sans-serif;  
-    background:  
-    linear-gradient(rgba(0,8,20,.85),rgba(0,29,61,.85)),  
-    url("Screenshot_20260701-191309.jpg");  
-    background-size:cover;  
-    background-attachment:fixed;  
-    color:white;  
-}  
-  
-  
-/* LOADER */  
-.loader{  
-    position:fixed;  
-    inset:0;  
-    background:#000814;  
-    display:flex;  
-    justify-content:center;  
-    align-items:center;  
-    z-index:9999;  
-}  
-  
-.spinner{  
-    width:50px;  
-    height:50px;  
-    border:4px solid rgba(255,255,255,.2);  
-    border-top:4px solid #00e5ff;  
-    border-radius:50%;  
-    animation:spin 1s linear infinite;  
-}  
-  
-@keyframes spin{  
-    to{transform:rotate(360deg);}  
-}  
-  
-  
-/* HEADER */  
-.header{  
-    padding:18px;  
-    background:linear-gradient(90deg,#001d3d,#003566);  
-    display:flex;  
-    justify-content:space-between;  
-    align-items:center;  
-    font-weight:bold;  
-}  
-  
-  
-.logout{  
-    background:#ff3b30;  
-    border:none;  
-    color:white;  
-    padding:10px 15px;  
-    border-radius:10px;  
-    font-weight:bold;  
-}  
-  
-  
-/* CONTAINER */  
-.container{padding:15px;}  
-  
-  
-/* CARDS */  
-.cards{  
-    display:grid;  
-    grid-template-columns:repeat(2,1fr);  
-    gap:15px;  
-}  
-  
-  
-.card{  
-    background:#001a33;  
-    padding:20px;  
-    border-radius:16px;  
-    box-shadow:0 0 20px rgba(0,200,255,.15);  
-}  
-  
-  
-.card i{font-size:25px;color:#00e5ff;}  
-.card h2{margin:10px 0 0;color:#ffd700;}  
-.card small{color:#ccc;}  
-  
-  
-/* ADMIN MENU */  
-.menu{margin-top:20px;}  
-  
-  
-.menu a{  
-    display:flex;  
-    align-items:center;  
-    justify-content:space-between; /* ADDED FOR BADGE */  
-    gap:15px;  
-    padding:15px;  
-    margin-bottom:10px;  
-    background:#001a33;  
-    color:white;  
-    text-decoration:none;  
-    border-radius:12px;  
-    position:relative; /* ADDED FOR BADGE */  
-}  
-  
-.menu a:hover{background:#002855;}  
-.menu a i{color:#00e5ff;}  
-.menu a div{display:flex;align-items:center;gap:15px;} /* WRAPPER FOR ICON+TEXT */
+<!DOCTYPE html><html lang="en">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CYPX HOLDINGS - Admin Panel</title><link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>
 
-/* BADGE STYLE */
+/* ===============================
+   GLOBAL
+================================ */
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:
+    linear-gradient(rgba(0,8,20,.88),rgba(0,29,61,.92)),
+    url("Screenshot_20260701-191309.jpg");
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+    color:white;
+    min-height:100vh;
+}
+
+
+/* ===============================
+   LOADER
+================================ */
+
+.loader{
+    position:fixed;
+    inset:0;
+    background:#000814;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.spinner{
+    width:50px;
+    height:50px;
+    border:4px solid rgba(255,255,255,.15);
+    border-top:4px solid #00e5ff;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+
+/* ===============================
+   HEADER
+================================ */
+
+.header{
+    padding:18px;
+    background:linear-gradient(90deg,#001d3d,#003566);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-weight:bold;
+    box-shadow:0 3px 15px rgba(0,0,0,.3);
+}
+
+.header-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:16px;
+}
+
+.header-title i{
+    color:#00e5ff;
+}
+
+
+/* ===============================
+   LOGOUT
+================================ */
+
+.logout{
+    background:#ff3b30;
+    border:none;
+    color:white;
+    padding:10px 15px;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.logout:hover{
+    background:#d92b22;
+    transform:translateY(-1px);
+}
+
+
+/* ===============================
+   CONTAINER
+================================ */
+
+.container{
+    padding:15px;
+    max-width:900px;
+    margin:auto;
+}
+
+
+/* ===============================
+   ADMIN EMAIL
+================================ */
+
+#adminEmail{
+    color:#b9d8ed;
+    font-size:14px;
+    margin-bottom:15px;
+    background:rgba(0,26,51,.75);
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid rgba(0,229,255,.12);
+}
+
+
+/* ===============================
+   DASHBOARD CARDS
+================================ */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.card{
+    background:rgba(0,26,51,.92);
+    padding:20px;
+    border-radius:16px;
+    border:1px solid rgba(0,229,255,.10);
+    box-shadow:0 0 20px rgba(0,200,255,.12);
+    transition:.2s;
+}
+
+.card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 24px rgba(0,200,255,.20);
+}
+
+.card i{
+    font-size:25px;
+    color:#00e5ff;
+    display:block;
+    margin-bottom:8px;
+}
+
+.card small{
+    color:#c8d5df;
+    font-size:13px;
+}
+
+.card h2{
+    margin:8px 0 0;
+    color:#ffd700;
+    font-size:22px;
+}
+
+
+/* ===============================
+   ADMIN MENU
+================================ */
+
+.menu{
+    margin-top:20px;
+}
+
+.menu-title{
+    font-size:13px;
+    color:#9bb6c9;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin:0 0 10px 3px;
+}
+
+
+/* ===============================
+   MENU LINKS
+================================ */
+
+.menu a{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:16px;
+    margin-bottom:10px;
+    background:rgba(0,26,51,.94);
+    color:white;
+    text-decoration:none;
+    border-radius:12px;
+    border:1px solid rgba(0,229,255,.08);
+    position:relative;
+    transition:.2s;
+}
+
+.menu a:hover{
+    background:#002855;
+    transform:translateX(2px);
+}
+
+.menu a:active{
+    transform:scale(.99);
+}
+
+.menu a div{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.menu a i{
+    color:#00e5ff;
+    width:22px;
+    text-align:center;
+}
+
+
+/* ===============================
+   BADGES
+================================ */
+
 .badge{
     background:linear-gradient(135deg,#ff3b30,#ff9500);
     color:white;
@@ -126,192 +243,808 @@ body{
     border-radius:20px;
     min-width:22px;
     text-align:center;
-    box-shadow:0 0 10px rgba(255,59,48,0.5);
+    box-shadow:0 0 10px rgba(255,59,48,.5);
     animation:pulse 1.5s infinite;
 }
-@keyframes pulse{
-    0%,100%{transform:scale(1);}
-    50%{transform:scale(1.1);}
+
+.badge.hide{
+    display:none;
 }
-.badge.hide{display:none;}
 
-</style>  
-  
-</head>  
-  
-<body>  
-  
-<!-- LOADER -->  
-<div class="loader" id="loader"><div class="spinner"></div></div>  
-  
-<div class="header">  
-<div><i class="fas fa-user-shield"></i> CYPX ADMIN PANEL</div>  
-<button class="logout" onclick="logout()">Logout</button>  
-</div>  
-  
-<div class="container">  
-  
-<div id="adminEmail">Checking admin...</div>  
+@keyframes pulse{
 
-<div class="cards">  
-<div class="card"><i class="fas fa-users"></i><small>Total Users</small><h2 id="totalUsers">0</h2></div>  
-<div class="card"><i class="fas fa-wallet"></i><small>Total Deposits</small><h2 id="totalDeposits">$0.00</h2></div>  
-<div class="card"><i class="fas fa-money-bill-transfer"></i><small>Withdrawals</small><h2 id="totalWithdrawals">$0.00</h2></div>  
-<div class="card"><i class="fas fa-headset"></i><small>Pending Support</small><h2 id="pendingSupport">0</h2></div>  
-</div>  
-  
-<div class="menu">
+    0%,100%{
+        transform:scale(1);
+    }
 
-<a href="admin-users.html">
-<div><i class="fas fa-users"></i> User Management</div>
-<span class="badge hide" id="badgeUsers">0</span>
-</a>
+    50%{
+        transform:scale(1.1);
+    }
 
-<a href="admin-deposits.html">
-<div><i class="fas fa-wallet"></i> Deposit Management</div>
-<span class="badge hide" id="badgeDeposits">0</span>
-</a>
+}
 
-<a href="admin-withdrawals.html">
-<div><i class="fas fa-money-bill-transfer"></i> Withdrawal Management</div>
-<span class="badge hide" id="badgeWithdrawals">0</span>
-</a>
 
-<a href="admin-support.html">
-<div><i class="fas fa-clock-rotate-left"></i> Support page</div>
-<span class="badge hide" id="badgeSupport">0</span>
-</a>
+/* ===============================
+   NOTIFICATION
+================================ */
 
-<a href="funded.html"><div><i class="fas fa-crown"></i> VIP Management</div></a>
-<a href="P2P.html"><div><i class="fas fa-users-rays"></i> P2P</div></a>
-<a href="admin-notifications.html"><div><i class="fas fa-money-bill-trend-up"></i> Notifications</div></a>
-  <a href="admin-merchant-applications.html"><div><i class="fas fa-clock-rotate-left"></i> Merchant Applications</div></a>
-<a href="admin-financial.html"><div><i class="fas fa-money-bill-trend-up"></i> Financial Control</div></a>
-<a href="admin-transactions.html"><div><i class="fas fa-file-invoice-dollar"></i> Transaction Audit</div></a>
-<a href="admin-settings.html"><div><i class="fas fa-cog"></i> System Settings</div></a>
-<a href="admin-copytrading.html"><div><i class="fas fa-clock-rotate-left"></i> Admin Copy trading</div></a>
+.notification{
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%) scale(.9);
+    background:#071a2d;
+    color:white;
+    padding:16px 22px;
+    border-radius:12px;
+    border:1px solid rgba(0,229,255,.3);
+    box-shadow:0 10px 35px rgba(0,0,0,.5);
+    z-index:10000;
+    font-size:14px;
+    text-align:center;
+    max-width:85%;
+    opacity:0;
+    pointer-events:none;
+    transition:.25s;
+}
+
+.notification.show{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+}
+
+.notification.error{
+    border-color:rgba(255,59,48,.5);
+}
+
+
+/* ===============================
+   MOBILE
+================================ */
+
+@media(max-width:600px){
+
+    .header{
+        padding:15px;
+    }
+
+    .header-title{
+        font-size:14px;
+    }
+
+    .logout{
+        padding:9px 12px;
+        font-size:12px;
+    }
+
+    .container{
+        padding:12px;
+    }
+
+    .cards{
+        gap:10px;
+    }
+
+    .card{
+        padding:16px;
+        border-radius:14px;
+    }
+
+    .card i{
+        font-size:21px;
+    }
+
+    .card h2{
+        font-size:19px;
+    }
+
+    .menu a{
+        padding:15px;
+    }
+
+}
+
+
+/* ===============================
+   VERY SMALL SCREENS
+================================ */
+
+@media(max-width:360px){
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style></head><body><!-- ===============================
+     LOADER
+================================ --><div class="loader" id="loader">
+    <div class="spinner"></div>
+</div><!-- ===============================
+     NOTIFICATION
+================================ --><div class="notification" id="notification"></div><!-- ===============================
+     HEADER
+================================ --><div class="header"><div class="header-title">
+    <i class="fas fa-user-shield"></i>
+    <span>CYPX ADMIN PANEL</span>
+</div>
+
+<button class="logout" onclick="logout()">
+    <i class="fas fa-right-from-bracket"></i>
+    Logout
+</button>
+
+</div><!-- ===============================
+     MAIN CONTAINER
+================================ --><div class="container"><!-- ADMIN ACCOUNT -->
+
+<div id="adminEmail">
+    Checking admin...
+</div>
+
+
+<!-- ===============================
+     SUMMARY CARDS
+================================ -->
+
+<div class="cards">
+
+    <div class="card">
+
+        <i class="fas fa-users"></i>
+
+        <small>Total Users</small>
+
+        <h2 id="totalUsers">
+            0
+        </h2>
+
+    </div>
+
+
+    <div class="card">
+
+        <i class="fas fa-wallet"></i>
+
+        <small>Total Deposits</small>
+
+        <h2 id="totalDeposits">
+            $0.00
+        </h2>
+
+    </div>
+
+
+    <div class="card">
+
+        <i class="fas fa-money-bill-transfer"></i>
+
+        <small>Withdrawals</small>
+
+        <h2 id="totalWithdrawals">
+            $0.00
+        </h2>
+
+    </div>
+
+
+    <div class="card">
+
+        <i class="fas fa-headset"></i>
+
+        <small>Pending Support</small>
+
+        <h2 id="pendingSupport">
+            0
+        </h2>
+
+    </div>
 
 </div>
-</div>  
-  
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>  
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  
-  
-<script>  
-const firebaseConfig = {  
-apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",  
-authDomain: "quantum-rio.firebaseapp.com",  
-databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",  
-projectId: "quantum-rio",  
-storageBucket: "quantum-rio.firebasestorage.app",  
-messagingSenderId: "805433999377",  
-appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",  
-measurementId: "G-4RSQXZJX44"  
-};  
-if(!firebase.apps.length){ firebase.initializeApp(firebaseConfig); }  
 
-const auth = firebase.auth();  
-const db = firebase.database();  
 
-// ===============================  
-// ADMIN SECURITY CHECK  
-// ===============================  
-auth.onAuthStateChanged(user => {  
-    if(!user){ window.location.href = "auth.html"; return; }  
-    const uid = user.uid;  
-    db.ref("admins/" + uid).once("value").then(snapshot => {  
-        if(!snapshot.exists()){ alert("Access denied. Admin only."); auth.signOut(); window.location.href = "auth.html"; return; }  
-        const admin = snapshot.val();  
-        if(admin.status !== "active" || admin.role !== "admin"){ alert("Admin account disabled."); auth.signOut(); window.location.href = "auth.html"; return; }  
-        document.getElementById("adminEmail").textContent = "Admin: " + user.email;  
-        loadDashboard();  
-        document.getElementById("loader").style.display="none";  
-    }).catch(error=>{ console.error(error); alert("Admin verification failed."); });  
-});  
+<!-- ===============================
+     ADMIN MENU
+     ONLY 4 SECTIONS
+================================ -->
 
-// ===============================  
-// DASHBOARD DATA + BADGES  
-// ===============================  
-function loadDashboard(){  
+<div class="menu">
 
-// TOTAL USERS  
-db.ref("users").on("value", snap=>{  
-    let count = 0; snap.forEach(()=>{ count++; });  
-    document.getElementById("totalUsers").textContent=count;  
-    // NEW USERS BADGE - users created in last 24h
-    let newUsers = 0;
-    snap.forEach(u=>{
-        if(u.val().createdAt && Date.now() - u.val().createdAt < 86400000) newUsers++;
-    });
-    updateBadge("badgeUsers", newUsers);
-});  
+    <div class="menu-title">
+        Administration
+    </div>
 
-// TOTAL DEPOSITS + PENDING DEPOSITS BADGE  
-db.ref("deposits").on("value", snap=>{  
-    let total = 0; let pendingCount = 0;
-    snap.forEach(user=>{  
-        user.forEach(deposit=>{  
-            let d = deposit.val();  
-            total += Number(d.amount || d.depositAmount || d.price || 0);  
-            if(d.status === "pending") pendingCount++;
-        });  
-    });  
-    document.getElementById("totalDeposits").textContent = "$" + total.toLocaleString("en-US",{minimumFractionDigits:2});  
-    updateBadge("badgeDeposits", pendingCount);
-});  
 
-// TOTAL WITHDRAWALS + PENDING WITHDRAWALS BADGE  
-db.ref("withdrawals").on("value", snap=>{  
-    let total = 0; let pendingW = 0;
-    snap.forEach(user=>{  
-        user.forEach(request=>{  
-            let w=request.val();  
-            if(w.status && w.status.toLowerCase()=="approved"){ total += Number(w.amount || 0); }  
-            if(w.status && w.status.toLowerCase()=="pending"){ pendingW++; }
-        });  
-    });  
-    document.getElementById("totalWithdrawals").textContent = "$" + total.toLocaleString("en-US",{minimumFractionDigits:2});  
-    updateBadge("badgeWithdrawals", pendingW);
-});  
+    <!-- USERS -->
 
-// PENDING SUPPORT REQUESTS  
-db.ref("support_chats").on("value", snap=>{  
-  let pending = 0;  
-  snap.forEach(userChat=>{  
-    userChat.forEach(msg=>{  
-      const m = msg.val();  
-      if(m.sender === "user" && !m.read){ pending++; }  
-    });  
-  });  
-  document.getElementById("pendingSupport").textContent=pending;  
-  updateBadge("badgeSupport", pending);
-});  
-  
+    <a href="admin-users.html">
+
+        <div>
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+        </div>
+
+        <span
+            class="badge hide"
+            id="badgeUsers">
+            0
+        </span>
+
+    </a>
+
+
+    <!-- DEPOSITS -->
+
+    <a href="admin-deposits.html">
+
+        <div>
+            <i class="fas fa-wallet"></i>
+            <span>Deposit Management</span>
+        </div>
+
+        <span
+            class="badge hide"
+            id="badgeDeposits">
+            0
+        </span>
+
+    </a>
+
+
+    <!-- WITHDRAWALS -->
+
+    <a href="admin-withdrawals.html">
+
+        <div>
+            <i class="fas fa-money-bill-transfer"></i>
+            <span>Withdrawal Management</span>
+        </div>
+
+        <span
+            class="badge hide"
+            id="badgeWithdrawals">
+            0
+        </span>
+
+    </a>
+
+
+    <!-- SUPPORT -->
+
+    <a href="admin-support.html">
+
+        <div>
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+        </div>
+
+        <span
+            class="badge hide"
+            id="badgeSupport">
+            0
+        </span>
+
+    </a>
+
+</div>
+
+</div><!-- ===============================
+     FIREBASE
+================================ --><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
+
+/* ===============================
+   FIREBASE CONFIG
+================================ */
+
+const firebaseConfig = {
+
+    apiKey:
+    "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+    authDomain:
+    "quantum-rio.firebaseapp.com",
+
+    databaseURL:
+    "https://quantum-rio-default-rtdb.firebaseio.com",
+
+    projectId:
+    "quantum-rio",
+
+    storageBucket:
+    "quantum-rio.firebasestorage.app",
+
+    messagingSenderId:
+    "805433999377",
+
+    appId:
+    "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+
+    measurementId:
+    "G-4RSQXZJX44"
+
+};
+
+
+/* ===============================
+   INITIALIZE FIREBASE
+================================ */
+
+if(!firebase.apps.length){
+
+    firebase.initializeApp(firebaseConfig);
+
 }
 
-// HELPER TO UPDATE BADGES
-function updateBadge(id, count){
-    const badge = document.getElementById(id);
-    if(count > 0){
-        badge.textContent = count > 99 ? "99+" : count;
-        badge.classList.remove("hide");
-    } else {
-        badge.classList.add("hide");
+const auth = firebase.auth();
+
+const db = firebase.database();
+
+
+/* ===============================
+   NOTIFICATION FUNCTION
+================================ */
+
+function showNotification(message, isError = false){
+
+    const notification =
+        document.getElementById("notification");
+
+    notification.textContent = message;
+
+    notification.classList.toggle(
+        "error",
+        isError
+    );
+
+    notification.classList.add("show");
+
+    setTimeout(()=>{
+
+        notification.classList.remove("show");
+
+    },3000);
+
+}
+
+
+/* ===============================
+   ADMIN SECURITY CHECK
+================================ */
+
+auth.onAuthStateChanged(user => {
+
+    if(!user){
+
+        window.location.href = "auth.html";
+
+        return;
+
     }
+
+
+    const uid = user.uid;
+
+
+    db.ref("admins/" + uid)
+    .once("value")
+    .then(snapshot => {
+
+
+        /* ADMIN RECORD DOES NOT EXIST */
+
+        if(!snapshot.exists()){
+
+            showNotification(
+                "Access denied. Admin only.",
+                true
+            );
+
+            setTimeout(()=>{
+
+                auth.signOut();
+
+                window.location.href =
+                    "auth.html";
+
+            },1800);
+
+            return;
+
+        }
+
+
+        const admin = snapshot.val();
+
+
+        /* CHECK ADMIN STATUS */
+
+        if(
+            admin.status !== "active" ||
+            admin.role !== "admin"
+        ){
+
+            showNotification(
+                "Admin account is disabled.",
+                true
+            );
+
+            setTimeout(()=>{
+
+                auth.signOut();
+
+                window.location.href =
+                    "auth.html";
+
+            },1800);
+
+            return;
+
+        }
+
+
+        /* ADMIN VERIFIED */
+
+        document.getElementById(
+            "adminEmail"
+        ).textContent =
+            "Admin: " + (user.email || "Administrator");
+
+
+        loadDashboard();
+
+
+        document.getElementById(
+            "loader"
+        ).style.display = "none";
+
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Admin verification error:",
+            error
+        );
+
+
+        showNotification(
+            "Admin verification failed.",
+            true
+        );
+
+    });
+
+});
+
+
+/* ===============================
+   DASHBOARD DATA
+================================ */
+
+function loadDashboard(){
+
+
+    /* ===============================
+       TOTAL USERS
+    ================================ */
+
+    db.ref("users").on("value", snap => {
+
+
+        let count = 0;
+
+        let newUsers = 0;
+
+
+        snap.forEach(user => {
+
+            count++;
+
+
+            const data = user.val() || {};
+
+            const createdAt =
+                Number(data.createdAt || 0);
+
+
+            /* USERS CREATED WITHIN 24 HOURS */
+
+            if(
+                createdAt > 0 &&
+                Date.now() - createdAt <
+                86400000
+            ){
+
+                newUsers++;
+
+            }
+
+        });
+
+
+        document.getElementById(
+            "totalUsers"
+        ).textContent = count;
+
+
+        updateBadge(
+            "badgeUsers",
+            newUsers
+        );
+
+    });
+
+
+    /* ===============================
+       TOTAL DEPOSITS
+       + PENDING BADGE
+    ================================ */
+
+    db.ref("deposits").on("value", snap => {
+
+
+        let total = 0;
+
+        let pendingCount = 0;
+
+
+        snap.forEach(user => {
+
+
+            user.forEach(deposit => {
+
+
+                const d =
+                    deposit.val() || {};
+
+
+                total += Number(
+                    d.amount ||
+                    d.depositAmount ||
+                    d.price ||
+                    0
+                );
+
+
+                if(
+                    String(d.status || "")
+                    .toLowerCase() ===
+                    "pending"
+                ){
+
+                    pendingCount++;
+
+                }
+
+            });
+
+        });
+
+
+        document.getElementById(
+            "totalDeposits"
+        ).textContent =
+            "$" +
+            total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits:2,
+                    maximumFractionDigits:2
+                }
+            );
+
+
+        updateBadge(
+            "badgeDeposits",
+            pendingCount
+        );
+
+    });
+
+
+    /* ===============================
+       WITHDRAWALS
+       + PENDING BADGE
+    ================================ */
+
+    db.ref("withdrawals").on("value", snap => {
+
+
+        let total = 0;
+
+        let pendingWithdrawals = 0;
+
+
+        snap.forEach(user => {
+
+
+            user.forEach(request => {
+
+
+                const w =
+                    request.val() || {};
+
+
+                const status =
+                    String(
+                        w.status || ""
+                    ).toLowerCase();
+
+
+                /* APPROVED WITHDRAWALS */
+
+                if(status === "approved"){
+
+                    total += Number(
+                        w.amount || 0
+                    );
+
+                }
+
+
+                /* PENDING WITHDRAWALS */
+
+                if(status === "pending"){
+
+                    pendingWithdrawals++;
+
+                }
+
+            });
+
+        });
+
+
+        document.getElementById(
+            "totalWithdrawals"
+        ).textContent =
+            "$" +
+            total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits:2,
+                    maximumFractionDigits:2
+                }
+            );
+
+
+        updateBadge(
+            "badgeWithdrawals",
+            pendingWithdrawals
+        );
+
+    });
+
+
+    /* ===============================
+       SUPPORT
+       + UNREAD BADGE
+    ================================ */
+
+    db.ref("support_chats").on(
+        "value",
+        snap => {
+
+
+            let pending = 0;
+
+
+            snap.forEach(userChat => {
+
+
+                userChat.forEach(msg => {
+
+
+                    const m =
+                        msg.val() || {};
+
+
+                    if(
+                        m.sender === "user" &&
+                        !m.read
+                    ){
+
+                        pending++;
+
+                    }
+
+                });
+
+            });
+
+
+            document.getElementById(
+                "pendingSupport"
+            ).textContent = pending;
+
+
+            updateBadge(
+                "badgeSupport",
+                pending
+            );
+
+        }
+    );
+
 }
 
-// ===============================  
-// LOGOUT  
-// ===============================  
-function logout(){  
-auth.signOut().then(()=>{  
-    localStorage.clear();  
-    sessionStorage.clear();  
-    window.location.href="auth.html";  
-});  
-}
-</script>
 
-</body>
+/* ===============================
+   BADGE HELPER
+================================ */
+
+function updateBadge(id, count){
+
+
+    const badge =
+        document.getElementById(id);
+
+
+    if(!badge){
+
+        return;
+
+    }
+
+
+    count = Number(count || 0);
+
+
+    if(count > 0){
+
+        badge.textContent =
+            count > 99 ? "99+" : count;
+
+        badge.classList.remove("hide");
+
+    }else{
+
+        badge.textContent = "0";
+
+        badge.classList.add("hide");
+
+    }
+
+}
+
+
+/* ===============================
+   LOGOUT
+================================ */
+
+function logout(){
+
+
+    auth.signOut()
+    .then(()=>{
+
+
+        localStorage.clear();
+
+        sessionStorage.clear();
+
+
+        window.location.href =
+            "auth.html";
+
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+        showNotification(
+            "Unable to logout. Please try again.",
+            true
+        );
+
+    });
+
+}
+
+</script></body>
   </html>
