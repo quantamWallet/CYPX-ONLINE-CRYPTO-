@@ -1,207 +1,416 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Deposit - CYPX HOLDINGS</title>
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>Deposit - CYPX HOLDINGS</title>  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
     }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #071426, #0d1b2a);
-      color: white;
-      padding: 20px;
+    html{
+      scroll-behavior:smooth;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
+    body{
+      font-family:Arial,sans-serif;
+      background:linear-gradient(to bottom,#071426,#0d1b2a);
+      color:#fff;
+      min-height:100vh;
+      padding:20px;
     }
 
-    .header h1 {
-      color: #ffcc00;
-      font-size: 28px;
-      margin-bottom: 10px;
+    .page{
+      width:100%;
+      max-width:650px;
+      margin:0 auto;
     }
 
-    .header p {
-      color: #cccccc;
-      font-size: 14px;
+    /* HEADER */
+
+    .header{
+      text-align:center;
+      margin-bottom:28px;
+      padding-top:5px;
     }
 
-    .deposit-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 500px;
-      margin: 0 auto;
+    .header-icon{
+      width:58px;
+      height:58px;
+      margin:0 auto 14px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#007bff,#00c896);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:27px;
+      box-shadow:0 8px 25px rgba(0,200,150,.16);
     }
 
-    .deposit-card {
-      background: #10233d;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: transform 0.2s ease;
+    .header h1{
+      color:#ffcc00;
+      font-size:28px;
+      margin-bottom:9px;
+      font-weight:800;
     }
 
-    .deposit-card:hover {
-      transform: translateY(-3px);
+    .header p{
+      color:#b8c2ce;
+      font-size:14px;
+      line-height:1.5;
     }
 
-    .deposit-card h2 {
-      color: #ffcc00;
-      margin-bottom: 10px;
-      font-size: 22px;
+    /* DEPOSIT CONTAINER */
+
+    .deposit-container{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
     }
 
-    .deposit-card p {
-      color: #d1d1d1;
-      line-height: 1.6;
-      font-size: 14px;
-      margin-bottom: 18px;
+    /* CARD */
+
+    .deposit-card{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(
+        145deg,
+        rgba(16,35,61,.98),
+        rgba(12,30,52,.98)
+      );
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:17px;
+      padding:20px;
+      box-shadow:0 8px 28px rgba(0,0,0,.25);
+      transition:
+        transform .2s ease,
+        border-color .2s ease;
     }
 
-    .deposit-btn {
-      width: 100%;
-      border: none;
-      outline: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(to right, #ffcc00, #f5b800);
-      color: #071426;
-      transition: 0.3s ease;
+    .deposit-card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:3px;
+      background:linear-gradient(
+        90deg,
+        #ffcc00,
+        #00c896
+      );
     }
 
-    .deposit-btn:hover {
-      opacity: 0.9;
+    .deposit-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,204,0,.18);
     }
 
-    .deposit-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    .card-top{
+      display:flex;
+      align-items:center;
+      gap:13px;
+      margin-bottom:13px;
     }
 
-    .info-box {
-      margin-top: 25px;
-      background: rgba(255,255,255,0.06);
-      border-left: 4px solid #ffcc00;
-      padding: 15px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.7;
-      color: #dddddd;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+    .card-icon{
+      width:47px;
+      height:47px;
+      flex:0 0 47px;
+      border-radius:13px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:21px;
+      background:rgba(255,204,0,.12);
+      border:1px solid rgba(255,204,0,.2);
     }
 
-    /* COMING SOON POPUP */
-    .popup{
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #10233d;
-      padding: 22px 26px;
-      border-radius: 16px;
-      border-left: 4px solid #ffcc00;
-      display: none;
-      z-index: 9999;
-      text-align: center;
-      font-weight: 600;
-      min-width: 300px;
-      box-shadow: 0 15px 45px rgba(0,0,0,0.5);
-      animation: popupFade .25s ease;
+    .card-icon.uganda{
+      background:rgba(0,200,150,.12);
+      border-color:rgba(0,200,150,.22);
     }
-    @keyframes popupFade{from{opacity:0;transform:translate(-50%,-45%)}to{opacity:1;transform:translate(-50%,-50%)}}
-  </style>
 
-  <!-- Firebase JS SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-      authDomain: "quantum-rio.firebaseapp.com",
-      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-      projectId: "quantum-rio",
-      storageBucket: "quantum-rio.firebasestorage.app",
-      messagingSenderId: "805433999377",
-      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-      measurementId: "G-4RSQXZJX44"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-
-    function showPopup(msg){
-      const popup = document.getElementById("popup");
-      popup.textContent = msg;
-      popup.style.display = "block";
-      setTimeout(()=>popup.style.display="none", 3000);
+    .deposit-card h2{
+      color:#ffcc00;
+      margin:0;
+      font-size:20px;
+      font-weight:800;
     }
-  </script>
-</head>
 
-<body>
+    .card-subtitle{
+      color:#8293a8;
+      font-size:11px;
+      margin-top:3px;
+    }
 
-  <div class="header">
-    <h1>Deposit Center</h1>
-    <p>Deposit crypto to fund your CYPX HOLDINGS account securely.</p>
-  </div>
+    .deposit-card p{
+      color:#c7d0da;
+      line-height:1.65;
+      font-size:13px;
+      margin-bottom:17px;
+    }
 
-  <div class="deposit-container">
+    /* BUTTON */
 
-    <!-- Crypto Deposit Only -->
-    <div class="deposit-card">
-      <h2>Crypto Deposit</h2>
-      <p>
-        Deposit cryptocurrency directly into your CYPX HOLDINGS wallet. 
-        Supported networks include TRC20, BEP20, TRX, USDT, BNB, and other supported assets.
-      </p>
+    .deposit-btn{
+      width:100%;
+      border:none;
+      outline:none;
+      padding:14px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+      background:linear-gradient(
+        135deg,
+        #ffcc00,
+        #f5b800
+      );
+      color:#071426;
+      transition:
+        transform .15s ease,
+        opacity .2s ease,
+        box-shadow .2s ease;
+      box-shadow:0 5px 18px rgba(255,204,0,.12);
+    }
 
-      <button class="deposit-btn" onclick="window.location.href='crypto.html'">
-        Proceed to Crypto Deposit
-      </button>
+    .deposit-btn:hover{
+      opacity:.94;
+      box-shadow:0 7px 22px rgba(255,204,0,.18);
+    }
+
+    .deposit-btn:active{
+      transform:scale(.98);
+    }
+
+    .deposit-btn.uganda-btn{
+      background:linear-gradient(
+        135deg,
+        #00c896,
+        #00a878
+      );
+      color:#fff;
+      box-shadow:0 5px 18px rgba(0,200,150,.14);
+    }
+
+    .deposit-btn.uganda-btn:hover{
+      box-shadow:0 7px 22px rgba(0,200,150,.2);
+    }
+
+    /* INFO BOX */
+
+    .info-box{
+      margin-top:22px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.07);
+      border-left:4px solid #ffcc00;
+      padding:15px;
+      border-radius:11px;
+      font-size:12px;
+      line-height:1.7;
+      color:#cbd5df;
+    }
+
+    .info-title{
+      color:#ffcc00;
+      font-weight:800;
+      margin-bottom:3px;
+    }
+
+    /* FOOTER */
+
+    .secure-note{
+      text-align:center;
+      color:#687b91;
+      font-size:10px;
+      margin-top:20px;
+      padding-bottom:5px;
+    }
+
+    /* MOBILE */
+
+    @media(max-width:480px){
+
+      body{
+        padding:15px;
+      }
+
+      .header{
+        margin-bottom:22px;
+      }
+
+      .header-icon{
+        width:52px;
+        height:52px;
+        font-size:24px;
+      }
+
+      .header h1{
+        font-size:24px;
+      }
+
+      .header p{
+        font-size:13px;
+      }
+
+      .deposit-card{
+        padding:18px;
+      }
+
+      .deposit-card h2{
+        font-size:18px;
+      }
+
+      .deposit-card p{
+        font-size:12.5px;
+      }
+
+    }
+  </style></head><body><div class="page">  <!-- HEADER -->  <div class="header"><div class="header-icon">
+  ⇩
+</div>
+
+<h1>
+  Deposit Center
+</h1>
+
+<p>
+  Choose your preferred deposit method to fund your
+  <strong>CYPX HOLDINGS</strong> account securely.
+</p>
+
+  </div>  <!-- DEPOSIT METHODS -->  <div class="deposit-container"><!-- CRYPTO DEPOSIT -->
+
+<div class="deposit-card">
+
+  <div class="card-top">
+
+    <div class="card-icon">
+      ₿
     </div>
 
-    <!-- P2P Deposit -->
-    <div class="deposit-card">
-      <h2>P2P Deposit</h2>
-      <p>
-        Buy and sell directly with other CYPX HOLDINGS users. 
-        Fast, secure peer-to-peer transactions with multiple payment methods.
-      </p>
+    <div>
 
-      <button class="deposit-btn" onclick="window.location.href='p2p.html'">
-        Proceed to P2P
-      </button>
+      <h2>
+        Crypto Deposit
+      </h2>
+
+      <div class="card-subtitle">
+        Cryptocurrency &amp; supported networks
+      </div>
+
     </div>
 
   </div>
 
-  <div class="info-box">
-    <strong>Important Notice:</strong><br>
-    Please ensure you choose the correct network before making payments. 
-    Incorrect transfers may lead to delays or loss of funds. 
-    Always verify wallet address and network details carefully before confirming transactions.
+
+  <p>
+    Deposit cryptocurrency directly into your
+    CYPX HOLDINGS wallet. Supported assets and
+    networks include USDT, TRC20, BEP20, TRX,
+    BNB and other supported cryptocurrencies.
+  </p>
+
+
+  <button
+    class="deposit-btn"
+    type="button"
+    onclick="window.location.href='crypto.html'">
+
+    Proceed to Crypto Deposit
+    <span style="margin-left:6px;">→</span>
+
+  </button>
+
+</div>
+
+
+<!-- UGANDA DEPOSIT -->
+
+<div class="deposit-card">
+
+  <div class="card-top">
+
+    <div class="card-icon uganda">
+      🇺🇬
+    </div>
+
+    <div>
+
+      <h2>
+        Uganda Deposit
+      </h2>
+
+      <div class="card-subtitle">
+        Flutterwave • UGX / USD
+      </div>
+
+    </div>
+
   </div>
 
-  <div id="popup" class="popup"></div>
 
-<script src="js/app-back.js"></script>
-</body>
-  </html>
+  <p>
+    Make a deposit from Uganda using
+    <strong style="color:#00c896;">
+      Flutterwave
+    </strong>.
+    Enter your amount, complete the secure payment,
+    then submit your Flutterwave transaction reference
+    for verification.
+  </p>
+
+
+  <button
+    class="deposit-btn uganda-btn"
+    type="button"
+    onclick="window.location.href='flutterwave.html'">
+
+    🇺🇬
+    Proceed to Uganda Deposit
+    <span style="margin-left:5px;">→</span>
+
+  </button>
+
+</div>
+
+  </div>  <!-- INFORMATION -->  <div class="info-box"><div class="info-title">
+  Important Notice
+</div>
+
+Please choose the correct deposit method and carefully
+verify all payment and network details before confirming
+your transaction. Incorrect cryptocurrency network
+transfers may result in delays or loss of funds.
+
+  </div>  <div class="secure-note">
+    🔒 Secure deposit center • CYPX HOLDINGS
+  </div></div><script>
+/*
+  Lightweight navigation only.
+  No Firebase is required on this page because
+  the page only selects a deposit method.
+*/
+
+(function(){
+
+  "use strict";
+
+  const buttons =
+    document.querySelectorAll(".deposit-btn");
+
+  buttons.forEach(function(button){
+
+    button.addEventListener("click",function(){
+
+      button.style.transform =
+        "scale(.98)";
+
+    });
+
+  });
+
+})();
+</script></body>
+</html>
