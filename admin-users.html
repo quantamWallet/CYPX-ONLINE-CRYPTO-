@@ -1434,7 +1434,7 @@ body{
     </div>
 
 
-    <!-- LIST HEADER -->
+      <!-- LIST HEADER -->
 
     <div class="list-header">
 
@@ -1451,4 +1451,1427 @@ body{
             class="user-count"
             id="userCount">
 
-    
+            0 users
+
+        </div>
+
+    </div>
+
+
+    <!-- USERS -->
+
+    <div id="users">
+
+        <div class="empty-state">
+
+            <i class="fas fa-spinner fa-spin"></i>
+
+            <strong>
+                Loading users
+            </strong>
+
+            <span>
+                Connecting to Firebase...
+            </span>
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+<!-- ==================================================
+     EDIT MODAL
+================================================== -->
+
+<div
+    class="modal-overlay"
+    id="editModal">
+
+    <div class="modal">
+
+
+        <div class="modal-head">
+
+            <div class="modal-title">
+
+                <i class="fas fa-pen-to-square"></i>
+
+                Edit User
+
+            </div>
+
+
+            <button
+                class="close-modal"
+                onclick="closeEdit()">
+
+                <i class="fas fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <label
+            class="modal-label"
+            id="modalLabel">
+
+            New value
+
+        </label>
+
+
+        <input
+            class="modal-input"
+            id="modalInput"
+            autocomplete="off">
+
+
+        <div class="modal-actions">
+
+            <button
+                class="modal-btn cancel-btn"
+                onclick="closeEdit()">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                class="modal-btn save-btn"
+                onclick="saveEdit()">
+
+                <i class="fas fa-check"></i>
+
+                Save Changes
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     FIREBASE
+================================================== -->
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+
+<script>
+
+/* ==================================================
+   FIREBASE CONFIG
+================================================== */
+
+const firebaseConfig = {
+
+    apiKey:
+        "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+    authDomain:
+        "quantum-rio.firebaseapp.com",
+
+    databaseURL:
+        "https://quantum-rio-default-rtdb.firebaseio.com",
+
+    projectId:
+        "quantum-rio",
+
+    storageBucket:
+        "quantum-rio.firebasestorage.app",
+
+    messagingSenderId:
+        "805433999377",
+
+    appId:
+        "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+
+    measurementId:
+        "G-4RSQXZJX44"
+
+};
+
+
+/* ==================================================
+   INITIALIZE FIREBASE
+================================================== */
+
+if(!firebase.apps.length){
+
+    firebase.initializeApp(
+        firebaseConfig
+    );
+
+}
+
+const auth =
+    firebase.auth();
+
+const db =
+    firebase.database();
+
+
+/* ==================================================
+   GLOBAL VARIABLES
+================================================== */
+
+let allUsers = [];
+
+let adminEmail = "";
+
+let adminUID = "";
+
+let editingUID = "";
+
+let editingField = "";
+
+
+/* ==================================================
+   ESCAPE HTML
+================================================== */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* ==================================================
+   NOTIFICATION
+================================================== */
+
+function showNotification(
+    message,
+    isError = false
+){
+
+    const notification =
+        document.getElementById(
+            "notification"
+        );
+
+    notification.textContent =
+        message;
+
+    notification.classList.toggle(
+        "error",
+        isError
+    );
+
+    notification.classList.add(
+        "show"
+    );
+
+    clearTimeout(
+        window.notificationTimer
+    );
+
+    window.notificationTimer =
+        setTimeout(() => {
+
+            notification.classList.remove(
+                "show"
+            );
+
+        },2600);
+
+}
+
+
+/* ==================================================
+   ADMIN AUTHENTICATION
+================================================== */
+
+auth.onAuthStateChanged(
+    user => {
+
+        if(!user){
+
+            window.location.href =
+                "auth.html";
+
+            return;
+
+        }
+
+
+        adminEmail =
+            user.email || "";
+
+        adminUID =
+            user.uid;
+
+
+        db.ref(
+            "admins/" + user.uid
+        )
+        .once("value")
+        .then(snapshot => {
+
+
+            if(!snapshot.exists()){
+
+                showNotification(
+                    "Access denied. Admin only.",
+                    true
+                );
+
+                setTimeout(() => {
+
+                    auth.signOut();
+
+                    window.location.href =
+                        "auth.html";
+
+                },1500);
+
+                return;
+
+            }
+
+
+            const admin =
+                snapshot.val() || {};
+
+
+            if(
+                admin.status !== "active" ||
+                admin.role !== "admin"
+            ){
+
+                showNotification(
+                    "Admin account is disabled.",
+                    true
+                );
+
+                setTimeout(() => {
+
+                    auth.signOut();
+
+                    window.location.href =
+                        "auth.html";
+
+                },1500);
+
+                return;
+
+            }
+
+
+            document.getElementById(
+                "adminEmail"
+            ).textContent =
+                user.email ||
+                "Administrator";
+
+
+            document.getElementById(
+                "loader"
+            ).style.display =
+                "none";
+
+
+            loadUsers();
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            showNotification(
+                "Admin verification failed.",
+                true
+            );
+
+        });
+
+    }
+);
+
+
+/* ==================================================
+   LOAD USERS
+================================================== */
+
+function loadUsers(){
+
+    db.ref("users").on(
+        "value",
+
+        snapshot => {
+
+            allUsers = [];
+
+
+            snapshot.forEach(
+                child => {
+
+                    const data =
+                        child.val() || {};
+
+                    data.uid =
+                        child.key;
+
+                    allUsers.push(data);
+
+                }
+            );
+
+
+            displayUsers(allUsers);
+
+        },
+
+        error => {
+
+            console.error(
+                "Firebase users error:",
+                error
+            );
+
+
+            document.getElementById(
+                "users"
+            ).innerHTML = `
+
+                <div class="empty-state">
+
+                    <i class="fas fa-triangle-exclamation"></i>
+
+                    <strong>
+                        Unable to load users
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(error.message)}
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   DISPLAY USERS
+================================================== */
+
+function displayUsers(users){
+
+    const usersContainer =
+        document.getElementById("users");
+
+
+    document.getElementById(
+        "userCount"
+    ).textContent =
+        users.length +
+        (
+            users.length === 1
+            ? " user"
+            : " users"
+        );
+
+
+    if(!users.length){
+
+        usersContainer.innerHTML = `
+
+            <div class="empty-state">
+
+                <i class="fas fa-user-slash"></i>
+
+                <strong>
+                    No users found
+                </strong>
+
+                <span>
+                    Try another search term.
+                </span>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="users-grid">
+
+    `;
+
+
+    users.forEach(user => {
+
+
+        const uid =
+            user.uid;
+
+
+        const username =
+            user.username ||
+            "N/A";
+
+
+        const email =
+            user.email ||
+            "N/A";
+
+
+        const phone =
+            user.phone ||
+            "N/A";
+
+
+        const status =
+            String(
+                user.status ||
+                "active"
+            ).toLowerCase();
+
+
+        const balance =
+            Number(
+                user.balance || 0
+            );
+
+
+        const deposits =
+            Number(
+                user.totalDeposit || 0
+            );
+
+
+        const withdrawals =
+            Number(
+                user.totalWithdrawn || 0
+            );
+
+
+        const referralBonus =
+            Number(
+                user.totalReferralBonus || 0
+            );
+
+
+        const taskIncome =
+            Number(
+                user.totalTaskIncome || 0
+            );
+
+
+        const totalEarnings =
+            referralBonus +
+            taskIncome;
+
+
+        const vip =
+            getVip(user);
+
+
+        const kyc =
+            user.kycStatus ||
+            "none";
+
+
+        const avatarLetter =
+            String(username)
+                .charAt(0)
+                .toUpperCase();
+
+
+        html += `
+
+            <div class="user-card">
+
+
+                <!-- USER HEADER -->
+
+                <div class="user-top">
+
+                    <div class="user-identity">
+
+                        <div class="avatar">
+                            ${escapeHTML(avatarLetter)}
+                        </div>
+
+                        <div class="identity-text">
+
+                            <div class="username">
+                                ${escapeHTML(username)}
+                            </div>
+
+                            <div class="uid">
+                                UID: ${escapeHTML(uid)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="
+                        user-status
+                        ${
+                            status === "active"
+                            ? "status-active"
+                            : "status-suspended"
+                        }
+                    ">
+
+                        ${
+                            status === "active"
+                            ? "Active"
+                            : "Suspended"
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- USER INFORMATION -->
+
+                <div class="info-list">
+
+
+                    <!-- EMAIL -->
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            <i class="fas fa-envelope"></i>
+
+                            Email
+
+                        </div>
+
+                        <div class="info-value">
+
+                            <span>
+                                ${escapeHTML(email)}
+                            </span>
+
+                            <i
+                                class="fas fa-pen edit-icon"
+                                onclick="openEdit('${escapeHTML(uid)}','email',${JSON.stringify(email)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PHONE -->
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            <i class="fas fa-phone"></i>
+
+                            Phone
+
+                        </div>
+
+                        <div class="info-value">
+
+                            <span>
+                                ${escapeHTML(phone)}
+                            </span>
+
+                            <i
+                                class="fas fa-pen edit-icon"
+                                onclick="openEdit('${escapeHTML(uid)}','phone',${JSON.stringify(phone)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- USERNAME -->
+
+                    <div class="info-row">
+
+                        <div class="info-label">
+
+                            <i class="fas fa-at"></i>
+
+                            Username
+
+                        </div>
+
+                        <div class="info-value">
+
+                            <span>
+                                ${escapeHTML(username)}
+                            </span>
+
+                            <i
+                                class="fas fa-pen edit-icon"
+                                onclick="openEdit('${escapeHTML(uid)}','username',${JSON.stringify(username)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FINANCIAL STATS -->
+
+                <div class="stats-grid">
+
+
+                    <!-- BALANCE -->
+
+                    <div class="stat-box">
+
+                        <div class="stat-label">
+                            Balance
+                        </div>
+
+                        <div class="stat-value money">
+
+                            $${balance.toFixed(2)}
+
+                            <i
+                                class="fas fa-pen stat-edit"
+                                onclick="openEdit('${escapeHTML(uid)}','balance',${JSON.stringify(user.balance || 0)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- EARNINGS -->
+
+                    <div class="stat-box">
+
+                        <div class="stat-label">
+                            Earnings
+                        </div>
+
+                        <div class="stat-value money">
+
+                            $${totalEarnings.toFixed(2)}
+
+                            <i
+                                class="fas fa-pen stat-edit"
+                                onclick="openEdit('${escapeHTML(uid)}','totalTaskIncome',${JSON.stringify(user.totalTaskIncome || 0)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DEPOSITS -->
+
+                    <div class="stat-box">
+
+                        <div class="stat-label">
+                            Deposits
+                        </div>
+
+                        <div class="stat-value">
+
+                            $${deposits.toFixed(2)}
+
+                            <i
+                                class="fas fa-pen stat-edit"
+                                onclick="openEdit('${escapeHTML(uid)}','totalDeposit',${JSON.stringify(user.totalDeposit || 0)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- WITHDRAWALS -->
+
+                    <div class="stat-box">
+
+                        <div class="stat-label">
+                            Withdrawals
+                        </div>
+
+                        <div class="stat-value">
+
+                            $${withdrawals.toFixed(2)}
+
+                            <i
+                                class="fas fa-pen stat-edit"
+                                onclick="openEdit('${escapeHTML(uid)}','totalWithdrawn',${JSON.stringify(user.totalWithdrawn || 0)})">
+                            </i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TAGS -->
+
+                <div class="tags">
+
+
+                    <div class="tag tag-vip">
+
+                        <i class="fas fa-crown"></i>
+
+                        ${escapeHTML(vip)}
+
+                        <i
+                            class="fas fa-pen edit-icon"
+                            onclick="openEdit('${escapeHTML(uid)}','vipLevel',${JSON.stringify(user.vipLevel || 0)})">
+                        </i>
+
+                    </div>
+
+
+                    <div class="tag tag-kyc">
+
+                        <i class="fas fa-shield-halved"></i>
+
+                        KYC:
+                        ${escapeHTML(kyc)}
+
+                        <i
+                            class="fas fa-pen edit-icon"
+                            onclick="openEdit('${escapeHTML(uid)}','kycStatus',${JSON.stringify(kyc)})">
+                        </i>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CARD ACTIONS -->
+
+                <div class="card-actions">
+
+
+                    ${
+                        status === "active"
+
+                        ?
+
+                        `
+
+                        <button
+                            class="action-btn suspend"
+                            onclick="changeStatus('${escapeHTML(uid)}','suspended')">
+
+                            <i class="fas fa-ban"></i>
+
+                            Suspend User
+
+                        </button>
+
+                        `
+
+                        :
+
+                        `
+
+                        <button
+                            class="action-btn activate"
+                            onclick="changeStatus('${escapeHTML(uid)}','active')">
+
+                            <i class="fas fa-circle-check"></i>
+
+                            Activate User
+
+                        </button>
+
+                        `
+
+                    }
+
+
+                    <button
+                        class="action-btn"
+                        style="
+                            background:rgba(0,229,255,.07);
+                            color:#00c8e8;
+                            border:1px solid rgba(0,229,255,.12);
+                        "
+                        onclick="openEdit('${escapeHTML(uid)}','status',${JSON.stringify(status)})">
+
+                        <i class="fas fa-pen"></i>
+
+                        Edit
+
+                    </button>
+
+                </div>
+
+
+            </div>
+
+        `;
+
+    });
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    usersContainer.innerHTML =
+        html;
+
+}
+
+
+/* ==================================================
+   SEARCH USERS
+================================================== */
+
+function searchUsers(){
+
+    const text =
+        document.getElementById(
+            "search"
+        ).value
+        .trim()
+        .toLowerCase();
+
+
+    const filtered =
+        allUsers.filter(user => {
+
+            return (
+
+                String(
+                    user.email || ""
+                )
+                .toLowerCase()
+                .includes(text)
+
+                ||
+
+                String(
+                    user.username || ""
+                )
+                .toLowerCase()
+                .includes(text)
+
+                ||
+
+                String(
+                    user.phone || ""
+                )
+                .toLowerCase()
+                .includes(text)
+
+                ||
+
+                String(
+                    user.uid || ""
+                )
+                .toLowerCase()
+                .includes(text)
+
+            );
+
+        });
+
+
+    displayUsers(filtered);
+
+}
+
+
+
+/* ==================================================
+   VIP
+================================================== */
+
+function getVip(data){
+
+    let max = 0;
+
+
+    if(data.vipLevels){
+
+        Object.keys(
+            data.vipLevels
+        ).forEach(k => {
+
+            if(data.vipLevels[k]){
+
+                const lvl =
+                    parseInt(k);
+
+                if(lvl > max){
+                    max = lvl;
+                }
+
+            }
+
+        });
+
+    }
+
+
+    if(
+        max === 0 &&
+        Number(data.vipLevel || 0) > 0
+    ){
+
+        max =
+            Number(
+                data.vipLevel
+            );
+
+    }
+
+
+    return "VIP" + max;
+
+}
+
+
+/* ==================================================
+   CHANGE STATUS
+================================================== */
+
+function changeStatus(
+    uid,
+    status
+){
+
+    db.ref(
+        "users/" + uid
+    )
+    .update({
+
+        status:
+            status,
+
+        statusUpdatedAt:
+            firebase.database.ServerValue.TIMESTAMP,
+
+        statusUpdatedBy:
+            adminEmail
+
+    })
+    .then(() => {
+
+
+        return db.ref(
+            "adminLogs"
+        ).push({
+
+            action:
+                "User " + status,
+
+            user:
+                uid,
+
+            admin:
+                adminEmail,
+
+            adminUID:
+                adminUID,
+
+            time:
+                Date.now()
+
+        });
+
+    })
+    .then(() => {
+
+        showNotification(
+
+            status === "active"
+
+            ? "User activated successfully."
+
+            : "User suspended successfully."
+
+        );
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        showNotification(
+            "Unable to update user status.",
+            true
+        );
+
+    });
+
+}
+
+
+/* ==================================================
+   OPEN EDIT MODAL
+================================================== */
+
+function openEdit(
+    uid,
+    field,
+    currentValue
+){
+
+    editingUID =
+        uid;
+
+    editingField =
+        field;
+
+
+    document.getElementById(
+        "modalLabel"
+    ).textContent =
+        "New " +
+        field;
+
+
+    document.getElementById(
+        "modalInput"
+    ).value =
+        currentValue ?? "";
+
+
+    const input =
+        document.getElementById(
+            "modalInput"
+        );
+
+
+    if([
+        "balance",
+        "totalDeposit",
+        "totalWithdrawn",
+        "totalReferralBonus",
+        "totalTaskIncome",
+        "vipLevel"
+    ].includes(field)){
+
+        input.type =
+            "number";
+
+        input.step =
+            "0.01";
+
+    }
+    else{
+
+        input.type =
+            "text";
+
+        input.step =
+            "";
+
+    }
+
+
+    document.getElementById(
+        "editModal"
+    ).classList.add(
+        "show"
+    );
+
+
+    setTimeout(() => {
+
+        input.focus();
+
+        input.select();
+
+    },100);
+
+}
+
+
+/* ==================================================
+   CLOSE EDIT MODAL
+================================================== */
+
+function closeEdit(){
+
+    document.getElementById(
+        "editModal"
+    ).classList.remove(
+        "show"
+    );
+
+    editingUID =
+        "";
+
+    editingField =
+        "";
+
+}
+
+
+/* ==================================================
+   SAVE EDIT
+================================================== */
+
+function saveEdit(){
+
+    if(
+        !editingUID ||
+        !editingField
+    ){
+
+        return;
+
+    }
+
+
+    const input =
+        document.getElementById(
+            "modalInput"
+        );
+
+
+    const value =
+        input.value.trim();
+
+
+    if(value === ""){
+
+        showNotification(
+            "Please enter a value.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    let newValue =
+        value;
+
+
+    if([
+        "balance",
+        "totalDeposit",
+        "totalWithdrawn",
+        "totalReferralBonus",
+        "totalTaskIncome",
+        "vipLevel"
+    ].includes(editingField)){
+
+        newValue =
+            Number(value);
+
+
+        if(!Number.isFinite(newValue)){
+
+            showNotification(
+                "Please enter a valid number.",
+                true
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    const uid =
+        editingUID;
+
+    const field =
+        editingField;
+
+
+    db.ref(
+        "users/" + uid
+    )
+    .update({
+
+        [field]:
+            newValue
+
+    })
+    .then(() => {
+
+
+        return db.ref(
+            "adminLogs"
+        ).push({
+
+            action:
+                "Updated " + field,
+
+            user:
+                uid,
+
+            value:
+                newValue,
+
+            admin:
+                adminEmail,
+
+            adminUID:
+                adminUID,
+
+            time:
+                Date.now()
+
+        });
+
+    })
+    .then(() => {
+
+        closeEdit();
+
+        showNotification(
+            field + " updated successfully."
+        );
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        showNotification(
+            "Unable to update " +
+            field +
+            ".",
+            true
+        );
+
+    });
+
+}
+
+
+/* ==================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+================================================== */
+
+document.getElementById(
+    "editModal"
+).addEventListener(
+    "click",
+    function(event){
+
+        if(
+            event.target ===
+            this
+        ){
+
+            closeEdit();
+
+        }
+
+    }
+);
+
+
+/* ==================================================
+   ENTER KEY TO SAVE
+================================================== */
+
+document.getElementById(
+    "modalInput"
+).addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Enter"
+        ){
+
+            saveEdit();
+
+        }
+
+        if(
+            event.key === "Escape"
+        ){
+
+            closeEdit();
+
+        }
+
+    }
+);
+
+
+/* ==================================================
+   LOGOUT
+================================================== */
+
+function logout(){
+
+    auth.signOut()
+    .then(() => {
+
+        localStorage.clear();
+
+        sessionStorage.clear();
+
+        window.location.href =
+            "auth.html";
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+        showNotification(
+            "Unable to logout. Please try again.",
+            true
+        );
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
+   
