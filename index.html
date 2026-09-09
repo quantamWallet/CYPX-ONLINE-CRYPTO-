@@ -1,1 +1,904 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CYPX HOLDINGS</title><meta name="description" content="Modern Digital Asset Management Platform"><meta name="theme-color" content="#08111f"><link rel="manifest" href="manifest.json"><link rel="icon" href="cypx_icon_192x192.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}body{background:#1B4332;color:#fff;overflow-x:hidden;line-height:1.7}html{background:#1B4332}a{text-decoration:none}img{max-width:100%;display:block}.container{width:92%;max-width:1200px;margin:auto}header{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:18px 8%;background:rgba(8,17,31,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06);z-index:999}.logo{display:flex;align-items:center;gap:12px}.logo img{width:46px}.logo h2{font-size:26px;font-weight:700}.logo span{color:#16ffd3}nav{display:flex;gap:35px}nav a{color:#c7d3e3;font-size:15px;transition:.3s}nav a:hover{color:#16ffd3}.hero{min-height:100vh;display:flex;align-items:center;justify-content:space-between;padding:140px 8% 80px;gap:60px}.hero-left{flex:1}.hero-left h1{font-size:68px;line-height:1.1;font-weight:800;margin-bottom:25px}.hero-left span{color:#16ffd3}.hero-left p{font-size:18px;color:#9fb0c5;max-width:620px;margin-bottom:40px}.hero-buttons{display:flex;gap:18px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;padding:16px 34px;border-radius:12px;font-weight:600;transition:.3s}.btn-primary{background:#16ffd3;color:#06101b}.btn-primary:hover{transform:translateY(-4px)}.btn-outline{border:2px solid #16ffd3;color:#16ffd3}.btn-outline:hover{background:#16ffd3;color:#06101b}.hero-right{flex:1;display:flex;justify-content:center}.chart-box{width:100%;max-width:620px;background:#101b2d;padding:15px;border-radius:22px;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 60px rgba(0,0,0,.35)}.chart-box img{border-radius:15px}@media(max-width:980px){.hero{flex-direction:column;text-align:center}.hero-left h1{font-size:46px}.hero-buttons{justify-content:center}nav{display:none}}.section,.stats-section{padding:90px 0}.section-title{text-align:center;margin-bottom:60px}.section-title h2{font-size:42px;font-weight:700;margin-bottom:15px}.section-title p{font-size:17px;color:#9fb0c5;max-width:700px;margin:auto;line-height:1.7}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:25px}.stat-card{background:#101b2d;padding:35px 25px;border-radius:20px;border:1px solid rgba(255,255,255,.08);text-align:center;transition:.3s}.stat-card:hover{transform:translateY(-8px)}.stat-card h3{font-size:38px;color:#16ffd3;margin-bottom:10px}.stat-card span{color:#b8c4d4}.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:30px}.feature-card{background:#101b2d;padding:35px;border-radius:22px;border:1px solid rgba(255,255,255,.08);transition:.3s}.feature-card:hover{transform:translateY(-8px)}.feature-card i{font-size:42px;color:#16ffd3;margin-bottom:20px}.feature-card h3{margin-bottom:15px;font-size:23px}.feature-card p{color:#9fb0c5;line-height:1.8}.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:30px}.step-card{background:#101b2d;padding:35px;border-radius:22px;border:1px solid rgba(255,255,255,.08);text-align:center;transition:.3s}.step-card:hover{transform:translateY(-8px)}.step-number{width:65px;height:65px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#16ffd3;color:#06101b;font-size:22px;font-weight:700}.step-card h3{margin-bottom:15px}.step-card p{color:#9fb0c5;line-height:1.8}.dashboard-layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.dashboard-image img{width:100%;display:block;border-radius:18px}.dashboard-list{list-style:none;margin:30px 0}.dashboard-list li{margin-bottom:18px;color:#cbd5e1}.dashboard-list i{color:#16ffd3;margin-right:10px}.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:30px}.plan-card{background:#101b2d;padding:35px;border-radius:20px;border:1px solid rgba(255,255,255,.08);text-align:center;position:relative;transition:.3s}.plan-card:hover{transform:translateY(-8px)}.plan-card h2{font-size:42px;color:#16ffd3;margin:15px 0}.plan-card p{color:#9fb0c5}.plan-card ul{list-style:none;margin:25px 0}.plan-card li{margin:12px 0;color:#aab6c8}.featured{border:2px solid #16ffd3}.popular{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#16ffd3;color:#06101b;padding:6px 18px;border-radius:30px;font-size:13px;font-weight:700}.faq-box{max-width:900px;margin:auto}.faq-item{margin-bottom:18px;border:1px solid rgba(255,255,255,.08);border-radius:15px;overflow:hidden;background:#101b2d}.faq-question{width:100%;padding:22px;display:flex;justify-content:space-between;align-items:center;background:0;border:0;color:#fff;font-size:17px;cursor:pointer}.faq-answer{display:none;padding:0 22px 22px;color:#9fb0c5;line-height:1.8}.faq-item.active .faq-answer{display:block}footer{background:#050d19;padding:70px 0 30px;margin-top:80px}#auth-loader{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#08111f;z-index:99999}#auth-loader img{width:90px;margin-bottom:25px}.spinner{width:45px;height:45px;border:4px solid rgba(255,255,255,.15);border-top:4px solid #16ffd3;border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:900px){.dashboard-layout{grid-template-columns:1fr}}@media(max-width:768px){.section-title h2{font-size:32px}.section,.stats-section{padding:70px 0}}</style></head><body><header><div class="logo"><img src="cypx_icon_192x192.png" alt="Logo"><h2>CYPX <span>HOLDINGS</span></h2></div><nav><a href="#">Home</a><a href="#features">Features</a><a href="#plans">Plans</a><a href="#faq">FAQ</a></nav></header><section class="hero"><div class="hero-left"><h1>Digital Asset<br><span>Management</span> Platform</h1><p>Securely manage your investments, monitor your portfolio, track transactions and access your account from one modern dashboard built for today's digital investor.</p><div class="hero-buttons"><a href="auth.html" class="btn btn-primary">Create Account</a><a href="auth.html" class="btn btn-outline">Login</a></div></div><div class="hero-right"><div class="chart-box"><img src="forex-chart.png" alt="Forex Market Chart"></div></div></section><section class="stats-section"><div class="container"><div class="section-title"><h2>Platform Statistics</h2><p>Trusted by investors across multiple regions.</p></div><div class="stats-grid"><div class="stat-card"><h3>1,200+</h3><span>Registered Users</span></div><div class="stat-card"><h3>$5M+</h3><span>Total Transactions</span></div><div class="stat-card"><h3>99.9%</h3><span>Platform Uptime</span></div><div class="stat-card"><h3>24/7</h3><span>Customer Support</span></div></div></div></section><section class="section" id="features"><div class="container"><div class="section-title"><h2>Why Choose CYPX?</h2><p>Everything you need to securely manage your investments.</p></div><div class="features-grid"><div class="feature-card"><i class="fas fa-shield-halved"></i><h3>Secure Platform</h3><p>Advanced account protection with encrypted authentication and secure transactions.</p></div><div class="feature-card"><i class="fas fa-chart-line"></i><h3>Investment Tracking</h3><p>Monitor your deposits, earnings and portfolio directly from your dashboard.</p></div><div class="feature-card"><i class="fas fa-wallet"></i><h3>Fast Withdrawals</h3><p>Submit withdrawal requests quickly with real-time status updates.</p></div><div class="feature-card"><i class="fas fa-users"></i><h3>Referral Rewards</h3><p>Invite new members and receive referral commissions automatically.</p></div></div></div></section><section class="section"><div class="container"><div class="section-title"><h2>How It Works</h2><p>Start investing in four simple steps.</p></div><div class="steps-grid"><div class="step-card"><div class="step-number">01</div><h3>Create Account</h3><p>Register using your email and create your secure CYPX account.</p></div><div class="step-card"><div class="step-number">02</div><h3>Fund Wallet</h3><p>Deposit funds into your account to activate your investment.</p></div><div class="step-card"><div class="step-number">03</div><h3>Select VIP Plan</h3><p>Choose an investment package that matches your financial goals.</p></div><div class="step-card"><div class="step-number">04</div><h3>Earn & Withdraw</h3><p>Track your profits and withdraw earnings anytime.</p></div></div></div></section><section class="section"><div class="container dashboard-layout"><div class="dashboard-content"><div class="section-title" style="text-align:left;margin-bottom:25px"><h2>Everything In One Dashboard</h2><p style="margin:0;max-width:100%">Manage your balance, investments, deposits, withdrawals, referral earnings and account activity from one clean and modern dashboard.</p></div><ul class="dashboard-list"><li><i class="fas fa-check-circle"></i> Live Account Balance</li><li><i class="fas fa-check-circle"></i> Deposit History</li><li><i class="fas fa-check-circle"></i> Withdrawal Records</li><li><i class="fas fa-check-circle"></i> Referral Dashboard</li><li><i class="fas fa-check-circle"></i> VIP Investment Plans</li><li><i class="fas fa-check-circle"></i> Transaction Notifications</li></ul><a href="auth.html" class="btn btn-primary">Open Account</a></div><div class="dashboard-image"><img src="dashboard-preview.png" alt="Dashboard Preview"></div></div></section><section class="section" id="plans"><div class="container"><div class="section-title"><h2>VIP Investment Plans</h2><p>Choose the investment package that best fits your financial goals.</p></div><div class="plans-grid"><div class="plan-card"><h3>VIP 1</h3><h2>$50</h2><p>Minimum Deposit</p></div><div class="plan-card"><h3>VIP 2</h3><h2>$100</h2><p>Minimum Deposit</p></div><div class="plan-card"><h3>VIP 3</h3><h2>$300</h2><p>Minimum Deposit</p></div><div class="plan-card"><h3>VIP 4</h3><h2>$500</h2><p>Minimum Deposit</p></div></div></div></section><section class="section" id="faq"><div class="container"><div class="section-title"><h2>Frequently Asked Questions</h2></div><div class="faq-box"><div class="faq-item"><button class="faq-question">What is CYPX HOLDINGS?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">CYPX is a modern digital asset management platform designed to help investors securely manage portfolios, track transactions, and access investment opportunities.</div></div><div class="faq-item"><button class="faq-question">What's the minimum deposit?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">The minimum deposit required is $25 to get started with your CYPX account.</div></div><div class="faq-item"><button class="faq-question">How do withdrawals work?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Withdrawals are processed within 24 hours. The minimum withdrawal amount is $10.</div></div><div class="faq-item"><button class="faq-question">What are VIP plans?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">VIP plans are investment packages with different deposit tiers, offering various benefits and features based on your investment level.</div></div><div class="faq-item"><button class="faq-question">Can I refer friends?<i class="fas fa-chevron-down"></i></button><div class="faq-answer">Yes! Our referral program allows you to earn commissions by inviting others to join the platform.</div></div></div></div></section><footer><div class="container"><p style="text-align:center;color:#9fb0c5">&copy; 2024 CYPX HOLDINGS. All rights reserved.</p></div></footer><script>document.querySelectorAll('.faq-question').forEach(btn=>{btn.addEventListener('click',function(){this.parentElement.classList.toggle('active')})})</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYPX Holdings - Premium Cryptocurrency Platform</title>
+    <meta name="description" content="Secure, professional cryptocurrency trading and investment platform with real-time analytics and expert portfolio management.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --secondary: #1a1a2e;
+            --accent: #00d4ff;
+            --success: #00c853;
+            --warning: #ff6b35;
+            --bg-dark: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b8c1;
+            --border-color: #2d3748;
+            --gradient-primary: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%);
+            --gradient-dark: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER & NAVIGATION ==================== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: var(--gradient-primary);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.3);
+        }
+
+        /* ==================== HERO SECTION ==================== */
+        .hero {
+            margin-top: 60px;
+            padding: 6rem 2rem;
+            background: var(--gradient-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 102, 255, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .hero-accent {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--text-primary);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 102, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary);
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            box-shadow: 0 15px 40px rgba(0, 102, 255, 0.3);
+        }
+
+        /* ==================== FEATURES SECTION ==================== */
+        .features {
+            padding: 6rem 2rem;
+            background: var(--bg-dark);
+        }
+
+        .features-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(26, 31, 46, 0.5) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 102, 255, 0.15);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* ==================== STATS SECTION ==================== */
+        .stats {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .stat-item p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* ==================== PRICING SECTION ==================== */
+        .pricing {
+            padding: 6rem 2rem;
+            background: var(--bg-dark);
+        }
+
+        .pricing-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(26, 31, 46, 0.5) 100%);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 30px 60px rgba(0, 102, 255, 0.2);
+        }
+
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .pricing-card .price {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin: 1.5rem 0;
+        }
+
+        .pricing-card .price span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .pricing-features li {
+            padding: 0.75rem 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .pricing-card .btn-primary {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        /* ==================== TESTIMONIALS SECTION ==================== */
+        .testimonials {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .testimonials-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .testimonial-card {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(26, 31, 46, 0.5) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 15px 40px rgba(0, 102, 255, 0.1);
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .author-info h4 {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .author-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* ==================== CTA SECTION ==================== */
+        .cta-section {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(26, 31, 46, 0.8) 100%);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background: rgba(15, 20, 25, 0.8);
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-column a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .footer-column a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 600;
+        }
+
+        .social-links a:hover {
+            color: var(--accent);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                gap: 2rem;
+            }
+
+            .stat-item h3 {
+                font-size: 2rem;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .hero {
+                padding: 4rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+            }
+
+            .features {
+                padding: 4rem 1rem;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">CYPX</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="cta-button">Sign In</button>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>The Future of <span class="hero-accent">Crypto Trading</span></h1>
+            <p>Trade with confidence on the world's most advanced cryptocurrency platform. Secure, fast, and designed for professionals.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary">Get Started Free</button>
+                <button class="btn-secondary">View Demo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2>Why Choose CYPX Holdings</h2>
+                <p>Industry-leading tools and features designed to maximize your trading potential</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Bank-Grade Security</h3>
+                    <p>Advanced encryption and multi-layer security protocols protect your assets 24/7 with institutional-grade safeguards.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning-Fast Trading</h3>
+                    <p>Execute trades in milliseconds with our optimized infrastructure and low-latency connections worldwide.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Analytics</h3>
+                    <p>Advanced charting tools, technical indicators, and AI-powered insights to inform your trading decisions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💼</div>
+                    <h3>Portfolio Management</h3>
+                    <p>Comprehensive tools to track, analyze, and optimize your cryptocurrency portfolio performance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Global Access</h3>
+                    <p>Trade 24/7 across multiple global markets with support for hundreds of cryptocurrencies and fiat currencies.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Expert Support</h3>
+                    <p>Dedicated account managers and 24/7 customer support to help you succeed at every step of your journey.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS SECTION -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>$50B+</h3>
+                    <p>Trading Volume</p>
+                </div>
+                <div class="stat-item">
+                    <h3>500K+</h3>
+                    <p>Active Traders</p>
+                </div>
+                <div class="stat-item">
+                    <h3>99.99%</h3>
+                    <p>Uptime Guarantee</p>
+                </div>
+                <div class="stat-item">
+                    <h3>150+</h3>
+                    <p>Supported Assets</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING SECTION -->
+    <section class="pricing" id="pricing">
+        <div class="pricing-container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that fits your trading needs</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$0<span>/month</span></div>
+                    <p style="color: var(--text-secondary);">Perfect for beginners</p>
+                    <ul class="pricing-features">
+                        <li>Spot Trading</li>
+                        <li>Basic Charts</li>
+                        <li>Email Support</li>
+                        <li>Standard API</li>
+                    </ul>
+                    <button class="btn-primary">Get Started</button>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>Professional</h3>
+                    <div class="price">$29<span>/month</span></div>
+                    <p style="color: var(--text-secondary);">For active traders</p>
+                    <ul class="pricing-features">
+                        <li>Margin Trading</li>
+                        <li>Advanced Charts</li>
+                        <li>Priority Support</li>
+                        <li>Professional API</li>
+                        <li>Portfolio Analytics</li>
+                    </ul>
+                    <button class="btn-primary">Start Free Trial</button>
+                </div>
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">Custom<span>/month</span></div>
+                    <p style="color: var(--text-secondary);">For institutions</p>
+                    <ul class="pricing-features">
+                        <li>All Features</li>
+                        <li>Dedicated Manager</li>
+                        <li>24/7 Support</li>
+                        <li>Custom Integration</li>
+                        <li>White Label Options</li>
+                    </ul>
+                    <button class="btn-primary">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section class="testimonials" id="testimonials">
+        <div class="testimonials-container">
+            <div class="section-header">
+                <h2>What Our Users Say</h2>
+                <p>Join thousands of satisfied traders worldwide</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"CYPX Holdings transformed my trading experience. The platform is intuitive, secure, and incredibly powerful. Highly recommended!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JD</div>
+                        <div class="author-info">
+                            <h4>John Davis</h4>
+                            <p>Professional Trader</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"The analytics tools are phenomenal. I've seen a significant improvement in my trading returns since switching to CYPX."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SM</div>
+                        <div class="author-info">
+                            <h4>Sarah Miller</h4>
+                            <p>Investment Manager</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Outstanding customer support and a platform built by traders for traders. This is the future of crypto trading."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">RK</div>
+                        <div class="author-info">
+                            <h4>Rajesh Kumar</h4>
+                            <p>Crypto Analyst</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section" id="contact">
+        <h2>Ready to Start Trading?</h2>
+        <p>Join thousands of successful traders. Create your account today and get instant access to all premium features.</p>
+        <button class="btn-primary">Get Started Now</button>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>CYPX Holdings</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Leading the future of cryptocurrency trading with innovation and trust.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Products</h3>
+                    <ul>
+                        <li><a href="#trading">Trading</a></li>
+                        <li><a href="#portfolio">Portfolio</a></li>
+                        <li><a href="#mobile">Mobile App</a></li>
+                        <li><a href="#api">API</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#careers">Careers</a></li>
+                        <li><a href="#press">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#help">Help Center</a></li>
+                        <li><a href="#status">Status</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#security">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CYPX Holdings. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#">Twitter</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Discord</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
