@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -13,462 +12,1443 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 
 <style>
 
-body{
-margin:0;
-font-family:'Segoe UI',sans-serif;
-background:#000814;
-color:white;
+/* ==================================================
+   GLOBAL
+================================================== */
+
+*{
+    box-sizing:border-box;
 }
+
+html,
+body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+}
+
+body{
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(0,119,255,.12),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(0,229,255,.06),
+            transparent 35%
+        ),
+        #050b14;
+
+    color:#f5f7fa;
+}
+
+
+/* ==================================================
+   LOADER
+================================================== */
+
+.loader{
+    position:fixed;
+    inset:0;
+
+    background:#050b14;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:99999;
+}
+
+.loader-box{
+    text-align:center;
+}
+
+.spinner{
+    width:45px;
+    height:45px;
+
+    border:3px solid rgba(255,255,255,.10);
+    border-top-color:#00e5ff;
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+
+    margin:auto;
+}
+
+.loader-text{
+    margin-top:14px;
+
+    color:#8ea4b8;
+
+    font-size:12px;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+
+/* ==================================================
+   HEADER
+================================================== */
 
 .header{
-padding:18px;
-background:linear-gradient(90deg,#001d3d,#003566);
-display:flex;
-align-items:center;
-gap:15px;
+    position:sticky;
+    top:0;
+
+    z-index:1000;
+
+    width:100%;
+
+    padding:15px 18px;
+
+    background:
+        rgba(5,14,26,.92);
+
+    backdrop-filter:blur(14px);
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    box-shadow:
+        0 5px 25px rgba(0,0,0,.25);
 }
 
-.header a{
-color:white;
-text-decoration:none;
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
 }
+
+.back-btn{
+    width:36px;
+    height:36px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:10px;
+
+    color:#dbe8f4;
+    text-decoration:none;
+
+    background:
+        rgba(255,255,255,.06);
+
+    border:
+        1px solid rgba(255,255,255,.07);
+
+    transition:.2s;
+}
+
+.back-btn:hover{
+    background:rgba(0,229,255,.10);
+    color:#00e5ff;
+}
+
+.header-icon{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00c6ff
+        );
+
+    box-shadow:
+        0 5px 18px rgba(0,140,255,.25);
+}
+
+.header-icon i{
+    color:white;
+    font-size:17px;
+}
+
+.header-title{
+    font-size:15px;
+    font-weight:700;
+
+    letter-spacing:.2px;
+}
+
+.header-subtitle{
+    color:#72869a;
+    font-size:10px;
+
+    margin-top:2px;
+}
+
+.logout{
+    border:none;
+
+    background:
+        rgba(255,59,48,.10);
+
+    border:
+        1px solid rgba(255,59,48,.20);
+
+    color:#ff6b63;
+
+    padding:9px 13px;
+
+    border-radius:9px;
+
+    font-size:11px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.logout:hover{
+    background:#ff3b30;
+    color:white;
+}
+
+
+/* ==================================================
+   MAIN
+================================================== */
 
 .container{
-padding:15px;
+    width:100%;
+    max-width:1150px;
+
+    margin:auto;
+
+    padding:20px;
 }
 
-input{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-margin-bottom:15px;
-font-size:15px;
+
+/* ==================================================
+   ADMIN BAR
+================================================== */
+
+.admin-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:15px;
+
+    margin-bottom:18px;
+
+    padding:14px 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,38,72,.82),
+            rgba(0,20,38,.82)
+        );
+
+    border:
+        1px solid rgba(0,229,255,.10);
+
+    border-radius:13px;
 }
+
+.admin-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    min-width:0;
+}
+
+.admin-status{
+    width:9px;
+    height:9px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    box-shadow:
+        0 0 10px rgba(34,197,94,.7);
+}
+
+#adminEmail{
+    color:#c9d8e6;
+
+    font-size:12px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.live-label{
+    font-size:10px;
+    color:#22c55e;
+    font-weight:700;
+
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+
+/* ==================================================
+   SEARCH
+================================================== */
+
+.search-box{
+    position:relative;
+
+    margin-bottom:18px;
+}
+
+.search-box i{
+    position:absolute;
+
+    left:15px;
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#647b91;
+
+    font-size:14px;
+}
+
+#search{
+    width:100%;
+
+    height:48px;
+
+    padding:
+        0 45px;
+
+    border-radius:12px;
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    outline:none;
+
+    background:
+        rgba(9,21,35,.90);
+
+    color:white;
+
+    font-size:13px;
+
+    transition:.2s;
+}
+
+#search::placeholder{
+    color:#63778b;
+}
+
+#search:focus{
+    border-color:
+        rgba(0,229,255,.35);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(0,229,255,.06);
+}
+
+
+/* ==================================================
+   USER COUNT
+================================================== */
+
+.list-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:12px;
+}
+
+.list-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    font-size:13px;
+    font-weight:700;
+}
+
+.list-title i{
+    color:#00e5ff;
+}
+
+.user-count{
+    font-size:10px;
+
+    color:#8ca1b5;
+
+    background:
+        rgba(255,255,255,.05);
+
+    padding:5px 9px;
+
+    border-radius:20px;
+}
+
+
+/* ==================================================
+   USER GRID
+================================================== */
+
+#users{
+    width:100%;
+}
+
+.users-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:14px;
+}
+
+
+/* ==================================================
+   USER CARD
+================================================== */
 
 .user-card{
-background:#001a33;
-padding:15px;
-border-radius:15px;
-margin-bottom:12px;
-border:1px solid #003566;
+    position:relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(11,28,46,.98),
+            rgba(6,17,29,.98)
+        );
+
+    border:
+        1px solid rgba(255,255,255,.07);
+
+    border-radius:16px;
+
+    padding:17px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.18);
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
 }
 
-.user-card p{
-margin:6px 0;
-font-size:14px;
+.user-card:hover{
+    transform:translateY(-2px);
+
+    border-color:
+        rgba(0,229,255,.17);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.28);
 }
 
-.stats-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px;
-margin:10px 0;
-padding:10px;
-background:#000d1a;
-border-radius:10px;
+.user-card::before{
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:3px;
+    height:100%;
+
+    background:
+        linear-gradient(
+            #00e5ff,
+            #0077ff
+        );
+
+    opacity:.75;
 }
 
-.stat-item{
-font-size:13px;
-}
-.stat-item b{
-color:#4da3ff;
+
+/* ==================================================
+   USER TOP
+================================================== */
+
+.user-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:12px;
+
+    padding-bottom:14px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.06);
+
+    margin-bottom:13px;
 }
 
-button{
-padding:10px 15px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-color:white;
-cursor:pointer;
+.user-identity{
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    min-width:0;
 }
 
-.suspend{
-background:#dc2626;
+.avatar{
+    width:42px;
+    height:42px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,119,255,.30),
+            rgba(0,229,255,.12)
+        );
+
+    border:
+        1px solid rgba(0,229,255,.13);
+
+    color:#00e5ff;
+
+    font-weight:800;
 }
 
-.activate{
-background:#16a34a;
+.identity-text{
+    min-width:0;
 }
 
-.vip{
-color:#ffd700;
-font-weight:700;
+.username{
+    font-size:14px;
+    font-weight:700;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
-.earnings{
-color:#22c55e;
-font-weight:700;
+.uid{
+    margin-top:3px;
+
+    font-size:9px;
+
+    color:#60758a;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
+
+.user-status{
+    flex-shrink:0;
+
+    padding:5px 8px;
+
+    border-radius:20px;
+
+    font-size:9px;
+    font-weight:800;
+
+    text-transform:uppercase;
+}
+
+.status-active{
+    color:#22c55e;
+
+    background:
+        rgba(34,197,94,.10);
+
+    border:
+        1px solid rgba(34,197,94,.18);
+}
+
+.status-suspended{
+    color:#ff5c54;
+
+    background:
+        rgba(255,59,48,.10);
+
+    border:
+        1px solid rgba(255,59,48,.18);
+}
+
+
+/* ==================================================
+   USER INFORMATION
+================================================== */
+
+.info-list{
+    display:flex;
+    flex-direction:column;
+
+    gap:9px;
+
+    margin-bottom:13px;
+}
+
+.info-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:10px;
+
+    min-width:0;
+}
+
+.info-label{
+    display:flex;
+    align-items:center;
+    gap:7px;
+
+    color:#71869a;
+
+    font-size:10px;
+
+    flex-shrink:0;
+}
+
+.info-label i{
+    width:13px;
+    text-align:center;
+
+    color:#4e9fd1;
+
+    font-size:10px;
+}
+
+.info-value{
+    display:flex;
+    align-items:center;
+
+    gap:7px;
+
+    min-width:0;
+
+    color:#d9e3eb;
+
+    font-size:11px;
+
+    font-weight:600;
+
+    text-align:right;
+}
+
+.info-value span{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+
+/* ==================================================
+   EDIT ICON
+================================================== */
+
 .edit-icon{
-    float:right;
-    color:#4da3ff;
+    flex-shrink:0;
+
+    width:22px;
+    height:22px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:6px;
+
+    color:#55758e;
+
     cursor:pointer;
-    font-size:13px;
+
+    font-size:9px;
+
     transition:.2s;
 }
 
 .edit-icon:hover{
-    color:#7ec8ff;
-    transform:scale(1.15);
-  }
+    color:#00e5ff;
+
+    background:
+        rgba(0,229,255,.09);
+
+    transform:scale(1.08);
+}
+
+
+/* ==================================================
+   FINANCIAL STATS
+================================================== */
+
+.stats-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:8px;
+
+    margin:13px 0;
+
+    padding:10px;
+
+    background:
+        rgba(0,0,0,.18);
+
+    border:
+        1px solid rgba(255,255,255,.04);
+
+    border-radius:12px;
+}
+
+.stat-box{
+    min-width:0;
+
+    padding:9px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border-radius:9px;
+}
+
+.stat-label{
+    color:#667c91;
+
+    font-size:9px;
+
+    margin-bottom:5px;
+}
+
+.stat-value{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:4px;
+
+    color:#f1f5f8;
+
+    font-size:12px;
+
+    font-weight:700;
+}
+
+.stat-value.money{
+    color:#22c55e;
+}
+
+.stat-edit{
+    color:#49677e;
+
+    cursor:pointer;
+
+    font-size:8px;
+}
+
+.stat-edit:hover{
+    color:#00e5ff;
+}
+
+
+/* ==================================================
+   TAGS
+================================================== */
+
+.tags{
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:6px;
+
+    margin-top:12px;
+}
+
+.tag{
+    display:inline-flex;
+    align-items:center;
+
+    gap:5px;
+
+    padding:5px 8px;
+
+    border-radius:7px;
+
+    font-size:9px;
+
+    font-weight:700;
+}
+
+.tag-vip{
+    color:#ffd54a;
+
+    background:
+        rgba(255,215,0,.08);
+
+    border:
+        1px solid rgba(255,215,0,.14);
+}
+
+.tag-kyc{
+    color:#60a5fa;
+
+    background:
+        rgba(96,165,250,.08);
+
+    border:
+        1px solid rgba(96,165,250,.14);
+}
+
+
+/* ==================================================
+   ACTION AREA
+================================================== */
+
+.card-actions{
+    display:flex;
+
+    gap:8px;
+
+    margin-top:14px;
+
+    padding-top:13px;
+
+    border-top:
+        1px solid rgba(255,255,255,.06);
+}
+
+.action-btn{
+    flex:1;
+
+    height:36px;
+
+    border:none;
+
+    border-radius:9px;
+
+    font-size:10px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:6px;
+}
+
+.suspend{
+    background:
+        rgba(255,59,48,.11);
+
+    color:#ff625a;
+
+    border:
+        1px solid rgba(255,59,48,.18);
+}
+
+.suspend:hover{
+    background:#dc2626;
+    color:white;
+}
+
+.activate{
+    background:
+        rgba(34,197,94,.11);
+
+    color:#35d878;
+
+    border:
+        1px solid rgba(34,197,94,.18);
+}
+
+.activate:hover{
+    background:#16a34a;
+    color:white;
+}
+
+
+/* ==================================================
+   EMPTY / LOADING
+================================================== */
+
+.empty-state{
+    padding:50px 20px;
+
+    text-align:center;
+
+    background:
+        rgba(9,21,35,.75);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+    border-radius:15px;
+
+    color:#71869a;
+}
+
+.empty-state i{
+    display:block;
+
+    font-size:30px;
+
+    color:#31495e;
+
+    margin-bottom:12px;
+}
+
+.empty-state strong{
+    display:block;
+
+    color:#aab9c7;
+
+    font-size:13px;
+
+    margin-bottom:5px;
+}
+
+.empty-state span{
+    font-size:10px;
+}
+
+
+/* ==================================================
+   EDIT MODAL
+================================================== */
+
+.modal-overlay{
+    position:fixed;
+    inset:0;
+
+    background:
+        rgba(0,0,0,.70);
+
+    backdrop-filter:blur(7px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    z-index:5000;
+
+    opacity:0;
+    visibility:hidden;
+
+    transition:.2s;
+}
+
+.modal-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+.modal{
+    width:100%;
+    max-width:410px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0b1b2c,
+            #06111d
+        );
+
+    border:
+        1px solid rgba(0,229,255,.13);
+
+    border-radius:17px;
+
+    padding:20px;
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.55);
+
+    transform:
+        translateY(15px)
+        scale(.97);
+
+    transition:.2s;
+}
+
+.modal-overlay.show .modal{
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+.modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:18px;
+}
+
+.modal-title{
+    display:flex;
+    align-items:center;
+
+    gap:9px;
+
+    font-size:14px;
+    font-weight:700;
+}
+
+.modal-title i{
+    color:#00e5ff;
+}
+
+.close-modal{
+    width:30px;
+    height:30px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:
+        rgba(255,255,255,.05);
+
+    color:#8da1b3;
+
+    cursor:pointer;
+}
+
+.close-modal:hover{
+    color:white;
+    background:rgba(255,255,255,.10);
+}
+
+.modal-label{
+    display:block;
+
+    color:#7d92a5;
+
+    font-size:10px;
+
+    margin-bottom:7px;
+}
+
+.modal-input{
+    width:100%;
+
+    height:44px;
+
+    padding:0 12px;
+
+    border-radius:9px;
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    outline:none;
+
+    background:
+        rgba(0,0,0,.22);
+
+    color:white;
+
+    font-size:12px;
+}
+
+.modal-input:focus{
+    border-color:
+        rgba(0,229,255,.35);
+}
+
+.modal-actions{
+    display:flex;
+
+    gap:8px;
+
+    margin-top:16px;
+}
+
+.modal-btn{
+    flex:1;
+
+    height:40px;
+
+    border:none;
+
+    border-radius:9px;
+
+    font-size:11px;
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+.cancel-btn{
+    background:
+        rgba(255,255,255,.06);
+
+    color:#9cafbf;
+}
+
+.save-btn{
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00a9d6
+        );
+
+    color:white;
+}
+
+
+/* ==================================================
+   NOTIFICATION
+================================================== */
+
+.notification{
+    position:fixed;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.92);
+
+    min-width:230px;
+    max-width:85%;
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    background:#0b1c2e;
+
+    border:
+        1px solid rgba(0,229,255,.22);
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.5);
+
+    color:white;
+
+    text-align:center;
+
+    font-size:12px;
+    font-weight:600;
+
+    z-index:99999;
+
+    opacity:0;
+    pointer-events:none;
+
+    transition:.25s;
+}
+
+.notification.show{
+    opacity:1;
+
+    transform:
+        translate(-50%,-50%)
+        scale(1);
+}
+
+.notification.error{
+    border-color:
+        rgba(255,59,48,.35);
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media(max-width:700px){
+
+    .container{
+        padding:14px;
+    }
+
+    .header{
+        padding:12px 14px;
+    }
+
+    .header-icon{
+        display:none;
+    }
+
+    .header-title{
+        font-size:13px;
+    }
+
+    .header-subtitle{
+        display:none;
+    }
+
+    .logout{
+        padding:8px 10px;
+        font-size:10px;
+    }
+
+    .admin-bar{
+        padding:12px;
+    }
+
+    .users-grid{
+        grid-template-columns:1fr;
+        gap:10px;
+    }
+
+    .user-card{
+        padding:14px;
+        border-radius:14px;
+    }
+
+}
+
+
+/* ==================================================
+   SMALL PHONES
+================================================== */
+
+@media(max-width:390px){
+
+    .container{
+        padding:10px;
+    }
+
+    .header-title{
+        font-size:12px;
+    }
+
+    .admin-bar{
+        margin-bottom:12px;
+    }
+
+    .stats-grid{
+        gap:6px;
+        padding:8px;
+    }
+
+    .stat-box{
+        padding:8px;
+    }
+
+    .stat-value{
+        font-size:11px;
+    }
+
+    .info-label{
+        font-size:9px;
+    }
+
+    .info-value{
+        font-size:10px;
+    }
+
+    .action-btn{
+        height:34px;
+        font-size:9px;
+    }
+
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div class="header">
 
-<a href="admin.html">
-<i class="fas fa-arrow-left"></i>
-</a>
+<!-- ==================================================
+     LOADER
+================================================== -->
 
-<b>
-<i class="fas fa-users"></i>
-User Management
-</b>
+<div class="loader" id="loader">
 
-</div>
+    <div class="loader-box">
 
-<div class="container">
+        <div class="spinner"></div>
 
-<input
-id="search"
-placeholder="Search email or username..."
-onkeyup="searchUsers()">
+        <div class="loader-text">
+            Verifying administrator...
+        </div>
 
-<div id="users">
-Loading users...
-</div>
+    </div>
 
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-<script>
+<!-- ==================================================
+     NOTIFICATION
+================================================== -->
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
-};
-
-if(!firebase.apps.length){
-firebase.initializeApp(firebaseConfig);
-}
-
-const auth=firebase.auth();
-const db=firebase.database();
-
-let allUsers=[];
-let adminEmail="";
-let adminUID="";
-
-// ADMIN CHECK
-auth.onAuthStateChanged(user=>{
-if(!user){
-window.location.href="auth.html";
-return;
-}
-
-adminEmail=user.email;
-adminUID=user.uid;
-
-db.ref("admins/"+user.uid)
-.once("value")
-.then(admin=>{
-if(!admin.exists()){
-    showToast("Admin access only","error");
-
-    setTimeout(()=>{
-        window.location.href="auth.html";
-    },1500);
-
-    return;
-}
-loadUsers();
-});
-});
-
-// LOAD USERS
-function loadUsers(){
-    db.ref("users").on(
-        "value",
-        snap => {
-            allUsers = [];
-            snap.forEach(child => {
-                let data = child.val() || {};
-                data.uid = child.key;
-                allUsers.push(data);
-            });
-            displayUsers(allUsers);
-        },
-        error => {
-            console.error(error);
-            document.getElementById("users").innerHTML =
-                "Firebase Error: " + error.message;
-        }
-    );
-}
-
-function displayUsers(users){
-let html="";
-
-users.forEach(user=>{
-let status=user.status || "active";
-
-// Calculate total earnings
-let totalEarnings =
-    Number(user.totalReferralBonus || 0) +
-    Number(user.totalTaskIncome || 0);
-
-html += `
-<div class="user-card">
-
-<p>
-<b>UID:</b> ${user.uid}
-</p>
-
-<p>
-<b>Username:</b>
-${user.username || "N/A"}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','username','${user.username || ""}')"></i>
-</p>
-
-<p>
-<b>Email:</b>
-${user.email || "N/A"}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','email','${user.email || ""}')"></i>
-</p>
-
-<p>
-<b>Phone:</b>
-${user.phone || "N/A"}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','phone','${user.phone || ""}')"></i>
-</p>
-
-<div class="stats-grid">
-
-<div class="stat-item">
-<b>Balance:</b>
-$${Number(user.balance || 0).toFixed(2)}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','balance','${user.balance || 0}')"></i>
+<div
+    class="notification"
+    id="notification">
 </div>
 
-<div class="stat-item">
-<b>Earnings:</b>
-$${totalEarnings.toFixed(2)}
 
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','totalTaskIncome','${user.totalTaskIncome || 0}')"></i>
-</div>
+<!-- ==================================================
+     HEADER
+================================================== -->
 
-<div class="stat-item">
-<b>Deposits:</b>
-$${Number(user.totalDeposit || 0).toFixed(2)}
+<header class="header">
 
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','totalDeposit','${user.totalDeposit || 0}')"></i>
-</div>
+    <div class="header-left">
 
-<div class="stat-item">
-<b>Withdrawals:</b>
-$${Number(user.totalWithdrawn || 0).toFixed(2)}
+        <a
+            href="admin.html"
+            class="back-btn">
 
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','totalWithdrawn','${user.totalWithdrawn || 0}')"></i>
-</div>
+            <i class="fas fa-arrow-left"></i>
 
-</div>
-
-<p>
-<b>Referral Bonus:</b>
-$${Number(user.totalReferralBonus || 0).toFixed(2)}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','totalReferralBonus','${user.totalReferralBonus || 0}')"></i>
-</p>
-
-<p>
-<b>Task Income:</b>
-$${Number(user.totalTaskIncome || 0).toFixed(2)}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','totalTaskIncome','${user.totalTaskIncome || 0}')"></i>
-</p>
-
-<p>
-<b>VIP:</b>
-<span class="vip">${getVip(user)}</span>
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','vipLevel','${user.vipLevel || 0}')"></i>
-</p>
-
-<p>
-<b>KYC:</b>
-${user.kycStatus || "none"}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','kycStatus','${user.kycStatus || "none"}')"></i>
-</p>
-
-<p>
-<b>Status:</b>
-${status}
-
-<i class="fas fa-pen edit-icon"
-onclick="openEdit('${user.uid}','status','${status}')"></i>
-</p>
-
-${
-status=="active"
-?
-`<button class="suspend" onclick="changeStatus('${user.uid}','suspended')">Suspend</button>`
-:
-`<button class="activate" onclick="changeStatus('${user.uid}','active')">Activate</button>`
-}
-
-</div>
-`;
-
-}); // closes users.forEach()
-
-document.getElementById("users").innerHTML = html || "No users found";
-    }
-function searchUsers(){
-let text = document.getElementById("search").value.toLowerCase();
-let filtered = allUsers.filter(user=>{
-return (
-(user.email||"").toLowerCase().includes(text) ||
-(user.username||"").toLowerCase().includes(text)
-);
-});
-displayUsers(filtered);
-}
-
-function getVip(data){
-let max=0;
-if(data.vipLevels){
-Object.keys(data.vipLevels).forEach(k=>{
-if(data.vipLevels[k]){
-let lvl=parseInt(k);
-if(lvl>max) max=lvl;
-}
-});
-}
-return "VIP"+max;
-}
-
-function changeStatus(uid, status){
-
-    db.ref("users/" + uid).update({
-        status: status,
-        statusUpdatedAt: firebase.database.ServerValue.TIMESTAMP,
-        statusUpdatedBy: adminEmail
-    }).then(() => {
-
-        db.ref("adminLogs").push({
-            action: "User " + status,
-            user: uid,
-            admin: adminEmail,
-            adminUID: adminUID,
-            time: Date.now()
-        });
-
-        showToast(
-            status === "active"
-                ? "User activated successfully"
-                : "User suspended successfully",
-            "success"
-        );
-
-    });
-
-}
+        </a>
 
 
-    function openEdit(uid, field, currentValue){
+        <div class="header-icon">
 
-    const value = prompt("Enter new " + field, currentValue);
+            <i class="fas fa-users"></i>
 
-    if(value === null) return;
+        </div>
 
-    let newValue = value;
 
-if([
-    "balance",
-    "totalDeposit",
-    "totalWithdrawn",
-    "totalReferralBonus",
-    "totalTaskIncome",
-    "vipLevel"
-].includes(field)){
-    newValue = Number(value);
-}
+        <div>
 
-db.ref("users/" + uid).update({
-    [field]: newValue
-}).then(()=>{
+            <div class="header-title">
+                User Management
+            </div>
 
-        db.ref("adminLogs").push({
-            action: "Updated " + field,
-            user: uid,
-            value: value,
-            admin: adminEmail,
-            adminUID: adminUID,
-            time: Date.now()
-        });
+            <div class="header-subtitle">
+                CYPX HOLDINGS ADMINISTRATION
+            </div>
 
-        showToast(field + " updated","success");
-    });
+        </div>
 
-    }
-    function showToast(message,type="success"){
+    </div>
 
-    let toast=document.createElement("div");
 
-    toast.innerHTML=message;
+    <button
+        class="logout"
+        onclick="logout()">
 
-    toast.style.cssText=`
-    position:fixed;
-    bottom:25px;
-    left:50%;
-    transform:translateX(-50%);
-    background:${type==="success" ? "#16a34a" : "#dc2626"};
-    color:#fff;
-    padding:14px 22px;
-    border-radius:12px;
-    z-index:9999;
-    font-weight:600;
-    box-shadow:0 8px 25px rgba(0,0,0,.35);
-    `;
+        <i class="fas fa-right-from-bracket"></i>
 
-    document.body.appendChild(toast);
+        Logout
 
-    setTimeout(()=>toast.remove(),2500);
+    </button>
 
-    }
-</script>
+</header>
 
-</body>
-</html>
+
+<!-- ==================================================
+     MAIN
+================================================== -->
+
+<main class="container">
+
+
+    <!-- ADMIN BAR -->
+
+    <div class="admin-bar">
+
+        <div class="admin-info">
+
+            <span class="admin-status"></span>
+
+            <span id="adminEmail">
+                Checking administrator...
+            </span>
+
+        </div>
+
+
+        <div class="live-label">
+
+            <i class="fas fa-circle"></i>
+
+            LIVE
+
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+        <i class="fas fa-search"></i>
+
+        <input
+            id="search"
+            type="search"
+            autocomplete="off"
+            placeholder="Search by email or username..."
+            oninput="searchUsers()">
+
+    </div>
+
+
+    <!-- LIST HEADER -->
+
+    <div class="list-header">
+
+        <div class="list-title">
+
+            <i class="fas fa-user-group"></i>
+
+            Registered Users
+
+        </div>
+
+
+        <div
+            class="user-count"
+            id="userCount">
+
+    
