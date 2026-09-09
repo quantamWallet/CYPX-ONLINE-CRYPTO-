@@ -1,0 +1,1573 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CYPX Mining - Flutterwave Deposit</title><style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#0a0f1a;
+    color:#fff;
+    min-height:100vh;
+}
+
+header{
+    background:#001a33;
+    padding:18px;
+    text-align:center;
+    border-bottom:1px solid #002f6c;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+}
+
+.logo-icon{
+    width:42px;
+    height:42px;
+    background:linear-gradient(135deg,#007BFF,#00C896);
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    color:#fff;
+}
+
+header h1{
+    color:#ffd700;
+    font-size:18px;
+}
+
+header h1 span{
+    color:#fff;
+    font-weight:400;
+    font-size:12px;
+    display:block;
+}
+
+.container{
+    max-width:650px;
+    margin:0 auto;
+    padding:15px;
+}
+
+/* ROUTE */
+
+.route-card{
+    background:linear-gradient(135deg,#001a33 0%,#002f6c 100%);
+    border:1px solid rgba(255,215,0,0.25);
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.flag{
+    font-size:32px;
+}
+
+.route-arrow{
+    color:#ffd700;
+    font-size:22px;
+}
+
+/* NOTICE */
+
+.notice{
+    background:rgba(0,200,150,0.12);
+    border:1px solid rgba(0,200,150,0.3);
+    padding:12px;
+    border-radius:12px;
+    font-size:12px;
+    color:#94e2cc;
+    margin-bottom:18px;
+    line-height:1.6;
+}
+
+/* PAYMENT METHOD */
+
+.method{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:14px;
+}
+
+.method-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.method-icon{
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    font-weight:800;
+}
+
+.flutterwave{
+    background:linear-gradient(135deg,#f5a623,#ff6b00);
+    color:#fff;
+}
+
+.detail-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(0,0,0,0.35);
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:8px;
+}
+
+.detail-label{
+    font-size:11px;
+    color:#8aa0b8;
+    text-transform:uppercase;
+}
+
+.detail-value{
+    font-weight:800;
+    font-size:15px;
+    color:#ffd700;
+}
+
+.pay-btn,
+.proceed-btn{
+    display:block;
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg,#f5a623,#ff6b00);
+    color:#fff;
+    font-weight:900;
+    text-align:center;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    margin-top:12px;
+    font-size:14px;
+    text-decoration:none;
+    box-shadow:0 5px 18px rgba(255,107,0,0.2);
+}
+
+.pay-btn:active,
+.proceed-btn:active{
+    transform:scale(.98);
+}
+
+/* PAYMENT INFO */
+
+.steps-box{
+    background:rgba(0,0,0,0.35);
+    padding:12px;
+    border-radius:10px;
+    margin:10px 0;
+    font-size:12px;
+    line-height:1.9;
+    border:1px solid rgba(255,255,255,0.06);
+}
+
+.steps-title{
+    font-weight:800;
+    color:#ffd700;
+    margin-bottom:6px;
+}
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+    top:20px;
+    left:15px;
+    right:15px;
+    background:#0a0f1a;
+    border:1px solid #00C896;
+    color:#00ffaa;
+    padding:14px;
+    border-radius:12px;
+    display:none;
+    z-index:1000;
+    text-align:center;
+    font-weight:700;
+}
+
+.toast.error{
+    border-color:#ff4444;
+    color:#ff8888;
+    background:#1a0a0a;
+}
+
+/* PAGE 2 */
+
+#page2{
+    display:none;
+}
+
+.back-btn{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+    color:#fff;
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:12px;
+    cursor:pointer;
+    margin-bottom:15px;
+}
+
+.page2-card{
+    background:#001a33;
+    border:1px solid rgba(255,215,0,0.3);
+    border-radius:18px;
+    padding:20px;
+}
+
+.form-group{
+    margin-bottom:14px;
+}
+
+.form-group label{
+    font-size:11px;
+    color:#8aa0b8;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:6px;
+    font-weight:700;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    background:rgba(0,0,0,0.4);
+    border:1px solid rgba(255,255,255,0.12);
+    padding:13px 14px;
+    border-radius:10px;
+    color:#fff;
+    font-size:14px;
+    outline:none;
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:#ffd700;
+}
+
+.form-group input.input-error{
+    border-color:#ff4444!important;
+}
+
+.error-text{
+    font-size:11px;
+    color:#ff6b6b;
+    margin-top:5px;
+    display:none;
+}
+
+.convert-box{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.eq{
+    color:#ffd700;
+    font-weight:900;
+    font-size:18px;
+}
+
+.ugx-display{
+    background:rgba(0,200,150,0.15)!important;
+    border:1px solid rgba(0,200,150,0.3)!important;
+    color:#00ffaa!important;
+    font-weight:800!important;
+}
+
+/* PAYMENT STATUS */
+
+.paid-box{
+    background:rgba(0,200,150,0.08);
+    border:1px solid rgba(0,200,150,0.25);
+    border-radius:12px;
+    padding:13px;
+    margin-bottom:15px;
+    font-size:12px;
+    line-height:1.7;
+}
+
+.paid-box strong{
+    color:#00ffaa;
+}
+
+/* SUBMIT */
+
+.submit-btn{
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg,#ffd700,#ffb700);
+    color:#000;
+    font-weight:900;
+    border:none;
+    border-radius:12px;
+    font-size:14px;
+    cursor:pointer;
+    margin-top:8px;
+}
+
+.submit-btn:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+}
+
+/* SUCCESS */
+
+.success-box{
+    text-align:center;
+    padding:30px 15px;
+    display:none;
+}
+
+.success-box h2{
+    color:#ffd700;
+    margin-top:10px;
+}
+
+.success-box p{
+    font-size:13px;
+    color:#cbd5e1;
+    margin-top:10px;
+    line-height:1.6;
+}
+
+.small-note{
+    color:#8aa0b8;
+    font-size:10px;
+    margin-top:12px;
+    line-height:1.5;
+}
+
+/* MOBILE */
+
+@media(max-width:480px){
+
+    .route-card{
+        padding:15px 10px;
+    }
+
+    .flag{
+        font-size:28px;
+    }
+
+    .route-arrow{
+        font-size:19px;
+    }
+
+    .convert-box{
+        gap:6px;
+    }
+
+    .eq{
+        font-size:15px;
+    }
+
+}
+</style></head><body><header><div class="logo-icon">
+    <span>⌘</span>
+</div>
+
+<h1>
+    CYPX MINING
+    <span>FLUTTERWAVE DEPOSIT</span>
+</h1>
+
+</header><div class="toast" id="toast"></div><div class="container"><!-- ================= PAGE 1 ================= --><div id="page1"><div class="route-card">
+
+    <div style="text-align:center">
+        <div class="flag">🇺🇬</div>
+        <div style="font-weight:800;">UGANDA</div>
+    </div>
+
+    <div style="text-align:center">
+
+        <div class="route-arrow">
+            ⇄
+        </div>
+
+        <div>UGX → USD</div>
+
+    </div>
+
+    <div style="text-align:center">
+
+        <div class="flag">💳</div>
+
+        <div style="font-weight:800;">
+            FLUTTERWAVE
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="notice">
+
+    <span>🛡</span>
+
+    Secure deposit powered by Flutterwave.
+    Minimum deposit is <b>$25</b>.
+    After completing payment, return here and submit your payment details.
+
+</div>
+
+
+<!-- FLUTTERWAVE METHOD -->
+
+<div class="method">
+
+    <div class="method-header">
+
+        <div class="method-icon flutterwave">
+            💳
+        </div>
+
+        <div>
+
+            <div style="font-weight:800;">
+                Flutterwave
+            </div>
+
+            <small style="color:#8aa0b8;">
+                Secure online payment
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <div class="detail-row">
+
+        <div>
+
+            <div class="detail-label">
+                Payment Currency
+            </div>
+
+            <div class="detail-value">
+                UGX / USD
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="steps-box">
+
+        <div class="steps-title">
+            ⓘ PAYMENT STEPS
+        </div>
+
+        <div>» Enter your deposit amount</div>
+        <div>» Tap <b>Pay with Flutterwave</b></div>
+        <div>» Complete the payment on Flutterwave</div>
+        <div>» Keep your payment/reference number</div>
+        <div>» Return here and submit your payment details</div>
+
+    </div>
+
+
+    <button
+        class="proceed-btn"
+        id="continueBtn"
+        type="button">
+
+        →
+        CONTINUE TO DEPOSIT
+
+    </button>
+
+</div>
+
+</div><!-- ================= PAGE 2 ================= --><div id="page2"><button
+    class="back-btn"
+    id="backBtn"
+    type="button">
+
+    ←
+    Back
+
+</button>
+
+
+<div class="page2-card" id="formCard">
+
+    <div style="font-size:18px;font-weight:900;color:#ffd700;">
+        Deposit via Flutterwave
+    </div>
+
+    <div style="font-size:12px;color:#8aa0b8;margin-top:4px;margin-bottom:15px;">
+        Complete your payment first, then submit the details below.
+    </div>
+
+
+    <!-- AMOUNT -->
+
+    <div class="form-group">
+
+        <label>
+            Amount in USD ($) * — MINIMUM $25
+        </label>
+
+        <div class="convert-box">
+
+            <input
+                type="number"
+                id="usdAmount"
+                placeholder="Min. 25"
+                min="25"
+                step="0.01"
+                inputmode="decimal"
+                autocomplete="off"
+                style="flex:1;"
+            >
+
+            <span class="eq">
+                =
+            </span>
+
+            <input
+                type="text"
+                id="ugxAmount"
+                class="ugx-display"
+                placeholder="0 UGX"
+                readonly
+                tabindex="-1"
+                style="flex:1;"
+            >
+
+        </div>
+
+        <div
+            class="error-text"
+            id="usdError">
+
+            Minimum deposit is $25
+
+        </div>
+
+    </div>
+
+
+    <!-- PAYMENT BUTTON -->
+
+    <div class="paid-box">
+
+        <div>
+
+            <strong>
+                Step 1 — Pay with Flutterwave
+            </strong>
+
+        </div>
+
+        <div>
+
+            Your Flutterwave payment page will open in a new tab.
+            Complete the payment there before submitting this form.
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="pay-btn"
+        id="flutterwaveBtn"
+        type="button">
+
+        🔒
+        PAY WITH FLUTTERWAVE
+
+    </button>
+
+
+    <!-- PHONE -->
+
+    <div class="form-group" style="margin-top:18px;">
+
+        <label>
+            Your Uganda Phone Number *
+        </label>
+
+        <input
+            type="tel"
+            id="userPhone"
+            placeholder="2567..."
+            inputmode="tel"
+            autocomplete="tel"
+        >
+
+        <div
+            class="error-text"
+            id="phoneError">
+
+            Enter your phone number
+
+        </div>
+
+    </div>
+
+
+    <!-- TRANSACTION ID -->
+
+    <div class="form-group">
+
+        <label>
+            Flutterwave Transaction / Reference ID *
+        </label>
+
+        <input
+            type="text"
+            id="transId"
+            placeholder="Enter Flutterwave transaction reference"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+        >
+
+        <div
+            class="error-text"
+            id="transError">
+
+            Enter your Flutterwave transaction/reference ID
+
+        </div>
+
+    </div>
+
+
+    <!-- PAYMENT CONFIRMATION -->
+
+    <div class="form-group">
+
+        <label>
+            Payment Status
+        </label>
+
+        <select id="paymentStatus">
+
+            <option value="completed">
+                Payment Completed
+            </option>
+
+            <option value="processing">
+                Payment Processing
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- SUBMIT -->
+
+    <button
+        class="submit-btn"
+        id="submitBtn"
+        type="button">
+
+        ➤
+        SUBMIT PAYMENT TO CYPX
+
+    </button>
+
+
+    <div class="small-note">
+
+        Your payment submission will be recorded for review.
+        Payment approval should only be granted after the
+        Flutterwave transaction has been verified.
+
+    </div>
+
+</div>
+
+
+<!-- SUCCESS -->
+
+<div
+    class="page2-card success-box"
+    id="successBox">
+
+    <div style="font-size:50px;color:#00C896;">
+        ✓
+    </div>
+
+    <h2>
+        Payment Submitted!
+    </h2>
+
+    <p id="successDetails"></p>
+
+    <p style="font-size:12px;color:#94e2cc;">
+        Your payment has been recorded and is pending verification.
+    </p>
+
+    <p style="font-size:12px;color:#94e2cc;">
+        Redirecting to financial.html...
+    </p>
+
+</div>
+
+</div></div><script type="module">
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const USD_TO_UGX = 3750;
+
+const MINIMUM_USD = 25;
+
+const FLUTTERWAVE_URL =
+    "https://flutterwave.com/pay/ugxeversend?email=nicelroberts141%40gmail.com&firstname=Nicel&lastname=Roberts";
+
+
+/* =========================================================
+   DOM CACHE
+========================================================= */
+
+const page1 =
+    document.getElementById("page1");
+
+const page2 =
+    document.getElementById("page2");
+
+const formCard =
+    document.getElementById("formCard");
+
+const successBox =
+    document.getElementById("successBox");
+
+const toast =
+    document.getElementById("toast");
+
+const continueBtn =
+    document.getElementById("continueBtn");
+
+const backBtn =
+    document.getElementById("backBtn");
+
+const usdAmount =
+    document.getElementById("usdAmount");
+
+const ugxAmount =
+    document.getElementById("ugxAmount");
+
+const usdError =
+    document.getElementById("usdError");
+
+const userPhone =
+    document.getElementById("userPhone");
+
+const phoneError =
+    document.getElementById("phoneError");
+
+const transId =
+    document.getElementById("transId");
+
+const transError =
+    document.getElementById("transError");
+
+const paymentStatus =
+    document.getElementById("paymentStatus");
+
+const flutterwaveBtn =
+    document.getElementById("flutterwaveBtn");
+
+const submitBtn =
+    document.getElementById("submitBtn");
+
+const successDetails =
+    document.getElementById("successDetails");
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let isSubmitting = false;
+
+let toastTimer = null;
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message, error = false){
+
+    clearTimeout(toastTimer);
+
+    toast.textContent = message;
+
+    toast.className =
+        error ? "toast error" : "toast";
+
+    toast.style.display = "block";
+
+    toastTimer = setTimeout(() => {
+
+        toast.style.display = "none";
+
+    }, 3500);
+
+}
+
+
+/* =========================================================
+   PAGE NAVIGATION
+========================================================= */
+
+function openDepositForm(){
+
+    page1.style.display = "none";
+
+    page2.style.display = "block";
+
+    window.scrollTo({
+        top:0,
+        behavior:"instant"
+    });
+
+}
+
+function closePage2(){
+
+    page2.style.display = "none";
+
+    page1.style.display = "block";
+
+    window.scrollTo({
+        top:0,
+        behavior:"instant"
+    });
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+continueBtn.addEventListener(
+    "click",
+    openDepositForm
+);
+
+backBtn.addEventListener(
+    "click",
+    closePage2
+);
+
+
+/* =========================================================
+   USD → UGX CONVERSION
+========================================================= */
+
+function convertToUGX(){
+
+    const value =
+        parseFloat(usdAmount.value);
+
+    if(
+        !Number.isFinite(value) ||
+        value <= 0
+    ){
+
+        ugxAmount.value = "";
+
+        usdError.style.display = "none";
+
+        usdAmount.classList.remove(
+            "input-error"
+        );
+
+        return;
+
+    }
+
+
+    const amountUGX =
+        value * USD_TO_UGX;
+
+
+    ugxAmount.value =
+        amountUGX.toLocaleString() +
+        " UGX";
+
+
+    if(value < MINIMUM_USD){
+
+        usdError.textContent =
+            "Minimum deposit is $25";
+
+        usdError.style.display =
+            "block";
+
+        usdAmount.classList.add(
+            "input-error"
+        );
+
+    }else{
+
+        usdError.style.display =
+            "none";
+
+        usdAmount.classList.remove(
+            "input-error"
+        );
+
+    }
+
+}
+
+
+usdAmount.addEventListener(
+    "input",
+    convertToUGX
+);
+
+
+/* =========================================================
+   OPEN FLUTTERWAVE
+========================================================= */
+
+function openFlutterwave(){
+
+    const usd =
+        parseFloat(usdAmount.value);
+
+
+    if(
+        !Number.isFinite(usd) ||
+        usd < MINIMUM_USD
+    ){
+
+        usdError.textContent =
+            "Enter a minimum deposit of $25";
+
+        usdError.style.display =
+            "block";
+
+        usdAmount.classList.add(
+            "input-error"
+        );
+
+        showToast(
+            "Minimum deposit is $25",
+            true
+        );
+
+        usdAmount.focus();
+
+        return;
+
+    }
+
+
+    usdError.style.display =
+        "none";
+
+    usdAmount.classList.remove(
+        "input-error"
+    );
+
+
+    /*
+      Open immediately from the user click.
+      This avoids browser popup blockers.
+    */
+
+    const paymentWindow =
+        window.open(
+            FLUTTERWAVE_URL,
+            "_blank",
+            "noopener,noreferrer"
+        );
+
+
+    if(!paymentWindow){
+
+        showToast(
+            "Please allow pop-ups to open Flutterwave.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    showToast(
+        "Flutterwave payment opened"
+    );
+
+}
+
+
+flutterwaveBtn.addEventListener(
+    "click",
+    openFlutterwave
+);
+
+
+/* =========================================================
+   GENERIC FIELD VALIDATION
+========================================================= */
+
+function setError(
+    input,
+    errorElement,
+    message
+){
+
+    input.classList.add(
+        "input-error"
+    );
+
+    errorElement.textContent =
+        message;
+
+    errorElement.style.display =
+        "block";
+
+}
+
+
+function clearError(
+    input,
+    errorElement
+){
+
+    input.classList.remove(
+        "input-error"
+    );
+
+    errorElement.style.display =
+        "none";
+
+}
+
+
+  /*=========================================================
+   LOAD FIREBASE ONLY WHEN REQUIRED
+========================================================= */
+
+let firebaseDatabase = null;
+
+let firebasePush = null;
+
+let firebaseSet = null;
+
+let firebaseRef = null;
+
+let firebaseLoading = null;
+
+
+async function loadFirebase(){
+
+    /*
+      Firebase is deliberately NOT loaded when the page opens.
+
+      It is downloaded only when the user submits a payment.
+      This makes the initial page considerably lighter.
+    */
+
+    if(firebaseDatabase){
+        return firebaseDatabase;
+    }
+
+
+    if(firebaseLoading){
+        return firebaseLoading;
+    }
+
+
+    firebaseLoading =
+        (async () => {
+
+            const [
+                appModule,
+                databaseModule
+            ] = await Promise.all([
+
+                import(
+                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+                ),
+
+                import(
+                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
+                )
+
+            ]);
+
+
+            const firebaseConfig = {
+
+                apiKey:
+                    "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+                authDomain:
+                    "quantum-rio.firebaseapp.com",
+
+                databaseURL:
+                    "https://quantum-rio-default-rtdb.firebaseio.com",
+
+                projectId:
+                    "quantum-rio",
+
+                storageBucket:
+                    "quantum-rio.firebasestorage.app",
+
+                messagingSenderId:
+                    "805433999377",
+
+                appId:
+                    "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+
+                measurementId:
+                    "G-4RSQXZJX44"
+
+            };
+
+
+            const app =
+                appModule.initializeApp(
+                    firebaseConfig
+                );
+
+
+            firebaseDatabase =
+                databaseModule.getDatabase(
+                    app
+                );
+
+
+            firebasePush =
+                databaseModule.push;
+
+            firebaseSet =
+                databaseModule.set;
+
+            firebaseRef =
+                databaseModule.ref;
+
+
+            return firebaseDatabase;
+
+        })();
+
+
+    try{
+
+        return await firebaseLoading;
+
+    }catch(error){
+
+        firebaseLoading = null;
+
+        throw error;
+
+    }
+
+}
+
+
+/* =========================================================
+   SUBMIT PAYMENT
+========================================================= */
+
+async function submitPayment(){
+
+    if(isSubmitting){
+        return;
+    }
+
+
+    let hasError = false;
+
+
+    /* ================= AMOUNT ================= */
+
+    const usd =
+        parseFloat(
+            usdAmount.value
+        );
+
+
+    if(
+        !usdAmount.value.trim() ||
+        !Number.isFinite(usd) ||
+        usd < MINIMUM_USD
+    ){
+
+        setError(
+            usdAmount,
+            usdError,
+            "Minimum deposit is $25"
+        );
+
+        hasError = true;
+
+    }else{
+
+        clearError(
+            usdAmount,
+            usdError
+        );
+
+    }
+
+
+    /* ================= PHONE ================= */
+
+    const phone =
+        userPhone.value.trim();
+
+
+    if(!phone){
+
+        setError(
+            userPhone,
+            phoneError,
+            "Enter your phone number"
+        );
+
+        hasError = true;
+
+    }else{
+
+        clearError(
+            userPhone,
+            phoneError
+        );
+
+    }
+
+
+    /* ================= TRANSACTION ID ================= */
+
+    const transactionId =
+        transId.value.trim();
+
+
+    if(!transactionId){
+
+        setError(
+            transId,
+            transError,
+            "Enter your Flutterwave transaction/reference ID"
+        );
+
+        hasError = true;
+
+    }else{
+
+        clearError(
+            transId,
+            transError
+        );
+
+    }
+
+
+    if(hasError){
+
+        showToast(
+            "Please complete all required fields",
+            true
+        );
+
+        return;
+
+    }
+
+
+    /* ================= AMOUNT ================= */
+
+    const amountUGX =
+        usd * USD_TO_UGX;
+
+
+    /* ================= LOCK BUTTON ================= */
+
+    isSubmitting = true;
+
+    submitBtn.disabled = true;
+
+    submitBtn.innerHTML =
+        "⟳ SUBMITTING...";
+
+
+    try{
+
+        /*
+          Load Firebase only now.
+        */
+
+        const db =
+            await loadFirebase();
+
+
+        const paymentData = {
+
+            paymentMethod:
+                "Flutterwave",
+
+            provider:
+                "Flutterwave",
+
+            amountUSD:
+                usd,
+
+            amountUGX:
+                amountUGX,
+
+            amountUGX_formatted:
+                amountUGX.toLocaleString() +
+                " UGX",
+
+            userPhone:
+                phone,
+
+            transactionId:
+                transactionId,
+
+            paymentStatus:
+                paymentStatus.value,
+
+            status:
+                "pending",
+
+            verificationStatus:
+                "pending",
+
+            timestamp:
+                Date.now(),
+
+            date:
+                new Date().toISOString()
+
+        };
+
+
+        const newPayment =
+            firebasePush(
+                firebaseRef(
+                    db,
+                    "cypx_payments"
+                )
+            );
+
+
+        await firebaseSet(
+            newPayment,
+            paymentData
+        );
+
+
+        /* ================= SUCCESS ================= */
+
+        formCard.style.display =
+            "none";
+
+        successBox.style.display =
+            "block";
+
+
+        successDetails.innerHTML =
+
+            "Deposit Amount: " +
+
+            '<b style="color:#ffd700;">$' +
+
+            usd.toFixed(2) +
+
+            "</b>" +
+
+            "<br>" +
+
+            "Equivalent: " +
+
+            '<b style="color:#00ffaa;">' +
+
+            amountUGX.toLocaleString() +
+
+            " UGX</b>" +
+
+            "<br>" +
+
+            "Flutterwave Reference: " +
+
+            '<b style="color:#ffd700;">' +
+
+            escapeHtml(transactionId) +
+
+            "</b>";
+
+
+        showToast(
+            "Payment submitted successfully"
+        );
+
+
+        /*
+          Give the success message time to display
+          before redirecting.
+        */
+
+        setTimeout(() => {
+
+            window.location.href =
+                "financial.html";
+
+        }, 2500);
+
+
+    }catch(error){
+
+        console.error(
+            "Payment submission error:",
+            error
+        );
+
+
+        showToast(
+            "Failed to submit payment. Please try again.",
+            true
+        );
+
+
+    }finally{
+
+        isSubmitting = false;
+
+        submitBtn.disabled = false;
+
+        submitBtn.innerHTML =
+            "➤ SUBMIT PAYMENT TO CYPX";
+
+    }
+
+}
+
+
+submitBtn.addEventListener(
+    "click",
+    submitPayment
+);
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHtml(value){
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   ENTER KEY SUPPORT
+========================================================= */
+
+usdAmount.addEventListener(
+    "keydown",
+    event => {
+
+        if(event.key === "Enter"){
+
+            event.preventDefault();
+
+            openFlutterwave();
+
+        }
+
+    }
+);
+
+transId.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key === "Enter" &&
+            !isSubmitting
+        ){
+
+            event.preventDefault();
+
+            submitPayment();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+page1.style.display =
+    "block";
+
+page2.style.display =
+    "none";
+
+</script>
+
+</body>
+</html>
