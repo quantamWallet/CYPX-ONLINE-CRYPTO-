@@ -11,12 +11,22 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     box-sizing:border-box;
 }
 
+html,
 body{
     margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+}
+
+body{
     font-family:'Segoe UI',Arial,sans-serif;
 
     background:
-    linear-gradient(rgba(0,8,20,.88),rgba(0,29,61,.92)),
+    linear-gradient(
+        rgba(0,8,20,.88),
+        rgba(0,29,61,.92)
+    ),
     url("Screenshot_20260701-191309.jpg");
 
     background-size:cover;
@@ -24,7 +34,6 @@ body{
     background-attachment:fixed;
 
     color:white;
-    min-height:100vh;
 }
 
 
@@ -71,10 +80,16 @@ body{
 ================================ */
 
 .header{
+    width:100%;
+
     padding:18px;
 
     background:
-    linear-gradient(90deg,#001d3d,#003566);
+    linear-gradient(
+        90deg,
+        #001d3d,
+        #003566
+    );
 
     display:flex;
     justify-content:space-between;
@@ -124,24 +139,23 @@ body{
 
 .logout:hover{
     background:#d92b22;
-}
 
-.logout:active{
-    transform:scale(.96);
+    transform:translateY(-1px);
 }
 
 
 /* ===============================
-   CONTAINER
+   MAIN CONTAINER
 ================================ */
 
 .container{
     width:100%;
-    max-width:1000px;
+
+    max-width:1100px;
 
     margin:auto;
 
-    padding:15px;
+    padding:18px;
 }
 
 
@@ -162,13 +176,15 @@ body{
 
     border-radius:10px;
 
-    border:1px solid rgba(0,229,255,.12);
+    border:
+    1px solid rgba(0,229,255,.12);
 }
 
 
-/* ===============================
-   TOP MENU
-================================ */
+/* ==================================================
+   TOP ADMIN MENU
+   USERS | DEPOSITS | WITHDRAWALS | SUPPORT
+================================================== */
 
 .menu{
     width:100%;
@@ -189,24 +205,23 @@ body{
 ================================ */
 
 .menu a{
+
     min-width:0;
 
-    display:flex;
+    height:68px;
 
-    flex-direction:column;
+    display:flex;
 
     align-items:center;
 
     justify-content:center;
 
-    position:relative;
+    flex-direction:column;
 
-    padding:15px 8px;
-
-    min-height:82px;
+    gap:6px;
 
     background:
-    rgba(0,26,51,.96);
+    rgba(0,26,51,.95);
 
     color:white;
 
@@ -217,58 +232,65 @@ body{
     border:
     1px solid rgba(0,229,255,.10);
 
-    box-shadow:
-    0 0 15px rgba(0,200,255,.08);
+    position:relative;
 
     transition:.2s;
+
+    box-shadow:
+    0 4px 15px rgba(0,0,0,.15);
 }
 
 .menu a:hover{
+
     background:#002855;
 
     transform:translateY(-2px);
 
-    box-shadow:
-    0 0 20px rgba(0,200,255,.18);
+    border-color:
+    rgba(0,229,255,.25);
 }
 
 .menu a:active{
+
     transform:scale(.97);
+
 }
 
 
 /* MENU ICON */
 
 .menu a i{
+
     color:#00e5ff;
 
-    font-size:21px;
+    font-size:20px;
 
-    margin-bottom:7px;
 }
 
 
 /* MENU TEXT */
 
 .menu-text{
+
     font-size:12px;
 
     font-weight:600;
 
-    text-align:center;
-
     white-space:nowrap;
+
 }
 
 
-/* ===============================
-   NUMBER BADGE
-================================ */
+/* ==================================================
+   NUMBERED BADGES
+================================================== */
 
 .badge{
+
     position:absolute;
 
-    top:6px;
+    top:5px;
+
     right:6px;
 
     background:
@@ -293,9 +315,11 @@ body{
     text-align:center;
 
     box-shadow:
-    0 0 10px rgba(255,59,48,.5);
+    0 0 10px
+    rgba(255,59,48,.5);
 
-    animation:pulse 1.5s infinite;
+    animation:
+    pulse 1.5s infinite;
 }
 
 .badge.hide{
@@ -315,11 +339,15 @@ body{
 }
 
 
-/* ===============================
-   STATISTICS
-================================ */
+/* ==================================================
+   BOTTOM SUMMARY
+   TOTAL USERS | TOTAL DEPOSITS | TOTAL WITHDRAWALS
+================================================== */
 
-.stats{
+.cards{
+
+    width:100%;
+
     display:grid;
 
     grid-template-columns:
@@ -327,15 +355,18 @@ body{
 
     gap:12px;
 
-    width:100%;
+    margin-top:5px;
 }
 
 
 /* ===============================
-   STAT CARD
+   SUMMARY CARD
 ================================ */
 
 .card{
+
+    min-width:0;
+
     background:
     rgba(0,26,51,.94);
 
@@ -347,65 +378,78 @@ body{
     1px solid rgba(0,229,255,.10);
 
     box-shadow:
-    0 0 20px rgba(0,200,255,.10);
+    0 0 20px
+    rgba(0,200,255,.10);
 
     transition:.2s;
 }
 
 .card:hover{
+
     transform:translateY(-2px);
 
     box-shadow:
-    0 0 24px rgba(0,200,255,.18);
+    0 0 24px
+    rgba(0,200,255,.18);
 }
 
 
 /* CARD ICON */
 
 .card i{
-    font-size:22px;
+
+    font-size:21px;
 
     color:#00e5ff;
 
     display:block;
 
-    margin-bottom:7px;
+    margin-bottom:8px;
 }
 
 
 /* CARD LABEL */
 
 .card small{
-    color:#c8d5df;
-
-    font-size:12px;
 
     display:block;
 
+    color:#c8d5df;
+
+    font-size:11px;
+
     white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 }
 
 
 /* CARD VALUE */
 
 .card h2{
+
     margin:7px 0 0;
 
     color:#ffd700;
 
-    font-size:20px;
-
-    line-height:1.2;
+    font-size:19px;
 
     white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
 }
 
 
-/* ===============================
+/* ==================================================
    NOTIFICATION
-================================ */
+================================================== */
 
 .notification{
+
     position:fixed;
 
     left:50%;
@@ -424,10 +468,12 @@ body{
     border-radius:12px;
 
     border:
-    1px solid rgba(0,229,255,.3);
+    1px solid
+    rgba(0,229,255,.3);
 
     box-shadow:
-    0 10px 35px rgba(0,0,0,.5);
+    0 10px 35px
+    rgba(0,0,0,.5);
 
     z-index:10000;
 
@@ -445,6 +491,7 @@ body{
 }
 
 .notification.show{
+
     opacity:1;
 
     transform:
@@ -453,155 +500,246 @@ body{
 }
 
 .notification.error{
+
     border-color:
     rgba(255,59,48,.5);
 }
 
 
-/* ===============================
+/* ==================================================
    MOBILE
-================================ */
+================================================== */
 
 @media(max-width:600px){
 
     .header{
-        padding:15px;
+
+        padding:14px;
+
     }
 
     .header-title{
-        font-size:14px;
+
+        font-size:13px;
+
     }
 
     .logout{
-        padding:9px 12px;
 
-        font-size:12px;
+        padding:9px 11px;
+
+        font-size:11px;
+
     }
 
     .container{
+
         padding:12px;
+
     }
 
 
-    /* KEEP FOUR MENU ITEMS
-       HORIZONTALLY ALIGNED */
+    /* KEEP 4 MENU ITEMS HORIZONTAL */
 
     .menu{
+
         grid-template-columns:
         repeat(4,1fr);
 
         gap:6px;
 
-        margin-bottom:15px;
+        margin-bottom:16px;
+
     }
 
-
     .menu a{
-        min-height:75px;
 
-        padding:12px 3px;
+        height:64px;
 
         border-radius:10px;
+
     }
 
     .menu a i{
-        font-size:18px;
 
-        margin-bottom:5px;
+        font-size:17px;
+
     }
 
     .menu-text{
-        font-size:10px;
-    }
 
-
-    /* KEEP THREE STATS
-       HORIZONTALLY ALIGNED */
-
-    .stats{
-        grid-template-columns:
-        repeat(3,1fr);
-
-        gap:7px;
-    }
-
-    .card{
-        padding:13px 8px;
-
-        border-radius:11px;
-    }
-
-    .card i{
-        font-size:18px;
-    }
-
-    .card small{
         font-size:9px;
-    }
 
-    .card h2{
-        font-size:15px;
     }
 
     .badge{
-        top:4px;
-        right:4px;
+
+        top:3px;
+
+        right:3px;
 
         font-size:9px;
 
         padding:2px 5px;
 
         min-width:17px;
+
     }
 
-}
 
+    /* KEEP 3 SUMMARY ITEMS HORIZONTAL */
 
-/* ===============================
-   VERY SMALL PHONES
-================================ */
+    .cards{
 
-@media(max-width:360px){
+        grid-template-columns:
+        repeat(3,1fr);
 
-    .menu{
-        gap:4px;
-    }
+        gap:6px;
 
-    .menu a{
-        min-height:70px;
-    }
-
-    .menu-text{
-        font-size:9px;
     }
 
     .card{
-        padding:11px 5px;
+
+        padding:14px 8px;
+
+        border-radius:11px;
+
+    }
+
+    .card i{
+
+        font-size:17px;
+
+        margin-bottom:6px;
+
     }
 
     .card small{
+
         font-size:8px;
+
     }
 
     .card h2{
+
         font-size:13px;
+
+        margin-top:5px;
+
     }
 
 }
 
-</style></head><body><!-- ===============================
-     LOADER
-================================ --><div class="loader" id="loader"><div class="spinner"></div>
 
-</div><!-- ===============================
+/* ==================================================
+   EXTRA SMALL PHONES
+================================================== */
+
+@media(max-width:360px){
+
+    .container{
+
+        padding:8px;
+
+    }
+
+    .menu{
+
+        gap:4px;
+
+    }
+
+    .menu a{
+
+        height:60px;
+
+    }
+
+    .menu a i{
+
+        font-size:15px;
+
+    }
+
+    .menu-text{
+
+        font-size:8px;
+
+    }
+
+    .cards{
+
+        gap:4px;
+
+    }
+
+    .card{
+
+        padding:12px 5px;
+
+    }
+
+    .card small{
+
+        font-size:7px;
+
+    }
+
+    .card h2{
+
+        font-size:11px;
+
+    }
+
+}
+
+
+/* ==================================================
+   LANDSCAPE / WIDER PHONES
+================================================== */
+
+@media(min-width:601px){
+
+    .menu a{
+
+        height:72px;
+
+    }
+
+    .menu-text{
+
+        font-size:13px;
+
+    }
+
+    .card{
+
+        padding:20px;
+
+    }
+
+}
+
+</style></head><body><!-- ==================================================
+     LOADER
+================================================== --><div
+    class="loader"
+    id="loader"><div class="spinner"></div>
+
+</div><!-- ==================================================
      NOTIFICATION
-================================ --><div class="notification" id="notification"></div><!-- ===============================
+================================================== --><div
+    class="notification"
+    id="notification">
+</div><!-- ==================================================
      HEADER
-================================ --><div class="header"><div class="header-title">
+================================================== --><div class="header"><div class="header-title">
 
     <i class="fas fa-user-shield"></i>
 
-    <span>CYPX ADMIN PANEL</span>
+    <span>
+        CYPX ADMIN PANEL
+    </span>
 
 </div>
 
@@ -616,20 +754,18 @@ body{
 
 </button>
 
-</div><!-- ===============================
+</div><!-- ==================================================
      MAIN
-================================ --><div class="container"><!-- ADMIN EMAIL -->
+================================================== --><div class="container"><!-- ADMIN EMAIL -->
 
 <div id="adminEmail">
     Checking admin...
 </div>
 
 
-<!-- ===============================
+<!-- ==================================================
      TOP MENU
-     USERS | DEPOSITS |
-     WITHDRAWALS | SUPPORT
-================================ -->
+================================================== -->
 
 <div class="menu">
 
@@ -712,14 +848,11 @@ body{
 </div>
 
 
-<!-- ===============================
-     BOTTOM STATISTICS
-     TOTAL USERS |
-     TOTAL DEPOSITS |
-     TOTAL WITHDRAWALS
-================================ -->
+<!-- ==================================================
+     BOTTOM SUMMARY
+================================================== -->
 
-<div class="stats">
+<div class="cards">
 
 
     <!-- TOTAL USERS -->
@@ -774,13 +907,13 @@ body{
 
 </div>
 
-</div><!-- ===============================
+</div><!-- ==================================================
      FIREBASE
-================================ --><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
+================================================== --><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
 
-/* ===============================
+/* ==================================================
    FIREBASE CONFIG
-================================ */
+================================================== */
 
 const firebaseConfig = {
 
@@ -811,9 +944,9 @@ const firebaseConfig = {
 };
 
 
-/* ===============================
+/* ==================================================
    INITIALIZE FIREBASE
-================================ */
+================================================== */
 
 if(!firebase.apps.length){
 
@@ -823,14 +956,16 @@ if(!firebase.apps.length){
 
 }
 
-const auth = firebase.auth();
+const auth =
+    firebase.auth();
 
-const db = firebase.database();
+const db =
+    firebase.database();
 
 
-/* ===============================
+/* ==================================================
    NOTIFICATION
-================================ */
+================================================== */
 
 function showNotification(
     message,
@@ -854,7 +989,7 @@ function showNotification(
         "show"
     );
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
         notification.classList.remove(
             "show"
@@ -865,207 +1000,232 @@ function showNotification(
 }
 
 
-/* ===============================
-   ADMIN SECURITY
-================================ */
+/* ==================================================
+   ADMIN SECURITY CHECK
+================================================== */
 
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(
+    user => {
 
-    if(!user){
+        if(!user){
 
-        window.location.href =
-            "auth.html";
+            window.location.href =
+                "auth.html";
 
-        return;
+            return;
+
+        }
+
+
+        const uid =
+            user.uid;
+
+
+        db.ref(
+            "admins/" + uid
+        )
+        .once("value")
+        .then(snapshot => {
+
+
+            /* NO ADMIN RECORD */
+
+            if(!snapshot.exists()){
+
+                showNotification(
+                    "Access denied. Admin only.",
+                    true
+                );
+
+                setTimeout(() => {
+
+                    auth.signOut();
+
+                    window.location.href =
+                        "auth.html";
+
+                },1800);
+
+                return;
+
+            }
+
+
+            const admin =
+                snapshot.val();
+
+
+            /* ADMIN STATUS */
+
+            if(
+                admin.status !== "active" ||
+                admin.role !== "admin"
+            ){
+
+                showNotification(
+                    "Admin account is disabled.",
+                    true
+                );
+
+                setTimeout(() => {
+
+                    auth.signOut();
+
+                    window.location.href =
+                        "auth.html";
+
+                },1800);
+
+                return;
+
+            }
+
+
+            /* ADMIN VERIFIED */
+
+            document.getElementById(
+                "adminEmail"
+            ).textContent =
+                "Admin: " +
+                (
+                    user.email ||
+                    "Administrator"
+                );
+
+
+            loadDashboard();
+
+
+            /* HIDE LOADER */
+
+            document.getElementById(
+                "loader"
+            ).style.display =
+                "none";
+
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Admin verification error:",
+                error
+            );
+
+            showNotification(
+                "Admin verification failed.",
+                true
+            );
+
+        });
 
     }
+);
 
 
-    const uid = user.uid;
-
-
-    db.ref("admins/" + uid)
-    .once("value")
-    .then(snapshot => {
-
-
-        if(!snapshot.exists()){
-
-            showNotification(
-                "Access denied. Admin only.",
-                true
-            );
-
-            setTimeout(()=>{
-
-                auth.signOut();
-
-                window.location.href =
-                    "auth.html";
-
-            },1800);
-
-            return;
-
-        }
-
-
-        const admin =
-            snapshot.val() || {};
-
-
-        if(
-            admin.status !== "active" ||
-            admin.role !== "admin"
-        ){
-
-            showNotification(
-                "Admin account is disabled.",
-                true
-            );
-
-            setTimeout(()=>{
-
-                auth.signOut();
-
-                window.location.href =
-                    "auth.html";
-
-            },1800);
-
-            return;
-
-        }
-
-
-        /* ADMIN VERIFIED */
-
-        document.getElementById(
-            "adminEmail"
-        ).textContent =
-            "Admin: " +
-            (user.email ||
-            "Administrator");
-
-
-        loadDashboard();
-
-
-        document.getElementById(
-            "loader"
-        ).style.display = "none";
-
-    })
-    .catch(error => {
-
-        console.error(
-            "Admin verification error:",
-            error
-        );
-
-        showNotification(
-            "Admin verification failed.",
-            true
-        );
-
-    });
-
-});
-
-
-/* ===============================
+/* ==================================================
    DASHBOARD DATA
-================================ */
+================================================== */
 
 function loadDashboard(){
 
 
-    /* ===============================
+    /* ==================================================
        USERS
-    ================================ */
+    ================================================== */
 
-    db.ref("users").on(
-        "value",
-        snap => {
-
-            let count = 0;
-
-            let newUsers = 0;
+    db.ref("users")
+    .on("value", snap => {
 
 
-            snap.forEach(user => {
+        let count = 0;
 
-                count++;
-
-
-                const data =
-                    user.val() || {};
+        let newUsers = 0;
 
 
-                const createdAt =
-                    Number(
-                        data.createdAt || 0
-                    );
+        snap.forEach(user => {
+
+            count++;
 
 
-                /* USERS CREATED
-                   WITHIN LAST 24 HOURS */
-
-                if(
-                    createdAt > 0 &&
-                    Date.now() -
-                    createdAt <
-                    86400000
-                ){
-
-                    newUsers++;
-
-                }
-
-            });
+            const data =
+                user.val() || {};
 
 
-            document.getElementById(
-                "totalUsers"
-            ).textContent =
-                count;
+            const createdAt =
+                Number(
+                    data.createdAt || 0
+                );
 
 
-            updateBadge(
-                "badgeUsers",
-                newUsers
-            );
+            /*
+             * NEW USERS
+             * CREATED WITHIN LAST 24 HOURS
+             */
 
-        }
-    );
+            if(
+                createdAt > 0 &&
+                Date.now() -
+                createdAt <
+                86400000
+            ){
+
+                newUsers++;
+
+            }
+
+        });
 
 
-    /* ===============================
+        document.getElementById(
+            "totalUsers"
+        ).textContent =
+            count;
+
+
+        updateBadge(
+            "badgeUsers",
+            newUsers
+        );
+
+    });
+
+
+    /* ==================================================
        DEPOSITS
-    ================================ */
+    ================================================== */
 
-    db.ref("deposits").on(
-        "value",
-        snap => {
-
-            let total = 0;
-
-            let pendingCount = 0;
+    db.ref("deposits")
+    .on("value", snap => {
 
 
-            snap.forEach(user => {
+        let total = 0;
 
-                user.forEach(deposit => {
+        let pendingCount = 0;
+
+
+        snap.forEach(user => {
+
+
+            user.forEach(
+                deposit => {
+
 
                     const d =
-                        deposit.val() || {};
+                        deposit.val() ||
+                        {};
 
 
                     total += Number(
+
                         d.amount ||
+
                         d.depositAmount ||
+
                         d.price ||
+
                         0
+
                     );
 
 
@@ -1084,52 +1244,58 @@ function loadDashboard(){
 
                     }
 
-                });
-
-            });
-
-
-            document.getElementById(
-                "totalDeposits"
-            ).textContent =
-                "$" +
-                total.toLocaleString(
-                    "en-US",
-                    {
-                        minimumFractionDigits:2,
-                        maximumFractionDigits:2
-                    }
-                );
-
-
-            updateBadge(
-                "badgeDeposits",
-                pendingCount
+                }
             );
 
-        }
-    );
+        });
 
 
-    /* ===============================
+        document.getElementById(
+            "totalDeposits"
+        ).textContent =
+
+            "$" +
+
+            total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits:2,
+                    maximumFractionDigits:2
+                }
+            );
+
+
+        updateBadge(
+            "badgeDeposits",
+            pendingCount
+        );
+
+    });
+
+
+    /* ==================================================
        WITHDRAWALS
-    ================================ */
+    ================================================== */
 
-    db.ref("withdrawals").on(
-        "value",
-        snap => {
-
-            let total = 0;
-
-            let pendingCount = 0;
+    db.ref("withdrawals")
+    .on("value", snap => {
 
 
-            snap.forEach(user => {
+        let total = 0;
 
-                user.forEach(request => {
+        let pendingWithdrawals = 0;
+
+
+        snap.forEach(user => {
+
+
+            user.forEach(
+                request => {
+
 
                     const w =
-                        request.val() || {};
+                        request.val() ||
+                        {};
 
 
                     const status =
@@ -1138,7 +1304,11 @@ function loadDashboard(){
                         ).toLowerCase();
 
 
-                    /* APPROVED */
+                    /*
+                     * ONLY APPROVED
+                     * WITHDRAWALS COUNT
+                     * TOWARD TOTAL
+                     */
 
                     if(
                         status ===
@@ -1152,51 +1322,57 @@ function loadDashboard(){
                     }
 
 
-                    /* PENDING */
+                    /*
+                     * PENDING BADGE
+                     */
 
                     if(
                         status ===
                         "pending"
                     ){
 
-                        pendingCount++;
+                        pendingWithdrawals++;
 
                     }
 
-                });
-
-            });
-
-
-            document.getElementById(
-                "totalWithdrawals"
-            ).textContent =
-                "$" +
-                total.toLocaleString(
-                    "en-US",
-                    {
-                        minimumFractionDigits:2,
-                        maximumFractionDigits:2
-                    }
-                );
-
-
-            updateBadge(
-                "badgeWithdrawals",
-                pendingCount
+                }
             );
 
-        }
-    );
+        });
 
 
-    /* ===============================
+        document.getElementById(
+            "totalWithdrawals"
+        ).textContent =
+
+            "$" +
+
+            total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits:2,
+                    maximumFractionDigits:2
+                }
+            );
+
+
+         updateBadge(
+            "badgeWithdrawals",
+            pendingWithdrawals
+        );
+
+    });
+
+
+    /* ==================================================
        SUPPORT
-    ================================ */
+    ================================================== */
 
-    db.ref("support_chats").on(
+    db.ref("support_chats")
+    .on(
         "value",
         snap => {
+
 
             let pending = 0;
 
@@ -1204,12 +1380,20 @@ function loadDashboard(){
             snap.forEach(
                 userChat => {
 
+
                     userChat.forEach(
                         msg => {
 
-                            const m =
-                                msg.val() || {};
 
+                            const m =
+                                msg.val() ||
+                                {};
+
+
+                            /*
+                             * COUNT UNREAD
+                             * USER MESSAGES
+                             */
 
                             if(
                                 m.sender ===
@@ -1239,9 +1423,9 @@ function loadDashboard(){
 }
 
 
-/* ===============================
-   BADGE FUNCTION
-================================ */
+/* ==================================================
+   BADGE HELPER
+================================================== */
 
 function updateBadge(
     id,
@@ -1253,7 +1437,9 @@ function updateBadge(
 
 
     if(!badge){
+
         return;
+
     }
 
 
@@ -1272,9 +1458,11 @@ function updateBadge(
             "hide"
         );
 
-    }else{
+    }
+    else{
 
-        badge.textContent = "0";
+        badge.textContent =
+            "0";
 
         badge.classList.add(
             "hide"
@@ -1285,21 +1473,24 @@ function updateBadge(
 }
 
 
-/* ===============================
+/* ==================================================
    LOGOUT
-================================ */
+================================================== */
 
 function logout(){
 
     auth.signOut()
-    .then(()=>{
+    .then(() => {
+
 
         localStorage.clear();
 
         sessionStorage.clear();
 
+
         window.location.href =
             "auth.html";
+
 
     })
     .catch(error => {
@@ -1309,5 +1500,16 @@ function logout(){
             error
         );
 
+
         showNotification(
-            "Unable to logout. Please try again
+            "Unable to logout. Please try again.",
+            true
+        );
+
+    });
+
+}
+
+</script>
+</body>
+</html>
