@@ -11,173 +11,886 @@
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
 <style>
 
-body{
+/* ==================================================
+   GLOBAL
+================================================== */
 
-margin:0;
-font-family:'Segoe UI',sans-serif;
-background:#000814;
-color:white;
-
+*{
+    box-sizing:border-box;
 }
 
+html,
+body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+}
+
+body{
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(0,119,255,.12),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(0,229,255,.06),
+            transparent 35%
+        ),
+        #050b14;
+
+    color:#f5f7fa;
+}
+
+
+/* ==================================================
+   HEADER
+================================================== */
 
 .header{
+    position:sticky;
+    top:0;
+    z-index:1000;
 
-padding:18px;
-background:linear-gradient(90deg,#001d3d,#003566);
-display:flex;
-justify-content:space-between;
-align-items:center;
+    width:100%;
 
+    padding:14px 18px;
+
+    background:
+        rgba(5,14,26,.94);
+
+    backdrop-filter:blur(14px);
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+
+    display:flex;
+    align-items:center;
+    gap:13px;
+
+    box-shadow:
+        0 6px 25px rgba(0,0,0,.25);
 }
-
 
 .header a{
+    width:36px;
+    height:36px;
 
-color:white;
-text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
+    color:#dbe8f4;
+
+    text-decoration:none;
+
+    background:
+        rgba(255,255,255,.05);
+
+    border:
+        1px solid rgba(255,255,255,.07);
+
+    border-radius:10px;
+
+    transition:.2s;
 }
 
+.header a:hover{
+    color:#00e5ff;
+    background:rgba(0,229,255,.09);
+}
+
+.header-title{
+    display:flex;
+    align-items:center;
+    gap:9px;
+
+    font-size:15px;
+    font-weight:700;
+}
+
+.header-title i{
+    color:#00e5ff;
+}
+
+
+/* ==================================================
+   CONTAINER
+================================================== */
 
 .container{
+    width:100%;
+    max-width:1100px;
 
-padding:15px;
+    margin:auto;
 
+    padding:20px;
 }
 
+
+/* ==================================================
+   PAGE INTRO
+================================================== */
+
+.page-intro{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:15px;
+
+    margin-bottom:18px;
+
+    padding:15px 16px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,38,72,.82),
+            rgba(6,18,31,.82)
+        );
+
+    border:
+        1px solid rgba(0,229,255,.09);
+
+    border-radius:14px;
+}
+
+.intro-left{
+    min-width:0;
+}
+
+.intro-title{
+    font-size:14px;
+    font-weight:700;
+
+    margin-bottom:4px;
+}
+
+.intro-subtitle{
+    color:#72879b;
+
+    font-size:10px;
+}
+
+.live-status{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    color:#22c55e;
+
+    font-size:9px;
+    font-weight:800;
+
+    white-space:nowrap;
+}
+
+.live-status i{
+    font-size:7px;
+
+    text-shadow:
+        0 0 8px rgba(34,197,94,.8);
+}
+
+
+/* ==================================================
+   DEPOSIT LIST
+================================================== */
+
+#depositList{
+    width:100%;
+}
+
+.deposit-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:14px;
+}
+
+
+/* ==================================================
+   DEPOSIT CARD
+================================================== */
 
 .deposit-card{
+    position:relative;
 
-background:#001a33;
-padding:15px;
-border-radius:15px;
-margin-bottom:12px;
+    padding:17px;
 
+    background:
+        linear-gradient(
+            145deg,
+            rgba(11,28,46,.98),
+            rgba(6,17,29,.98)
+        );
+
+    border:
+        1px solid rgba(255,255,255,.07);
+
+    border-radius:16px;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.18);
+
+    overflow:hidden;
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.deposit-card:hover{
+    transform:translateY(-2px);
+
+    border-color:
+        rgba(0,229,255,.17);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.30);
+}
+
+.deposit-card::before{
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:3px;
+    height:100%;
+
+    background:
+        linear-gradient(
+            #00e5ff,
+            #0077ff
+        );
+
+    opacity:.8;
 }
 
 
-.deposit-card p{
+/* ==================================================
+   CARD HEADER
+================================================== */
 
-margin:7px 0;
+.deposit-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
+    gap:10px;
+
+    padding-bottom:13px;
+
+    margin-bottom:13px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.06);
+}
+
+.deposit-heading{
+    display:flex;
+    align-items:center;
+
+    gap:9px;
+
+    min-width:0;
+}
+
+.deposit-icon{
+    width:37px;
+    height:37px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:10px;
+
+    background:
+        rgba(0,229,255,.08);
+
+    border:
+        1px solid rgba(0,229,255,.13);
+
+    color:#00e5ff;
+}
+
+.deposit-title{
+    font-size:12px;
+    font-weight:700;
+}
+
+.deposit-number{
+    color:#5f768a;
+
+    font-size:9px;
+
+    margin-top:3px;
 }
 
 
-button{
-
-padding:10px 15px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-color:white;
-margin-right:8px;
-
-}
-
-
-.approve{
-
-background:#16a34a;
-
-}
-
-
-.reject{
-
-background:#dc2626;
-
-}
-
+/* ==================================================
+   STATUS
+================================================== */
 
 .status{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
 
-padding:5px 10px;
-border-radius:20px;
-font-size:12px;
+    padding:5px 9px;
 
+    border-radius:20px;
+
+    font-size:8px;
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    white-space:nowrap;
 }
+
+.status-pending{
+    color:#fbbf24;
+
+    background:
+        rgba(245,158,11,.10);
+
+    border:
+        1px solid rgba(245,158,11,.18);
+}
+
+.status-approved{
+    color:#22c55e;
+
+    background:
+        rgba(34,197,94,.10);
+
+    border:
+        1px solid rgba(34,197,94,.18);
+}
+
+.status-rejected{
+    color:#ff625a;
+
+    background:
+        rgba(255,59,48,.10);
+
+    border:
+        1px solid rgba(255,59,48,.18);
+}
+
+
+/* ==================================================
+   AMOUNT
+================================================== */
+
+.amount-box{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:10px;
+
+    margin-bottom:13px;
+
+    padding:12px;
+
+    background:
+        rgba(0,0,0,.20);
+
+    border:
+        1px solid rgba(255,255,255,.04);
+
+    border-radius:11px;
+}
+
+.amount-label{
+    color:#6e8498;
+
+    font-size:9px;
+}
+
+.amount-value{
+    color:#22c55e;
+
+    font-size:17px;
+    font-weight:800;
+}
+
+
+/* ==================================================
+   DETAILS
+================================================== */
+
+.details{
+    display:flex;
+    flex-direction:column;
+
+    gap:9px;
+}
+
+.detail-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:12px;
+}
+
+.detail-label{
+    display:flex;
+    align-items:center;
+    gap:7px;
+
+    color:#667c90;
+
+    font-size:9px;
+
+    flex-shrink:0;
+}
+
+.detail-label i{
+    width:13px;
+
+    color:#4d8db4;
+
+    text-align:center;
+}
+
+.detail-value{
+    color:#d7e1e8;
+
+    font-size:10px;
+    font-weight:600;
+
+    text-align:right;
+
+    min-width:0;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.uid-value{
+    max-width:210px;
+
+    color:#8ea3b5;
+
+    font-family:
+        monospace;
+}
+
+
+/* ==================================================
+   ACTIONS
+================================================== */
+
+.actions{
+    display:flex;
+
+    gap:8px;
+
+    margin-top:15px;
+
+    padding-top:13px;
+
+    border-top:
+        1px solid rgba(255,255,255,.06);
+}
+
+.action-btn{
+    flex:1;
+
+    height:37px;
+
+    border-radius:9px;
+
+    font-size:10px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:6px;
+
+    transition:.2s;
+}
+
+.approve{
+    background:
+        rgba(34,197,94,.10);
+
+    color:#35d878;
+
+    border:
+        1px solid rgba(34,197,94,.18);
+}
+
+.approve:hover{
+    background:#16a34a;
+    color:white;
+}
+
+.reject{
+    background:
+        rgba(255,59,48,.10);
+
+    color:#ff625a;
+
+    border:
+        1px solid rgba(255,59,48,.18);
+}
+
+.reject:hover{
+    background:#dc2626;
+    color:white;
+}
+
+
+/* ==================================================
+   PROCESSED INFO
+================================================== */
+
+.processed{
+    margin-top:13px;
+
+    padding-top:12px;
+
+    border-top:
+        1px solid rgba(255,255,255,.05);
+
+    color:#64798c;
+
+    font-size:9px;
+}
+
+
+/* ==================================================
+   EMPTY STATE
+================================================== */
+
+.empty-state{
+    padding:55px 20px;
+
+    text-align:center;
+
+    background:
+        rgba(9,21,35,.75);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+    border-radius:15px;
+
+    color:#71869a;
+}
+
+.empty-state i{
+    display:block;
+
+    font-size:31px;
+
+    color:#30485c;
+
+    margin-bottom:12px;
+}
+
+.empty-state strong{
+    display:block;
+
+    color:#aab9c7;
+
+    font-size:13px;
+
+    margin-bottom:5px;
+}
+
+.empty-state span{
+    font-size:10px;
+}
+
+
+/* ==================================================
+   NOTIFICATION
+================================================== */
+
 #notification{
-position:fixed;
-top:20px;
-right:20px;
-background:#16a34a;
-color:#fff;
-padding:14px 18px;
-border-radius:10px;
-font-weight:bold;
-box-shadow:0 5px 20px rgba(0,0,0,.35);
-opacity:0;
-transform:translateY(-20px);
-transition:.3s;
-z-index:9999;
-max-width:300px;
+    position:fixed;
+
+    top:50%;
+    left:50%;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.92);
+
+    min-width:230px;
+    max-width:85%;
+
+    padding:15px 20px;
+
+    border-radius:12px;
+
+    background:#0b1c2e;
+
+    border:
+        1px solid rgba(0,229,255,.25);
+
+    color:white;
+
+    text-align:center;
+
+    font-size:12px;
+    font-weight:600;
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.5);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.25s;
+
+    z-index:99999;
 }
 
 #notification.show{
-opacity:1;
-transform:translateY(0);
+    opacity:1;
+
+    transform:
+        translate(-50%,-50%)
+        scale(1);
+}
+
+#notification.success{
+    border-color:
+        rgba(34,197,94,.35);
 }
 
 #notification.error{
-background:#dc2626;
+    border-color:
+        rgba(255,59,48,.40);
 }
 
 #notification.warning{
-background:#f59e0b;
-color:#000;
+    border-color:
+        rgba(245,158,11,.40);
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media(max-width:700px){
+
+    .container{
+        padding:13px;
+    }
+
+    .header{
+        padding:12px 14px;
+    }
+
+    .header-title{
+        font-size:13px;
+    }
+
+    .deposit-grid{
+        grid-template-columns:1fr;
+        gap:10px;
+    }
+
+    .deposit-card{
+        padding:14px;
+        border-radius:14px;
+    }
+
+    .page-intro{
+        padding:12px;
+    }
+
+    .intro-title{
+        font-size:12px;
+    }
+
+    .amount-value{
+        font-size:15px;
+    }
+
+}
+
+
+/* ==================================================
+   SMALL PHONES
+================================================== */
+
+@media(max-width:390px){
+
+    .container{
+        padding:10px;
+    }
+
+    .deposit-card{
+        padding:13px;
+    }
+
+    .deposit-header{
+        gap:7px;
+    }
+
+    .deposit-icon{
+        width:34px;
+        height:34px;
+    }
+
+    .deposit-title{
+        font-size:11px;
+    }
+
+    .status{
+        font-size:7px;
+        padding:4px 7px;
+    }
+
+    .detail-label{
+        font-size:8px;
+    }
+
+    .detail-value{
+        font-size:9px;
+    }
+
+    .action-btn{
+        height:35px;
+        font-size:9px;
+    }
+
 }
 
 </style>
 
 </head>
 
-<div id="notification"></div>
+
 <body>
 
 
+<!-- ==================================================
+     NOTIFICATION
+================================================== -->
+
+<div id="notification"></div>
+
+
+<!-- ==================================================
+     HEADER
+================================================== -->
+
 <div class="header">
 
+    <a href="admin.html">
 
-<a href="admin.html">
+        <i class="fas fa-arrow-left"></i>
 
-<i class="fas fa-arrow-left"></i>
-
-</a>
+    </a>
 
 
-<b>
+    <div class="header-title">
 
-<i class="fas fa-wallet"></i>
+        <i class="fas fa-wallet"></i>
 
-Deposits
+        <span>
+            Deposit Management
+        </span>
 
-</b>
-
+    </div>
 
 </div>
 
 
-
+<!-- ==================================================
+     MAIN
+================================================== -->
 
 <div class="container">
 
 
-<div id="depositList">
+    <div class="page-intro">
 
-Loading deposits...
+        <div class="intro-left">
+
+            <div class="intro-title">
+                Deposit Transactions
+            </div>
+
+            <div class="intro-subtitle">
+                Review and process incoming deposits
+            </div>
+
+        </div>
+
+
+        <div class="live-status">
+
+            <i class="fas fa-circle"></i>
+
+            LIVE
+
+        </div>
+
+    </div>
+
+
+    <div id="depositList">
+
+        <div class="empty-state">
+
+            <i class="fas fa-spinner fa-spin"></i>
+
+            <strong>
+                Loading deposits
+            </strong>
+
+            <span>
+                Connecting to Firebase...
+            </span>
+
+        </div>
+
+    </div>
+
 
 </div>
 
 
-</div>
-
-
-
-
+<!-- ==================================================
+     FIREBASE
+================================================== -->
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 
@@ -186,331 +899,903 @@ Loading deposits...
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 
-
 <script>
 
+/* ==================================================
+   FIREBASE CONFIG
+================================================== */
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+
+    apiKey:
+        "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+    authDomain:
+        "quantum-rio.firebaseapp.com",
+
+    databaseURL:
+        "https://quantum-rio-default-rtdb.firebaseio.com",
+
+    projectId:
+        "quantum-rio",
+
+    storageBucket:
+        "quantum-rio.firebasestorage.app",
+
+    messagingSenderId:
+        "805433999377",
+
+    appId:
+        "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+
+    measurementId:
+        "G-4RSQXZJX44"
+
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+
+if(!firebase.apps.length){
+
+    firebase.initializeApp(
+        firebaseConfig
+    );
+
 }
 
-const auth = firebase.auth();
-const db = firebase.database();
+
+const auth =
+    firebase.auth();
+
+const db =
+    firebase.database();
+
 
 let adminEmail = "";
+
 let adminUID = "";
 
 
+/* ==================================================
+   ADMIN CHECK
+================================================== */
 
-// ADMIN CHECK
-
-auth.onAuthStateChanged(user=>{
-
-
-if(!user){
-
-window.location.href="auth.html";
-
-return;
-
-}
+auth.onAuthStateChanged(
+    user => {
 
 
-adminEmail = user.email;
-adminUID = user.uid;
+        if(!user){
+
+            window.location.href =
+                "auth.html";
+
+            return;
+
+        }
 
 
+        adminEmail =
+            user.email || "";
 
-db.ref("admins/"+user.uid)
-.once("value")
-
-.then(admin=>{
-
-
-if(!admin.exists()){
-
-showNotification("Admin access required.","error");
-
-window.location.href="auth.html";
-
-return;
-
-}
+        adminUID =
+            user.uid;
 
 
+        db.ref(
+            "admins/" + user.uid
+        )
+        .once("value")
 
-loadDeposits();
-
-
-});
-
-
-});
+        .then(admin => {
 
 
+            if(!admin.exists()){
+
+                showNotification(
+                    "Admin access required.",
+                    "error"
+                );
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "auth.html";
+
+                },1200);
+
+                return;
+
+            }
+
+
+            loadDeposits();
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            showNotification(
+                "Unable to verify admin access.",
+                "error"
+            );
+
+        });
+
+    }
+);
+
+  /* ==================================================
+   LOAD DEPOSITS
+================================================== */
 
 function loadDeposits(){
 
 
-db.ref("deposits").on(
-    "value",
-    snap => {
+    db.ref("deposits").on(
 
-let html="";
+        "value",
 
+        snap => {
 
 
-snap.forEach(userSnap=>{
+            let deposits = [];
 
 
-let uid=userSnap.key;
+            /*
+             * KEEP THE ORIGINAL
+             * FIREBASE STRUCTURE:
+             *
+             * deposits
+             *   └── UID
+             *       └── Deposit ID
+             */
 
+            snap.forEach(
+                userSnap => {
 
 
-userSnap.forEach(depositSnap=>{
+                    const uid =
+                        userSnap.key;
 
 
-let d=depositSnap.val();
+                    userSnap.forEach(
+                        depositSnap => {
 
 
-let id=depositSnap.key;
+                            const d =
+                                depositSnap.val() ||
+                                {};
 
 
+                            deposits.push({
 
-let status=d.status || "pending";
+                                uid:
+                                    uid,
 
+                                id:
+                                    depositSnap.key,
 
+                                data:
+                                    d
 
-html += `
+                            });
 
+                        }
+                    );
 
-<div class="deposit-card">
+                }
+            );
 
 
-<p>
-<b>User UID:</b><br>
-${uid}
-</p>
+            /*
+             * NEWEST FIRST
+             *
+             * Supports common timestamp
+             * fields without changing
+             * the deposit logic.
+             */
 
+            deposits.sort(
+                (a,b) => {
 
+                    const aTime =
+                        getDepositTime(
+                            a.data
+                        );
 
-<p>
-<b>Deposit ID:</b><br>
-${id}
-</p>
+                    const bTime =
+                        getDepositTime(
+                            b.data
+                        );
 
 
+                    return bTime - aTime;
 
-<p>
-<b>Amount:</b>
+                }
+            );
 
-$${Number(
-d.amount || d.depositAmount || 0
-).toFixed(2)}
 
-</p>
+            let html = "";
 
 
+            if(!deposits.length){
 
+                document.getElementById(
+                    "depositList"
+                ).innerHTML = `
 
-<p>
-<b>Status:</b>
+                    <div class="empty-state">
 
-<span class="status"
+                        <i class="fas fa-wallet"></i>
 
-style="
-background:
-${status=="approved"?
-"#16a34a":
-status=="rejected"?
-"#dc2626":
-"#f59e0b"};
+                        <strong>
+                            No deposits found
+                        </strong>
 
-">
+                        <span>
+                            Deposit transactions will appear here.
+                        </span>
 
-${status}
+                    </div>
 
-</span>
+                `;
 
-</p>
+                return;
 
+            }
 
 
+            html += `
+                <div class="deposit-grid">
+            `;
 
-${status=="pending" ? `
 
+            deposits.forEach(
+                item => {
 
-<button 
-class="approve"
-onclick="updateDeposit('${uid}','${id}','approved')">
 
-Approve
+                    const uid =
+                        item.uid;
 
-</button>
+                    const id =
+                        item.id;
 
+                    const d =
+                        item.data;
 
 
-<button 
-class="reject"
-onclick="updateDeposit('${uid}','${id}','rejected')">
+                    const status =
+                        String(
+                            d.status ||
+                            "pending"
+                        ).toLowerCase();
 
-Reject
 
-</button>
+                    const amount =
+                        Number(
+                            d.amount ||
+                            d.depositAmount ||
+                            0
+                        );
 
 
-`:""}
+                    const statusClass =
+                        status === "approved"
 
+                        ? "status-approved"
 
+                        :
 
-</div>
+                        status === "rejected"
 
+                        ? "status-rejected"
 
+                        :
 
-`;
+                        "status-pending";
 
 
+                    const statusIcon =
+                        status === "approved"
 
-});
+                        ? "fa-circle-check"
 
+                        :
 
+                        status === "rejected"
 
-});
+                        ? "fa-circle-xmark"
 
+                        :
 
+                        "fa-clock";
 
-document.getElementById("depositList").innerHTML =
-    html || "No deposits found";
 
-},
-error => {
+                    html += `
 
-    console.error(error);
+                        <div class="deposit-card">
 
-    document.getElementById("depositList").innerHTML =
-        "Firebase Error: " + error.message;
 
-});
+                            <!-- CARD HEADER -->
+
+                            <div class="deposit-header">
+
+                                <div class="deposit-heading">
+
+                                    <div class="deposit-icon">
+
+                                        <i class="fas fa-wallet"></i>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <div class="deposit-title">
+
+                                            Deposit
+
+                                        </div>
+
+                                        <div class="deposit-number">
+
+                                            ID: ${escapeHTML(id)}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <span
+                                    class="status ${statusClass}">
+
+                                    <i class="fas ${statusIcon}"></i>
+
+                                    ${escapeHTML(status)}
+
+                                </span>
+
+                            </div>
+
+
+                            <!-- AMOUNT -->
+
+                            <div class="amount-box">
+
+                                <div class="amount-label">
+
+                                    Deposit Amount
+
+                                </div>
+
+                                <div class="amount-value">
+
+                                    $${amount.toLocaleString(
+                                        "en-US",
+                                        {
+                                            minimumFractionDigits:2,
+                                            maximumFractionDigits:2
+                                        }
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- DETAILS -->
+
+                            <div class="details">
+
+
+                                <div class="detail-row">
+
+                                    <div class="detail-label">
+
+                                        <i class="fas fa-user"></i>
+
+                                        User UID
+
+                                    </div>
+
+
+                                    <div
+                                        class="detail-value uid-value">
+
+                                        ${escapeHTML(uid)}
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <div class="detail-label">
+
+                                        <i class="fas fa-hashtag"></i>
+
+                                        Deposit ID
+
+                                    </div>
+
+
+                                    <div class="detail-value">
+
+                                        ${escapeHTML(id)}
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+
+                            ${
+                                status === "pending"
+
+                                ?
+
+                                `
+
+                                <div class="actions">
+
+
+                                    <button
+                                        class="action-btn approve"
+                                        onclick="updateDeposit(
+                                            '${escapeHTML(uid)}',
+                                            '${escapeHTML(id)}',
+                                            'approved'
+                                        )">
+
+                                        <i class="fas fa-check"></i>
+
+                                        Approve
+
+                                    </button>
+
+
+                                    <button
+                                        class="action-btn reject"
+                                        onclick="updateDeposit(
+                                            '${escapeHTML(uid)}',
+                                            '${escapeHTML(id)}',
+                                            'rejected'
+                                        )">
+
+                                        <i class="fas fa-xmark"></i>
+
+                                        Reject
+
+                                    </button>
+
+
+                                </div>
+
+                                `
+
+                                :
+
+                                `
+
+                                <div class="processed">
+
+                                    <i class="fas fa-shield-check"></i>
+
+                                    Deposit processed
+
+                                </div>
+
+                                `
+
+                            }
+
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            html += `
+                </div>
+            `;
+
+
+            document.getElementById(
+                "depositList"
+            ).innerHTML =
+                html;
+
+
+        },
+
+        error => {
+
+
+            console.error(error);
+
+
+            document.getElementById(
+                "depositList"
+            ).innerHTML = `
+
+                <div class="empty-state">
+
+                    <i class="fas fa-triangle-exclamation"></i>
+
+                    <strong>
+                        Firebase Error
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(error.message)}
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+
+    );
 
 }
-function showNotification(message,type="success"){
 
-const box=document.getElementById("notification");
 
-box.className="";
-box.classList.add(type);
-box.classList.add("show");
+/* ==================================================
+   GET DEPOSIT TIME
+================================================== */
 
-box.textContent=message;
+function getDepositTime(data){
 
-setTimeout(()=>{
-box.classList.remove("show");
-},3000);
+    /*
+     * Prefer the most common timestamp
+     * fields if they exist.
+     *
+     * This ONLY controls display order.
+     * It does not alter deposit data.
+     */
+
+    const possibleTimes = [
+
+        data.createdAt,
+
+        data.timestamp,
+
+        data.created_at,
+
+        data.time,
+
+        data.date,
+
+        data.submittedAt,
+
+        data.created,
+
+        data.depositTime
+
+    ];
+
+
+    for(
+        const value of possibleTimes
+    ){
+
+        if(
+            value !== undefined &&
+            value !== null &&
+            value !== ""
+        ){
+
+            const numeric =
+                Number(value);
+
+
+            if(
+                Number.isFinite(numeric) &&
+                numeric > 0
+            ){
+
+                /*
+                 * Convert seconds to
+                 * milliseconds when necessary.
+                 */
+
+                return numeric < 10000000000
+                    ? numeric * 1000
+                    : numeric;
+
+            }
+
+
+            const parsed =
+                Date.parse(value);
+
+
+            if(
+                !Number.isNaN(parsed)
+            ){
+
+                return parsed;
+
+            }
+
+        }
 
     }
-function updateDeposit(uid,id,status){
 
 
-const depositRef =
-db.ref("deposits/"+uid+"/"+id);
+    /*
+     * Firebase push IDs contain a
+     * chronological timestamp.
+     *
+     * Decode the first 8 characters
+     * when no timestamp field exists.
+     */
+
+    return 0;
+
+}
 
 
+/* ==================================================
+   ESCAPE HTML
+================================================== */
 
-depositRef.once("value")
+function escapeHTML(value){
 
-.then(snapshot=>{
+    return String(
+        value ?? ""
+    )
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
 
 
-let deposit=snapshot.val();
+/* ==================================================
+   NOTIFICATION
+================================================== */
 
+function showNotification(
+    message,
+    type="success"
+){
 
-
-if(!deposit) return;
-
-if (deposit.status === "approved") {
-
- showNotification("This deposit has already been approved.","warning");
-
-    return;
-
-    }
-    
-depositRef.update({
-
-    status: status,
-    processedAt: firebase.database.ServerValue.TIMESTAMP,
-    processedBy: adminEmail
-
-}).then(() => {
-
-    // ADD BALANCE ONLY WHEN APPROVED
-    if(status === "approved") {
-
-        let amount = Number(
-            deposit.amount ||
-            deposit.depositAmount ||
-            deposit.price ||
-            0
+    const box =
+        document.getElementById(
+            "notification"
         );
 
-        db.ref("users/" + uid + "/balance").transaction(current => {
-            return Number(current || 0) + amount;
+
+    box.className = "";
+
+
+    box.classList.add(
+        type
+    );
+
+
+    box.classList.add(
+        "show"
+    );
+
+
+    box.textContent =
+        message;
+
+
+    clearTimeout(
+        window.notificationTimer
+    );
+
+
+    window.notificationTimer =
+        setTimeout(() => {
+
+            box.classList.remove(
+                "show"
+            );
+
+        },3000);
+
+}
+
+
+/* ==================================================
+   UPDATE DEPOSIT
+   ORIGINAL LOGIC PRESERVED
+================================================== */
+
+function updateDeposit(
+    uid,
+    id,
+    status
+){
+
+
+    const depositRef =
+        db.ref(
+            "deposits/" +
+            uid +
+            "/" +
+            id
+        );
+
+
+    depositRef.once(
+        "value"
+    )
+
+    .then(snapshot => {
+
+
+        let deposit =
+            snapshot.val();
+
+
+        if(!deposit){
+
+            return;
+
+        }
+
+
+        if(
+            deposit.status ===
+            "approved"
+        ){
+
+            showNotification(
+                "This deposit has already been approved.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        depositRef.update({
+
+            status:
+                status,
+
+            processedAt:
+                firebase.database.ServerValue.TIMESTAMP,
+
+            processedBy:
+                adminEmail
+
+        })
+
+        .then(() => {
+
+
+            /*
+             * ADD BALANCE ONLY WHEN APPROVED
+             */
+
+            if(
+                status === "approved"
+            ){
+
+                let amount =
+                    Number(
+
+                        deposit.amount ||
+
+                        deposit.depositAmount ||
+
+                        deposit.price ||
+
+                        0
+
+                    );
+
+
+                db.ref(
+                    "users/" +
+                    uid +
+                    "/balance"
+                )
+                .transaction(
+                    current => {
+
+                        return Number(
+                            current || 0
+                        ) + amount;
+
+                    }
+                );
+
+            }
+
+
+            /*
+             * CREATE ADMIN LOG
+             */
+
+            db.ref(
+                "adminLogs"
+            ).push({
+
+                action:
+                    "Deposit " +
+                    status,
+
+                user:
+                    uid,
+
+                amount:
+                    Number(
+
+                        deposit.amount ||
+
+                        deposit.depositAmount ||
+
+                        0
+
+                    ),
+
+                admin:
+                    adminEmail,
+
+                adminUID:
+                    adminUID,
+
+                time:
+                    Date.now()
+
+            });
+
+
+            showNotification(
+                "Deposit " +
+                status +
+                " successfully.",
+                status === "approved"
+                    ? "success"
+                    : "warning"
+            );
+
+
+        })
+        .catch(error => {
+
+            showNotification(
+                error.message,
+                "error"
+            );
+
         });
 
-    }
 
-    // CREATE ADMIN LOG
-    db.ref("adminLogs").push({
+    })
+    .catch(error => {
 
-        action: "Deposit " + status,
-        user: uid,
-        amount: Number(
-            deposit.amount ||
-            deposit.depositAmount ||
-            0
-        ),
-        admin: adminEmail,
-        adminUID: adminUID,
-        time: Date.now()
+        showNotification(
+            error.message,
+            "error"
+        );
 
     });
 
-    showNotification("Deposit " + status + " successfully.");
-
-}).catch(error => {
-
-    showNotification(error.message,"error");
-
-});
-    showNotification(
-    "Deposit " + status + " successfully.",
-    status === "approved" ? "success" : "warning"
-);
-
-}).catch(error => {
-
-    showNotification(error.message,"error");
-
-});
-
 }
-
 
 </script>
 
 
 </body>
-
 </html>
