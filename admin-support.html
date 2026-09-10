@@ -1,289 +1,2598 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>CYPX Admin Support</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:linear-gradient(160deg,#050e1a 0%,#0a0f1a 100%);color:#fff;font-family:'Segoe UI',Arial;margin:0;display:flex;height:100vh;overflow:hidden;}
 
-/* SIDEBAR */
-.sidebar{width:340px;background:rgba(0,31,63,0.7);backdrop-filter:blur(12px);border-right:1px solid rgba(0,212,255,0.15);display:flex;flex-direction:column;}
-.sidebar header{padding:18px;background:linear-gradient(90deg,#002f6c,#004a99);font-weight:800;text-align:center;font-size:16px;border-bottom:1px solid rgba(255,255,255,0.05);}
-.support-list{flex:1;overflow-y:auto;padding:12px;}
-.support-user{padding:14px;background:rgba(0,26,51,0.6);margin-bottom:10px;border-radius:12px;cursor:pointer;transition:0.2s;border:1px solid rgba(255,255,255,0.05);position:relative;}
-.support-user:hover{background:rgba(0,43,92,0.8);transform:translateX(4px);}
-.support-user.active{border:2px solid #00d4ff;background:rgba(0,43,92,0.9);}
-.support-user.username{font-weight:700;font-size:15px;margin-bottom:4px;}
-.support-user.last-msg{font-size:12px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.support-user.time{font-size:10px;color:#00d4ff;margin-top:4px;}
-.unread-badge{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,#ff3b30,#ff9500);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:800;box-shadow:0 0 10px rgba(255,59,48,0.5);}
+/* =========================================================
+   GLOBAL
+========================================================= */
 
-/* CHAT AREA */
-.chat-area{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,0.15);}
-.chat-area header{padding:16px 20px;background:rgba(0,47,108,0.8);backdrop-filter:blur(10px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.05);position:sticky;top:0;z-index:10;}
-.chat-header-left{display:flex;align-items:center;gap:10px;}
-.status-dot{width:8px;height:8px;background:#25d366;border-radius:50%;box-shadow:0 0 8px #25d366;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
-.chat-box{flex:1;overflow-y:auto;padding:20px;padding-bottom:80px;}
-.msg{margin:10px 0;padding:12px 16px;border-radius:18px;max-width:70%;word-wrap:break-word;font-size:14px;line-height:1.5;position:relative;}
-.user-msg{background:#1e293b;color:#fff;margin-right:auto;border-bottom-left-radius:4px;}
-.admin-msg{background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;margin-left:auto;border-bottom-right-radius:4px;font-weight:500;}
-.msg-time{font-size:10px;opacity:0.7;margin-top:5px;text-align:right;}
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
 
-/* TYPING INDICATOR */
-.typing-indicator{display:flex;align-items:center;gap:6px;padding:10px 16px;background:#1e293b;border-radius:18px;width:fit-content;margin:8px 0;border-bottom-left-radius:4px;display:none;}
-.typing-indicator i{color:#00d4ff;font-size:12px;}
-.typing-dots{display:flex;gap:4px;}
-.typing-dots span{width:6px;height:6px;background:#00d4ff;border-radius:50%;animation:typing 1.4s infinite;}
-.typing-dots span:nth-child(2){animation-delay:0.2s;}
-.typing-dots span:nth-child(3){animation-delay:0.4s;}
-@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
 
-/* INPUT - FIXED */
+body{
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:#f5f7fa;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(0,119,255,.13),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(0,212,255,.07),
+            transparent 35%
+        ),
+        #050b14;
+
+    display:flex;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+    width:340px;
+    min-width:340px;
+    height:100vh;
+
+    display:flex;
+    flex-direction:column;
+
+    background:
+        rgba(5,18,32,.96);
+
+    border-right:
+        1px solid rgba(255,255,255,.07);
+
+    position:relative;
+    z-index:20;
+}
+
+
+/* SIDEBAR HEADER */
+
+.sidebar-header{
+    height:72px;
+    flex-shrink:0;
+
+    padding:0 18px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:
+        linear-gradient(
+            135deg,
+            #062b52,
+            #073b70
+        );
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+}
+
+.brand-left{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+
+.brand-icon{
+    width:40px;
+    height:40px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00d4ff
+        );
+
+    box-shadow:
+        0 6px 20px rgba(0,160,255,.25);
+}
+
+.brand-icon i{
+    font-size:17px;
+    color:#fff;
+}
+
+.brand-title{
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:.2px;
+}
+
+.brand-subtitle{
+    margin-top:3px;
+    font-size:9px;
+    color:#83a0b8;
+    letter-spacing:.5px;
+}
+
+.live-badge{
+    display:flex;
+    align-items:center;
+    gap:5px;
+
+    padding:5px 8px;
+
+    border-radius:20px;
+
+    color:#35dc83;
+
+    background:
+        rgba(34,197,94,.08);
+
+    border:
+        1px solid rgba(34,197,94,.16);
+
+    font-size:8px;
+    font-weight:800;
+}
+
+.live-badge i{
+    font-size:6px;
+}
+
+
+/* SUPPORT LIST */
+
+.support-list{
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:12px;
+
+    scrollbar-width:thin;
+    scrollbar-color:#19334b transparent;
+}
+
+.support-list::-webkit-scrollbar{
+    width:5px;
+}
+
+.support-list::-webkit-scrollbar-thumb{
+    background:#19334b;
+    border-radius:10px;
+}
+
+
+/* CHAT ITEM */
+
+.support-user{
+    position:relative;
+
+    display:flex;
+    flex-direction:column;
+
+    padding:13px 13px 12px;
+
+    margin-bottom:8px;
+
+    border-radius:13px;
+
+    background:
+        rgba(9,27,45,.82);
+
+    border:
+        1px solid rgba(255,255,255,.055);
+
+    cursor:pointer;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.support-user:hover{
+    background:
+        rgba(13,43,70,.95);
+
+    border-color:
+        rgba(0,212,255,.16);
+
+    transform:translateX(2px);
+}
+
+.support-user.active{
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,91,155,.40),
+            rgba(0,49,85,.75)
+        );
+
+    border-color:
+        rgba(0,212,255,.45);
+
+    box-shadow:
+        inset 3px 0 0 #00d4ff,
+        0 7px 22px rgba(0,0,0,.15);
+}
+
+
+/* USER TOP */
+
+.support-user-top{
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    padding-right:35px;
+}
+
+.support-avatar{
+    width:36px;
+    height:36px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,119,255,.25),
+            rgba(0,212,255,.10)
+        );
+
+    border:
+        1px solid rgba(0,212,255,.12);
+
+    color:#00d4ff;
+
+    font-size:13px;
+    font-weight:800;
+}
+
+.support-user-info{
+    min-width:0;
+    flex:1;
+}
+
+.username{
+    font-size:12px;
+    font-weight:750;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.chat-label{
+    margin-top:3px;
+
+    font-size:8px;
+
+    color:#627c93;
+
+    text-transform:uppercase;
+    letter-spacing:.5px;
+}
+
+
+/* LAST MESSAGE */
+
+.last-msg{
+    margin-top:10px;
+    padding-left:46px;
+
+    color:#8195a8;
+
+    font-size:10px;
+    line-height:1.4;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.support-user.active .last-msg{
+    color:#9bb2c5;
+}
+
+
+/* TIME */
+
+.time{
+    margin-top:6px;
+    padding-left:46px;
+
+    color:#4f6a81;
+
+    font-size:9px;
+}
+
+
+/* UNREAD */
+
+.unread-badge{
+    position:absolute;
+
+    right:11px;
+    top:11px;
+
+    min-width:20px;
+    height:20px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:0 6px;
+
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff3b30,
+            #ff9500
+        );
+
+    color:white;
+
+    font-size:8px;
+    font-weight:800;
+
+    box-shadow:
+        0 4px 12px rgba(255,59,48,.25);
+}
+
+
+/* =========================================================
+   EMPTY SIDEBAR
+========================================================= */
+
+.list-empty{
+    min-height:200px;
+
+    display:flex;
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    text-align:center;
+
+    color:#60778b;
+
+    font-size:11px;
+    line-height:1.6;
+}
+
+.list-empty i{
+    margin-bottom:10px;
+
+    font-size:27px;
+
+    color:#29465d;
+}
+
+
+/* =========================================================
+   CHAT AREA
+========================================================= */
+
+.chat-area{
+    flex:1;
+    min-width:0;
+    height:100vh;
+
+    display:flex;
+    flex-direction:column;
+
+    background:
+        radial-gradient(
+            circle at top center,
+            rgba(0,95,150,.08),
+            transparent 38%
+        );
+}
+
+
+/* =========================================================
+   CHAT HEADER
+========================================================= */
+
+.chat-header{
+    height:72px;
+    min-height:72px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 20px;
+
+    background:
+        rgba(6,19,33,.94);
+
+    backdrop-filter:blur(14px);
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+
+    z-index:10;
+}
+
+.chat-header-left{
+    display:flex;
+    align-items:center;
+
+    gap:11px;
+
+    min-width:0;
+}
+
+.chat-avatar{
+    width:39px;
+    height:39px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00c6ff
+        );
+
+    color:white;
+
+    font-size:14px;
+}
+
+.chat-user-info{
+    min-width:0;
+}
+
+.chat-title{
+    font-size:13px;
+    font-weight:750;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.chat-status{
+    display:flex;
+    align-items:center;
+    gap:5px;
+
+    margin-top:4px;
+
+    color:#35dc83;
+
+    font-size:9px;
+}
+
+.status-dot{
+    width:6px;
+    height:6px;
+
+    border-radius:50%;
+
+    background:#25d366;
+
+    box-shadow:
+        0 0 8px #25d366;
+
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    0%,100%{
+        opacity:1;
+        transform:scale(1);
+    }
+
+    50%{
+        opacity:.55;
+        transform:scale(1.2);
+    }
+}
+
+
+/* BACK BUTTON */
+
+.back-btn{
+    display:flex;
+    align-items:center;
+    gap:7px;
+
+    padding:9px 12px;
+
+    border-radius:9px;
+
+    color:#8ea5b9;
+
+    text-decoration:none;
+
+    background:
+        rgba(255,255,255,.045);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+    font-size:10px;
+    font-weight:700;
+
+    transition:.2s;
+}
+
+.back-btn:hover{
+    color:#00d4ff;
+
+    background:
+        rgba(0,212,255,.08);
+
+    border-color:
+        rgba(0,212,255,.15);
+}
+
+
+/* =========================================================
+   CHAT BOX
+========================================================= */
+
+.chat-box{
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:22px 22px 105px;
+
+    scroll-behavior:smooth;
+
+    scrollbar-width:thin;
+    scrollbar-color:#1a344b transparent;
+}
+
+.chat-box::-webkit-scrollbar{
+    width:6px;
+}
+
+.chat-box::-webkit-scrollbar-thumb{
+    background:#1a344b;
+    border-radius:10px;
+}
+
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.msg{
+    position:relative;
+
+    max-width:min(680px,72%);
+
+    margin:9px 0;
+
+    padding:11px 14px;
+
+    border-radius:15px;
+
+    word-break:break-word;
+
+    font-size:12px;
+    line-height:1.55;
+
+    box-shadow:
+        0 4px 14px rgba(0,0,0,.08);
+}
+
+.user-msg{
+    margin-right:auto;
+
+    color:#dce6ee;
+
+    background:
+        #132437;
+
+    border:
+        1px solid rgba(255,255,255,.045);
+
+    border-bottom-left-radius:4px;
+}
+
+.admin-msg{
+    margin-left:auto;
+
+    color:#00121c;
+
+    background:
+        linear-gradient(
+            135deg,
+            #00d4ff,
+            #009bd0
+        );
+
+    border-bottom-right-radius:4px;
+
+    font-weight:550;
+}
+
+.msg-time{
+    margin-top:5px;
+
+    font-size:8px;
+
+    opacity:.58;
+
+    text-align:right;
+}
+
+
+/* =========================================================
+   NO CHAT
+========================================================= */
+
+.no-chat{
+    height:100%;
+
+    display:flex;
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    color:#536b80;
+
+    text-align:center;
+
+    gap:10px;
+
+    font-size:12px;
+}
+
+.no-chat i{
+    width:65px;
+    height:65px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:18px;
+
+    background:
+        rgba(0,212,255,.045);
+
+    border:
+        1px solid rgba(0,212,255,.07);
+
+    color:#167c9d;
+
+    font-size:25px;
+}
+
+.no-chat strong{
+    color:#8aa0b3;
+    font-size:13px;
+}
+
+.no-chat span{
+    color:#4e6578;
+    font-size:10px;
+}
+
+
+/* =========================================================
+   TYPING INDICATOR
+========================================================= */
+
+.typing-indicator{
+    width:max-content;
+
+    display:none;
+    align-items:center;
+    gap:7px;
+
+    margin:8px 0;
+
+    padding:9px 12px;
+
+    background:#132437;
+
+    border:
+        1px solid rgba(255,255,255,.045);
+
+    border-radius:15px;
+    border-bottom-left-radius:4px;
+
+    color:#8198aa;
+
+    font-size:9px;
+}
+
+.typing-indicator i{
+    color:#00d4ff;
+    font-size:9px;
+}
+
+.typing-dots{
+    display:flex;
+    gap:3px;
+}
+
+.typing-dots span{
+    width:5px;
+    height:5px;
+
+    border-radius:50%;
+
+    background:#00d4ff;
+
+    animation:typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2){
+    animation-delay:.2s;
+}
+
+.typing-dots span:nth-child(3){
+    animation-delay:.4s;
+}
+
+@keyframes typing{
+    0%,60%,100%{
+        transform:translateY(0);
+        opacity:.55;
+    }
+
+    30%{
+        transform:translateY(-5px);
+        opacity:1;
+    }
+}
+
+
+/* =========================================================
+   INPUT AREA
+========================================================= */
+
 .input-box{
-  display:flex;gap:10px;padding:15px;background:#001a33;
-  border-top:1px solid rgba(0,212,255,0.3);
-  position:fixed;
-  bottom:0;
-  left:340px;
-  right:0;
-  z-index:100;
-}
-.input-box input{
-  flex:1;padding:14px;border-radius:12px;border:1px solid rgba(0,212,255,0.3);
-  background:#0b1b2d;color:#fff;outline:none;font-size:14px;
-}
-.input-box input:focus{border-color:#00d4ff;}
-.input-box button{padding:14px 20px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#0099cc);color:#000;font-weight:800;cursor:pointer;transition:0.2s;}
-.input-box button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,212,255,0.4);}
-.no-chat{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#555;font-size:16px;gap:10px;}
-.no-chat i{font-size:40px;color:#00d4ff;opacity:0.3;}
-.logout{color:#ff6b6b;text-decoration:none;font-size:14px;font-weight:600;}
+    position:fixed;
 
-/* MOBILE FIX */
-@media (max-width: 768px){
-  body{flex-direction:column;}
-.sidebar{width:100%;height:38%;}
-.chat-area{height:62%;}
-.msg{max-width:85%;}
-.input-box{left:0;}
-.chat-box{padding-bottom:90px;}
+    left:340px;
+    right:0;
+    bottom:0;
+
+    z-index:100;
+
+    display:none;
+
+    align-items:center;
+
+    gap:9px;
+
+    padding:12px 16px;
+
+    background:
+        rgba(5,18,31,.97);
+
+    backdrop-filter:blur(14px);
+
+    border-top:
+        1px solid rgba(0,212,255,.12);
+
+    box-shadow:
+        0 -8px 30px rgba(0,0,0,.18);
 }
+
+.input-wrap{
+    flex:1;
+
+    position:relative;
+}
+
+.input-box input{
+    width:100%;
+
+    height:44px;
+
+    padding:
+        0 15px;
+
+    border-radius:11px;
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    outline:none;
+
+    background:
+        #0b1b2d;
+
+    color:#fff;
+
+    font-size:12px;
+
+    transition:.2s;
+}
+
+.input-box input::placeholder{
+    color:#526b80;
+}
+
+.input-box input:focus{
+    border-color:
+        rgba(0,212,255,.38);
+
+    box-shadow:
+        0 0 0 3px rgba(0,212,255,.05);
+}
+
+
+/* SEND BUTTON */
+
+.send-btn{
+    width:47px;
+    height:44px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:none;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00bce5
+        );
+
+    color:white;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 6px 18px rgba(0,160,255,.18);
+
+    transition:
+        transform .18s,
+        box-shadow .18s;
+}
+
+.send-btn:hover{
+    transform:translateY(-1px);
+
+    box-shadow:
+        0 8px 22px rgba(0,160,255,.28);
+}
+
+.send-btn:active{
+    transform:scale(.96);
+}
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+.notification{
+    position:fixed;
+
+    left:50%;
+    top:50%;
+
+    z-index:99999;
+
+    min-width:240px;
+    max-width:85%;
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    background:
+        #0c2033;
+
+    border:
+        1px solid rgba(0,212,255,.20);
+
+    box-shadow:
+        0 18px 50px rgba(0,0,0,.55);
+
+    color:#fff;
+
+    text-align:center;
+
+    font-size:11px;
+    font-weight:650;
+
+    opacity:0;
+    visibility:hidden;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.94);
+
+    transition:.2s;
+}
+
+.notification.show{
+    opacity:1;
+    visibility:visible;
+
+    transform:
+        translate(-50%,-50%)
+        scale(1);
+}
+
+.notification.error{
+    border-color:
+        rgba(255,59,48,.35);
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading-chats{
+    display:flex;
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    min-height:180px;
+
+    color:#60778b;
+
+    font-size:10px;
+}
+
+.loading-spinner{
+    width:25px;
+    height:25px;
+
+    margin-bottom:10px;
+
+    border:
+        2px solid rgba(255,255,255,.07);
+
+    border-top-color:#00d4ff;
+
+    border-radius:50%;
+
+    animation:spin .7s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:768px){
+
+    body{
+        display:block;
+    }
+
+    .sidebar{
+        width:100%;
+        min-width:0;
+
+        height:40vh;
+
+        border-right:none;
+
+        border-bottom:
+            1px solid rgba(255,255,255,.07);
+    }
+
+    .sidebar-header{
+        height:60px;
+        padding:0 13px;
+    }
+
+    .brand-icon{
+        width:34px;
+        height:34px;
+        border-radius:9px;
+    }
+
+    .brand-title{
+        font-size:12px;
+    }
+
+    .brand-subtitle{
+        display:none;
+    }
+
+    .support-list{
+        padding:8px;
+    }
+
+    .support-user{
+        padding:10px;
+        margin-bottom:6px;
+    }
+
+    .support-avatar{
+        width:33px;
+        height:33px;
+    }
+
+    .last-msg{
+        padding-left:43px;
+        margin-top:7px;
+    }
+
+    .time{
+        padding-left:43px;
+    }
+
+    .chat-area{
+        height:60vh;
+    }
+
+    .chat-header{
+        height:58px;
+        min-height:58px;
+
+        padding:0 11px;
+    }
+
+    .chat-avatar{
+        width:34px;
+        height:34px;
+    }
+
+    .chat-title{
+        font-size:11px;
+    }
+
+    .chat-status{
+        font-size:8px;
+    }
+
+    .back-btn{
+        padding:8px 9px;
+        font-size:9px;
+    }
+
+    .back-btn span{
+        display:none;
+    }
+
+    .chat-box{
+        padding:
+            14px
+            12px
+            85px;
+    }
+
+    .msg{
+        max-width:86%;
+
+        padding:10px 12px;
+
+        font-size:11px;
+    }
+
+    .input-box{
+        left:0;
+        right:0;
+
+        padding:
+            8px 10px;
+    }
+
+    .input-box input{
+        height:42px;
+        font-size:11px;
+    }
+
+    .send-btn{
+        width:43px;
+        height:42px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media(max-width:390px){
+
+    .sidebar{
+        height:38vh;
+    }
+
+    .chat-area{
+        height:62vh;
+    }
+
+    .sidebar-header{
+        height:55px;
+    }
+
+    .support-list{
+        padding:6px;
+    }
+
+    .support-user{
+        padding:9px;
+    }
+
+    .support-avatar{
+        width:30px;
+        height:30px;
+        font-size:11px;
+    }
+
+    .username{
+        font-size:11px;
+    }
+
+    .last-msg{
+        font-size:9px;
+    }
+
+    .chat-box{
+        padding:
+            12px 9px
+            80px;
+    }
+
+}
+
+
+/* =========================================================
+   DESKTOP LARGE
+========================================================= */
+
+@media(min-width:1200px){
+
+    .sidebar{
+        width:360px;
+        min-width:360px;
+    }
+
+    .input-box{
+        left:360px;
+    }
+
+    .msg{
+        max-width:65%;
+    }
+
+}
+
 </style>
+
 </head>
+
 <body>
 
-<div class="sidebar">
-  <header><i class="fas fa-headset"></i> Support Desk</header>
-  <div class="support-list" id="supportList">Loading chats...</div>
+
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
+
+<aside class="sidebar">
+
+    <div class="sidebar-header">
+
+        <div class="brand-left">
+
+            <div class="brand-icon">
+                <i class="fas fa-headset"></i>
+            </div>
+
+            <div>
+
+                <div class="brand-title">
+                    Support Desk
+                </div>
+
+                <div class="brand-subtitle">
+                    CYPX HOLDINGS
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="live-badge">
+            <i class="fas fa-circle"></i>
+            LIVE
+        </div>
+
+    </div>
+
+
+    <div
+        class="support-list"
+        id="supportList">
+
+        <div class="loading-chats">
+
+            <div class="loading-spinner"></div>
+
+            Loading support chats...
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     CHAT AREA
+========================================================= -->
+
+<main class="chat-area">
+
+
+    <!-- CHAT HEADER -->
+
+    <header class="chat-header">
+
+        <div class="chat-header-left">
+
+            <div
+                class="chat-avatar"
+                id="chatAvatar">
+
+                <i class="fas fa-comments"></i>
+
+            </div>
+
+
+            <div class="chat-user-info">
+
+                <div
+                    class="chat-title"
+                    id="chatHeader">
+
+                    Select a conversation
+
+                </div>
+
+
+                <div
+                    class="chat-status"
+                    id="chatStatus"
+                    style="display:none;">
+
+                    <span class="status-dot"></span>
+
+                    Admin online
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="admin.html"
+            class="back-btn"
+            onclick="setOffline()">
+
+            <i class="fas fa-arrow-left"></i>
+
+            <span>Back</span>
+
+        </a>
+
+    </header>
+
+
+    <!-- CHAT MESSAGES -->
+
+    <div
+        class="chat-box"
+        id="chatBox">
+
+
+        <div class="no-chat">
+
+            <i class="fas fa-comments"></i>
+
+            <strong>
+                Support conversations
+            </strong>
+
+            <span>
+                Select a user to view and reply to their messages.
+            </span>
+
+        </div>
+
+
+        <div
+            class="typing-indicator"
+            id="typingIndicator">
+
+            <i class="fas fa-user-shield"></i>
+
+            <span>
+                Admin is typing
+            </span>
+
+            <div class="typing-dots">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div
+        class="input-box"
+        id="inputBox">
+
+        <div class="input-wrap">
+
+            <input
+                type="text"
+                id="adminMsgInput"
+                autocomplete="off"
+                placeholder="Type your reply...">
+
+        </div>
+
+
+        <button
+            class="send-btn"
+            id="sendAdminMsg"
+            type="button"
+            aria-label="Send message">
+
+            <i class="fas fa-paper-plane"></i>
+
+        </button>
+
+    </div>
+
+</main>
+
+
+<!-- =========================================================
+     NOTIFICATION
+========================================================= -->
+
+<div
+    class="notification"
+    id="notification">
 </div>
 
-<div class="chat-area">
-  <header>
-    <div class="chat-header-left">
-      <div class="status-dot" id="statusDot" style="display:none;"></div>
-      <span id="chatHeader">Select a chat</span>
-    </div>
-    <a href="admin.html" class="logout" onclick="setOffline()"><i class="fas fa-arrow-left"></i> Back</a>
-  </header>
-  <div class="chat-box" id="chatBox">
-    <div class="no-chat"><i class="fas fa-comments"></i><div>Select a user to start chatting</div></div>
-    <div class="typing-indicator" id="typingIndicator">
-      <i class="fas fa-user-shield"></i>
-      <span>Admin is typing</span>
-      <div class="typing-dots"><span></span><span></span><span></span></div>
-    </div>
-  </div>
-  <div class="input-box" id="inputBox" style="display:none;">
-    <input type="text" id="adminMsgInput" placeholder="Type your reply...">
-    <button id="sendAdminMsg"><i class="fas fa-paper-plane"></i> Send</button>
-  </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-compat.js"></script>
+<!-- =========================================================
+     FIREBASE
+========================================================= -->
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+
 <script>
+
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-  authDomain: "quantum-rio.firebaseapp.com",
-  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-  projectId: "quantum-rio",
-  storageBucket: "quantum-rio.firebasestorage.app",
-  messagingSenderId: "805433999377",
-  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-  measurementId: "G-4RSQXZJX44"
+
+    apiKey:
+        "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+
+    authDomain:
+        "quantum-rio.firebaseapp.com",
+
+    databaseURL:
+        "https://quantum-rio-default-rtdb.firebaseio.com",
+
+    projectId:
+        "quantum-rio",
+
+    storageBucket:
+        "quantum-rio.firebasestorage.app",
+
+    messagingSenderId:
+        "805433999377",
+
+    appId:
+        "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+
+    measurementId:
+        "G-4RSQXZJX44"
+
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
+
+
+if(!firebase.apps.length){
+
+    firebase.initializeApp(
+        firebaseConfig
+    );
+
+}
+
+
+const db =
+    firebase.database();
+
+const auth =
+    firebase.auth();
+
+
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
 
 let currentChatUID = null;
+
+let currentChatListener = null;
+
+let currentChatRef = null;
+
 let userCache = {};
+
 let typingTimeout;
 
-auth.onAuthStateChanged(async user=>{
-  if(!user) return location.href="auth.html";
 
-  const adminSnap = await db.ref(`admins/${user.uid}`).once('value');
-  if(!adminSnap.exists() ||!['admin','superadmin'].includes(adminSnap.val().role)){
-    alert("Access Denied. You are not admin");
-    return location.href="dashboard.html";
-  }
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
-  loadSupportChats();
-})
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+function showNotification(
+    message,
+    type = "success"
+){
+
+    const notification =
+        document.getElementById(
+            "notification"
+        );
+
+    notification.textContent =
+        message;
+
+    notification.classList.toggle(
+        "error",
+        type === "error"
+    );
+
+    notification.classList.add(
+        "show"
+    );
+
+    clearTimeout(
+        window.notificationTimer
+    );
+
+    window.notificationTimer =
+        setTimeout(() => {
+
+            notification.classList.remove(
+                "show"
+            );
+
+        },2600);
+
+}
+
+
+  /* =========================================================
+   ADMIN AUTHENTICATION
+========================================================= */
+
+auth.onAuthStateChanged(
+    async user => {
+
+        if(!user){
+
+            window.location.href =
+                "auth.html";
+
+            return;
+
+        }
+
+
+        try{
+
+            const adminSnap =
+                await db
+                .ref(
+                    `admins/${user.uid}`
+                )
+                .once("value");
+
+
+            if(
+                !adminSnap.exists() ||
+                ![
+                    "admin",
+                    "superadmin"
+                ].includes(
+                    adminSnap.val().role
+                )
+            ){
+
+                showNotification(
+                    "Access denied. Admin access required.",
+                    "error"
+                );
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "dashboard.html";
+
+                },1000);
+
+                return;
+
+            }
+
+
+            loadSupportChats();
+
+        }
+        catch(error){
+
+            console.error(
+                "Admin verification error:",
+                error
+            );
+
+            showNotification(
+                "Unable to verify administrator.",
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GET USERNAME
+========================================================= */
 
 async function getUsername(uid){
-  if(userCache[uid]) return userCache[uid];
-  const snap = await db.ref(`users/${uid}/username`).once('value');
-  const name = snap.val() || uid.substring(0,8);
-  userCache[uid] = name;
-  return name;
+
+    if(userCache[uid]){
+
+        return userCache[uid];
+
+    }
+
+
+    try{
+
+        const snap =
+            await db
+            .ref(
+                `users/${uid}/username`
+            )
+            .once("value");
+
+
+        const name =
+            snap.val() ||
+            uid.substring(0,8);
+
+
+        userCache[uid] =
+            name;
+
+
+        return name;
+
+    }
+    catch(error){
+
+        return uid.substring(0,8);
+
+    }
+
 }
+
+
+/* =========================================================
+   LOAD SUPPORT CHATS
+========================================================= */
 
 function loadSupportChats(){
-  const supportRef = db.ref("supportChats");
-  supportRef.on("value", async snap=>{
-    const supportList = document.getElementById('supportList');
-    if(!snap.exists()){
-      supportList.innerHTML="<div style='text-align:center;color:#555;padding:20px;'>No chats yet.<br>Wait for user to message</div>";
-      return;
-    }
 
-    supportList.innerHTML="";
-    const promises = [];
+    const supportRef =
+        db.ref("supportChats");
 
-    snap.forEach(userChat => {
 
-    const uid = userChat.key;
+    supportRef.on(
+        "value",
 
-    const messages = userChat.child("messages");
+        async snap => {
 
-    let lastMsg = "No messages";
-    let lastTime = 0;
-    let unread = 0;
+            const supportList =
+                document.getElementById(
+                    "supportList"
+                );
 
-    messages.forEach(msg => {
-        const m = msg.val() || {};
 
-        lastMsg = m.message || "";
-        lastTime = m.timestamp || 0;
+            if(!snap.exists()){
 
-        if (m.sender === "user" && m.read!== true) {
-            unread++;
+                supportList.innerHTML = `
+
+                    <div class="list-empty">
+
+                        <i class="fas fa-comments"></i>
+
+                        <div>
+                            No support chats yet.
+                        </div>
+
+                        <small>
+                            New conversations will appear here.
+                        </small>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            /*
+             * Build chat data first.
+             * This allows us to sort conversations
+             * before rendering them.
+             */
+
+            const chats = [];
+
+
+            snap.forEach(
+                userChat => {
+
+                    const uid =
+                        userChat.key;
+
+                    const messages =
+                        userChat.child(
+                            "messages"
+                        );
+
+
+                    let lastMsg =
+                        "No messages";
+
+                    let lastTime =
+                        0;
+
+                    let unread =
+                        0;
+
+
+                    messages.forEach(
+                        msg => {
+
+                            const m =
+                                msg.val() || {};
+
+
+                            if(
+                                Number(
+                                    m.timestamp || 0
+                                ) >= lastTime
+                            ){
+
+                                lastMsg =
+                                    m.message || "";
+
+                                lastTime =
+                                    Number(
+                                        m.timestamp || 0
+                                    );
+
+                            }
+
+
+                            if(
+                                m.sender === "user" &&
+                                m.read !== true
+                            ){
+
+                                unread++;
+
+                            }
+
+                        }
+                    );
+
+
+                    chats.push({
+
+                        uid:
+                            uid,
+
+                        lastMsg:
+                            lastMsg,
+
+                        lastTime:
+                            lastTime,
+
+                        unread:
+                            unread
+
+                    });
+
+                }
+            );
+
+
+            /*
+             * Latest conversation first.
+             */
+
+            chats.sort(
+                (a,b) =>
+                    b.lastTime -
+                    a.lastTime
+            );
+
+
+            /*
+             * Resolve usernames in parallel.
+             * This makes initial loading faster.
+             */
+
+            const resolved =
+                await Promise.all(
+                    chats.map(
+                        async chat => {
+
+                            return {
+
+                                ...chat,
+
+                                username:
+                                    await getUsername(
+                                        chat.uid
+                                    )
+
+                            };
+
+                        }
+                    )
+                );
+
+
+            /*
+             * Render everything once instead
+             * of repeatedly modifying the DOM.
+             */
+
+            let html = "";
+
+
+            resolved.forEach(
+                chat => {
+
+                    const username =
+                        chat.username;
+
+
+                    const initial =
+                        String(
+                            username
+                        )
+                        .charAt(0)
+                        .toUpperCase();
+
+
+                    const active =
+                        currentChatUID ===
+                        chat.uid
+                        ? "active"
+                        : "";
+
+
+                    html += `
+
+                        <div
+                            class="support-user ${active}"
+                            data-uid="${escapeHTML(chat.uid)}">
+
+                            <div
+                                class="support-user-top">
+
+                                <div
+                                    class="support-avatar">
+
+                                    ${escapeHTML(initial)}
+
+                                </div>
+
+
+                                <div
+                                    class="support-user-info">
+
+                                    <div
+                                        class="username">
+
+                                        ${escapeHTML(username)}
+
+                                    </div>
+
+                                    <div
+                                        class="chat-label">
+
+                                        Customer Support
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            ${
+                                chat.unread > 0
+
+                                ?
+
+                                `
+
+                                <span
+                                    class="unread-badge">
+
+                                    ${
+                                        chat.unread > 99
+                                        ? "99+"
+                                        : chat.unread
+                                    }
+
+                                </span>
+
+                                `
+
+                                :
+
+                                ""
+
+                            }
+
+
+                            <div
+                                class="last-msg">
+
+                                ${escapeHTML(
+                                    chat.lastMsg ||
+                                    "No messages"
+                                )}
+
+                            </div>
+
+
+                            <div
+                                class="time">
+
+                                ${
+                                    chat.lastTime
+                                    ? formatTime(
+                                        chat.lastTime
+                                      )
+                                    : ""
+                                }
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            supportList.innerHTML =
+                html;
+
+      /*
+             * One event listener per rendered
+             * chat item.
+             */
+
+            supportList
+            .querySelectorAll(
+                ".support-user"
+            )
+            .forEach(
+                el => {
+
+                    el.addEventListener(
+                        "click",
+                        () => {
+
+                            const uid =
+                                el.dataset.uid;
+
+                            const username =
+                                el.querySelector(
+                                    ".username"
+                                ).textContent;
+
+
+                            openSupportChat(
+                                uid,
+                                username,
+                                el
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+        },
+
+        error => {
+
+            console.error(
+                "Support chat error:",
+                error
+            );
+
+
+            document.getElementById(
+                "supportList"
+            ).innerHTML = `
+
+                <div class="list-empty">
+
+                    <i class="fas fa-triangle-exclamation"></i>
+
+                    <div>
+                        Unable to load chats
+                    </div>
+
+                    <small>
+                        ${escapeHTML(
+                            error.message
+                        )}
+                    </small>
+
+                </div>
+
+            `;
+
         }
-    });
+    );
 
-    const p = getUsername(uid).then(username => {
-
-        const div = document.createElement("div");
-        div.className = "support-user";
-
-        div.innerHTML = `
-            <div class="username">${username}</div>
-            ${unread > 0? `<span class="unread-badge">${unread}</span>` : ""}
-            <div class="last-msg">${lastMsg}</div>
-            <div class="time">${lastTime? new Date(lastTime).toLocaleTimeString() : ""}</div>
-        `;
-
-        div.onclick = () => openSupportChat(uid, username, div);
-
-        supportList.appendChild(div);
-
-    });
-
-    promises.push(p);
-
-});
-  }, err=>{
-    document.getElementById('supportList').innerHTML = "Error: " + err.message;
-    console.log(err)
-  })
 }
 
-function openSupportChat(uid, username, el){
-  // SET PREVIOUS CHAT OFFLINE FIRST
-  if(currentChatUID) db.ref(`support_admin_status/${currentChatUID}`).set("offline");
 
-  currentChatUID = uid;
-  document.querySelectorAll('.support-user').forEach(x=>x.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('chatHeader').textContent = "Chatting with: " + username;
-  document.getElementById('statusDot').style.display="block";
-  document.getElementById('inputBox').style.display="flex";
+/* =========================================================
+   TIME FORMAT
+========================================================= */
 
-  // THIS TELLS CLIENT THAT ADMIN IS ONLINE
-  db.ref(`support_admin_status/${uid}`).set("online");
+function formatTime(timestamp){
 
-  // FIX 1: CHANGED PATH HERE
-  const chatRef = db.ref(`supportChats/${uid}/messages`);
-  chatRef.on("value", snap=>{
-    const chatBox = document.getElementById('chatBox');
-    const typingIndicator = document.getElementById('typingIndicator');
-    chatBox.innerHTML="";
-    if(!snap.exists()){
-      chatBox.innerHTML='<div class="no-chat"><i class="fas fa-comments"></i><div>No messages yet</div></div>';
-      chatBox.appendChild(typingIndicator);
-      return;
+    const date =
+        new Date(
+            Number(timestamp)
+        );
+
+
+    if(
+        Number.isNaN(
+            date.getTime()
+        )
+    ){
+
+        return "";
+
     }
 
-    snap.forEach(child=>{
-      const m = child.val();
-      const div = document.createElement("div");
-      div.className = "msg " + (m.sender==="admin"?"admin-msg":"user-msg");
-      const time = new Date(m.timestamp).toLocaleTimeString();
-      div.innerHTML = `${m.message}<div class="msg-time">${time}</div>`;
-      chatBox.appendChild(div);
 
-      if(m.sender === "user" &&!m.read){
-        // FIX 2: THIS WAS ALREADY CORRECT
-        db.ref(`supportChats/${uid}/messages/${child.key}/read`).set(true);
-      }
-    });
-    chatBox.appendChild(typingIndicator);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  })
+    return date.toLocaleTimeString(
+        [],
+        {
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+
 }
 
-// SET OFFLINE WHEN LEAVING
+
+/* =========================================================
+   OPEN SUPPORT CHAT
+========================================================= */
+
+function openSupportChat(
+    uid,
+    username,
+    el
+){
+
+    /*
+     * SET PREVIOUS CHAT OFFLINE FIRST
+     */
+
+    if(currentChatUID){
+
+        db.ref(
+            `support_admin_status/${currentChatUID}`
+        )
+        .set("offline");
+
+    }
+
+
+    /*
+     * Remove previous Firebase message listener.
+     * This prevents duplicate listeners and makes
+     * switching chats faster.
+     */
+
+    if(
+        currentChatRef &&
+        currentChatListener
+    ){
+
+        currentChatRef.off(
+            "value",
+            currentChatListener
+        );
+
+    }
+
+
+    currentChatUID =
+        uid;
+
+
+    /*
+     * Active visual state.
+     */
+
+    document
+    .querySelectorAll(
+        ".support-user"
+    )
+    .forEach(
+        x =>
+            x.classList.remove(
+                "active"
+            )
+    );
+
+
+    el.classList.add(
+        "active"
+    );
+
+
+    /*
+     * Header.
+     */
+
+    document.getElementById(
+        "chatHeader"
+    ).textContent =
+        "Chatting with: " +
+        username;
+
+
+    document.getElementById(
+        "chatAvatar"
+    ).textContent =
+        String(username)
+        .charAt(0)
+        .toUpperCase();
+
+
+    document.getElementById(
+        "chatStatus"
+    ).style.display =
+        "flex";
+
+
+    document.getElementById(
+        "inputBox"
+    ).style.display =
+        "flex";
+
+
+    /*
+     * THIS TELLS CLIENT THAT ADMIN IS ONLINE
+     */
+
+    db.ref(
+        `support_admin_status/${uid}`
+    )
+    .set("online");
+
+
+    /*
+     * CHAT PATH
+     */
+
+    currentChatRef =
+        db.ref(
+            `supportChats/${uid}/messages`
+        );
+
+
+    /*
+     * Store listener reference so it can
+     * be removed when switching chats.
+     */
+
+    currentChatListener =
+        snap => {
+
+            const chatBox =
+                document.getElementById(
+                    "chatBox"
+                );
+
+
+            const typingIndicator =
+                document.getElementById(
+                    "typingIndicator"
+                );
+
+
+            chatBox.innerHTML = "";
+
+
+            if(!snap.exists()){
+
+                chatBox.innerHTML = `
+
+                    <div class="no-chat">
+
+                        <i class="fas fa-comment-slash"></i>
+
+                        <strong>
+                            No messages yet
+                        </strong>
+
+                        <span>
+                            Send a message to start the conversation.
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                chatBox.appendChild(
+                    typingIndicator
+                );
+
+                return;
+
+            }
+
+
+            snap.forEach(
+                child => {
+
+                    const m =
+                        child.val() || {};
+
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    div.className =
+                        "msg " +
+                        (
+                            m.sender === "admin"
+                            ? "admin-msg"
+                            : "user-msg"
+                        );
+
+
+                    const time =
+                        formatTime(
+                            m.timestamp
+                        );
+
+
+                    /*
+                     * textContent prevents user
+                     * messages from injecting HTML.
+                     */
+
+                    const messageText =
+                        document.createTextNode(
+                            m.message || ""
+                        );
+
+
+                    div.appendChild(
+                        messageText
+                    );
+
+
+                    const timeDiv =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    timeDiv.className =
+                        "msg-time";
+
+
+                    timeDiv.textContent =
+                        time;
+
+
+                    div.appendChild(
+                        timeDiv
+                    );
+
+
+                    chatBox.appendChild(
+                        div
+                    );
+
+
+                    /*
+                     * FIX 2:
+                     * MARK USER MESSAGE AS READ
+                     */
+
+                    if(
+                        m.sender === "user" &&
+                        !m.read
+                    ){
+
+                        db.ref(
+                            `supportChats/${uid}/messages/${child.key}/read`
+                        )
+                        .set(true);
+
+                    }
+
+                }
+            );
+
+
+            chatBox.appendChild(
+                typingIndicator
+            );
+
+
+            /*
+             * Scroll to latest message.
+             */
+
+            requestAnimationFrame(
+                () => {
+
+                    chatBox.scrollTop =
+                        chatBox.scrollHeight;
+
+                }
+            );
+
+        };
+
+
+    currentChatRef.on(
+        "value",
+        currentChatListener
+    );
+
+}
+
+
+/* =========================================================
+   SET OFFLINE WHEN LEAVING CHAT
+========================================================= */
+
 function setOffline(){
-  if(currentChatUID) db.ref(`support_admin_status/${currentChatUID}`).set("offline");
+
+    if(currentChatUID){
+
+        db.ref(
+            `support_admin_status/${currentChatUID}`
+        )
+        .set("offline");
+
+    }
+
 }
 
-// SHOW TYPING INDICATOR WHEN ADMIN IS TYPING
-document.getElementById('adminMsgInput').addEventListener("input", ()=>{
-  if(!currentChatUID) return;
-  document.getElementById('typingIndicator').style.display="flex";
 
-  clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(()=>{
-    document.getElementById('typingIndicator').style.display="none";
-  }, 2000);
-});
+/* =========================================================
+   TYPING INDICATOR
+========================================================= */
 
-document.getElementById('sendAdminMsg').onclick = sendReply;
-document.getElementById('adminMsgInput').addEventListener("keypress", e=>{ if(e.key==="Enter") sendReply() })
+document
+.getElementById(
+    "adminMsgInput"
+)
+.addEventListener(
+    "input",
+    () => {
+
+        if(!currentChatUID){
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "typingIndicator"
+        ).style.display =
+            "flex";
+
+
+        clearTimeout(
+            typingTimeout
+        );
+
+
+        typingTimeout =
+            setTimeout(
+                () => {
+
+                    document.getElementById(
+                        "typingIndicator"
+                    ).style.display =
+                        "none";
+
+                },
+                2000
+            );
+
+    }
+);/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+document
+.getElementById(
+    "sendAdminMsg"
+)
+.addEventListener(
+    "click",
+    sendReply
+);
+
+
+/* =========================================================
+   ENTER TO SEND
+========================================================= */
+
+document
+.getElementById(
+    "adminMsgInput"
+)
+.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key === "Enter" &&
+            !event.shiftKey
+        ){
+
+            event.preventDefault();
+
+            sendReply();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SEND ADMIN MESSAGE
+========================================================= */
 
 function sendReply(){
-  const text = document.getElementById('adminMsgInput').value.trim();
-  if(!text ||!currentChatUID) return;
 
-  document.getElementById('typingIndicator').style.display="none";
+    const input =
+        document.getElementById(
+            "adminMsgInput"
+        );
 
-  // FIX 3: CHANGED PATH HERE
-  db.ref(`supportChats/${currentChatUID}/messages`).push({
-    sender: "admin",
-    message: text,
-    timestamp: Date.now(),
-    read: false
-});
-  document.getElementById('adminMsgInput').value="";
+
+    const text =
+        input.value.trim();
+
+
+    if(
+        !text ||
+        !currentChatUID
+    ){
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "typingIndicator"
+    ).style.display =
+        "none";
+
+
+    /*
+     * FIX 3:
+     * SEND TO THE SAME SUPPORT CHAT PATH.
+     */
+
+    db.ref(
+        `supportChats/${currentChatUID}/messages`
+    )
+    .push({
+
+        sender:
+            "admin",
+
+        message:
+            text,
+
+        timestamp:
+            Date.now(),
+
+        read:
+            false
+
+    })
+    .then(() => {
+
+        input.value = "";
+
+        /*
+         * Keep the input ready for the
+         * next response.
+         */
+
+        input.focus();
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Message send error:",
+            error
+        );
+
+        showNotification(
+            "Message could not be sent.",
+            "error"
+        );
+
+    });
+
 }
 
-// SET OFFLINE ON PAGE CLOSE
-window.addEventListener('beforeunload', setOffline);
+
+/* =========================================================
+   PAGE CLOSE
+========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    setOffline
+);
+
 </script>
-  </body>
+
+</body>
 </html>
+  
+  
