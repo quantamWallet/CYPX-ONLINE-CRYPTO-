@@ -8,99 +8,1203 @@
 
 <title>CYPX HOLDINGS - Withdrawal Management</title>
 
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
 <style>
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,
+body{
+    min-height:100%;
+}
 
 body{
 
-margin:0;
-font-family:'Segoe UI',sans-serif;
-background:#000814;
-color:white;
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
 
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(0,119,255,.13),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(0,212,255,.06),
+            transparent 35%
+        ),
+        #050b14;
+
+    color:#f5f7fa;
 }
 
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header{
 
-padding:18px;
-background:linear-gradient(90deg,#001d3d,#003566);
-display:flex;
-justify-content:space-between;
-align-items:center;
+    position:sticky;
+    top:0;
+    z-index:1000;
+
+    height:68px;
+
+    padding:0 20px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:
+        rgba(5,16,29,.94);
+
+    backdrop-filter:blur(14px);
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+
+    box-shadow:
+        0 6px 25px rgba(0,0,0,.20);
+
+}
+
+.header-left{
+
+    display:flex;
+    align-items:center;
+    gap:11px;
+
+}
+
+.back-btn{
+
+    width:36px;
+    height:36px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:10px;
+
+    color:#c7d6e3;
+
+    text-decoration:none;
+
+    background:
+        rgba(255,255,255,.055);
+
+    border:
+        1px solid rgba(255,255,255,.07);
+
+    transition:.2s;
+
+}
+
+.back-btn:hover{
+
+    color:#00d4ff;
+
+    background:
+        rgba(0,212,255,.08);
+
+    border-color:
+        rgba(0,212,255,.18);
+
+}
+
+.header-icon{
+
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00c6ff
+        );
+
+    box-shadow:
+        0 6px 18px rgba(0,140,255,.22);
+
+}
+
+.header-icon i{
+
+    color:white;
+    font-size:16px;
+
+}
+
+.header-title{
+
+    font-size:14px;
+    font-weight:800;
+
+}
+
+.header-subtitle{
+
+    margin-top:3px;
+
+    color:#6f879c;
+
+    font-size:9px;
+
+    letter-spacing:.5px;
+
+}
+
+.header-live{
+
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    color:#35dc83;
+
+    font-size:9px;
+    font-weight:800;
+
+    padding:6px 9px;
+
+    border-radius:20px;
+
+    background:
+        rgba(34,197,94,.07);
+
+    border:
+        1px solid rgba(34,197,94,.15);
+
+}
+
+.header-live i{
+
+    font-size:6px;
 
 }
 
 
-.header a{
-
-color:white;
-text-decoration:none;
-
-}
-
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
 
 .container{
 
-padding:15px;
+    width:100%;
+    max-width:1180px;
+
+    margin:auto;
+
+    padding:20px;
 
 }
 
+
+/* =========================================================
+   PAGE INTRO
+========================================================= */
+
+.page-intro{
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:15px;
+
+    margin-bottom:18px;
+
+    padding:18px;
+
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(8,35,61,.95),
+            rgba(5,20,35,.95)
+        );
+
+    border:
+        1px solid rgba(0,212,255,.09);
+
+    box-shadow:
+        0 8px 28px rgba(0,0,0,.18);
+
+}
+
+.intro-left{
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+}
+
+.intro-icon{
+
+    width:43px;
+    height:43px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:12px;
+
+    color:#00d4ff;
+
+    background:
+        rgba(0,212,255,.08);
+
+    border:
+        1px solid rgba(0,212,255,.12);
+
+}
+
+.intro-title{
+
+    font-size:14px;
+    font-weight:800;
+
+}
+
+.intro-text{
+
+    margin-top:4px;
+
+    color:#6f8497;
+
+    font-size:10px;
+
+}
+
+.total-badge{
+
+    min-width:80px;
+
+    padding:9px 12px;
+
+    text-align:center;
+
+    border-radius:10px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+}
+
+.total-number{
+
+    display:block;
+
+    color:#00d4ff;
+
+    font-size:17px;
+    font-weight:800;
+
+}
+
+.total-label{
+
+    display:block;
+
+    margin-top:2px;
+
+    color:#61788d;
+
+    font-size:8px;
+
+    text-transform:uppercase;
+
+}
+
+
+/* =========================================================
+   WITHDRAWAL GRID
+========================================================= */
+
+.withdraw-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:14px;
+
+}
+
+
+/* =========================================================
+   WITHDRAWAL CARD
+========================================================= */
 
 .withdraw-card{
 
-background:#001a33;
-padding:15px;
-border-radius:15px;
-margin-bottom:12px;
+    position:relative;
+
+    overflow:hidden;
+
+    padding:17px;
+
+    border-radius:16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10,29,47,.98),
+            rgba(5,17,29,.98)
+        );
+
+    border:
+        1px solid rgba(255,255,255,.065);
+
+    box-shadow:
+        0 8px 28px rgba(0,0,0,.18);
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+
+}
+
+.withdraw-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:3px;
+    height:100%;
+
+    background:
+        linear-gradient(
+            #00d4ff,
+            #0077ff
+        );
+
+    opacity:.75;
+
+}
+
+.withdraw-card:hover{
+
+    transform:translateY(-2px);
+
+    border-color:
+        rgba(0,212,255,.17);
+
+    box-shadow:
+        0 13px 35px rgba(0,0,0,.28);
 
 }
 
 
-.withdraw-card p{
+/* =========================================================
+   CARD TOP
+========================================================= */
 
-margin:7px 0;
+.withdraw-top{
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:12px;
+
+    padding-bottom:13px;
+
+    margin-bottom:13px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.055);
+
+}
+
+.withdraw-identity{
+
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    min-width:0;
+
+}
+
+.withdraw-icon{
+
+    width:40px;
+    height:40px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,119,255,.20),
+            rgba(0,212,255,.08)
+        );
+
+    border:
+        1px solid rgba(0,212,255,.11);
+
+    color:#00d4ff;
+
+}
+
+.withdraw-heading{
+
+    min-width:0;
+
+}
+
+.withdraw-title{
+
+    font-size:12px;
+    font-weight:750;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+
+}
+
+.withdraw-id{
+
+    margin-top:4px;
+
+    color:#526d83;
+
+    font-size:8px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 
 }
 
 
-button{
-
-padding:10px 15px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-color:white;
-margin-right:8px;
-
-}
-
-
-.approve{
-
-background:#16a34a;
-
-}
-
-
-.reject{
-
-background:#dc2626;
-
-}
-
+/* =========================================================
+   STATUS
+========================================================= */
 
 .status{
 
-padding:5px 10px;
-border-radius:20px;
-font-size:12px;
+    flex-shrink:0;
+
+    padding:6px 9px;
+
+    border-radius:20px;
+
+    font-size:8px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:.3px;
 
 }
 
+.status-pending{
+
+    color:#fbbf24;
+
+    background:
+        rgba(245,158,11,.09);
+
+    border:
+        1px solid rgba(245,158,11,.17);
+
+}
+
+.status-approved{
+
+    color:#35dc83;
+
+    background:
+        rgba(34,197,94,.09);
+
+    border:
+        1px solid rgba(34,197,94,.17);
+
+}
+
+.status-rejected{
+
+    color:#ff6860;
+
+    background:
+        rgba(255,59,48,.09);
+
+    border:
+        1px solid rgba(255,59,48,.17);
+
+}
+
+
+/* =========================================================
+   AMOUNT
+========================================================= */
+
+.amount-box{
+
+    padding:13px;
+
+    margin-bottom:12px;
+
+    border-radius:11px;
+
+    background:
+        rgba(0,0,0,.18);
+
+    border:
+        1px solid rgba(255,255,255,.04);
+
+}
+
+.amount-label{
+
+    color:#61798e;
+
+    font-size:8px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+
+}
+
+.amount{
+
+    margin-top:5px;
+
+    color:#f1f6f9;
+
+    font-size:21px;
+
+    font-weight:850;
+
+    letter-spacing:.2px;
+
+}
+
+.withdraw-card.pending .amount{
+
+    color:#fbbf24;
+
+}
+
+.withdraw-card.approved .amount{
+
+    color:#35dc83;
+
+}
+
+.withdraw-card.rejected .amount{
+
+    color:#ff6860;
+
+}
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+.details{
+
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:8px;
+
+}
+
+.detail{
+
+    min-width:0;
+
+    padding:9px;
+
+    border-radius:9px;
+
+    background:
+        rgba(255,255,255,.025);
+
+}
+
+.detail-label{
+
+    color:#61788d;
+
+    font-size:8px;
+
+    margin-bottom:5px;
+
+}
+
+.detail-value{
+
+    color:#cbd8e2;
+
+    font-size:10px;
+
+    font-weight:650;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+
+/* =========================================================
+   UID
+========================================================= */
+
+.uid-box{
+
+    margin-top:8px;
+
+    padding:9px 10px;
+
+    border-radius:9px;
+
+    background:
+        rgba(255,255,255,.018);
+
+    border:
+        1px solid rgba(255,255,255,.04);
+
+}
+
+.uid-label{
+
+    color:#526c81;
+
+    font-size:8px;
+
+    margin-bottom:4px;
+
+}
+
+.uid-value{
+
+    color:#849aab;
+
+    font-size:9px;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        monospace;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+
+/* =========================================================
+   PROCESSED INFORMATION
+========================================================= */
+
+.processed{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    margin-top:10px;
+
+    padding-top:10px;
+
+    border-top:
+        1px solid rgba(255,255,255,.05);
+
+    color:#61798e;
+
+    font-size:8px;
+
+}
+
+.processed i{
+
+    color:#00a9d0;
+
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.actions{
+
+    display:flex;
+
+    gap:8px;
+
+    margin-top:13px;
+
+    padding-top:13px;
+
+    border-top:
+        1px solid rgba(255,255,255,.055);
+
+}
+
+.action-btn{
+
+    flex:1;
+
+    height:38px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:6px;
+
+    border-radius:9px;
+
+    font-size:10px;
+    font-weight:750;
+
+    cursor:pointer;
+
+    transition:.18s;
+
+}
+
+.approve{
+
+    color:#35dc83;
+
+    background:
+        rgba(34,197,94,.09);
+
+    border:
+        1px solid rgba(34,197,94,.18);
+
+}
+
+.approve:hover{
+
+    color:white;
+
+    background:#16a34a;
+
+    border-color:#16a34a;
+
+    transform:translateY(-1px);
+
+}
+
+.reject{
+
+    color:#ff6860;
+
+    background:
+        rgba(255,59,48,.08);
+
+    border:
+        1px solid rgba(255,59,48,.17);
+
+}
+
+.reject:hover{
+
+    color:white;
+
+    background:#dc2626;
+
+    border-color:#dc2626;
+
+    transform:translateY(-1px);
+
+}
+
+.action-btn:active{
+
+    transform:scale(.97);
+
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state{
+
+    padding:65px 20px;
+
+    text-align:center;
+
+    border-radius:15px;
+
+    background:
+        rgba(9,22,36,.75);
+
+    border:
+        1px solid rgba(255,255,255,.06);
+
+}
+
+.empty-icon{
+
+    width:60px;
+    height:60px;
+
+    margin:0 auto 13px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:17px;
+
+    background:
+        rgba(0,212,255,.045);
+
+    border:
+        1px solid rgba(0,212,255,.07);
+
+    color:#28506b;
+
+    font-size:24px;
+
+}
+
+.empty-title{
+
+    color:#9badbc;
+
+    font-size:13px;
+    font-weight:700;
+
+}
+
+.empty-text{
+
+    margin-top:5px;
+
+    color:#536a7d;
+
+    font-size:10px;
+
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading-state{
+
+    min-height:250px;
+
+    display:flex;
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    color:#60788d;
+
+    font-size:10px;
+
+}
+
+.spinner{
+
+    width:29px;
+    height:29px;
+
+    margin-bottom:12px;
+
+    border:
+        2px solid rgba(255,255,255,.07);
+
+    border-top-color:#00d4ff;
+
+    border-radius:50%;
+
+    animation:spin .7s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+.notification{
+
+    position:fixed;
+
+    left:50%;
+    top:50%;
+
+    z-index:99999;
+
+    min-width:235px;
+    max-width:85%;
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    background:#0b1e31;
+
+    border:
+        1px solid rgba(0,212,255,.22);
+
+    box-shadow:
+        0 18px 55px rgba(0,0,0,.55);
+
+    color:white;
+
+    text-align:center;
+
+    font-size:11px;
+    font-weight:650;
+
+    opacity:0;
+    visibility:hidden;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.94);
+
+    transition:.2s;
+
+}
+
+.notification.show{
+
+    opacity:1;
+    visibility:visible;
+
+    transform:
+        translate(-50%,-50%)
+        scale(1);
+
+}
+
+.notification.error{
+
+    border-color:
+        rgba(255,59,48,.35);
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:760px){
+
+    .header{
+
+        height:60px;
+
+        padding:0 13px;
+
+    }
+
+    .header-icon{
+
+        display:none;
+
+    }
+
+    .header-title{
+
+        font-size:12px;
+
+    }
+
+    .header-subtitle{
+
+        display:none;
+
+    }
+
+    .header-live{
+
+        padding:5px 7px;
+
+        font-size:8px;
+
+    }
+
+    .container{
+
+        padding:13px;
+
+    }
+
+    .page-intro{
+
+        padding:13px;
+
+    }
+
+    .intro-icon{
+
+        width:37px;
+        height:37px;
+
+    }
+
+    .intro-title{
+
+        font-size:12px;
+
+    }
+
+    .intro-text{
+
+        font-size:9px;
+
+    }
+
+    .withdraw-grid{
+
+        grid-template-columns:1fr;
+
+        gap:10px;
+
+    }
+
+    .withdraw-card{
+
+        padding:14px;
+
+        border-radius:14px;
+
+    }
+
+    .amount{
+
+        font-size:19px;
+
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media(max-width:390px){
+
+    .container{
+
+        padding:10px;
+
+    }
+
+    .page-intro{
+
+        margin-bottom:12px;
+
+    }
+
+    .total-badge{
+
+        min-width:65px;
+
+        padding:7px;
+
+    }
+
+    .total-number{
+
+        font-size:15px;
+
+    }
+
+    .details{
+
+        gap:6px;
+
+    }
+
+    .action-btn{
+
+        height:35px;
+
+        font-size:9px;
+
+    }
+
+}
 
 </style>
 
@@ -110,44 +1214,141 @@ font-size:12px;
 <body>
 
 
-<div class="header">
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="header">
+
+    <div class="header-left">
+
+        <a
+            href="admin.html"
+            class="back-btn">
+
+            <i class="fas fa-arrow-left"></i>
+
+        </a>
 
 
-<a href="admin.html">
+        <div class="header-icon">
 
-<i class="fas fa-arrow-left"></i>
+            <i class="fas fa-money-bill-transfer"></i>
 
-</a>
-
-
-<b>
-
-<i class="fas fa-money-bill-transfer"></i>
-
-Withdrawals
-
-</b>
+        </div>
 
 
+        <div>
+
+            <div class="header-title">
+                Withdrawal Management
+            </div>
+
+            <div class="header-subtitle">
+                CYPX HOLDINGS ADMINISTRATION
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="header-live">
+
+        <i class="fas fa-circle"></i>
+
+        LIVE
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="container">
+
+
+    <!-- PAGE INTRO -->
+
+    <section class="page-intro">
+
+        <div class="intro-left">
+
+            <div class="intro-icon">
+
+                <i class="fas fa-wallet"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="intro-title">
+                    Withdrawal Requests
+                </div>
+
+                <div class="intro-text">
+                    Review and process customer withdrawal requests.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="total-badge">
+
+            <span
+                class="total-number"
+                id="withdrawCount">
+
+                0
+
+            </span>
+
+            <span class="total-label">
+                Requests
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- WITHDRAWALS -->
+
+    <div id="withdrawList">
+
+        <div class="loading-state">
+
+            <div class="spinner"></div>
+
+            Loading withdrawals...
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+<!-- =========================================================
+     NOTIFICATION
+========================================================= -->
+
+<div
+    class="notification"
+    id="notification">
 </div>
 
 
-
-<div class="container">
-
-
-<div id="withdrawList">
-
-Loading withdrawals...
-
-</div>
-
-
-</div>
-
-
-
-
+<!-- =========================================================
+     FIREBASE
+========================================================= -->
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 
@@ -156,287 +1357,975 @@ Loading withdrawals...
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 
-
-
 <script>
 
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
 
 const firebaseConfig = {
 
-apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    apiKey:
+        "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
 
-authDomain:"quantum-rio.firebaseapp.com",
+    authDomain:
+        "quantum-rio.firebaseapp.com",
 
-databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+    databaseURL:
+        "https://quantum-rio-default-rtdb.firebaseio.com",
 
-projectId:"quantum-rio",
+    projectId:
+        "quantum-rio",
 
-storageBucket:"quantum-rio.firebasestorage.app",
+    storageBucket:
+        "quantum-rio.firebasestorage.app",
 
-messagingSenderId:"805433999377",
+    messagingSenderId:
+        "805433999377",
 
-appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
+    appId:
+        "1:805433999377:web:d0efa8c46ec4a0fa30f1b0"
 
 };
 
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+if(!firebase.apps.length){
+
+    firebase.initializeApp(
+        firebaseConfig
+    );
+
 }
 
-const auth = firebase.auth();
-const db = firebase.database();
+
+const auth =
+    firebase.auth();
+
+const db =
+    firebase.database();
+
+
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
 
 let adminEmail = "";
+
 let adminUID = "";
 
 
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
 
-// ADMIN SECURITY
+function escapeHTML(value){
 
-
-auth.onAuthStateChanged(user=>{
-
-
-if(!user){
-
-window.location.href="auth.html";
-
-return;
-
-}
-
-
-
-adminEmail = user.email;
-adminUID = user.uid;
-
-
-
-db.ref("admins/"+user.uid)
-.once("value")
-
-.then(admin=>{
-
-
-if(!admin.exists()){
-
-alert("Admin only");
-
-window.location.href="auth.html";
-
-return;
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
 
+/* =========================================================
+   NOTIFICATION
+========================================================= */
 
-loadWithdrawals();
+function showNotification(
+    message,
+    isError = false
+){
+
+    const notification =
+        document.getElementById(
+            "notification"
+        );
 
 
-
-});
-
-
-});
+    notification.textContent =
+        message;
 
 
+    notification.classList.toggle(
+        "error",
+        isError
+    );
 
 
+    notification.classList.add(
+        "show"
+    );
 
 
+    clearTimeout(
+        window.notificationTimer
+    );
 
+
+    window.notificationTimer =
+        setTimeout(
+            () => {
+
+                notification.classList.remove(
+                    "show"
+                );
+
+            },
+            2600
+        );
+
+}
+
+
+/* =========================================================
+   ADMIN SECURITY
+========================================================= */
+
+auth.onAuthStateChanged(
+    user => {
+
+        if(!user){
+
+            window.location.href =
+                "auth.html";
+
+            return;
+
+        }
+
+
+        adminEmail =
+            user.email || "";
+
+        adminUID =
+            user.uid;
+
+
+        db.ref(
+            "admins/" +
+            user.uid
+        )
+        .once("value")
+
+        .then(
+            admin => {
+
+
+                if(!admin.exists()){
+
+                    showNotification(
+                        "Admin access required.",
+                        true
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            window.location.href =
+                                "auth.html";
+
+                        },
+                        1000
+                    );
+
+
+                    return;
+
+                }
+
+
+                loadWithdrawals();
+
+            }
+        )
+
+        .catch(
+            error => {
+
+                console.error(
+                    error
+                );
+
+
+                showNotification(
+                    "Unable to verify admin access.",
+                    true
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   LOAD WITHDRAWALS
+========================================================= */
 
 function loadWithdrawals(){
 
+    db.ref("withdrawals")
 
-db.ref("withdrawals")
-.on("value",snap=>{
+    .on(
+        "value",
 
+        snap => {
 
-let html="";
 
+            const withdrawals = [];
 
 
-snap.forEach(userSnap=>{
+            /*
+             * Preserve the existing nested
+             * withdrawals/{uid}/{id} structure.
+             */
 
+            snap.forEach(
+                userSnap => {
 
-let uid=userSnap.key;
+                    const uid =
+                        userSnap.key;
 
 
+                    userSnap.forEach(
+                        requestSnap => {
 
-userSnap.forEach(requestSnap=>{
+                            const w =
+                                requestSnap.val() || {};
 
+                            const id =
+                                requestSnap.key;
 
-let w=requestSnap.val();
 
+                            withdrawals.push({
 
-let id=requestSnap.key;
+                                uid:
+                                    uid,
 
+                                id:
+                                    id,
 
+                                data:
+                                    w
 
-let status=w.status || "pending";
+                            });
 
+                        }
+                    );
 
+                }
+            );
 
-html += `
 
+            /*
+             * Latest withdrawals first.
+             *
+             * Uses existing timestamp fields
+             * when available.
+             */
 
-<div class="withdraw-card">
+            withdrawals.sort(
+                (a,b) => {
 
+                    const aTime =
+                        getWithdrawalTime(
+                            a.data
+                        );
 
-<p>
-<b>User UID:</b><br>
-${uid}
-</p>
+                    const bTime =
+                        getWithdrawalTime(
+                            b.data
+                        );
 
 
+                    return bTime - aTime;
 
-<p>
-<b>Withdrawal ID:</b><br>
-${id}
-</p>
+                }
+            );
 
 
+            renderWithdrawals(
+                withdrawals
+            );
 
-<p>
-<b>Amount:</b>
+        },
 
-$${Number(w.amount || 0).toFixed(2)}
+        error => {
 
-</p>
+            console.error(
+                error
+            );
 
 
+            document.getElementById(
+                "withdrawList"
+            ).innerHTML = `
 
-<p>
-<b>Method:</b>
+                <div class="empty-state">
 
-${w.method || "N/A"}
+                    <div class="empty-icon">
 
-</p>
+                        <i class="fas fa-triangle-exclamation"></i>
 
+                    </div>
 
+                    <div class="empty-title">
+                        Firebase Error
+                    </div>
 
-<p>
-<b>Status:</b>
+                    <div class="empty-text">
+                        ${escapeHTML(error.message)}
+                    </div>
 
-<span class="status"
+                </div>
 
-style="
-background:
-${status=="approved"?
-"#16a34a":
-status=="rejected"?
-"#dc2626":
-"#f59e0b"};
+            `;
 
-">
-
-${status}
-
-</span>
-
-</p>
-
-
-
-
-${status=="pending" ? `
-
-
-<button 
-class="approve"
-
-onclick="updateWithdrawal('${uid}','${id}','approved')">
-
-Approve
-
-</button>
-
-
-
-<button 
-class="reject"
-
-onclick="updateWithdrawal('${uid}','${id}','rejected')">
-
-Reject
-
-</button>
-
-
-`:""}
-
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
-
-});
-
-
-document.getElementById("withdrawList").innerHTML =
-    html || "No withdrawals found";
-
-}, error => {
-
-    console.error(error);
-
-    document.getElementById("withdrawList").innerHTML =
-        "Firebase Error: " + error.message;
-
-});
+        }
+    );
 
 }
 
-function updateWithdrawal(uid,id,status){
 
-    const withdrawRef = db.ref("withdrawals/"+uid+"/"+id);
+/* =========================================================
+   WITHDRAWAL TIME
+========================================================= */
 
-    withdrawRef.once("value").then(snapshot=>{
+function getWithdrawalTime(data){
 
-        let withdrawal = snapshot.val();
+    const fields = [
 
-        if(!withdrawal) return;
+        "createdAt",
+        "timestamp",
+        "created_at",
+        "time",
+        "submittedAt",
+        "created",
+        "withdrawalTime",
+        "requestedAt"
 
-        withdrawRef.update({
+    ];
 
-            status: status,
-            processedAt: firebase.database.ServerValue.TIMESTAMP,
-            processedBy: adminEmail
 
-        }).then(()=>{
+    for(
+        const field of fields
+    ){
 
-            db.ref("adminLogs").push({
+        const value =
+            data[field];
 
-                action: "Withdrawal " + status,
-                user: uid,
-                amount: Number(withdrawal.amount || 0),
-                admin: adminEmail,
-                adminUID: adminUID,
-                time: Date.now()
 
-            });
+        if(
+            value === undefined ||
+            value === null ||
+            value === ""
+        ){
 
-            alert("Withdrawal " + status);
+            continue;
 
-        });
+        }
 
-    });
+
+        if(
+            typeof value === "number"
+        ){
+
+            /*
+             * Convert seconds to milliseconds
+             * when required.
+             */
+
+            return value < 10000000000
+                ? value * 1000
+                : value;
+
+        }
+
+
+        const parsed =
+            Date.parse(value);
+
+
+        if(
+            !Number.isNaN(parsed)
+        ){
+
+            return parsed;
+
+        }
+
+    }
+
+
+    /*
+     * No timestamp available.
+     * Keep original Firebase iteration
+     * order as fallback.
+     */
+
+    return 0;
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(timestamp){
+
+    if(!timestamp){
+
+        return "";
+
+    }
+
+
+    const date =
+        new Date(timestamp);
+
+
+    if(
+        Number.isNaN(
+            date.getTime()
+        )
+    ){
+
+        return "";
+
+    }
+
+
+    return date.toLocaleString(
+        [],
+        {
+            day:"2-digit",
+            month:"short",
+            year:"numeric",
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   RENDER WITHDRAWALS
+========================================================= */
+
+function renderWithdrawals(
+    withdrawals
+){
+
+    const container =
+        document.getElementById(
+            "withdrawList"
+        );
+
+
+    document.getElementById(
+        "withdrawCount"
+    ).textContent =
+        withdrawals.length;
+
+
+    if(!withdrawals.length){
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+
+                    <i class="fas fa-money-bill-transfer"></i>
+
+                </div>
+
+                <div class="empty-title">
+                    No withdrawals found
+                </div>
+
+                <div class="empty-text">
+                    New withdrawal requests will appear here.
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="withdraw-grid">
+
+    `;
+
+
+    withdrawals.forEach(
+        item => {
+
+            const uid =
+                item.uid;
+
+            const id =
+                item.id;
+
+            const w =
+                item.data;
+
+
+            const status =
+                String(
+                    w.status ||
+                    "pending"
+                )
+                .toLowerCase();
+
+
+            const amount =
+                Number(
+                    w.amount || 0
+                );
+
+
+            const method =
+                w.method ||
+                "N/A";
+
+
+            const statusClass =
+                status === "approved"
+                ? "status-approved"
+                : status === "rejected"
+                ? "status-rejected"
+                : "status-pending";
+
+
+            const initial =
+                String(
+                    method
+                )
+                .charAt(0)
+                .toUpperCase();
+
+
+            const withdrawalTime =
+                getWithdrawalTime(w);
+
+
+            html += `
+
+                <article
+                    class="
+                        withdraw-card
+                        ${escapeHTML(status)}
+                    ">
+
+
+                    <!-- CARD HEADER -->
+
+                    <div class="withdraw-top">
+
+                        <div class="withdraw-identity">
+
+                            <div class="withdraw-icon">
+
+                                <i class="fas fa-${
+
+                                    method
+                                    .toLowerCase()
+                                    .includes("bank")
+
+                                    ? "building-columns"
+
+                                    : "wallet"
+
+                                }"></i>
+
+                            </div>
+
+
+                            <div class="withdraw-heading">
+
+                                <div class="withdraw-title">
+
+                                    Withdrawal Request
+
+                                </div>
+
+
+                                <div class="withdraw-id">
+
+                                    ID:
+                                    ${escapeHTML(id)}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <span
+                            class="
+                                status
+                                ${statusClass}
+                            ">
+
+                            ${escapeHTML(status)}
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- AMOUNT -->
+
+                    <div class="amount-box">
+
+                        <div class="amount-label">
+
+                            Withdrawal Amount
+
+                        </div>
+
+
+                        <div class="amount">
+
+                            $${amount.toFixed(2)}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DETAILS -->
+
+                    <div class="details">
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Payment Method
+                            </div>
+
+                            <div class="detail-value">
+                                ${escapeHTML(method)}
+                            </div>
+
+                        </div>
+
+
+                        <div class="detail">
+
+                            <div class="detail-label">
+                                Request ID
+                            </div>
+
+                            <div class="detail-value">
+                                ${escapeHTML(id)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- UID -->
+
+                    <div class="uid-box">
+
+                        <div class="uid-label">
+                            USER UID
+                        </div>
+
+                        <div class="uid-value">
+                            ${escapeHTML(uid)}
+                        </div>
+
+                    </div>
+
+
+                    ${
+                        withdrawalTime
+
+                        ?
+
+                        `
+
+                        <div class="processed">
+
+                            <i class="far fa-clock"></i>
+
+                            Requested:
+                            ${escapeHTML(
+                                formatDate(
+                                    withdrawalTime
+                                )
+                            )}
+
+                        </div>
+
+                        `
+
+                        :
+
+                        ""
+
+                    }
+
+
+                    ${
+                        status === "pending"
+
+                        ?
+
+                        `
+
+                        <div class="actions">
+
+
+                            <button
+                                class="action-btn approve"
+                                onclick="
+                                    updateWithdrawal(
+                                        ${JSON.stringify(uid)},
+                                        ${JSON.stringify(id)},
+                                        'approved'
+                                    )
+                                ">
+
+                                <i class="fas fa-check"></i>
+
+                                Approve
+
+                            </button>
+
+
+                            <button
+                                class="action-btn reject"
+                                onclick="
+                                    updateWithdrawal(
+                                        ${JSON.stringify(uid)},
+                                        ${JSON.stringify(id)},
+                                        'rejected'
+                                    )
+                                ">
+
+                                <i class="fas fa-xmark"></i>
+
+                                Reject
+
+                            </button>
+
+
+                        </div>
+
+                        `
+
+                        :
+
+                        ""
+
+                    }
+
+
+                    ${
+                        status !== "pending"
+
+                        ?
+
+                        `
+
+                        <div class="processed">
+
+                            <i class="fas fa-shield-check"></i>
+
+                            Processed:
+                            ${escapeHTML(status)}
+
+                            ${
+                                w.processedBy
+                                ? " • " +
+                                  escapeHTML(
+                                      w.processedBy
+                                  )
+                                : ""
+                            }
+
+                        </div>
+
+                        `
+
+                        :
+
+                        ""
+
+                    }
+
+
+                </article>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    container.innerHTML =
+        html;
+
+    }
+
+    /* =========================================================
+   UPDATE WITHDRAWAL
+========================================================= */
+
+function updateWithdrawal(
+    uid,
+    id,
+    status
+){
+
+    const withdrawRef =
+        db.ref(
+            "withdrawals/" +
+            uid +
+            "/" +
+            id
+        );
+
+
+    withdrawRef
+    .once("value")
+    .then(
+        snapshot => {
+
+            let withdrawal =
+                snapshot.val();
+
+
+            if(!withdrawal){
+
+                showNotification(
+                    "Withdrawal request not found.",
+                    true
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * EXISTING UPDATE LOGIC PRESERVED.
+             */
+
+            return withdrawRef
+            .update({
+
+                status:
+                    status,
+
+                processedAt:
+                    firebase.database.ServerValue.TIMESTAMP,
+
+                processedBy:
+                    adminEmail
+
+            })
+            .then(
+                () => {
+
+
+                    /*
+                     * EXISTING ADMIN LOG
+                     * LOGIC PRESERVED.
+                     */
+
+                    return db.ref(
+                        "adminLogs"
+                    )
+                    .push({
+
+                        action:
+                            "Withdrawal " +
+                            status,
+
+                        user:
+                            uid,
+
+                        amount:
+                            Number(
+                                withdrawal.amount ||
+                                0
+                            ),
+
+                        admin:
+                            adminEmail,
+
+                        adminUID:
+                            adminUID,
+
+                        time:
+                            Date.now()
+
+                    });
+
+                }
+            )
+            .then(
+                () => {
+
+                    showNotification(
+                        "Withdrawal " +
+                        status +
+                        " successfully."
+                    );
+
+                }
+            );
+
+        }
+    )
+    .catch(
+        error => {
+
+            console.error(
+                "Withdrawal update error:",
+                error
+            );
+
+
+            showNotification(
+                "Unable to update withdrawal.",
+                true
+            );
+
+        }
+    );
 
 }
 
 </script>
 
-
 </body>
-
 </html>
