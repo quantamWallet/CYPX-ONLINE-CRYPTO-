@@ -1,1103 +1,424 @@
 <!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CYPX Mining</title><link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CYPX Mining</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script><style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,'Segoe UI',sans-serif}
 body{
-    background:
-        radial-gradient(circle at top left,rgba(0,123,255,.16),transparent 35%),
-        radial-gradient(circle at bottom right,rgba(0,200,150,.10),transparent 35%),
-        #070c15;
-    color:#fff;
-    min-height:100vh;
+ background:#070d17;color:#fff;min-height:100vh;
+ background-image:radial-gradient(circle at top,#10233b 0,#070d17 48%);
 }
-
 header{
-    background:rgba(0,18,38,.88);
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-    padding:16px;
-    text-align:center;
-    border-bottom:1px solid rgba(0,123,255,.25);
-    position:sticky;
-    top:0;
-    z-index:100;
+ height:58px;background:rgba(5,18,34,.92);border-bottom:1px solid #17314d;
+ display:flex;align-items:center;justify-content:center;
+ position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)
 }
+header h1{font-size:18px;font-weight:800;letter-spacing:.7px;color:#f5c842}
+header i{margin-right:7px}
 
-header h1{
-    color:#ffd700;
-    font-size:21px;
-    font-weight:800;
-    letter-spacing:.5px;
-}
+.container{width:100%;max-width:560px;margin:auto;padding:13px}
 
-.container{
-    width:100%;
-    max-width:650px;
-    margin:auto;
-    padding:18px 15px 35px;
-}
-
-/* BALANCE */
 .balance-card{
-    background:
-        linear-gradient(135deg,#006fe6 0%,#008fbd 48%,#00b985 100%);
-    padding:22px 18px;
-    border-radius:18px;
-    margin-bottom:24px;
-    text-align:center;
-    box-shadow:0 12px 35px rgba(0,123,255,.18);
-    border:1px solid rgba(255,255,255,.12);
+ padding:17px 18px;border-radius:15px;margin-bottom:17px;
+ background:linear-gradient(135deg,#075b9e,#087b68);
+ border:1px solid rgba(255,255,255,.1);
+ box-shadow:0 8px 25px rgba(0,0,0,.22)
 }
-
 .balance-label{
-    font-size:11px;
-    color:rgba(255,255,255,.85);
-    text-transform:uppercase;
-    letter-spacing:1.4px;
-    font-weight:700;
+ font-size:10px;text-transform:uppercase;letter-spacing:1px;
+ color:rgba(255,255,255,.7)
 }
-
 .balance-value{
-    font-size:30px;
-    font-weight:900;
-    color:#ffd700;
-    margin-top:7px;
-    text-shadow:0 2px 10px rgba(0,0,0,.2);
-}
-
-/* SECTION */
-.section-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin:20px 2px 12px;
+ margin-top:4px;font-size:25px;font-weight:850;color:#ffd84a
 }
 
 .section-title{
-    font-size:14px;
-    color:#c7d8e8;
-    font-weight:800;
-    letter-spacing:.3px;
+ display:flex;align-items:center;justify-content:space-between;
+ margin:17px 2px 9px;font-size:12px;
+ color:#aab9ca;text-transform:uppercase;letter-spacing:.8px;font-weight:800
 }
 
-.section-line{
-    height:1px;
-    flex:1;
-    margin-left:12px;
-    background:linear-gradient(90deg,rgba(0,123,255,.35),transparent);
-}
-
-/* PLANS */
-.plan-grid{
-    display:grid;
-    gap:12px;
-}
+.plan-grid{display:grid;gap:9px}
 
 .plan-card{
-    position:relative;
-    overflow:hidden;
-    background:rgba(9,22,38,.88);
-    padding:16px;
-    border-radius:15px;
-    border:1px solid rgba(255,255,255,.07);
-    box-shadow:0 8px 25px rgba(0,0,0,.18);
-    transition:.2s ease;
+ background:rgba(12,27,43,.9);border:1px solid #1b344d;
+ border-radius:12px;padding:12px;
+ transition:.2s
 }
-
-.plan-card:hover{
-    border-color:rgba(0,200,150,.3);
-    transform:translateY(-1px);
-}
-
-.plan-card.owned{
-    border-color:rgba(0,200,150,.5);
-}
-
+.plan-card.owned{border-color:#00b98b}
 .plan-card.completed{
-    border-color:rgba(0,123,255,.4);
-    background:rgba(7,25,45,.9);
+ border-color:#33475a;opacity:.82
 }
 
 .plan-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:12px;
+ display:flex;align-items:center;justify-content:space-between;
+ margin-bottom:8px
 }
-
-.plan-name{
-    font-weight:800;
-    font-size:16px;
-    color:#fff;
-}
-
-.plan-price{
-    color:#ffd700;
-    font-weight:900;
-    font-size:18px;
-    white-space:nowrap;
-}
+.plan-name{font-size:13px;font-weight:800}
+.plan-price{font-size:15px;font-weight:850;color:#ffd84a}
 
 .plan-stats{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin:10px 0 12px;
-    font-size:12px;
+ display:grid;grid-template-columns:repeat(4,1fr);
+ gap:5px;margin:7px 0
 }
-
 .plan-stat{
-    background:rgba(255,255,255,.045);
-    padding:9px 7px;
-    border-radius:9px;
-    text-align:center;
-    border:1px solid rgba(255,255,255,.035);
+ background:#0a1726;border-radius:7px;padding:6px 3px;
+ text-align:center;border:1px solid rgba(255,255,255,.035)
 }
-
-.plan-stat small{
-    display:block;
-    color:#87a6bf;
-    margin-bottom:3px;
-    font-size:10px;
-}
-
-.plan-stat div{
-    font-weight:700;
-    color:#eaf3fa;
-}
+.plan-stat small{display:block;font-size:8px;color:#73869a;margin-bottom:2px}
+.plan-stat div{font-size:10px;font-weight:700}
 
 .plan-btn{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    background:linear-gradient(90deg,#00c896,#007a54);
-    color:#02140f;
-    font-weight:900;
-    cursor:pointer;
-    transition:.2s ease;
+ width:100%;height:34px;border:0;border-radius:8px;
+ background:linear-gradient(90deg,#00c896,#009b73);
+ color:#03120e;font-size:11px;font-weight:850;
+ cursor:pointer
 }
-
-.plan-btn:hover:not(:disabled){
-    filter:brightness(1.08);
-    transform:translateY(-1px);
-}
-
 .plan-btn:disabled{
-    background:#202b36;
-    color:#71808e;
-    cursor:not-allowed;
-    opacity:1;
+ background:#18232e;color:#687887;cursor:not-allowed;
+ border:1px solid #273746
 }
 
-.plan-btn.completed-btn{
-    background:#12334d;
-    color:#53b5ff;
-}
-
-/* STATUS */
-.status-pill{
-    position:absolute;
-    top:12px;
-    right:12px;
-    padding:4px 8px;
-    border-radius:20px;
-    font-size:9px;
-    font-weight:900;
-    letter-spacing:.5px;
-}
-
-.status-active{
-    background:rgba(0,200,150,.12);
-    color:#00d69f;
-    border:1px solid rgba(0,200,150,.2);
-}
-
-.status-completed{
-    background:rgba(0,123,255,.12);
-    color:#53b5ff;
-    border:1px solid rgba(0,123,255,.2);
-}
-
-/* ACTIVE MINING */
-.active-mines{
-    margin-top:4px;
-}
+.active-mines{margin-top:0}
 
 .mine-item{
-    background:rgba(0,26,51,.78);
-    padding:15px;
-    border-radius:14px;
-    margin-bottom:10px;
-    border:1px solid rgba(255,255,255,.06);
+ background:rgba(10,24,39,.94);border:1px solid #1a344d;
+ padding:11px;border-radius:11px;margin-bottom:8px
 }
-
-.mine-item.completed-mine{
-    border-color:rgba(0,123,255,.25);
-}
-
 .mine-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:9px;
+ display:flex;justify-content:space-between;align-items:center;
+ margin-bottom:7px
 }
-
-.mine-name{
-    font-weight:800;
-    font-size:14px;
-}
-
-.mine-return{
-    color:#00c896;
-    font-weight:900;
-    font-size:14px;
-    white-space:nowrap;
-}
-
-.completed-return{
-    color:#53b5ff;
-}
+.mine-name{font-size:12px;font-weight:800}
+.mine-return{font-size:12px;color:#00c896;font-weight:850}
 
 .progress-bar{
-    height:7px;
-    background:#082039;
-    border-radius:10px;
-    overflow:hidden;
-    margin:8px 0;
+ height:5px;background:#172d42;border-radius:10px;
+ overflow:hidden
 }
-
 .progress{
-    height:100%;
-    background:linear-gradient(90deg,#00c896,#007bff);
-    border-radius:10px;
-    transition:width .4s linear;
+ height:100%;background:linear-gradient(90deg,#00c896,#008cff);
+ border-radius:10px
 }
-
-.progress.completed-progress{
-    background:#007bff;
-}
-
 .timer{
-    font-size:11px;
-    color:#ffd700;
-    margin-top:7px;
-    text-align:center;
-    font-weight:800;
-    letter-spacing:.7px;
+ margin-top:6px;text-align:center;color:#f5c842;
+ font-size:10px;font-weight:750;letter-spacing:.5px
 }
 
-.completed-timer{
-    color:#53b5ff;
+.completed-label{
+ color:#00c896;font-size:9px;font-weight:800;
+ text-transform:uppercase;letter-spacing:.5px
 }
 
-.mine-meta{
-    display:flex;
-    justify-content:space-between;
-    color:#7891a5;
-    font-size:10px;
-    margin-top:8px;
+.empty{
+ padding:22px;text-align:center;color:#596b7c;
+ font-size:11px;background:#0b1725;border-radius:10px;
+ border:1px solid #172a3c
 }
 
-/* EMPTY */
-.empty-state{
-    color:#63788a;
-    text-align:center;
-    padding:25px 10px;
-    background:rgba(255,255,255,.025);
-    border-radius:12px;
-    border:1px dashed rgba(255,255,255,.07);
-    font-size:12px;
-}
-
-/* TOAST */
 .toast{
-    position:fixed;
-    top:20px;
-    left:50%;
-    transform:translateX(-50%) translateY(-15px);
-    min-width:230px;
-    max-width:90%;
-    background:#102332;
-    color:#fff;
-    padding:13px 18px;
-    border-radius:11px;
-    border:1px solid rgba(0,200,150,.35);
-    box-shadow:0 12px 35px rgba(0,0,0,.35);
-    display:none;
-    z-index:1000;
-    text-align:center;
-    font-size:12px;
-    font-weight:700;
-    opacity:0;
-    transition:.25s ease;
+ position:fixed;left:50%;top:18px;transform:translateX(-50%);
+ background:#102536;border:1px solid #00c896;
+ color:#fff;padding:10px 16px;border-radius:9px;
+ font-size:11px;font-weight:700;z-index:1000;
+ display:none;box-shadow:0 8px 25px rgba(0,0,0,.35)
 }
 
-.toast.show{
-    display:block;
-    opacity:1;
-    transform:translateX(-50%) translateY(0);
-}
-
-.toast.error{
-    border-color:rgba(255,75,75,.4);
-}
-
-@media(max-width:480px){
-    .container{
-        padding:15px 12px 30px;
-    }
-
-    .balance-value{
-        font-size:27px;
-    }
-
-    .plan-card{
-        padding:14px;
-    }
-
-    .plan-name{
-        font-size:15px;
-    }
-
-    .plan-price{
-        font-size:16px;
-    }
+@media(max-width:420px){
+ .container{padding:10px}
+ .plan-stats{grid-template-columns:repeat(2,1fr)}
+ .balance-value{font-size:23px}
 }
 </style></head><body><header>
-    <h1>
-        <i class="fas fa-microchip"></i>
-        CYPX MINING
-    </h1>
+<h1><i class="fas fa-microchip"></i>CYPX MINING</h1>
 </header><div class="toast" id="toast"></div><div class="container"><div class="balance-card">
-    <div class="balance-label">Available Balance</div>
-    <div class="balance-value" id="balance">$0.00</div>
-</div>
-
-<div class="section-head">
-    <div class="section-title">Select Mining Plan</div>
-    <div class="section-line"></div>
-</div>
-
-<div class="plan-grid" id="plans"></div>
-
-<div class="section-head">
-    <div class="section-title">Your Mining</div>
-    <div class="section-line"></div>
-</div>
-
-<div class="active-mines" id="activeMines"></div>
-
-</div><script>
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
+<div class="balance-label">Available Balance</div>
+<div class="balance-value" id="balance">$0.00</div>
+</div><div class="section-title">Mining Plans</div>
+<div class="plan-grid" id="plans"></div><div class="section-title">Your Mining</div>
+<div class="active-mines" id="activeMines"></div></div><script>
+const firebaseConfig={
+ apiKey:"AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+ authDomain:"quantum-rio.firebaseapp.com",
+ databaseURL:"https://quantum-rio-default-rtdb.firebaseio.com",
+ projectId:"quantum-rio",
+ storageBucket:"quantum-rio.firebasestorage.app",
+ messagingSenderId:"805433999377",
+ appId:"1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+ measurementId:"G-4RSQXZJX44"
 };
 
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.database();
-const auth = firebase.auth();
+const db=firebase.database();
+const auth=firebase.auth();
 
-let userId = null;
-let balance = 0;
-let activeMines = {};
-let mineCheckInterval = null;
-let renderInterval = null;
+let userId=null,balance=0,activeMines={};
 
-const plans = [
-    {id:1, name:"Bronze Miner", price:25, roi:18, days:36},
-    {id:2, name:"Silver Miner", price:50, roi:20, days:36},
-    {id:3, name:"Gold Miner", price:100, roi:22, days:36},
-    {id:4, name:"Platinum Miner", price:250, roi:25, days:21},
-    {id:5, name:"Diamond Miner", price:500, roi:28, days:21},
-    {id:6, name:"Titanium Miner", price:1000, roi:30, days:21},
-    {id:7, name:"Elite Miner", price:2500, roi:33, days:14},
-    {id:8, name:"VIP Miner", price:5000, roi:35, days:14},
-    {id:9, name:"Quantum Miner", price:10000, roi:38, days:14},
-    {id:10, name:"CYPX Infinity", price:25000, roi:40, days:14}
+const plans=[
+{id:1,name:"Bronze Miner",price:25,roi:18,days:36},
+{id:2,name:"Silver Miner",price:50,roi:20,days:36},
+{id:3,name:"Gold Miner",price:100,roi:22,days:36},
+{id:4,name:"Platinum Miner",price:250,roi:25,days:21},
+{id:5,name:"Diamond Miner",price:500,roi:28,days:21},
+{id:6,name:"Titanium Miner",price:1000,roi:30,days:21},
+{id:7,name:"Elite Miner",price:2500,roi:33,days:14},
+{id:8,name:"VIP Miner",price:5000,roi:35,days:14},
+{id:9,name:"Quantum Miner",price:10000,roi:38,days:14},
+{id:10,name:"CYPX Infinity",price:25000,roi:40,days:14}
 ];
 
-/* AUTH */
-auth.signInAnonymously().catch(error=>{
-    console.error(error);
-    showToast("Authentication failed", true);
-});
+auth.signInAnonymously().catch(console.error);
 
 auth.onAuthStateChanged(user=>{
-
-    if(!user) return;
-
-    userId = user.uid;
-
-    loadData();
-
-    if(!mineCheckInterval){
-        mineCheckInterval = setInterval(checkMines, 5000);
-    }
-
-    if(!renderInterval){
-        renderInterval = setInterval(renderActive, 1000);
-    }
+ if(user){
+  userId=user.uid;
+  loadData();
+  setInterval(checkMines,5000);
+  setInterval(renderActive,1000);
+ }
 });
 
-/* LOAD USER DATA */
 function loadData(){
-
-    db.ref('users/' + userId).on('value', snap=>{
-
-        const data = snap.val() || {};
-
-        balance = Number(data.balance || 0);
-
-        activeMines = data.activeMining || {};
-
-        document.getElementById('balance').textContent =
-            '$' + balance.toLocaleString(undefined,{
-                minimumFractionDigits:2,
-                maximumFractionDigits:2
-            });
-
-        renderPlans();
-        renderActive();
-
-        /* Check immediately whenever Firebase data changes */
-        checkMines();
-    });
+ db.ref("users/"+userId).on("value",snap=>{
+  const data=snap.val()||{};
+  balance=Number(data.balance)||0;
+  activeMines=data.activeMining||{};
+  document.getElementById("balance").textContent=
+   "$"+balance.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  renderPlans();
+  renderActive();
+  checkMines();
+ });
 }
 
-/* PLAN DISPLAY */
 function renderPlans(){
+ document.getElementById("plans").innerHTML=plans.map(p=>{
+  const profit=p.price*p.roi/100;
+  const daily=profit/p.days;
 
-    document.getElementById('plans').innerHTML = plans.map(p=>{
+  const mines=Object.values(activeMines);
+  const active=Object.values(activeMines).find(m=>
+   m && m.planName===p.name && m.status==="active"
+  );
 
-        const profit = (p.price * p.roi / 100).toFixed(2);
-        const daily = (profit / p.days).toFixed(2);
+  const completed=mines.find(m=>
+   m && m.planName===p.name && m.status==="completed"
+  );
 
-        /*
-         * IMPORTANT:
-         * Active and completed mines both permanently lock
-         * the corresponding plan.
-         */
-        const existingMine = Object.values(activeMines).find(m =>
-            m &&
-            m.planName === p.name &&
-            (
-                m.status === 'active' ||
-                m.status === 'completed'
-            )
-        );
+  let text="Activate $"+p.price;
+  let disabled=balance<p.price;
+  let cls="";
 
-        let btnText = 'Activate $' + p.price;
-        let isDisabled = balance < p.price;
-        let cardClass = '';
-        let buttonClass = '';
+  if(completed){
+   text="Maturity Completed";
+   disabled=true;
+   cls="completed";
+  }else if(active){
+   const end=Number(active.endTime)||
+    Number(active.startedAt)+(Number(active.days)*86400000);
+   const days=Math.max(0,Math.ceil((end-Date.now())/86400000));
+   text=days>0?`Matures in ${days} days`:"Maturity Processing";
+   disabled=true;
+   cls="owned";
+  }else if(balance<p.price){
+   text="Insufficient Balance";
+   disabled=true;
+  }
 
-        if(existingMine){
+  return `
+  <div class="plan-card ${cls}">
+   <div class="plan-header">
+    <div class="plan-name">${p.name}</div>
+    <div class="plan-price">$${p.price.toLocaleString()}</div>
+   </div>
 
-            if(existingMine.status === 'completed'){
+   <div class="plan-stats">
+    <div class="plan-stat"><small>ROI</small><div>${p.roi}%</div></div>
+    <div class="plan-stat"><small>Profit</small><div>$${profit.toFixed(2)}</div></div>
+    <div class="plan-stat"><small>Duration</small><div>${p.days}D</div></div>
+    <div class="plan-stat"><small>Daily</small><div>$${daily.toFixed(2)}</div></div>
+   </div>
 
-                btnText = 'Completed';
-                isDisabled = true;
-                cardClass = 'completed';
-                buttonClass = 'completed-btn';
-
-            }else{
-
-                const endTime =
-                    Number(existingMine.endTime) ||
-                    (
-                        Number(existingMine.startedAt) +
-                        (Number(existingMine.days) *
-                        24 * 60 * 60 * 1000)
-                    );
-
-                const daysLeft =
-                    Math.max(
-                        0,
-                        Math.ceil(
-                            (endTime - Date.now()) /
-                            (1000 * 60 * 60 * 24)
-                        )
-                    );
-
-                btnText = `Mining ${daysLeft} days left`;
-                isDisabled = true;
-                cardClass = 'owned';
-            }
-
-        }else if(balance < p.price){
-
-            btnText = 'Insufficient Balance';
-            isDisabled = true;
-        }
-
-        return `
-        <div class="plan-card ${cardClass}">
-
-            ${
-                existingMine
-                ?
-                `<div class="status-pill ${
-                    existingMine.status === 'completed'
-                    ? 'status-completed'
-                    : 'status-active'
-                }">
-                    ${
-                        existingMine.status === 'completed'
-                        ? 'COMPLETED'
-                        : 'ACTIVE'
-                    }
-                </div>`
-                :
-                ''
-            }
-
-            <div class="plan-header">
-                <div class="plan-name">${p.name}</div>
-                <div class="plan-price">$${p.price.toLocaleString()}</div>
-            </div>
-
-            <div class="plan-stats">
-
-                <div class="plan-stat">
-                    <small>Total ROI</small>
-                    <div>${p.roi}%</div>
-                </div>
-
-                <div class="plan-stat">
-                    <small>Total Profit</small>
-                    <div>$${profit}</div>
-                </div>
-
-                <div class="plan-stat">
-                    <small>Duration</small>
-                    <div>${p.days} Days</div>
-                </div>
-
-                <div class="plan-stat">
-                    <small>Daily</small>
-                    <div>$${daily}</div>
-                </div>
-
-            </div>
-
-            <button
-                class="plan-btn ${buttonClass}"
-                onclick="buyPlan(${p.id})"
-                ${isDisabled ? 'disabled' : ''}
-            >
-                ${btnText}
-            </button>
-
-        </div>
-        `;
-
-    }).join('');
+   <button class="plan-btn"
+    onclick="buyPlan(${p.id})"
+    ${disabled?"disabled":""}>
+    ${text}
+   </button>
+  </div>`;
+ }).join("");
 }
 
-/* BUY PLAN */
 function buyPlan(planId){
+ if(!userId)return;
 
-    if(!userId) return;
+ const plan=plans.find(p=>p.id===planId);
+ if(!plan||balance<plan.price)
+  return showToast("Insufficient Balance");
 
-    const plan = plans.find(p=>p.id === planId);
+ const alreadyUsed=Object.values(activeMines).find(m=>
+  m && m.planName===plan.name
+ );
 
-    if(!plan)
-        return;
+ if(alreadyUsed)
+  return showToast("This mining plan has already been used.");
 
-    /*
-     * Prevent buying the same plan again if it already
-     * exists as active OR completed.
-     */
-    const existingMine = Object.values(activeMines).find(m =>
-        m &&
-        m.planName === plan.name &&
-        (
-            m.status === 'active' ||
-            m.status === 'completed'
-        )
-    );
+ const mineId=Date.now();
+ const now=Date.now();
+ const endTime=now+(plan.days*86400000);
+ const profit=plan.price*plan.roi/100;
 
-    if(existingMine){
+ db.ref("users/"+userId+"/balance")
+ .transaction(c=>(Number(c)||0)-plan.price);
 
-        if(existingMine.status === 'completed'){
-            return showToast(
-                `${plan.name} has already been completed.`
-            );
-        }
+ db.ref(`users/${userId}/activeMining/${mineId}`).set({
+  planName:plan.name,
+  amount:plan.price,
+  profit:profit,
+  roi:plan.roi,
+  days:plan.days,
+  startedAt:now,
+  endTime:endTime,
+  status:"active"
+ });
 
-        return showToast(
-            `${plan.name} is already active.`
-        );
-    }
+ showToast(`${plan.name} activated for ${plan.days} days`);
+}
 
-    if(balance < plan.price)
-        return showToast('Insufficient Balance', true);
+function formatTime(ms){
+ ms=Number(ms);
+ if(isNaN(ms)||ms<=0)return"Processing maturity...";
+ const d=Math.floor(ms/86400000);
+ const h=Math.floor((ms%86400000)/3600000);
+ const m=Math.floor((ms%3600000)/60000);
+ const s=Math.floor((ms%60000)/1000);
 
-    const mineId = Date.now();
+ if(d>0)return`${d}d ${h}h ${m}m ${s}s`;
+ return`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
 
-    const startedAt = Date.now();
+function renderActive(){
+ const container=document.getElementById("activeMines");
 
-    const endTime =
-        startedAt +
-        (plan.days * 24 * 60 * 60 * 1000);
+ if(!activeMines||!Object.keys(activeMines).length){
+  container.innerHTML='<div class="empty">No mining activity</div>';
+  return;
+ }
 
-    const profit =
-        plan.price * plan.roi / 100;
+ container.innerHTML=Object.entries(activeMines).map(([id,m])=>{
+  if(!m)return"";
 
-    /*
-     * Preserve existing balance deduction logic.
-     */
-    db.ref("users/" + userId + "/balance")
-        .transaction(c =>
-            (Number(c) || 0) - plan.price
-        );
+  const end=Number(m.endTime)||
+   Number(m.startedAt)+(Number(m.days)*86400000);
 
-    /*
-     * Preserve original mining data while adding
-     * completion tracking fields.
-     */
-    db.ref(
-        `users/${userId}/activeMining/${mineId}`
-    ).set({
+  const start=Number(m.startedAt)||
+   end-(Number(m.days)*86400000);
 
-        planName: plan.name,
-        amount: plan.price,
-        profit: profit,
-        roi: plan.roi,
-        days: plan.days,
+  if(m.status==="completed"){
+   return`
+   <div class="mine-item">
+    <div class="mine-top">
+     <div class="mine-name">${m.planName}</div>
+     <div class="completed-label">Completed</div>
+    </div>
+    <div class="progress-bar">
+     <div class="progress" style="width:100%"></div>
+    </div>
+    <div class="timer" style="color:#00c896">
+     <i class="fas fa-check-circle"></i> Maturity completed & credited
+    </div>
+   </div>`;
+  }
 
-        startedAt: startedAt,
-        endTime: endTime,
+  const left=end-Date.now();
+  const total=end-start;
+  const progress=total>0?
+   Math.min(100,Math.max(0,((Date.now()-start)/total)*100)):100;
 
-        status: 'active',
+  return`
+  <div class="mine-item">
+   <div class="mine-top">
+    <div class="mine-name">${m.planName} · ${m.days}D</div>
+    <div class="mine-return">+$${Number(m.profit||0).toFixed(2)}</div>
+   </div>
+   <div class="progress-bar">
+    <div class="progress" style="width:${progress}%"></div>
+   </div>
+   <div class="timer">
+    <i class="fas fa-clock"></i> ${formatTime(left)}
+   </div>
+  </div>`;
+ }).join("");
+}
 
-        credited: false,
-        completedAt: null,
-        creditedAt: null
+function checkMines(){
+ if(!userId)return;
 
-    });
+ db.ref(`users/${userId}/activeMining`).once("value").then(snap=>{
+  const mines=snap.val()||{};
+
+  for(const id in mines){
+   const m=mines[id];
+   if(!m||m.status!=="active")continue;
+
+   const end=Number(m.endTime)||
+    Number(m.startedAt)+(Number(m.days)*86400000);
+
+   if(Date.now()<end)continue;
+
+   const ref=db.ref(`users/${userId}/activeMining/${id}`);
+
+   /* Atomically change active → completed.
+      Only the process that successfully changes the
+      status performs the credit. */
+   ref.transaction(current=>{
+    if(!current||current.status!=="active")return;
+    return Object.assign({},current,{status:"completed",completedAt:Date.now()});
+   },(error,committed,snapshot)=>{
+
+    if(error||!committed||!snapshot.exists())return;
+
+    const completed=snapshot.val();
+    const amount=Number(completed.amount)||0;
+    const profit=Number(completed.profit)||0;
+    const total=amount+profit;
+
+    db.ref("users/"+userId+"/balance")
+    .transaction(c=>(Number(c)||0)+total);
+
+    db.ref("users/"+userId+"/miningEarnings")
+    .transaction(c=>(Number(c)||0)+profit);
 
     showToast(
-        `${plan.name} activated for ${plan.days} days!`
+     `${completed.planName} matured! +$${total.toFixed(2)} credited`
     );
+   });
+  }
+ });
 }
 
-/* TIME FORMAT */
-function formatTime(ms){
-
-    ms = Number(ms);
-
-    if(isNaN(ms) || ms <= 0)
-        return "Maturity reached";
-
-    const days =
-        Math.floor(
-            ms / (1000 * 60 * 60 * 24)
-        );
-
-    const hours =
-        Math.floor(
-            (ms % (1000 * 60 * 60 * 24)) /
-            (1000 * 60 * 60)
-        );
-
-    const minutes =
-        Math.floor(
-            (ms % (1000 * 60 * 60)) /
-            (1000 * 60)
-        );
-
-    const seconds =
-        Math.floor(
-            (ms % (1000 * 60)) /
-            1000
-        );
-
-    if(days > 0)
-        return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-
-    return `${String(hours).padStart(2,'0')}:` +
-           `${String(minutes).padStart(2,'0')}:` +
-           `${String(seconds).padStart(2,'0')}`;
+function showToast(msg){
+ const t=document.getElementById("toast");
+ t.textContent=msg;
+ t.style.display="block";
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>{
+  t.style.display="none";
+ },3000);
 }
 
-/* ACTIVE + COMPLETED MINING */
-function renderActive(){
-
-    const container =
-        document.getElementById('activeMines');
-
-    if(
-        !activeMines ||
-        Object.keys(activeMines).length === 0
-    ){
-
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-microchip"></i><br>
-                No mining plans yet
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        Object.entries(activeMines).map(([id,m])=>{
-
-            if(!m) return '';
-
-            const endTime =
-                Number(m.endTime) ||
-                (
-                    Number(m.startedAt) +
-                    (
-                        Number(m.days) *
-                        24 * 60 * 60 * 1000
-                    )
-                );
-
-            const startedAt =
-                Number(m.startedAt) ||
-                (
-                    endTime -
-                    (
-                        Number(m.days) *
-                        24 * 60 * 60 * 1000
-                    )
-                );
-
-            const isCompleted =
-                m.status === 'completed';
-
-            const timeLeft =
-                endTime - Date.now();
-
-            const totalTime =
-                endTime - startedAt;
-
-            const progress =
-                isCompleted
-                ?
-                100
-                :
-                (
-                    totalTime > 0
-                    ?
-                    Math.min(
-                        100,
-                        (
-                            (Date.now() - startedAt) /
-                            totalTime
-                        ) * 100
-                    )
-                    :
-                    100
-                );
-
-            return `
-            <div class="mine-item ${
-                isCompleted
-                ? 'completed-mine'
-                : ''
-            }">
-
-                <div class="mine-top">
-
-                    <div class="mine-name">
-                        ${m.planName} - ${m.days}D
-                    </div>
-
-                    <div class="${
-                        isCompleted
-                        ? 'mine-return completed-return'
-                        : 'mine-return'
-                    }">
-                        +$${Number(m.profit || 0).toFixed(2)}
-                    </div>
-
-                </div>
-
-                <div class="progress-bar">
-
-                    <div
-                        class="progress ${
-                            isCompleted
-                            ? 'completed-progress'
-                            : ''
-                        }"
-                        style="width:${progress}%"
-                    ></div>
-
-                </div>
-
-                <div class="${
-                    isCompleted
-                    ? 'timer completed-timer'
-                    : 'timer'
-                }">
-
-                    <i class="fas ${
-                        isCompleted
-                        ? 'fa-check-circle'
-                        : 'fa-clock'
-                    }"></i>
-
-                    ${
-                        isCompleted
-                        ? 'Mining completed & credited'
-                        : formatTime(timeLeft)
-                    }
-
-                </div>
-
-                <div class="mine-meta">
-
-                    <span>
-                        Investment:
-                        $${Number(m.amount || 0).toFixed(2)}
-                    </span>
-
-                    <span>
-                        ${
-                            isCompleted
-                            ? 'Completed'
-                            : 'Mining'
-                        }
-                    </span>
-
-                </div>
-
-            </div>
-            `;
-
-        }).join('');
-}
-
-/*
- * AUTOMATIC MATURITY PROCESS
- *
- * The original credit calculation is preserved:
- *
- * investment + profit -> balance
- * profit only -> miningEarnings
- *
- * Instead of deleting the mining record, it is permanently
- * marked "completed".
- */
-function checkMines(){
-
-    if(!userId)
-        return;
-
-    db.ref(
-        `users/${userId}/activeMining`
-    ).once('value').then(snap=>{
-
-        const mines = snap.val() || {};
-
-        for(let id in mines){
-
-            const m = mines[id];
-
-            if(!m)
-                continue;
-
-            /*
-             * Already completed = never credit again.
-             */
-            if(m.status === 'completed')
-                continue;
-
-            if(m.status !== 'active')
-                continue;
-
-            const endTime =
-                Number(m.endTime) ||
-                (
-                    Number(m.startedAt) +
-                    (
-                        Number(m.days) *
-                        24 * 60 * 60 * 1000
-                    )
-                );
-
-            if(Date.now() < endTime)
-                continue;
-
-            const amount =
-                Number(m.amount) || 0;
-
-            const profit =
-                Number(m.profit) || 0;
-
-            const creditAmount =
-                amount + profit;
-
-            /*
-             * First atomically lock the mine.
-             *
-             * If another check runs at the same time,
-             * only the first transaction is allowed to
-             * change active -> completed.
-             */
-            const mineRef =
-                db.ref(
-                    `users/${userId}/activeMining/${id}`
-                );
-
-            mineRef.transaction(current=>{
-
-                if(!current)
-                    return;
-
-                if(current.status !== 'active')
-                    return;
-
-                return {
-                    ...current,
-
-                    status: 'completed',
-
-                    credited: true,
-
-                    completedAt:
-                        firebase.database.ServerValue.TIMESTAMP,
-
-                    creditedAt:
-                        firebase.database.ServerValue.TIMESTAMP
-                };
-
-            }).then(result=>{
-
-                /*
-                 * If this client successfully changed the
-                 * mine from active to completed, perform
-                 * the original credit.
-                 */
-                if(!result.committed)
-                    return;
-
-                /*
-                 * Original balance credit:
-                 * investment + profit
-                 */
-                db.ref(
-                    "users/" +
-                    userId +
-                    "/balance"
-                ).transaction(c =>
-                    (Number(c) || 0) + creditAmount
-                );
-
-                /*
-                 * Original mining earnings:
-                 * profit only
-                 */
-                db.ref(
-                    "users/" +
-                    userId +
-                    "/miningEarnings"
-                ).transaction(c =>
-                    (Number(c) || 0) + profit
-                );
-
-                showToast(
-                    `${m.planName} completed! ` +
-                    `+$${creditAmount.toFixed(2)} credited`
-                );
-
-            }).catch(error=>{
-
-                console.error(
-                    "Mining completion error:",
-                    error
-                );
-
-            });
-        }
-
-    }).catch(error=>{
-
-        console.error(
-            "Mining check error:",
-            error
-        );
-
-    });
-}
-
-/* TOAST */
-function showToast(msg,error=false){
-
-    const t =
-        document.getElementById('toast');
-
-    t.textContent = msg;
-
-    t.classList.toggle('error',error);
-
-    t.classList.add('show');
-
-    clearTimeout(t._timer);
-
-    t._timer = setTimeout(()=>{
-
-        t.classList.remove('show');
-
-        setTimeout(()=>{
-            t.style.display = 'none';
-        },250);
-
-    },3000);
-}
-
-/* BLOCK CONTEXT MENU */
-document.addEventListener(
-    'contextmenu',
-    e=>e.preventDefault()
-);
-
-/* BLOCK PINCH */
-document.addEventListener(
-    'touchstart',
-    e=>{
-        if(e.touches.length > 1)
-            e.preventDefault();
-    },
-    {passive:false}
-);
-
-document.addEventListener(
-    'touchend',
-    e=>{
-        if(e.touches.length > 1)
-            e.preventDefault();
-    },
-    {passive:false}
-);
-
-</script>
-
-</body>
+document.addEventListener("contextmenu",e=>e.preventDefault());
+
+document.addEventListener("touchstart",e=>{
+ if(e.touches.length>1)e.preventDefault();
+},{passive:false});
+
+document.addEventListener("touchend",e=>{
+ if(e.touches.length>1)e.preventDefault();
+},{passive:false});
+</script></body>
 </html>
