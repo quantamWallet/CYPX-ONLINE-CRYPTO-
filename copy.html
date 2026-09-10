@@ -2,508 +2,401 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYPX Copy Trading</title>  <link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>  <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
-    }
+  <title>CYPX Copy Trading</title>  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body{
-      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background:
-        radial-gradient(circle at top left,rgba(0,123,255,.12),transparent 35%),
-        radial-gradient(circle at bottom right,rgba(0,200,150,.08),transparent 35%),
-        linear-gradient(135deg,#000814,#001d3d);
-      background-size:cover;
-      background-attachment:fixed;
-      color:white;
-      padding-bottom:100px;
-      min-height:100vh;
+        linear-gradient(135deg, rgba(0,8,20,0.95), rgba(0,29,61,0.95)),
+        url("Screenshot_20260701-191309.jpg");
+      background-size: cover;
+      background-attachment: fixed;
+      color: white;
+      padding-bottom: 100px;
+      min-height: 100vh;
     }
 
-    .container{
-      max-width:1200px;
-      margin:0 auto;
-      padding:20px;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
     }
 
-    .header{
-      text-align:center;
-      margin-bottom:30px;
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
     }
 
-    h1{
-      color:#ffd700;
-      margin:0 0 8px;
-      font-size:32px;
-      font-weight:800;
-      letter-spacing:-.5px;
+    h1 {
+      color: #ffd700;
+      margin: 0 0 8px;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
 
-    .subtitle{
-      color:#a0aec0;
-      font-size:15px;
+    .subtitle {
+      color: #a0aec0;
+      font-size: 15px;
     }
 
-    /* BALANCE */
-
-    .balance-card{
-      background:
-        linear-gradient(135deg,#007BFF 0%,#00C896 100%);
-      padding:22px;
-      border-radius:18px;
-      margin-bottom:24px;
-      text-align:center;
-      box-shadow:0 8px 30px rgba(0,200,255,.25);
-      border:1px solid rgba(255,255,255,.1);
-    }
-
-    .balance-label{
-      font-size:13px;
-      color:rgba(255,255,255,.9);
-      text-transform:uppercase;
-      letter-spacing:1px;
-    }
-
-    .balance-value{
-      font-size:30px;
-      font-weight:800;
-      color:#ffd700;
-      margin-top:6px;
-    }
-
-    /* PORTFOLIO */
-
-    .portfolio-card{
-      background:rgba(0,26,51,.6);
-      backdrop-filter:blur(15px);
-      padding:24px;
-      border-radius:18px;
-      margin-bottom:30px;
-      box-shadow:0 8px 30px rgba(0,0,0,.3);
-      border:1px solid rgba(255,255,255,.08);
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:20px;
-    }
-
-    .portfolio-stat{
-      text-align:center;
-    }
-
-    .portfolio-label{
-      font-size:12px;
-      color:#94e2cc;
-      text-transform:uppercase;
-      letter-spacing:.5px;
-    }
-
-    .portfolio-value{
-      font-size:24px;
-      font-weight:800;
-      margin-top:6px;
-    }
-
-    .portfolio-value.green{
-      color:#00C896;
-    }
-
-    .portfolio-value.red{
-      color:#ef4444;
+    .balance-card {
+      background: linear-gradient(135deg,#007BFF 0%,#00C896 100%);
+      padding: 22px;
+      border-radius: 18px;
+      margin-bottom: 24px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,200,255,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
-    /* TRADERS */
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
-      gap:20px;
-    }
-
-    .trader-card{
-      background:rgba(0,26,51,.7);
-      backdrop-filter:blur(15px);
-      padding:22px;
-      border-radius:18px;
-      box-shadow:0 8px 25px rgba(0,0,0,.3);
-      border:1px solid rgba(255,255,255,.08);
-      transition:all .3s ease;
-    }
-
-    .trader-card.copying{
-      border-color:#00C896;
-      box-shadow:0 0 30px rgba(0,200,150,.25);
-    }
-
-    .trader-card.closed{
-      border-color:rgba(0,123,255,.25);
-      opacity:.92;
-    }
-
-    .trader-card:hover{
-      transform:translateY(-3px);
-      border-color:rgba(0,200,150,.3);
+    .balance-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.9);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .trader-header{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      margin-bottom:16px;
+    .balance-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffd700;
+      margin-top: 6px;
     }
 
-    .avatar{
-      width:56px;
-      height:56px;
-      border-radius:50%;
-      overflow:hidden;
-      flex-shrink:0;
-      border:2px solid #00C896;
-      box-shadow:0 0 15px rgba(0,245,160,.35);
-      background:#0a1f2e;
+    .portfolio-card {
+      background: rgba(0,26,51,0.6);
+      backdrop-filter: blur(15px);
+      padding: 24px;
+      border-radius: 18px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
     }
 
-    .avatar img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
+    .portfolio-stat {
+      text-align: center;
     }
 
-    .trader-name{
-      font-weight:700;
-      font-size:18px;
-      color:#fff;
+    .portfolio-label {
+      font-size: 12px;
+      color: #94e2cc;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .verified{
-      background:linear-gradient(90deg,#00C896,#007A54);
-      color:#000;
-      font-size:10px;
-      padding:4px 8px;
-      border-radius:6px;
-      margin-left:6px;
-      font-weight:800;
+    .portfolio-value {
+      font-size: 24px;
+      font-weight: 800;
+      margin-top: 6px;
     }
 
-    .trader-bio{
-      font-size:14px;
-      color:#cbd5e1;
-      line-height:1.6;
-      margin-bottom:16px;
-    }
-
-    /* STATS */
+    .portfolio-value.green { color: #00C896; }
+    .portfolio-value.red { color: #ef4444; }
 
-    .stats{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:12px;
-      margin:18px 0;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 20px;
     }
 
-    .stat{
-      background:rgba(255,255,255,.05);
-      padding:14px;
-      border-radius:12px;
-      text-align:center;
-      border:1px solid rgba(255,255,255,.05);
+    .trader-card {
+      background: rgba(0,26,51,0.7);
+      backdrop-filter: blur(15px);
+      padding: 22px;
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.3s ease;
     }
 
-    .stat-label{
-      font-size:11px;
-      color:#94e2cc;
-      text-transform:uppercase;
+    .trader-card.copying {
+      border-color: #00C896;
+      box-shadow: 0 0 30px rgba(0,200,150,0.4);
     }
 
-    .stat-value{
-      font-size:17px;
-      font-weight:800;
-      color:#fff;
-      margin-top:5px;
+    .trader-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0,200,150,0.3);
     }
 
-    .stat-value.green{
-      color:#00C896;
+    .trader-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
-    .stat-value.gold{
-      color:#ffd700;
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid #00C896;
+      box-shadow: 0 0 15px rgba(0,245,160,0.5);
+      background: #0a1f2e;
     }
 
-    /* PNL */
-
-    .pnl-box{
-      background:rgba(0,200,150,.1);
-      border:1px solid rgba(0,200,150,.3);
-      padding:16px;
-      border-radius:12px;
-      margin:16px 0;
-      display:none;
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .pnl-box.active{
-      display:block;
+    .trader-name {
+      font-weight: 700;
+      font-size: 18px;
+      color: #fff;
     }
 
-    .pnl-box.closed-box{
-      background:rgba(0,123,255,.08);
-      border-color:rgba(0,123,255,.25);
+    .verified {
+      background: linear-gradient(90deg,#00C896,#007A54);
+      color: #000;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-left: 6px;
+      font-weight: 800;
     }
 
-    .pnl-row{
-      display:flex;
-      justify-content:space-between;
-      margin:8px 0;
-      font-size:14px;
+    .trader-bio {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 16px;
     }
 
-    .pnl-label{
-      color:#94e2cc;
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin: 18px 0;
     }
 
-    .pnl-value{
-      font-weight:800;
+    .stat {
+      background: rgba(255,255,255,0.05);
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .green{
-      color:#00C896;
+    .stat-label {
+      font-size: 11px;
+      color: #94e2cc;
+      text-transform: uppercase;
     }
 
-    .red{
-      color:#ef4444;
+    .stat-value {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 5px;
     }
 
-    .gold{
-      color:#ffd700;
-    }
+    .stat-value.green { color: #00C896; }
+    .stat-value.gold { color: #ffd700; }
 
-    .blue{
-      color:#38a8ff;
+    .pnl-box {
+      background: rgba(0,200,150,0.1);
+      border: 1px solid rgba(0,200,150,0.3);
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+      display: none;
     }
 
-    /* BUTTON */
-
-    .btn-group{
-      margin-top:10px;
+    .pnl-box.active {
+      display: block;
     }
 
-    .copy-btn{
-      width:100%;
-      padding:14px;
-      background:linear-gradient(90deg,#00C896,#007A54);
-      color:white;
-      border:none;
-      border-radius:12px;
-      font-weight:800;
-      cursor:pointer;
-      font-size:15px;
-      transition:all .2s;
-      box-shadow:0 4px 15px rgba(0,200,150,.3);
+    .pnl-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      font-size: 14px;
     }
 
-    .copy-btn:hover{
-      transform:translateY(-2px);
-      box-shadow:0 6px 20px rgba(0,200,150,.4);
+    .pnl-label {
+      color: #94e2cc;
     }
 
-    .copy-btn:disabled{
-      background:#273443;
-      color:#71808e;
-      cursor:not-allowed;
-      transform:none;
-      box-shadow:none;
+    .pnl-value {
+      font-weight: 800;
     }
 
-    .stop-btn{
-      background:linear-gradient(90deg,#ef4444,#dc2626);
-      box-shadow:0 4px 15px rgba(239,68,68,.3);
+    .copy-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(90deg,#00C896,#007A54);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(0,200,150,0.3);
     }
 
-    .stop-btn:hover{
-      box-shadow:0 6px 20px rgba(239,68,68,.4);
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,200,150,0.4);
     }
 
-    .closed-btn{
-      background:linear-gradient(90deg,#12334d,#173f5f);
-      color:#65baff;
-      cursor:not-allowed;
-      box-shadow:none;
+    .copy-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+      transform: none;
     }
-
-    /* MODAL */
 
-    .modal{
-      display:none;
-      position:fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      background:rgba(0,0,0,.8);
-      justify-content:center;
-      align-items:center;
-      z-index:1000;
-      backdrop-filter:blur(8px);
+    .stop-btn {
+      background: linear-gradient(90deg,#ef4444,#dc2626);
+      box-shadow: 0 4px 15px rgba(239,68,68,0.3);
     }
 
-    .modal.active{
-      display:flex;
+    .stop-btn:hover {
+      box-shadow: 0 6px 20px rgba(239,68,68,0.4);
     }
 
-    .modal-content{
-      background:#001d3d;
-      padding:32px;
-      border-radius:20px;
-      max-width:440px;
-      width:90%;
-      border:1px solid rgba(0,200,255,.3);
-      box-shadow:0 20px 60px rgba(0,0,0,.5);
+    .waiting-btn {
+      background: linear-gradient(90deg,#f59e0b,#d97706);
+      box-shadow: 0 4px 15px rgba(245,158,11,0.3);
     }
 
-    .modal-content h2{
-      margin-top:0;
-      color:#ffd700;
-      margin-bottom:12px;
+    .waiting-btn:hover {
+      transform: none;
     }
 
-    .modal-content label{
-      font-size:13px;
-      color:#94e2cc;
-      display:block;
-      margin-bottom:6px;
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
     }
 
-    .modal-content input{
-      width:100%;
-      padding:14px;
-      margin:8px 0 18px;
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:12px;
-      background:rgba(0,0,0,.3);
-      color:white;
-      font-size:15px;
-      outline:none;
+    .modal.active {
+      display: flex;
     }
 
-    .modal-content input:focus{
-      border-color:#00C896;
+    .modal-content {
+      background: #001d3d;
+      padding: 32px;
+      border-radius: 20px;
+      max-width: 440px;
+      width: 90%;
+      border: 1px solid rgba(0,200,255,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
 
-    .modal-actions{
-      display:flex;
-      gap:12px;
+    .modal-content h2 {
+      margin-top: 0;
+      color: #ffd700;
+      margin-bottom: 12px;
     }
 
-    .btn-secondary{
-      background:#334155;
-      box-shadow:none;
+    .modal-content label {
+      font-size: 13px;
+      color: #94e2cc;
+      display: block;
+      margin-bottom: 6px;
     }
 
-    /* CLOSE MODAL */
-
-    .close-modal{
-      background:linear-gradient(90deg,#ef4444,#b91c1c);
-      box-shadow:none;
+    .modal-content input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      font-size: 15px;
     }
 
-    .close-info{
-      background:rgba(255,215,0,.08);
-      border:1px solid rgba(255,215,0,.18);
-      padding:12px;
-      border-radius:10px;
-      color:#d9e4ef;
-      font-size:12px;
-      line-height:1.5;
-      margin:15px 0;
+    .modal-actions {
+      display: flex;
+      gap: 12px;
     }
 
-    .close-info strong{
-      color:#ffd700;
+    .btn-secondary {
+      background: #334155;
+      box-shadow: none;
     }
 
-    /* TOAST */
-
-    .toast{
-      position:fixed;
-      top:20px;
-      left:50%;
-      transform:translate(-50%,-20px);
-      background:#0A2540;
-      color:white;
-      padding:15px 20px;
-      border-radius:12px;
-      box-shadow:0 8px 30px rgba(0,0,0,.4);
-      opacity:0;
-      visibility:hidden;
-      transition:all .25s ease;
-      z-index:9999;
-      font-weight:600;
-      text-align:center;
-      max-width:90%;
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translate(-50%,-120px);
+      background: #0A2540;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease;
+      z-index: 9999;
+      font-weight: 600;
+      text-align: center;
+      max-width: 90%;
     }
 
-    .toast.show{
-      transform:translate(-50%,0);
-      opacity:1;
-      visibility:visible;
+    .toast.show {
+      transform: translate(-50%,0);
     }
 
-    .toast.success{
-      background:#00C896;
-      color:#001b14;
+    .toast.success {
+      background: #00C896;
     }
 
-    .toast.error{
-      background:#ef4444;
-      color:white;
+    .toast.error {
+      background: #ef4444;
     }
 
-    .toast.info{
-      background:#007BFF;
-      color:white;
+    .toast.info {
+      background: #007BFF;
     }
-
-    @media(max-width:650px){
 
-      .container{
-        padding:15px 12px;
+    @media(max-width:600px) {
+      .container {
+        padding: 15px;
       }
 
-      h1{
-        font-size:25px;
+      h1 {
+        font-size: 27px;
       }
 
-      .portfolio-card{
-        grid-template-columns:1fr;
-        gap:15px;
-        padding:18px;
+      .portfolio-card {
+        padding: 16px 10px;
+        gap: 8px;
       }
 
-      .grid{
-        grid-template-columns:1fr;
+      .portfolio-value {
+        font-size: 19px;
       }
 
-      .trader-card{
-        padding:18px;
+      .portfolio-label {
+        font-size: 10px;
       }
 
-      .stats{
-        gap:7px;
+      .grid {
+        grid-template-columns: 1fr;
       }
 
-      .stat{
-        padding:11px 5px;
-      }
-
-      .stat-value{
-        font-size:15px;
-      }
-
-      .modal-content{
-        padding:23px;
+      .modal-content {
+        padding: 24px;
       }
     }
   </style></head><body><div class="container">  <div class="header">
@@ -511,8 +404,7 @@
       <i class="fas fa-copy"></i>
       CYPX Copy Trading
     </h1><p class="subtitle">
-  Automatically copy trades from top CYPX traders.
-  Start with as low as $50.
+  Automatically copy trades from top CYPX traders. Start with as low as $50.
 </p>
 
   </div>  <div class="balance-card">
@@ -538,9 +430,8 @@
   Start Copy Trading
 </h2>
 
-<p
-  id="modalTraderName"
-  style="color:#94e2cc;margin-bottom:20px;">
+<p id="modalTraderName"
+   style="color:#94e2cc;margin-bottom:20px;">
 </p>
 
 <label>
@@ -552,17 +443,17 @@
   type="number"
   id="copyAmount"
   placeholder="500"
-  min="50">
+  min="50"
+>
 
-<label>
-  Max Daily Loss Limit
-</label>
+<label>Max Daily Loss Limit</label>
 
 <input
   type="number"
   id="lossLimit"
   placeholder="100"
-  min="10">
+  min="10"
+>
 
 <div class="modal-actions">
 
@@ -580,83 +471,23 @@
 
 </div>
 
-  </div></div><!-- CLOSE CONFIRMATION MODAL --><div class="modal" id="closeModalBox">  <div class="modal-content"><h2>
-  <i class="fas fa-stop-circle"></i>
-  Close Copy Trade
-</h2>
-
-<p
-  id="closeTraderName"
-  style="color:#94e2cc;margin-bottom:10px;">
-</p>
-
-<div class="close-info">
-
-  Your copy-trading capital:
-  <strong id="closeCapital">$0.00</strong>
-
-  <br><br>
-
-  Amount credited when closed:
-  <strong id="closeCredit">$0.00</strong>
-
-  <br><br>
-
-  Only <strong>10%</strong> of the capital used
-  in this copy trade will be credited to your balance.
-
-</div>
-
-<div class="modal-actions">
-
-  <button
-    class="copy-btn btn-secondary"
-    onclick="cancelClose()">
-    Cancel
-  </button>
-
-  <button
-    class="copy-btn close-modal"
-    onclick="confirmStopCopy()">
-    Confirm Close
-  </button>
-
-</div>
-
-  </div></div><div id="toast" class="toast"></div><!-- FIREBASE --><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
+  </div></div><div id="toast" class="toast"></div><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
 
 const firebaseConfig = {
-
-  apiKey:
-    "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-
-  authDomain:
-    "quantum-rio.firebaseapp.com",
-
-  databaseURL:
-    "https://quantum-rio-default-rtdb.firebaseio.com",
-
-  projectId:
-    "quantum-rio",
-
-  storageBucket:
-    "quantum-rio.firebasestorage.app",
-
-  messagingSenderId:
-    "805433999377",
-
-  appId:
-    "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-
-  measurementId:
-    "G-4RSQXZJX44"
+  apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
-
 
 const traders = [
 
@@ -734,52 +565,39 @@ const traders = [
 
 ];
 
-
 let selectedTrader = null;
 let currentUser = null;
 let userCopies = {};
 let userBalance = 0;
 let pnlInterval = null;
-let traderToClose = null;
-
 
 /* AUTH */
 
-auth.onAuthStateChanged(user=>{
+auth.onAuthStateChanged(user => {
 
-  if(!user){
+  if(!user)
+    return window.location.href = "signin.html";
 
-    window.location.href="signin.html";
-    return;
-  }
-
-  currentUser=user;
+  currentUser = user;
 
   loadUserBalance();
-  loadUserCopies();
-
   renderTraders();
-
+  loadUserCopies();
   startPnLSimulation();
 
 });
-
 
 /* FORMAT MONEY */
 
 function formatMoney(n){
 
   return "$" +
-    Number(n || 0).toLocaleString(
-      "en-US",
-      {
-        minimumFractionDigits:2,
-        maximumFractionDigits:2
-      }
-    );
+    Number(n || 0).toLocaleString("en-US",{
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    });
 
 }
-
 
 /* USER BALANCE */
 
@@ -791,25 +609,26 @@ function loadUserBalance(){
     "/balance"
   ).on("value",snap=>{
 
-    userBalance=
+    userBalance =
       Number(snap.val() || 0);
 
     document.getElementById(
       'userBalance'
-    ).innerText=
+    ).innerText =
       formatMoney(userBalance);
 
   });
 
 }
 
-
 /*
- * LOAD COPIES
+ * COPY TRADES
  *
- * Closed records are kept instead of immediately
- * deleting them so the trade remains permanently
- * recorded as closed.
+ * When a copy reaches "closed":
+ *
+ * CAPITAL + EXACTLY 10% PROFIT
+ *
+ * is credited to the user's balance.
  */
 
 function loadUserCopies(){
@@ -819,8 +638,113 @@ function loadUserCopies(){
     currentUser.uid
   ).on("value",snap=>{
 
-    userCopies=
+    const newData =
       snap.val() || {};
+
+    for(let id in newData){
+
+      const copy =
+        newData[id];
+
+      /*
+       * Only process a closed trade
+       * that has not already been credited.
+       */
+
+      if(
+        copy.status === "closed" &&
+        !copy.credited
+      ){
+
+        const capital =
+          Number(copy.amount || 0);
+
+        /*
+         * FIXED 10% RETURN
+         */
+        const profit =
+          capital * 0.10;
+
+        const totalCredit =
+          capital + profit;
+
+        showToast(
+          `${copy.traderName} trade closed. ` +
+          `${formatMoney(totalCredit)} credited ` +
+          `(capital + 10% profit)`,
+          "success"
+        );
+
+        /*
+         * 1. RETURN CAPITAL + 10% PROFIT
+         */
+        db.ref(
+          "users/" +
+          currentUser.uid +
+          "/balance"
+        ).transaction(current=>{
+
+          return (
+            Number(current || 0) +
+            totalCredit
+          );
+
+        });
+
+        /*
+         * 2. RECORD THE FIXED 10% PROFIT
+         */
+        db.ref(
+          "users/" +
+          currentUser.uid +
+          "/copyEarnings"
+        ).transaction(current=>{
+
+          return (
+            Number(current || 0) +
+            profit
+          );
+
+        });
+
+        /*
+         * 3. MARK CREDITED
+         */
+        db.ref(
+          `copy_trading/${currentUser.uid}/${id}`
+        ).update({
+
+          credited:true,
+
+          closedProfit:profit,
+
+          closedAmount:totalCredit,
+
+          closedAt:Date.now()
+
+        });
+
+        /*
+         * Remove the closed copy after
+         * the existing short delay.
+         */
+        setTimeout(()=>{
+
+          db.ref(
+            "copy_trading/" +
+            currentUser.uid +
+            "/" +
+            id
+          ).remove();
+
+        },3000);
+
+      }
+
+    }
+
+    userCopies =
+      newData;
 
     updatePortfolioSummary();
     renderTraders();
@@ -829,29 +753,25 @@ function loadUserCopies(){
 
 }
 
-
 /* PORTFOLIO */
 
 function updatePortfolioSummary(){
 
-  let totalAmount=0;
-  let totalPnL=0;
-  let count=0;
+  let totalAmount = 0;
+  let totalPnL = 0;
+  let count = 0;
 
   for(let id in userCopies){
 
-    const copy=userCopies[id];
-
-    if(!copy)
-      continue;
-
-    if(copy.status==="active"){
+    if(
+      userCopies[id].status === "active"
+    ){
 
       totalAmount +=
-        Number(copy.amount || 0);
+        Number(userCopies[id].amount || 0);
 
       totalPnL +=
-        Number(copy.pnl || 0);
+        Number(userCopies[id].pnl || 0);
 
       count++;
 
@@ -861,17 +781,17 @@ function updatePortfolioSummary(){
 
   document.getElementById(
     'totalCopied'
-  ).innerText=
+  ).innerText =
     formatMoney(totalAmount);
 
   document.getElementById(
     'totalPnL'
-  ).innerText=
+  ).innerText =
     formatMoney(totalPnL);
 
   document.getElementById(
     'totalPnL'
-  ).className=
+  ).className =
     `portfolio-value ${
       totalPnL >= 0
       ? 'green'
@@ -880,42 +800,46 @@ function updatePortfolioSummary(){
 
   document.getElementById(
     'activeCount'
-  ).innerText=count;
+  ).innerText =
+    count;
 
 }
 
 
-
-/* RENDER TRADERS */
+  /* TRADER CARDS */
 
 function renderTraders(){
 
-  const grid=
+  const grid =
     document.getElementById(
       'tradersGrid'
     );
 
-  grid.innerHTML=
+  grid.innerHTML =
     traders.map(t=>{
 
-      const copyData=
+      const copyData =
         userCopies[t.id];
 
-      const status=
+      const status =
         copyData?.status;
 
-      const isCopying=
-        status==="active";
+      const isCopying =
+        status === "active";
 
-      const isClosed=
-        status==="closed";
+      const isWaiting =
+        status === "pending_close";
 
-      const userPnL=
+      const userPnL =
         isCopying
         ? Number(copyData.pnl || 0)
         : 0;
 
-      const traderEarned=
+      /*
+       * Display the normal trader share
+       * while the copy is active.
+       */
+      const traderEarned =
         userPnL > 0
         ? (
             userPnL *
@@ -929,8 +853,6 @@ function renderTraders(){
       <div class="trader-card ${
         isCopying
         ? 'copying'
-        : isClosed
-        ? 'closed'
         : ''
       }">
 
@@ -941,7 +863,8 @@ function renderTraders(){
             <img
               src="${t.avatar}"
               alt="${t.name}"
-              onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=00C896&color=fff'">
+              onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=00C896&color=fff'"
+            >
 
           </div>
 
@@ -957,8 +880,10 @@ function renderTraders(){
 
             </div>
 
-            <div
-              style="font-size:12px;color:#94e2cc">
+            <div style="
+              font-size:12px;
+              color:#94e2cc
+            ">
               ${t.followers} Copiers
             </div>
 
@@ -966,172 +891,100 @@ function renderTraders(){
 
         </div>
 
-
         <div class="trader-bio">
           ${t.bio}
         </div>
 
-
         <div class="stats">
 
           <div class="stat">
-
             <div class="stat-label">
               30D ROI
             </div>
-
             <div class="stat-value green">
               ${t.roi}
             </div>
-
           </div>
 
-
           <div class="stat">
-
             <div class="stat-label">
               Win Rate
             </div>
-
             <div class="stat-value">
               ${t.winRate}
             </div>
-
           </div>
 
-
           <div class="stat">
-
             <div class="stat-label">
               Fee
             </div>
-
             <div class="stat-value gold">
               ${t.profitShare}%
             </div>
-
           </div>
 
         </div>
 
+        <div
+          class="pnl-box ${
+            isCopying
+            ? 'active'
+            : ''
+          }"
+          id="pnl-box-${t.id}"
+        >
 
-        ${
-          isCopying
-          ?
-          `
+          <div class="pnl-row">
 
-          <div
-            class="pnl-box active"
-            id="pnl-box-${t.id}">
+            <span class="pnl-label">
+              Your P&L
+            </span>
 
-            <div class="pnl-row">
-
-              <span class="pnl-label">
-                Your P&L
-              </span>
-
-              <span
-                class="pnl-value ${
-                  userPnL >= 0
-                  ? 'green'
-                  : 'red'
-                }"
-                id="pnl-${t.id}">
-
-                ${formatMoney(userPnL)}
-
-              </span>
-
-            </div>
-
-
-            <div class="pnl-row">
-
-              <span class="pnl-label">
-                Copied Amount
-              </span>
-
-              <span class="pnl-value">
-                ${formatMoney(copyData.amount)}
-              </span>
-
-            </div>
-
-
-            <div class="pnl-row">
-
-              <span class="pnl-label">
-                Trader Earned
-              </span>
-
-              <span class="pnl-value gold">
-                ${formatMoney(traderEarned)}
-              </span>
-
-            </div>
+            <span
+              class="pnl-value ${
+                userPnL >= 0
+                ? 'green'
+                : 'red'
+              }"
+              id="pnl-${t.id}"
+            >
+              ${formatMoney(userPnL)}
+            </span>
 
           </div>
 
-          `
+          <div class="pnl-row">
 
-          :
+            <span class="pnl-label">
+              Copied Amount
+            </span>
 
-          isClosed
-          ?
-
-          `
-
-          <div
-            class="pnl-box active closed-box">
-
-            <div class="pnl-row">
-
-              <span class="pnl-label">
-                Original Capital
-              </span>
-
-              <span class="pnl-value">
-                ${formatMoney(copyData.amount)}
-              </span>
-
-            </div>
-
-
-            <div class="pnl-row">
-
-              <span class="pnl-label">
-                Closing Credit
-              </span>
-
-              <span class="pnl-value blue">
-                ${formatMoney(copyData.closeCredit)}
-              </span>
-
-            </div>
-
-
-            <div class="pnl-row">
-
-              <span class="pnl-label">
-                Status
-              </span>
-
-              <span class="pnl-value blue">
-                CLOSED
-              </span>
-
-            </div>
+            <span class="pnl-value">
+              ${
+                formatMoney(
+                  isCopying
+                  ? copyData.amount
+                  : 0
+                )
+              }
+            </span>
 
           </div>
 
-          `
+          <div class="pnl-row">
 
-          :
+            <span class="pnl-label">
+              Trader Earned
+            </span>
 
-          ''
+            <span class="pnl-value gold">
+              ${formatMoney(traderEarned)}
+            </span>
 
-        }
+          </div>
 
+        </div>
 
         <div class="btn-group">
 
@@ -1143,28 +996,26 @@ function renderTraders(){
             `
             <button
               class="copy-btn stop-btn"
-              onclick="stopCopy('${t.id}')">
-
+              onclick="stopCopy('${t.id}')"
+            >
               <i class="fas fa-stop-circle"></i>
               Close Copy Trade
-
             </button>
             `
 
             :
 
-            isClosed
+            isWaiting
 
             ?
 
             `
             <button
-              class="copy-btn closed-btn"
-              disabled>
-
-              <i class="fas fa-check-circle"></i>
-              Trade Closed
-
+              class="copy-btn waiting-btn"
+              disabled
+            >
+              <i class="fas fa-hourglass-half"></i>
+              Closing Trade...
             </button>
             `
 
@@ -1173,11 +1024,10 @@ function renderTraders(){
             `
             <button
               class="copy-btn"
-              onclick="openModal('${t.id}')">
-
+              onclick="openModal('${t.id}')"
+            >
               <i class="fas fa-copy"></i>
               Copy Trader
-
             </button>
             `
 
@@ -1193,42 +1043,34 @@ function renderTraders(){
 
 }
 
-
-/*
- * P&L SIMULATION
- *
- * Existing simulation logic is preserved.
- * It only runs while the copy is ACTIVE.
- */
+/* PNL SIMULATION */
 
 function startPnLSimulation(){
 
   if(pnlInterval)
     clearInterval(pnlInterval);
 
-  pnlInterval=
+  pnlInterval =
     setInterval(()=>{
-
-      if(!currentUser)
-        return;
 
       for(let id in userCopies){
 
         if(
-          userCopies[id] &&
-          userCopies[id].status==="active"
+          userCopies[id].status === "active"
         ){
 
-          const amount=
-            Number(userCopies[id].amount || 0);
+          const amount =
+            Number(
+              userCopies[id].amount || 0
+            );
 
-          const maxChange=
+          const maxChange =
             amount * 0.02;
 
-          const isProfit=
+          const isProfit =
             Math.random() < 0.7;
 
-          const change=
+          const change =
             (
               Math.random() *
               maxChange
@@ -1239,14 +1081,17 @@ function startPnLSimulation(){
               : -1
             );
 
-          const newPnL=
-            Number(userCopies[id].pnl || 0) +
-            change;
+          const newPnL =
+            (
+              Number(
+                userCopies[id].pnl || 0
+              )
+            ) + change;
 
-          const minPnL=
+          const minPnL =
             -amount * 0.5;
 
-          const finalPnL=
+          const finalPnL =
             Math.max(
               minPnL,
               newPnL
@@ -1264,23 +1109,21 @@ function startPnLSimulation(){
 
 }
 
-
-/* OPEN COPY MODAL */
+/* OPEN MODAL */
 
 function openModal(traderId){
 
-  selectedTrader=
+  selectedTrader =
     traders.find(
-      t=>t.id===traderId
+      t=>t.id === traderId
     );
-
-  if(!selectedTrader)
-    return;
 
   document.getElementById(
     'modalTraderName'
-  ).innerText=
-    `Copy ${selectedTrader.name} | Trader takes ${selectedTrader.profitShare}% of your profits`;
+  ).innerText =
+    `Copy ${selectedTrader.name} | ` +
+    `Trader takes ${selectedTrader.profitShare}% ` +
+    `of your profits`;
 
   document.getElementById(
     'copyModal'
@@ -1288,8 +1131,7 @@ function openModal(traderId){
 
 }
 
-
-/* CLOSE COPY MODAL */
+/* CLOSE MODAL */
 
 function closeModal(){
 
@@ -1299,38 +1141,33 @@ function closeModal(){
 
   document.getElementById(
     'copyAmount'
-  ).value='';
+  ).value = '';
 
   document.getElementById(
     'lossLimit'
-  ).value='';
+  ).value = '';
 
 }
-
 
 /* CONFIRM COPY */
 
 function confirmCopy(){
 
-  const amount=
+  const amount =
     Number(
       document.getElementById(
         'copyAmount'
       ).value
     );
 
-  const lossLimit=
+  const lossLimit =
     Number(
       document.getElementById(
         'lossLimit'
       ).value
     );
 
-
-  if(
-    !amount ||
-    amount < 50
-  ){
+  if(!amount || amount < 50){
 
     return showToast(
       'Minimum copy amount is $50',
@@ -1338,7 +1175,6 @@ function confirmCopy(){
     );
 
   }
-
 
   if(!lossLimit){
 
@@ -1349,7 +1185,6 @@ function confirmCopy(){
 
   }
 
-
   if(amount > userBalance){
 
     return showToast(
@@ -1359,45 +1194,15 @@ function confirmCopy(){
 
   }
 
-
-  if(!selectedTrader)
-    return;
-
-
-  /*
-   * Prevent duplicate active copy.
-   */
-
-  const existing=
-    userCopies[
-      selectedTrader.id
-    ];
-
-  if(
-    existing &&
-    (
-      existing.status==="active" ||
-      existing.status==="closed"
-    )
-  ){
-
-    return showToast(
-      'This trader already has a copy-trading record.',
-      'error'
-    );
-
-  }
-
-
   db.ref(
     "users/" +
     currentUser.uid +
     "/balance"
-  ).transaction(
-    current=>
-      (Number(current)||0)-amount
   )
-
+  .transaction(
+    current =>
+      (Number(current) || 0) - amount
+  )
   .then(()=>{
 
     return db.ref(
@@ -1426,24 +1231,14 @@ function confirmCopy(){
         "active",
 
       startedAt:
-        Date.now(),
-
-      credited:
-        false,
-
-      closeCredit:
-        0,
-
-      closedAt:
-        null
+        Date.now()
 
     });
 
   })
-
   .then(()=>{
 
-    return db.ref(
+    db.ref(
       "copy_logs/" +
       currentUser.uid
     ).push({
@@ -1462,10 +1257,6 @@ function confirmCopy(){
 
     });
 
-  })
-
-  .then(()=>{
-
     showToast(
       `Now copying ${selectedTrader.name}`,
       'success'
@@ -1474,7 +1265,6 @@ function confirmCopy(){
     closeModal();
 
   })
-
   .catch(e=>{
 
     showToast(
@@ -1486,266 +1276,110 @@ function confirmCopy(){
 
 }
 
-
 /*
- * USER CLICKS CLOSE
+ * CLOSE COPY TRADE
  *
- * Opens confirmation window.
+ * CAPITAL + 10%
+ *
+ * Example:
+ * $50  -> $55
+ * $100 -> $110
+ * $500 -> $550
+ * $1,000 -> $1,100
  */
 
 function stopCopy(traderId){
 
-  const copyInfo=
+  const copyInfo =
     userCopies[traderId];
 
   if(
     !copyInfo ||
-    copyInfo.status!=="active"
+    copyInfo.status !== "active"
   ){
 
     return showToast(
-      "This trade is already closed.",
+      "Trade is already closing or closed",
       "error"
     );
 
   }
 
-
-  traderToClose={
-    traderId:
-      traderId,
-
-    copyInfo:
-      copyInfo
-  };
-
-
-  const capital=
+  const capital =
     Number(
       copyInfo.amount || 0
     );
 
-  const credit=
+  const fixedProfit =
     capital * 0.10;
 
-
-  document.getElementById(
-    'closeTraderName'
-  ).innerText=
-    `Close copy trading with ${copyInfo.traderName}`;
-
-  document.getElementById(
-    'closeCapital'
-  ).innerText=
-    formatMoney(capital);
-
-  document.getElementById(
-    'closeCredit'
-  ).innerText=
-    formatMoney(credit);
-
-
-  document.getElementById(
-    'closeModalBox'
-  ).classList.add('active');
-
-}
-
-
-/*
- * CANCEL CLOSE
- */
-
-function cancelClose(){
-
-  traderToClose=null;
-
-  document.getElementById(
-    'closeModalBox'
-  ).classList.remove('active');
-
-}
-
-
-/*
- * CONFIRM CLOSE
- *
- * ONLY 10% OF ORIGINAL CAPITAL
- * IS CREDITED.
- */
-
-function confirmStopCopy(){
-
-  if(!traderToClose)
-    return;
-
-
-  const traderId=
-    traderToClose.traderId;
-
-  const copyInfo=
-    traderToClose.copyInfo;
-
-  const capital=
-    Number(
-      copyInfo.amount || 0
-    );
-
-  const credit=
-    Number(
-      (capital * 0.10).toFixed(2)
-    );
-
-
-  if(capital <= 0){
-
-    return showToast(
-      'Invalid copy-trading amount.',
-      'error'
-    );
-
-  }
-
-
-  const copyRef=
-    db.ref(
-      `copy_trading/${currentUser.uid}/${traderId}`
-    );
-
+  const totalCredit =
+    capital + fixedProfit;
 
   /*
-   * ATOMIC STATE CHANGE
-   *
-   * This prevents the same active trade from
-   * being closed/credited twice.
+   * Close immediately.
+   * The existing loadUserCopies()
+   * listener handles the credit.
    */
+  db.ref(
+    `copy_trading/${currentUser.uid}/${traderId}`
+  )
+  .update({
 
-  copyRef.transaction(current=>{
+    status:
+      "closed",
 
-    if(!current)
-      return;
+    closeRequestedAt:
+      Date.now(),
 
-    if(current.status!=="active")
-      return;
+    closeCapital:
+      capital,
 
-    return {
+    closeProfit:
+      fixedProfit,
 
-      ...current,
-
-      status:
-        "closed",
-
-      credited:
-        true,
-
-      closeCredit:
-        credit,
-
-      closedAt:
-        firebase.database.ServerValue.TIMESTAMP,
-
-      closedPnl:
-        Number(current.pnl || 0)
-
-    };
+    closeCredit:
+      totalCredit
 
   })
+  .then(()=>{
 
-  .then(result=>{
+    db.ref(
+      "copy_logs/" +
+      currentUser.uid
+    ).push({
 
-    if(!result.committed){
+      action:
+        "CLOSE_COPY",
 
-      traderToClose=null;
+      traderId:
+        traderId,
 
-      document.getElementById(
-        'closeModalBox'
-      ).classList.remove('active');
+      amount:
+        capital,
 
-      return showToast(
-        'Trade has already been closed.',
-        'error'
-      );
+      profit:
+        fixedProfit,
 
-    }
+      totalCredit:
+        totalCredit,
 
-
-    /*
-     * CREDIT ONLY 10%
-     */
-
-    return db.ref(
-      "users/" +
-      currentUser.uid +
-      "/balance"
-    ).transaction(
-      current=>
-        (Number(current)||0) +
-        credit
-    )
-
-    .then(()=>{
-
-      /*
-       * Log the closure.
-       */
-
-      return db.ref(
-        "copy_logs/" +
-        currentUser.uid
-      ).push({
-
-        action:
-          "CLOSE_COPY",
-
-        traderId:
-          traderId,
-
-        traderName:
-          copyInfo.traderName,
-
-        originalCapital:
-          capital,
-
-        creditAmount:
-          credit,
-
-        pnlAtClose:
-          Number(copyInfo.pnl || 0),
-
-        timestamp:
-          Date.now()
-
-      });
+      timestamp:
+        Date.now()
 
     });
 
-  })
-
-  .then(()=>{
-
-    traderToClose=null;
-
-    document.getElementById(
-      'closeModalBox'
-    ).classList.remove('active');
-
     showToast(
-      `${copyInfo.traderName} closed. ${formatMoney(credit)} credited.`,
-      'success'
+      `Trade closed. ${formatMoney(totalCredit)} ` +
+      `will be credited (capital + 10%).`,
+      "success"
     );
 
   })
-
-  .catch(error=>{
-
-    console.error(
-      "Close trade error:",
-      error
-    );
+  .catch(e=>{
 
     showToast(
-      "Unable to close trade: " +
-      error.message,
+      "Error: " + e.message,
       "error"
     );
 
@@ -1753,30 +1387,29 @@ function confirmStopCopy(){
 
 }
 
-
 /* TOAST */
 
 function showToast(
   message,
-  type="info"
+  type = "info"
 ){
 
-  const toast=
+  const toast =
     document.getElementById(
       'toast'
     );
 
-  toast.className=
+  toast.className =
     `toast ${type} show`;
 
-  toast.innerText=
+  toast.innerText =
     message;
 
   clearTimeout(
     toast._timer
   );
 
-  toast._timer=
+  toast._timer =
     setTimeout(()=>{
 
       toast.classList.remove(
@@ -1787,44 +1420,6 @@ function showToast(
 
 }
 
-
-/* CLOSE MODALS WHEN CLICKING OUTSIDE */
-
-document.getElementById(
-  'copyModal'
-).addEventListener(
-  'click',
-  e=>{
-
-    if(
-      e.target.id==="copyModal"
-    ){
-
-      closeModal();
-
-    }
-
-  }
-);
-
-document.getElementById(
-  'closeModalBox'
-).addEventListener(
-  'click',
-  e=>{
-
-    if(
-      e.target.id==="closeModalBox"
-    ){
-
-      cancelClose();
-
-    }
-
-  }
-);
-
-
 /* BLOCK CONTEXT MENU */
 
 document.addEventListener(
@@ -1832,14 +1427,13 @@ document.addEventListener(
   e=>e.preventDefault()
 );
 
-
 /* BLOCK PINCH */
 
 document.addEventListener(
   'touchstart',
   e=>{
 
-    if(e.touches.length>1)
+    if(e.touches.length > 1)
       e.preventDefault();
 
   },
@@ -1850,11 +1444,10 @@ document.addEventListener(
   'touchend',
   e=>{
 
-    if(e.touches.length>1)
+    if(e.touches.length > 1)
       e.preventDefault();
 
-  },
-  {passive:false}
+  }
 );
 
 </script>
