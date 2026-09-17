@@ -1078,116 +1078,101 @@ function clearError(
    LOAD FIREBASE ONLY WHEN REQUIRED
 ========================================================= */
 
+let firebaseApp = null;
+let firebaseAuth = null;
 let firebaseDatabase = null;
 
 let firebasePush = null;
-
 let firebaseSet = null;
-
 let firebaseRef = null;
 
+let firebaseOnAuthStateChanged = null;
 let firebaseLoading = null;
 
-
 async function loadFirebase(){
-
-    /*
-      Firebase is deliberately NOT loaded when the page opens.
-
-      It is downloaded only when the user submits a payment.
-      This makes the initial page considerably lighter.
-    */
 
     if(firebaseDatabase){
         return firebaseDatabase;
     }
 
-
     if(firebaseLoading){
         return firebaseLoading;
     }
 
+    firebaseLoading = (async () => {
 
-    firebaseLoading =
-        (async () => {
+        const [
+            appModule,
+            authModule,
+            databaseModule
+        ] = await Promise.all([
 
-            const [
-    appModule,
-    authModule,
-    databaseModule
-] = await Promise.all([
+            import(
+                "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+            ),
 
-    import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-    ),
+            import(
+                "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+            ),
 
-    import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-    ),
+            import(
+                "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
+            )
 
-    import(
-        "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
-    )
+        ]);
 
-]);
+        const firebaseConfig = {
 
+            apiKey:
+                "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
 
-            const firebaseConfig = {
+            authDomain:
+                "quantum-rio.firebaseapp.com",
 
-                apiKey:
-                    "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+            databaseURL:
+                "https://quantum-rio-default-rtdb.firebaseio.com",
 
-                authDomain:
-                    "quantum-rio.firebaseapp.com",
+            projectId:
+                "quantum-rio",
 
-                databaseURL:
-                    "https://quantum-rio-default-rtdb.firebaseio.com",
+            storageBucket:
+                "quantum-rio.firebasestorage.app",
 
-                projectId:
-                    "quantum-rio",
+            messagingSenderId:
+                "805433999377",
 
-                storageBucket:
-                    "quantum-rio.firebasestorage.app",
+            appId:
+                "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
 
-                messagingSenderId:
-                    "805433999377",
+            measurementId:
+                "G-4RSQXZJX44"
 
-                appId:
-                    "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+        };
 
-                measurementId:
-                    "G-4RSQXZJX44"
+        firebaseApp =
+            appModule.initializeApp(firebaseConfig);
 
-            };
+        firebaseAuth =
+            authModule.getAuth(firebaseApp);
 
+        firebaseOnAuthStateChanged =
+            authModule.onAuthStateChanged;
 
-            const app =
-                appModule.initializeApp(
-                    firebaseConfig
-                );
-          const auth =
-    authModule.getAuth(app);
+        firebaseDatabase =
+            databaseModule.getDatabase(firebaseApp);
 
-            firebaseDatabase =
-                databaseModule.getDatabase(
-                    app
-                );
+        firebasePush =
+            databaseModule.push;
 
+        firebaseSet =
+            databaseModule.set;
 
-            firebasePush =
-                databaseModule.push;
+        firebaseRef =
+            databaseModule.ref;
 
-            firebaseSet =
-                databaseModule.set;
+        return firebaseDatabase;
 
-            firebaseRef =
-                databaseModule.ref;
-
-
-            return firebaseDatabase;
-
-        })();
-
+    })();
 
     try{
 
@@ -1201,8 +1186,7 @@ async function loadFirebase(){
 
     }
 
-}
-
+    }
 
 /* =========================================================
    SUBMIT PAYMENT
@@ -1382,15 +1366,59 @@ async function submitPayment(){
         };
 
 
-        /* ================= GET LOGGED-IN USER ================= */
 
-const auth =
-    authModule.getAuth(
-        firebaseApp
+
+/* ================= GET LOGGED-IN USER ================= */
+
+const user = await new Promise((resolve, reject) => {
+
+    let completed = false;
+
+    const unsubscribe =
+        firebaseOnAuthStateChanged(
+            firebaseAuth,
+            currentUser => {
+
+                if(!completed){
+
+                    completed = true;
+
+                    unsubscribe();
+
+                    resolve(currentUser);
+
+                }
+
+            },
+            error => {
+
+                if(!completed){
+
+                    completed = true;
+
+                    unsubscribe();
+
+                    reject(error);
+
+                }
+
+            }
+        );
+
+});
+
+if(!user){
+
+    showToast(
+        "Please login first.",
+        true
     );
 
-const user =
-    auth.currentUser;
+    return;
+
+}
+
+const uid = user.uid;
 
 if(!user){
 
