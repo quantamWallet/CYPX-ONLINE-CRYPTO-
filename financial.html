@@ -18,10 +18,10 @@ body{
 
 header{
   background:linear-gradient(90deg,#002f6c,#004aad);
-  padding:18px;
+  padding:12px;
   text-align:center;
   font-weight:bold;
-  font-size:20px;
+  font-size:16px;
 }
 
 .tabs{
@@ -31,79 +31,64 @@ header{
 
 .tab{
   flex:1;
-  padding:12px;
+  padding:9px;
   text-align:center;
   cursor:pointer;
   font-weight:bold;
+  font-size:12px;
   border-bottom:2px solid transparent;
 }
 
-.tab.active{
-  color:#00e0ff;
-  border-bottom:2px solid #00e0ff;
-}
-
 .record-list{
-  padding:15px;
+  padding:10px;
 }
 
 .record-item{
   background:linear-gradient(145deg,#003a78,#002b5c);
-  border-radius:14px;
-  padding:15px;
-  margin-bottom:15px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.4);
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+  box-shadow:0 5px 12px rgba(0,0,0,0.3);
 }
 
 .record-type{
   font-weight:bold;
-  font-size:15px;
+  font-size:12px;
   color:#00e0ff;
 }
 
 .record-item p{
-  margin:6px 0;
-  font-size:14px;
+  margin:4px 0;
+  font-size:11px;
 }
 
 .badge{
   display:inline-block;
-  padding:5px 10px;
+  padding:4px 8px;
   border-radius:20px;
-  font-size:12px;
+  font-size:10px;
   font-weight:bold;
-  margin-top:8px;
-}
-
-.badge.pending{
-  background:#ff9800;
-}
-
-.badge.completed,
-.badge.approved{
-  background:#28a745;
-}
-
-.badge.failed,
-.badge.rejected{
-  background:#e53935;
+  margin-top:5px;
 }
 
 .no-records{
   text-align:center;
-  margin-top:30px;
+  margin-top:20px;
   color:#ccc;
+  font-size:12px;
 }
 
 .footer-card{
   background:linear-gradient(145deg,#002b5c,#001f3f);
-  margin:20px 15px;
-  padding:15px;
-  border-radius:12px;
+  margin:15px 10px;
+  padding:10px;
+  border-radius:10px;
   text-align:center;
-  font-size:13px;
+  font-size:11px;
   color:#aaa;
 }
+
+/* BOTTOM NAVIGATION — UNCHANGED */
 
 nav{
   position:fixed;
@@ -281,9 +266,9 @@ db.ref("withdrawals/" + uid).on("value", snap => {
     if (w.status) {
       status = String(w.status).trim().toLowerCase();
 
-      if (status === "approved") status = "completed";
-      if (status === "declined") status = "failed";
-    }
+      if (status === "declined" || status === "failed") {
+  status = "rejected";
+      }
 
     withdrawals.push({
       type: "Withdrawal",
