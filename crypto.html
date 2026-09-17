@@ -181,7 +181,7 @@ Verified CYPX Wallets
 </div>
 
 <div class="minimum">
-<i class="fas fa-info-circle"></i> Minimum Deposit: $25
+<i class="fas fa-info-circle"></i> Minimum Deposit: $10
 </div>
 
 <ul class="steps">
@@ -200,7 +200,7 @@ Verified CYPX Wallets
 <div class="card">
 <h2><i class="fas fa-paper-plane"></i> Submit Crypto Deposit</h2>
 <form id="depositForm">
-<input type="number" id="amount" class="input" placeholder="Enter amount (Min $25)" required />
+<input type="number" id="amount" class="input" placeholder="Enter amount (Min $10)" required />
 <input type="file" id="receipt" class="input" accept="image/*" required />
 <button type="submit" class="submit-btn" id="submitBtn">
 <i class="fas fa-paper-plane"></i> Submit Deposit
@@ -333,8 +333,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     const selectedCrypto = cryptoSelect.value;
     const walletAddress = wallets[selectedCrypto];
 
-    if(amount < 25){
-      showPopup("Minimum deposit is $25","error");
+    if(amount < 10){
+      showPopup("Minimum deposit is $10","error");
       submitBtn.disabled = false;
       submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Deposit';
       return;
