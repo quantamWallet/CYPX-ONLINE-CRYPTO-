@@ -388,7 +388,7 @@ header h1 span{
 </div>
 
 <h1>
-    CYPX MINING
+    CYPX HOLDINGS 
     <span>FLUTTERWAVE DEPOSIT</span>
 </h1>
 
@@ -427,7 +427,7 @@ header h1 span{
     <span>🛡</span>
 
     Secure deposit powered by Flutterwave.
-    Minimum deposit is <b>$25</b>.
+    Minimum deposit is <b>$10</b>.
     After completing payment, return here and submit your payment details.
 
 </div>
@@ -529,7 +529,7 @@ header h1 span{
     <div class="form-group">
 
         <label>
-            Amount in USD ($) * — MINIMUM $25
+            Amount in USD ($) * — MINIMUM $10
         </label>
 
         <div class="convert-box">
@@ -537,8 +537,8 @@ header h1 span{
             <input
                 type="number"
                 id="usdAmount"
-                placeholder="Min. 25"
-                min="25"
+                placeholder="Min. 10"
+                min="10"
                 step="0.01"
                 inputmode="decimal"
                 autocomplete="off"
@@ -565,7 +565,7 @@ header h1 span{
             class="error-text"
             id="usdError">
 
-            Minimum deposit is $25
+            Minimum deposit is $10
 
         </div>
 
@@ -741,7 +741,7 @@ header h1 span{
 
 const USD_TO_UGX = 3750;
 
-const MINIMUM_USD = 25;
+const MINIMUM_USD = 10;
 
 const FLUTTERWAVE_URL =
     "https://flutterwave.com/pay/ugxeversend?email=nicelroberts141%40gmail.com&firstname=Nicel&lastname=Roberts";
@@ -924,7 +924,7 @@ function convertToUGX(){
     if(value < MINIMUM_USD){
 
         usdError.textContent =
-            "Minimum deposit is $25";
+            "Minimum deposit is $10";
 
         usdError.style.display =
             "block";
@@ -969,7 +969,7 @@ function openFlutterwave(){
     ){
 
         usdError.textContent =
-            "Enter a minimum deposit of $25";
+            "Enter a minimum deposit of $10";
 
         usdError.style.display =
             "block";
@@ -979,7 +979,7 @@ function openFlutterwave(){
         );
 
         showToast(
-            "Minimum deposit is $25",
+            "Minimum deposit is $10",
             true
         );
 
@@ -1229,7 +1229,7 @@ async function submitPayment(){
         setError(
             usdAmount,
             usdError,
-            "Minimum deposit is $25"
+            "Minimum deposit is $10"
         );
 
         hasError = true;
