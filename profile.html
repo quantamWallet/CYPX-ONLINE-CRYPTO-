@@ -389,24 +389,92 @@ function render(){
 
 /* AUTH */
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "signin.html";
-    return;
-  }
-  const uid = user.uid;
 
-  db.ref("admins/" + uid).once("value").then(snap => {
-    if (!snap.exists()) return;
-    const admin = snap.val();
-    if (admin.role === "admin" && admin.status === "active") {
-        document.getElementById("adminPanelBtn").style.display = "flex";
+    if (!user) {
+        window.location.href = "signin.html";
+        return;
     }
-  }).catch(console.error);
 
-  document.getElementById("user-email").textContent = user.email;
+    const uid = user.uid;
+
+    const allowedAdminEmails = [
+        "langos@gmail.com",
+        "cypxonlinecryptoinfo@gmail.com"
+    ];
+
+    const userEmail =
+        (user.email || "").trim().toLowerCase();
 
 
-/* EARNINGS */
+    /* CHECK EMAIL ACCESS */
+
+    if (!allowedAdminEmails.includes(userEmail)) {
+
+        console.warn(
+            "Unauthorized admin access attempt:",
+            userEmail
+        );
+
+        window.location.href = "index.html";
+        return;
+    }
+
+
+    /* CHECK FIREBASE ADMIN RECORD */
+
+    db.ref("admins/" + uid)
+        .once("value")
+        .then(snap => {
+
+            if (!snap.exists()) {
+
+                window.location.href = "index.html";
+                return;
+
+            }
+
+            const admin = snap.val();
+
+
+            if (
+                admin.role === "admin" &&
+                admin.status === "active"
+            ) {
+
+                document.getElementById(
+                    "adminPanelBtn"
+                ).style.display = "flex";
+
+            } else {
+
+                window.location.href =
+                    "index.html";
+
+            }
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Admin verification error:",
+                error
+            );
+
+            window.location.href =
+                "index.html";
+
+        });
+
+
+    /* DISPLAY EMAIL */
+
+    document.getElementById(
+        "user-email"
+    ).textContent = user.email;
+
+});
+  
+  /* EARNINGS */
 function loadEarnings() {
   let total = 0;
   let loaded = 0;
