@@ -733,14 +733,15 @@ header h1 span{
 
 </div>
 
-</div></div><script type="module">
+</div></div>
+
+    <script type="module">
 
 /* =========================================================
    CONFIGURATION
 ========================================================= */
 
 const USD_TO_UGX = 3750;
-
 const MINIMUM_USD = 10;
 
 const FLUTTERWAVE_URL =
@@ -748,53 +749,31 @@ const FLUTTERWAVE_URL =
 
 
 /* =========================================================
-   DOM CACHE
+   DOM
 ========================================================= */
 
-const page1 =
-    document.getElementById("page1");
+const page1 = document.getElementById("page1");
+const page2 = document.getElementById("page2");
 
-const page2 =
-    document.getElementById("page2");
+const formCard = document.getElementById("formCard");
+const successBox = document.getElementById("successBox");
 
-const formCard =
-    document.getElementById("formCard");
+const toast = document.getElementById("toast");
 
-const successBox =
-    document.getElementById("successBox");
+const continueBtn = document.getElementById("continueBtn");
+const backBtn = document.getElementById("backBtn");
 
-const toast =
-    document.getElementById("toast");
+const usdAmount = document.getElementById("usdAmount");
+const ugxAmount = document.getElementById("ugxAmount");
+const usdError = document.getElementById("usdError");
 
-const continueBtn =
-    document.getElementById("continueBtn");
+const userPhone = document.getElementById("userPhone");
+const phoneError = document.getElementById("phoneError");
 
-const backBtn =
-    document.getElementById("backBtn");
+const transId = document.getElementById("transId");
+const transError = document.getElementById("transError");
 
-const usdAmount =
-    document.getElementById("usdAmount");
-
-const ugxAmount =
-    document.getElementById("ugxAmount");
-
-const usdError =
-    document.getElementById("usdError");
-
-const userPhone =
-    document.getElementById("userPhone");
-
-const phoneError =
-    document.getElementById("phoneError");
-
-const transId =
-    document.getElementById("transId");
-
-const transError =
-    document.getElementById("transError");
-
-const paymentStatus =
-    document.getElementById("paymentStatus");
+const paymentStatus = document.getElementById("paymentStatus");
 
 const flutterwaveBtn =
     document.getElementById("flutterwaveBtn");
@@ -811,7 +790,6 @@ const successDetails =
 ========================================================= */
 
 let isSubmitting = false;
-
 let toastTimer = null;
 
 
@@ -846,47 +824,55 @@ function showToast(message, error = false){
 function openDepositForm(){
 
     page1.style.display = "none";
-
     page2.style.display = "block";
 
     window.scrollTo({
-        top:0,
-        behavior:"instant"
+        top: 0,
+        behavior: "instant"
     });
 
 }
+
 
 function closePage2(){
 
     page2.style.display = "none";
-
     page1.style.display = "block";
 
     window.scrollTo({
-        top:0,
-        behavior:"instant"
+        top: 0,
+        behavior: "instant"
     });
 
 }
 
 
 /* =========================================================
-   EVENTS
+   CONTINUE / BACK BUTTONS
 ========================================================= */
 
 continueBtn.addEventListener(
     "click",
-    openDepositForm
+    function(){
+
+        openDepositForm();
+
+    }
 );
+
 
 backBtn.addEventListener(
     "click",
-    closePage2
+    function(){
+
+        closePage2();
+
+    }
 );
 
 
 /* =========================================================
-   USD → UGX CONVERSION
+   USD → UGX
 ========================================================= */
 
 function convertToUGX(){
@@ -911,10 +897,8 @@ function convertToUGX(){
 
     }
 
-
     const amountUGX =
         value * USD_TO_UGX;
-
 
     ugxAmount.value =
         amountUGX.toLocaleString() +
@@ -954,7 +938,7 @@ usdAmount.addEventListener(
 
 
 /* =========================================================
-   OPEN FLUTTERWAVE
+   FLUTTERWAVE
 ========================================================= */
 
 function openFlutterwave(){
@@ -998,11 +982,6 @@ function openFlutterwave(){
     );
 
 
-    /*
-      Open immediately from the user click.
-      This avoids browser popup blockers.
-    */
-
     const paymentWindow =
         window.open(
             FLUTTERWAVE_URL,
@@ -1032,12 +1011,16 @@ function openFlutterwave(){
 
 flutterwaveBtn.addEventListener(
     "click",
-    openFlutterwave
+    function(){
+
+        openFlutterwave();
+
+    }
 );
 
 
 /* =========================================================
-   GENERIC FIELD VALIDATION
+   VALIDATION
 ========================================================= */
 
 function setError(
@@ -1074,8 +1057,8 @@ function clearError(
 }
 
 
-  /*=========================================================
-   LOAD FIREBASE ONLY WHEN REQUIRED
+/* =========================================================
+   FIREBASE
 ========================================================= */
 
 let firebaseApp = null;
@@ -1087,92 +1070,115 @@ let firebaseSet = null;
 let firebaseRef = null;
 
 let firebaseOnAuthStateChanged = null;
+
 let firebaseLoading = null;
+
 
 async function loadFirebase(){
 
     if(firebaseDatabase){
+
         return firebaseDatabase;
+
     }
+
 
     if(firebaseLoading){
+
         return firebaseLoading;
+
     }
 
-    firebaseLoading = (async () => {
 
-        const [
-            appModule,
-            authModule,
-            databaseModule
-        ] = await Promise.all([
+    firebaseLoading =
+        (async () => {
 
-            import(
-                "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-            ),
+            const [
+                appModule,
+                authModule,
+                databaseModule
+            ] = await Promise.all([
 
-            import(
-                "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-            ),
+                import(
+                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+                ),
 
-            import(
-                "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
-            )
+                import(
+                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+                ),
 
-        ]);
+                import(
+                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
+                )
 
-        const firebaseConfig = {
+            ]);
 
-            apiKey:
-                "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
 
-            authDomain:
-                "quantum-rio.firebaseapp.com",
+            const firebaseConfig = {
 
-            databaseURL:
-                "https://quantum-rio-default-rtdb.firebaseio.com",
+                apiKey:
+                    "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
 
-            projectId:
-                "quantum-rio",
+                authDomain:
+                    "quantum-rio.firebaseapp.com",
 
-            storageBucket:
-                "quantum-rio.firebasestorage.app",
+                databaseURL:
+                    "https://quantum-rio-default-rtdb.firebaseio.com",
 
-            messagingSenderId:
-                "805433999377",
+                projectId:
+                    "quantum-rio",
 
-            appId:
-                "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+                storageBucket:
+                    "quantum-rio.firebasestorage.app",
 
-            measurementId:
-                "G-4RSQXZJX44"
+                messagingSenderId:
+                    "805433999377",
 
-        };
+                appId:
+                    "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
 
-        firebaseApp =
-            appModule.initializeApp(firebaseConfig);
+                measurementId:
+                    "G-4RSQXZJX44"
 
-        firebaseAuth =
-            authModule.getAuth(firebaseApp);
+            };
 
-        firebaseOnAuthStateChanged =
-            authModule.onAuthStateChanged;
 
-        firebaseDatabase =
-            databaseModule.getDatabase(firebaseApp);
+            firebaseApp =
+                appModule.initializeApp(
+                    firebaseConfig
+                );
 
-        firebasePush =
-            databaseModule.push;
 
-        firebaseSet =
-            databaseModule.set;
+            firebaseAuth =
+                authModule.getAuth(
+                    firebaseApp
+                );
 
-        firebaseRef =
-            databaseModule.ref;
 
-        return firebaseDatabase;
+            firebaseOnAuthStateChanged =
+                authModule.onAuthStateChanged;
 
-    })();
+
+            firebaseDatabase =
+                databaseModule.getDatabase(
+                    firebaseApp
+                );
+
+
+            firebasePush =
+                databaseModule.push;
+
+            firebaseSet =
+                databaseModule.set;
+
+            firebaseRef =
+                databaseModule.ref;
+
+
+            return firebaseDatabase;
+
+        })();
+
 
     try{
 
@@ -1186,7 +1192,58 @@ async function loadFirebase(){
 
     }
 
-    }
+}
+
+
+/* =========================================================
+   WAIT FOR CURRENT USER
+========================================================= */
+
+function getCurrentUser(){
+
+    return new Promise(
+        (resolve, reject) => {
+
+            let finished = false;
+
+            const unsubscribe =
+                firebaseOnAuthStateChanged(
+                    firebaseAuth,
+
+                    user => {
+
+                        if(finished){
+                            return;
+                        }
+
+                        finished = true;
+
+                        unsubscribe();
+
+                        resolve(user);
+
+                    },
+
+                    error => {
+
+                        if(finished){
+                            return;
+                        }
+
+                        finished = true;
+
+                        unsubscribe();
+
+                        reject(error);
+
+                    }
+                );
+
+        }
+    );
+
+}
+
 
 /* =========================================================
    SUBMIT PAYMENT
@@ -1195,7 +1252,9 @@ async function loadFirebase(){
 async function submitPayment(){
 
     if(isSubmitting){
+
         return;
+
     }
 
 
@@ -1304,8 +1363,6 @@ async function submitPayment(){
         usd * USD_TO_UGX;
 
 
-    /* ================= LOCK BUTTON ================= */
-
     isSubmitting = true;
 
     submitBtn.disabled = true;
@@ -1316,21 +1373,51 @@ async function submitPayment(){
 
     try{
 
-        /*
-          Load Firebase only now.
-        */
+        /* ================= LOAD FIREBASE ================= */
 
         const db =
             await loadFirebase();
 
 
+        /* ================= CURRENT USER ================= */
+
+        const user =
+            await getCurrentUser();
+
+
+        if(!user){
+
+            showToast(
+                "Please login first.",
+                true
+            );
+
+            return;
+
+        }
+
+
+        const uid =
+            user.uid;
+
+
+        /* ================= PAYMENT DATA ================= */
+
         const paymentData = {
+
+            uid: uid,
 
             paymentMethod:
                 "Flutterwave",
 
             provider:
                 "Flutterwave",
+
+            method:
+                "Flutterwave",
+
+            amount:
+                usd,
 
             amountUSD:
                 usd,
@@ -1360,124 +1447,37 @@ async function submitPayment(){
             timestamp:
                 Date.now(),
 
+            createdAt:
+                Date.now(),
+
             date:
                 new Date().toISOString()
 
         };
 
 
+        /* ================= DATABASE PATH ================= */
+
+        const depositsRef =
+            firebaseRef(
+                db,
+                "deposits/" + uid
+            );
 
 
-/* ================= GET LOGGED-IN USER ================= */
+        const newPayment =
+            firebasePush(
+                depositsRef
+            );
 
-const user = await new Promise((resolve, reject) => {
 
-    let completed = false;
+        /* ================= SAVE ================= */
 
-    const unsubscribe =
-        firebaseOnAuthStateChanged(
-            firebaseAuth,
-            currentUser => {
-
-                if(!completed){
-
-                    completed = true;
-
-                    unsubscribe();
-
-                    resolve(currentUser);
-
-                }
-
-            },
-            error => {
-
-                if(!completed){
-
-                    completed = true;
-
-                    unsubscribe();
-
-                    reject(error);
-
-                }
-
-            }
+        await firebaseSet(
+            newPayment,
+            paymentData
         );
 
-});
-
-if(!user){
-
-    showToast(
-        "Please login first.",
-        true
-    );
-
-    return;
-
-}
-
-const uid = user.uid;
-
-if(!user){
-
-    showToast(
-        "Please login first.",
-        true
-    );
-
-    return;
-
-}
-
-const uid =
-    user.uid;
-
-
-/* ================= SAVE TO DEPOSITS ================= */
-
-const newPayment =
-    firebasePush(
-        firebaseRef(
-            db,
-            "deposits/" +
-            uid
-        )
-    );
-
-
-await firebaseSet(
-    newPayment,
-    {
-
-        ...paymentData,
-
-        uid:
-            uid,
-
-        amount:
-            usd,
-
-        amountUSD:
-            usd,
-
-        method:
-            "Flutterwave",
-
-        status:
-            "pending",
-
-        timestamp:
-            Date.now(),
-
-        createdAt:
-            Date.now()
-
-    }
-);
-
-        
 
         /* ================= SUCCESS ================= */
 
@@ -1524,17 +1524,15 @@ await firebaseSet(
         );
 
 
-        /*
-          Give the success message time to display
-          before redirecting.
-        */
+        setTimeout(
+            () => {
 
-        setTimeout(() => {
+                window.location.href =
+                    "financial.html";
 
-            window.location.href =
-                "financial.html";
-
-        }, 2500);
+            },
+            2500
+        );
 
 
     }catch(error){
@@ -1545,8 +1543,24 @@ await firebaseSet(
         );
 
 
+        let message =
+            "Failed to submit payment.";
+
+
+        if(
+            error &&
+            error.code ===
+            "PERMISSION_DENIED"
+        ){
+
+            message =
+                "Firebase permission denied.";
+
+        }
+
+
         showToast(
-            "Failed to submit payment. Please try again.",
+            message,
             true
         );
 
@@ -1567,12 +1581,16 @@ await firebaseSet(
 
 submitBtn.addEventListener(
     "click",
-    submitPayment
+    function(){
+
+        submitPayment();
+
+    }
 );
 
 
 /* =========================================================
-   HTML ESCAPE
+   ESCAPE HTML
 ========================================================= */
 
 function escapeHtml(value){
@@ -1608,7 +1626,7 @@ function escapeHtml(value){
 
 
 /* =========================================================
-   ENTER KEY SUPPORT
+   ENTER KEY
 ========================================================= */
 
 usdAmount.addEventListener(
@@ -1625,6 +1643,7 @@ usdAmount.addEventListener(
 
     }
 );
+
 
 transId.addEventListener(
     "keydown",
@@ -1656,6 +1675,5 @@ page2.style.display =
     "none";
 
 </script>
-
 </body>
 </html>
