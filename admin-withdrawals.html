@@ -2083,38 +2083,31 @@ function renderWithdrawals(
 
 
                             <button
-                                class="action-btn approve"
-                                onclick="
-                                    updateWithdrawal(
-                                        ${JSON.stringify(uid)},
-                                        ${JSON.stringify(id)},
-                                        'approved'
-                                    )
-                                ">
+    type="button"
+    class="action-btn approve"
+    data-uid="${escapeHTML(uid)}"
+    data-id="${escapeHTML(id)}"
+    data-status="approved">
 
-                                <i class="fas fa-check"></i>
+    <i class="fas fa-check"></i>
 
-                                Approve
+    Approve
 
-                            </button>
+</button>
 
 
                             <button
-                                class="action-btn reject"
-                                onclick="
-                                    updateWithdrawal(
-                                        ${JSON.stringify(uid)},
-                                        ${JSON.stringify(id)},
-                                        'rejected'
-                                    )
-                                ">
+    type="button"
+    class="action-btn reject"
+    data-uid="${escapeHTML(uid)}"
+    data-id="${escapeHTML(id)}"
+    data-status="rejected">
 
-                                <i class="fas fa-xmark"></i>
+    <i class="fas fa-xmark"></i>
 
-                                Reject
+    Reject
 
-                            </button>
-
+</button>
 
                         </div>
 
@@ -2181,15 +2174,118 @@ function renderWithdrawals(
 
     }
 
-    /* =========================================================
+   /* =========================================================
+   WITHDRAWAL BUTTON EVENTS
+========================================================= */
+
+document
+    .getElementById("withdrawList")
+    .addEventListener("click", function(event){
+
+        const button =
+            event.target.closest(".action-btn");
+
+        if(!button){
+
+            return;
+
+        }
+
+        const uid =
+            button.dataset.uid;
+
+        const id =
+            button.dataset.id;
+
+        const status =
+            button.dataset.status;
+
+        if(!uid || !id || !status){
+
+            showNotification(
+                "Invalid withdrawal details.",
+                true
+            );
+
+            return;
+
+        }
+
+        if(
+            status !== "approved" &&
+            status !== "rejected"
+        ){
+
+            return;
+
+        }
+
+        if(button.disabled){
+
+            return;
+
+        }
+
+        const originalHTML =
+            button.innerHTML;
+
+        button.disabled = true;
+
+        button.innerHTML = `
+            <i class="fas fa-spinner fa-spin"></i>
+            Processing...
+        `;
+
+        updateWithdrawal(
+            uid,
+            id,
+            status
+        )
+        .finally(() => {
+
+            button.disabled = false;
+
+            button.innerHTML =
+                originalHTML;
+
+        });
+
+    });
+
+   /* =========================================================
    UPDATE WITHDRAWAL
 ========================================================= */
 
-function updateWithdrawal(
+async function updateWithdrawal(
     uid,
     id,
     status
 ){
+
+    if(!uid || !id){
+
+        showNotification(
+            "Invalid withdrawal request.",
+            true
+        );
+
+        return;
+
+    }
+
+    if(
+        status !== "approved" &&
+        status !== "rejected"
+    ){
+
+        showNotification(
+            "Invalid withdrawal status.",
+            true
+        );
+
+        return;
+
+    }
 
     const withdrawRef =
         db.ref(
@@ -2199,115 +2295,102 @@ function updateWithdrawal(
             id
         );
 
+    try{
 
-    withdrawRef
-    .once("value")
-    .then(
-        snapshot => {
+        const snapshot =
+            await withdrawRef.once("value");
 
-            let withdrawal =
-                snapshot.val();
+        const withdrawal =
+            snapshot.val();
 
-
-            if(!withdrawal){
-
-                showNotification(
-                    "Withdrawal request not found.",
-                    true
-                );
-
-                return;
-
-            }
-
-
-            /*
-             * EXISTING UPDATE LOGIC PRESERVED.
-             */
-
-            return withdrawRef
-            .update({
-
-                status:
-                    status,
-
-                processedAt:
-                    firebase.database.ServerValue.TIMESTAMP,
-
-                processedBy:
-                    adminEmail
-
-            })
-            .then(
-                () => {
-
-
-                    /*
-                     * EXISTING ADMIN LOG
-                     * LOGIC PRESERVED.
-                     */
-
-                    return db.ref(
-                        "adminLogs"
-                    )
-                    .push({
-
-                        action:
-                            "Withdrawal " +
-                            status,
-
-                        user:
-                            uid,
-
-                        amount:
-                            Number(
-                                withdrawal.amount ||
-                                0
-                            ),
-
-                        admin:
-                            adminEmail,
-
-                        adminUID:
-                            adminUID,
-
-                        time:
-                            Date.now()
-
-                    });
-
-                }
-            )
-            .then(
-                () => {
-
-                    showNotification(
-                        "Withdrawal " +
-                        status +
-                        " successfully."
-                    );
-
-                }
-            );
-
-        }
-    )
-    .catch(
-        error => {
-
-            console.error(
-                "Withdrawal update error:",
-                error
-            );
-
+        if(!withdrawal){
 
             showNotification(
-                "Unable to update withdrawal.",
+                "Withdrawal request not found.",
                 true
             );
 
+            return;
+
         }
-    );
+
+        const currentStatus =
+            String(
+                withdrawal.status ||
+                "pending"
+            ).toLowerCase();
+
+        if(currentStatus !== "pending"){
+
+            showNotification(
+                "This withdrawal has already been processed.",
+                true
+            );
+
+            return;
+
+        }
+
+        await withdrawRef.update({
+
+            status:
+                status,
+
+            processedAt:
+                firebase.database.ServerValue.TIMESTAMP,
+
+            processedBy:
+                adminEmail
+
+        });
+
+        await db.ref("adminLogs").push({
+
+            action:
+                "Withdrawal " +
+                status,
+
+            user:
+                uid,
+
+            amount:
+                Number(
+                    withdrawal.amount || 0
+                ),
+
+            admin:
+                adminEmail,
+
+            adminUID:
+                adminUID,
+
+            time:
+                firebase.database.ServerValue.TIMESTAMP
+
+        });
+
+        showNotification(
+            "Withdrawal " +
+            status +
+            " successfully."
+        );
+
+    }catch(error){
+
+        console.error(
+            "Withdrawal update error:",
+            error
+        );
+
+        showNotification(
+            error.message ||
+            "Unable to update withdrawal.",
+            true
+        );
+
+        throw error;
+
+    }
 
 }
 
