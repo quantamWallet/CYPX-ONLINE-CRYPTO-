@@ -110,6 +110,20 @@ nav a{
 nav i{
   font-size:20px;
 }
+  .badge.pending{
+  background:#ff9800;
+  color:white;
+}
+
+.badge.approved{
+  background:#28a745;
+  color:white;
+}
+
+.badge.rejected{
+  background:#e53935;
+  color:white;
+  }
 </style>
 </head>
 
@@ -264,11 +278,27 @@ db.ref("withdrawals/" + uid).on("value", snap => {
     let status = "pending";
 
     if (w.status) {
-      status = String(w.status).trim().toLowerCase();
 
-      if (status === "declined" || status === "failed") {
-  status = "rejected";
-      }
+  status = String(w.status)
+    .trim()
+    .toLowerCase();
+
+  if (
+    status === "declined" ||
+    status === "failed"
+  ) {
+    status = "rejected";
+  }
+
+  if (
+    status !== "approved" &&
+    status !== "rejected" &&
+    status !== "pending"
+  ) {
+    status = "pending";
+  }
+
+  }
 
     withdrawals.push({
       type: "Withdrawal",
