@@ -1112,19 +1112,24 @@ async function loadFirebase(){
         (async () => {
 
             const [
-                appModule,
-                databaseModule
-            ] = await Promise.all([
+    appModule,
+    authModule,
+    databaseModule
+] = await Promise.all([
 
-                import(
-                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-                ),
+    import(
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+    ),
 
-                import(
-                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
-                )
+    import(
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
+    ),
 
-            ]);
+    import(
+        "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
+    )
+
+]);
 
 
             const firebaseConfig = {
@@ -1160,7 +1165,8 @@ async function loadFirebase(){
                 appModule.initializeApp(
                     firebaseConfig
                 );
-
+          const auth =
+    authModule.getAuth(app);
 
             firebaseDatabase =
                 databaseModule.getDatabase(
@@ -1376,20 +1382,74 @@ async function submitPayment(){
         };
 
 
-        const newPayment =
-            firebasePush(
-                firebaseRef(
-                    db,
-                    "cypx_payments"
-                )
-            );
+        /* ================= GET LOGGED-IN USER ================= */
+
+const auth =
+    authModule.getAuth(
+        firebaseApp
+    );
+
+const user =
+    auth.currentUser;
+
+if(!user){
+
+    showToast(
+        "Please login first.",
+        true
+    );
+
+    return;
+
+}
+
+const uid =
+    user.uid;
 
 
-        await firebaseSet(
-            newPayment,
-            paymentData
-        );
+/* ================= SAVE TO DEPOSITS ================= */
 
+const newPayment =
+    firebasePush(
+        firebaseRef(
+            db,
+            "deposits/" +
+            uid
+        )
+    );
+
+
+await firebaseSet(
+    newPayment,
+    {
+
+        ...paymentData,
+
+        uid:
+            uid,
+
+        amount:
+            usd,
+
+        amountUSD:
+            usd,
+
+        method:
+            "Flutterwave",
+
+        status:
+            "pending",
+
+        timestamp:
+            Date.now(),
+
+        createdAt:
+            Date.now()
+
+    }
+);
+
+        
 
         /* ================= SUCCESS ================= */
 
