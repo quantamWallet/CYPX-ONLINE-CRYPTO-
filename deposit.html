@@ -1,416 +1,328 @@
-<!DOCTYPE html><html lang="en">
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>Deposit - CYPX HOLDINGS</title>  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deposit - CYPX HOLDINGS</title>
 
-    html{
-      scroll-behavior:smooth;
-    }
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    body{
-      font-family:Arial,sans-serif;
-      background:linear-gradient(to bottom,#071426,#0d1b2a);
-      color:#fff;
-      min-height:100vh;
-      padding:20px;
-    }
+html { scroll-behavior: smooth; }
 
-    .page{
-      width:100%;
-      max-width:650px;
-      margin:0 auto;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #071426, #0d1b2a);
+  color: #fff;
+  min-height: 100vh;
+  padding: 20px;
+}
 
-    /* HEADER */
+.page {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+}
 
-    .header{
-      text-align:center;
-      margin-bottom:28px;
-      padding-top:5px;
-    }
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+  padding-top: 5px;
+}
 
-    .header-icon{
-      width:58px;
-      height:58px;
-      margin:0 auto 14px;
-      border-radius:16px;
-      background:linear-gradient(135deg,#007bff,#00c896);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:27px;
-      box-shadow:0 8px 25px rgba(0,200,150,.16);
-    }
+.header-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #007bff, #00c896);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 27px;
+  box-shadow: 0 8px 25px rgba(0,200,150,.16);
+}
 
-    .header h1{
-      color:#ffcc00;
-      font-size:28px;
-      margin-bottom:9px;
-      font-weight:800;
-    }
+.header h1 {
+  color: #ffcc00;
+  font-size: 28px;
+  margin-bottom: 9px;
+  font-weight: 800;
+}
 
-    .header p{
-      color:#b8c2ce;
-      font-size:14px;
-      line-height:1.5;
-    }
+.header p {
+  color: #b8c2ce;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
-    /* DEPOSIT CONTAINER */
+.deposit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-    .deposit-container{
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-    }
+.deposit-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    145deg,
+    rgba(16,35,61,.98),
+    rgba(12,30,52,.98)
+  );
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 17px;
+  padding: 20px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.25);
+  transition: transform .2s ease, border-color .2s ease;
+}
 
-    /* CARD */
+.deposit-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #ffcc00, #00c896);
+}
 
-    .deposit-card{
-      position:relative;
-      overflow:hidden;
-      background:linear-gradient(
-        145deg,
-        rgba(16,35,61,.98),
-        rgba(12,30,52,.98)
-      );
-      border:1px solid rgba(255,255,255,.07);
-      border-radius:17px;
-      padding:20px;
-      box-shadow:0 8px 28px rgba(0,0,0,.25);
-      transition:
-        transform .2s ease,
-        border-color .2s ease;
-    }
+.deposit-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,204,0,.3);
+}
 
-    .deposit-card::before{
-      content:"";
-      position:absolute;
-      top:0;
-      left:0;
-      width:100%;
-      height:3px;
-      background:linear-gradient(
-        90deg,
-        #ffcc00,
-        #00c896
-      );
-    }
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 13px;
+}
 
-    .deposit-card:hover{
-      transform:translateY(-2px);
-      border-color:rgba(255,204,0,.18);
-    }
+.card-icon {
+  width: 47px;
+  height: 47px;
+  flex: 0 0 47px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  background: rgba(255,204,0,.12);
+  border: 1px solid rgba(255,204,0,.2);
+}
 
-    .card-top{
-      display:flex;
-      align-items:center;
-      gap:13px;
-      margin-bottom:13px;
-    }
+.card-icon.uganda {
+  background: rgba(0,200,150,.12);
+  border-color: rgba(0,200,150,.22);
+}
 
-    .card-icon{
-      width:47px;
-      height:47px;
-      flex:0 0 47px;
-      border-radius:13px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:21px;
-      background:rgba(255,204,0,.12);
-      border:1px solid rgba(255,204,0,.2);
-    }
+.card-icon.airtel {
+  background: rgba(255,65,75,.13);
+  border-color: rgba(255,65,75,.35);
+}
 
-    .card-icon.uganda{
-      background:rgba(0,200,150,.12);
-      border-color:rgba(0,200,150,.22);
-    }
+.deposit-card h2 {
+  color: #ffcc00;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
 
-    .deposit-card h2{
-      color:#ffcc00;
-      margin:0;
-      font-size:20px;
-      font-weight:800;
-    }
+.card-subtitle {
+  color: #8293a8;
+  font-size: 11px;
+  margin-top: 4px;
+}
 
-    .card-subtitle{
-      color:#8293a8;
-      font-size:11px;
-      margin-top:3px;
-    }
+.deposit-card p {
+  color: #c7d0da;
+  line-height: 1.65;
+  font-size: 13px;
+  margin-bottom: 17px;
+}
 
-    .deposit-card p{
-      color:#c7d0da;
-      line-height:1.65;
-      font-size:13px;
-      margin-bottom:17px;
-    }
+.deposit-btn {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffcc00, #f5b800);
+  color: #071426;
+  text-align: center;
+  text-decoration: none;
+  transition: transform .15s ease, opacity .2s ease;
+  box-shadow: 0 5px 18px rgba(255,204,0,.12);
+}
 
-    /* BUTTON */
+.deposit-btn:hover { opacity: .94; }
 
-    .deposit-btn{
-      width:100%;
-      border:none;
-      outline:none;
-      padding:14px;
-      border-radius:12px;
-      font-size:14px;
-      font-weight:800;
-      cursor:pointer;
-      background:linear-gradient(
-        135deg,
-        #ffcc00,
-        #f5b800
-      );
-      color:#071426;
-      transition:
-        transform .15s ease,
-        opacity .2s ease,
-        box-shadow .2s ease;
-      box-shadow:0 5px 18px rgba(255,204,0,.12);
-    }
+.deposit-btn:active { transform: scale(.98); }
 
-    .deposit-btn:hover{
-      opacity:.94;
-      box-shadow:0 7px 22px rgba(255,204,0,.18);
-    }
+.deposit-btn.uganda-btn {
+  background: linear-gradient(135deg, #00c896, #00a878);
+  color: #fff;
+  box-shadow: 0 5px 18px rgba(0,200,150,.14);
+}
 
-    .deposit-btn:active{
-      transform:scale(.98);
-    }
+.deposit-btn.airtel-btn {
+  background: linear-gradient(135deg, #ff414b, #d90016);
+  color: #fff;
+  box-shadow: 0 5px 18px rgba(255,65,75,.18);
+}
 
-    .deposit-btn.uganda-btn{
-      background:linear-gradient(
-        135deg,
-        #00c896,
-        #00a878
-      );
-      color:#fff;
-      box-shadow:0 5px 18px rgba(0,200,150,.14);
-    }
+.info-box {
+  margin-top: 22px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.07);
+  border-left: 4px solid #ffcc00;
+  padding: 15px;
+  border-radius: 11px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #cbd5df;
+}
 
-    .deposit-btn.uganda-btn:hover{
-      box-shadow:0 7px 22px rgba(0,200,150,.2);
-    }
+.info-title {
+  color: #ffcc00;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
 
-    /* INFO BOX */
+.secure-note {
+  text-align: center;
+  color: #687b91;
+  font-size: 10px;
+  margin-top: 20px;
+  padding-bottom: 5px;
+}
 
-    .info-box{
-      margin-top:22px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.07);
-      border-left:4px solid #ffcc00;
-      padding:15px;
-      border-radius:11px;
-      font-size:12px;
-      line-height:1.7;
-      color:#cbd5df;
-    }
+@media(max-width:480px) {
+  body { padding: 15px; }
+  .header { margin-bottom: 22px; }
+  .header-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+  }
+  .header h1 { font-size: 24px; }
+  .header p { font-size: 13px; }
+  .deposit-card { padding: 18px; }
+  .deposit-card h2 { font-size: 18px; }
+  .deposit-card p { font-size: 12.5px; }
+}
+</style>
+</head>
 
-    .info-title{
-      color:#ffcc00;
-      font-weight:800;
-      margin-bottom:3px;
-    }
+<body>
+<div class="page">
 
-    /* FOOTER */
+  <header class="header">
+    <div class="header-icon">⇩</div>
+    <h1>Deposit Center</h1>
+    <p>
+      Choose your preferred deposit method to fund your
+      <strong>CYPX HOLDINGS</strong> account securely.
+    </p>
+  </header>
 
-    .secure-note{
-      text-align:center;
-      color:#687b91;
-      font-size:10px;
-      margin-top:20px;
-      padding-bottom:5px;
-    }
+  <main class="deposit-container">
 
-    /* MOBILE */
-
-    @media(max-width:480px){
-
-      body{
-        padding:15px;
-      }
-
-      .header{
-        margin-bottom:22px;
-      }
-
-      .header-icon{
-        width:52px;
-        height:52px;
-        font-size:24px;
-      }
-
-      .header h1{
-        font-size:24px;
-      }
-
-      .header p{
-        font-size:13px;
-      }
-
-      .deposit-card{
-        padding:18px;
-      }
-
-      .deposit-card h2{
-        font-size:18px;
-      }
-
-      .deposit-card p{
-        font-size:12.5px;
-      }
-
-    }
-  </style></head><body><div class="page">  <!-- HEADER -->  <div class="header"><div class="header-icon">
-  ⇩
-</div>
-
-<h1>
-  Deposit Center
-</h1>
-
-<p>
-  Choose your preferred deposit method to fund your
-  <strong>CYPX HOLDINGS</strong> account securely.
-</p>
-
-  </div>  <!-- DEPOSIT METHODS -->  <div class="deposit-container"><!-- CRYPTO DEPOSIT -->
-
-<div class="deposit-card">
-
-  <div class="card-top">
-
-    <div class="card-icon">
-      ₿
-    </div>
-
-    <div>
-
-      <h2>
-        Crypto Deposit
-      </h2>
-
-      <div class="card-subtitle">
-        Cryptocurrency &amp; supported networks
+    <!-- CRYPTO DEPOSIT -->
+    <section class="deposit-card">
+      <div class="card-top">
+        <div class="card-icon">₿</div>
+        <div>
+          <h2>Crypto Deposit</h2>
+          <div class="card-subtitle">
+            Cryptocurrency &amp; supported networks
+          </div>
+        </div>
       </div>
 
-    </div>
+      <p>
+        Deposit cryptocurrency into your CYPX HOLDINGS wallet.
+        Supported assets and networks include USDT, TRC20,
+        BEP20, TRX, BNB and other supported cryptocurrencies.
+      </p>
 
-  </div>
+      <a class="deposit-btn" href="crypto.html">
+        Proceed to Crypto Deposit →
+      </a>
+    </section>
 
-
-  <p>
-    Deposit cryptocurrency directly into your
-    CYPX HOLDINGS wallet. Supported assets and
-    networks include USDT, TRC20, BEP20, TRX,
-    BNB and other supported cryptocurrencies.
-  </p>
-
-
-  <button
-    class="deposit-btn"
-    type="button"
-    onclick="window.location.href='crypto.html'">
-
-    Proceed to Crypto Deposit
-    <span style="margin-left:6px;">→</span>
-
-  </button>
-
-</div>
-
-
-<!-- UGANDA DEPOSIT -->
-
-<div class="deposit-card">
-
-  <div class="card-top">
-
-    <div class="card-icon uganda">
-      🇺🇬
-    </div>
-
-    <div>
-
-      <h2>
-        Uganda Deposit
-      </h2>
-
-      <div class="card-subtitle">
-        Flutterwave • UGX / USD
+    <!-- KENYA AIRTEL MONEY DEPOSIT -->
+    <section class="deposit-card">
+      <div class="card-top">
+        <div class="card-icon airtel">A</div>
+        <div>
+          <h2>Airtel Money Kenya</h2>
+          <div class="card-subtitle">
+            🇰🇪 Kenya • Mobile Money • KES
+          </div>
+        </div>
       </div>
 
-    </div>
+      <p>
+        Deposit using Airtel Money Kenya through our designated
+        agent payment page. Follow the instructions and enter
+        your transaction details for verification.
+      </p>
 
+      <a class="deposit-btn airtel-btn" href="airtel.html">
+        🇰🇪 Proceed to Airtel Money →
+      </a>
+    </section>
+
+    <!-- UGANDA DEPOSIT -->
+    <section class="deposit-card">
+      <div class="card-top">
+        <div class="card-icon uganda">🇺🇬</div>
+        <div>
+          <h2>Uganda Deposit</h2>
+          <div class="card-subtitle">
+            Flutterwave • UGX / USD
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Make a deposit from Uganda using
+        <strong style="color:#00c896;">Flutterwave</strong>.
+        Enter your amount, complete the payment, then submit
+        your transaction reference for verification.
+      </p>
+
+      <a class="deposit-btn uganda-btn" href="flutterwave.html">
+        🇺🇬 Proceed to Uganda Deposit →
+      </a>
+    </section>
+
+  </main>
+
+  <div class="info-box">
+    <div class="info-title">Important Notice</div>
+    Please choose the correct deposit method and verify all
+    payment details before confirming your transaction.
+    Cryptocurrency transfers to an incorrect network may
+    result in delays or loss of funds. Mobile-money submissions
+    may require payment verification before your account is credited.
   </div>
 
-
-  <p>
-    Make a deposit from Uganda using
-    <strong style="color:#00c896;">
-      Flutterwave
-    </strong>.
-    Enter your amount, complete the secure payment,
-    then submit your Flutterwave transaction reference
-    for verification.
-  </p>
-
-
-  <button
-    class="deposit-btn uganda-btn"
-    type="button"
-    onclick="window.location.href='flutterwave.html'">
-
-    🇺🇬
-    Proceed to Uganda Deposit
-    <span style="margin-left:5px;">→</span>
-
-  </button>
-
-</div>
-
-  </div>  <!-- INFORMATION -->  <div class="info-box"><div class="info-title">
-  Important Notice
-</div>
-
-Please choose the correct deposit method and carefully
-verify all payment and network details before confirming
-your transaction. Incorrect cryptocurrency network
-transfers may result in delays or loss of funds.
-
-  </div>  <div class="secure-note">
+  <div class="secure-note">
     🔒 Secure deposit center • CYPX HOLDINGS
-  </div></div><script>
-/*
-  Lightweight navigation only.
-  No Firebase is required on this page because
-  the page only selects a deposit method.
-*/
+  </div>
 
-(function(){
-
-  "use strict";
-
-  const buttons =
-    document.querySelectorAll(".deposit-btn");
-
-  buttons.forEach(function(button){
-
-    button.addEventListener("click",function(){
-
-      button.style.transform =
-        "scale(.98)";
-
-    });
-
-  });
-
-})();
-</script></body>
+</div>
+</body>
 </html>
