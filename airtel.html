@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX HOLDINGS - Airtel Money Payment</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #050d25, #0a182c);
+  color: #fff;
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+  background: #101d32;
+  border: 1px solid #263952;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 15px 45px #0005;
+}
+
+.brand {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #9aadc6;
+  font-size: 13px;
+  margin-top: 7px;
+}
+
+.agent-card {
+  margin: 25px 0;
+  padding: 23px 15px;
+  text-align: center;
+  background: #192b43;
+  border: 1px solid #344961;
+  border-radius: 15px;
+}
+
+.airtel {
+  color: #ff4b55;
+  font-size: 23px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.agent-label {
+  color: #9aadc6;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.agent-name {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 9px;
+}
+
+.agent-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.copy-btn {
+  margin-top: 13px;
+  background: #293d57;
+  color: #fff;
+  border: 1px solid #536780;
+  padding: 9px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  color: #d8e2ef;
+  margin: 17px 0 8px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #354861;
+  background: #091629;
+  color: white;
+  outline: none;
+  font-size: 15px;
+}
+
+input:focus {
+  border-color: #ff4b55;
+  box-shadow: 0 0 0 2px #ff4b5525;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ed1c2e, #ff5656);
+}
+
+.submit-btn:disabled {
+  opacity: .65;
+}
+
+.notice {
+  margin-top: 16px;
+  padding: 12px;
+  text-align: center;
+  border-radius: 9px;
+  background: #172a40;
+  color: #bdcde0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 25px;
+  transform: translate(-50%, -20px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: #142b42;
+  border: 1px solid #ff4b55;
+  color: white;
+  text-align: center;
+  width: max-content;
+  max-width: 90%;
+  transition: .25s;
+  z-index: 10;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.footer {
+  text-align: center;
+  color: #758ba6;
+  font-size: 11px;
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="brand">CYPX HOLDINGS</div>
+  <div class="subtitle">Secure Agent Payment Portal</div>
+
+  <div class="agent-card">
+    <div class="airtel">AIRTEL MONEY</div>
+    <div class="agent-label">AGENT NAME</div>
+    <div class="agent-name">Hassan Abdi</div>
+    <div class="agent-label">AGENT NUMBER</div>
+    <div class="agent-number">0750858351</div>
+    <button type="button" class="copy-btn" id="copyBtn">
+      Copy Agent Number
+    </button>
+  </div>
+
+  <form id="paymentForm">
+
+    <label for="amount">Payment Amount (KES)</label>
+    <input
+      type="number"
+      id="amount"
+      min="1"
+      step="0.01"
+      placeholder="Enter amount"
+      required
+    >
+
+    <label for="sender">Your Airtel Money Number</label>
+    <input
+      type="tel"
+      id="sender"
+      placeholder="e.g. 07XXXXXXXX"
+      pattern="[0-9+ ]{9,15}"
+      required
+    >
+
+    <label for="reference">Airtel Money Transaction ID</label>
+    <input
+      type="text"
+      id="reference"
+      maxlength="80"
+      placeholder="Enter transaction reference"
+      required
+    >
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      Submit Payment Details
+    </button>
+
+  </form>
+
+  <div class="notice">
+    Send your payment to the agent number above, then enter
+    your transaction details. Submission does not itself confirm
+    that funds have been received.
+  </div>
+
+  <div class="footer">
+    CYPX HOLDINGS &copy; 2026
+  </div>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const form = document.getElementById("paymentForm");
+const toast = document.getElementById("toast");
+const submitBtn = document.getElementById("submitBtn");
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2600);
+}
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText("0750858351");
+    showToast("Agent number copied successfully");
+  } catch (error) {
+    showToast("Please copy the number: 0750858351");
+  }
+});
+
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  if (!form.reportValidity()) return;
+
+  const payment = {
+    agentName: "Hassan Abdi",
+    agentNumber: "0750858351",
+    method: "Airtel Money",
+    amount: Number(document.getElementById("amount").value),
+    senderNumber: document.getElementById("sender").value.trim(),
+    transactionId: document.getElementById("reference").value.trim(),
+    status: "pending_verification",
+    submittedAt: new Date().toISOString()
+  };
+
+  try {
+    sessionStorage.setItem(
+      "cypxAgentPayment",
+      JSON.stringify(payment)
+    );
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+
+    showToast("Details submitted. Redirecting...");
+
+    setTimeout(() => {
+      window.location.href = "financial.html";
+    }, 900);
+
+  } catch (error) {
+    showToast("Unable to save details. Please try again.");
+  }
+});
+</script>
+
+</body>
+                                          </html>
+                                          
