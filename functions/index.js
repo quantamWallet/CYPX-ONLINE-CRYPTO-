@@ -4,6 +4,7 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 const db = admin.database();
+const retryable = functions.runWith({ failurePolicy: true });
 
 const DASHBOARD_URL = "/CYPX-ONLINE-CRYPTO-/dashboard.html";
 
@@ -237,7 +238,7 @@ async function sendAutomaticNotification({
    3. AUTOMATIC DEPOSIT APPROVAL / REJECTION
    ===================================================== */
 
-exports.depositStatusNotification = functions.database
+exports.depositStatusNotification = retryable.database
     .ref("/deposits/{uid}/{depositId}")
     .onUpdate(async (change, context) => {
 
@@ -300,7 +301,7 @@ exports.depositStatusNotification = functions.database
    4. AUTOMATIC WITHDRAWAL APPROVAL / REJECTION
    ===================================================== */
 
-exports.withdrawalStatusNotification = functions.database
+exports.withdrawalStatusNotification = retryable.database
     .ref("/withdrawals/{uid}/{requestId}")
     .onUpdate(async (change, context) => {
 
