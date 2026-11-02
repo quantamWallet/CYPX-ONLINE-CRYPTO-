@@ -511,7 +511,9 @@ nav i{
             loading="eager">
         <h2 style="margin:0;">CYPX HOLDINGS</h2>
     </div>
-
+<button id="enableNotificationsBtn">
+    🔔 Enable Notifications
+</button>
     <a href="notifications.html" class="notification-icon">
         <i class="fas fa-bell"></i>
         <span id="notificationBadge">0</span>
@@ -1654,31 +1656,15 @@ if("serviceWorker" in navigator){
         "load",
         function(){
 
-            navigator.serviceWorker
-                .register(
-                    "/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js"
-                )
-                .then(reg => {
-
-                    console.log(
-                        "SW registered:",
-                        reg.scope
-                    );
-
-                })
-                .catch(err => {
-
-                    console.error(
-                        "SW failed:",
-                        err
-                    );
-
-                });
-
-        }
-    );
-
-}
+            navigator.serviceWorker.register(
+  "/CYPX-ONLINE-CRYPTO-/firebase-messaging-sw.js"
+)
+.then((registration) => {
+  console.log("Service Worker registered:", registration.scope);
+})
+.catch((error) => {
+  console.error("Service Worker registration failed:", error);
+});
 
 
 /*
@@ -1742,7 +1728,11 @@ window.addEventListener(
     }
 );
 
-
+if(
+    Notification.permission !== "granted"
+){
+    return;
+      }
 async function initializeFCM(){
 
     try{
