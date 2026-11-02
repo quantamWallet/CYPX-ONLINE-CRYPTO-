@@ -5,45 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>CYPX Admin - Notifications</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
   <style>
-    *{box-sizing:border-box;margin:0;padding:0;}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Segoe UI', Arial;
       background: linear-gradient(160deg,#050e1a 0%,#001f3f 100%);
       color: #fff;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ANDROID HEADER */
-   .appbar{
-      background:rgba(0,47,108,0.9);
-      backdrop-filter:blur(10px);
-      padding:16px;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      border-bottom:1px solid rgba(0,212,255,0.2);
-      position:sticky;
-      top:0;
-      z-index:10;
-    }
-   .appbar h2{font-size:18px;font-weight:800;flex:1;}
-
-   .container {
-      flex:1;
+    .appbar {
+      background: rgba(0,47,108,0.9);
+      backdrop-filter: blur(10px);
       padding: 16px;
-      overflow-y:auto;
-      padding-bottom:100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(0,212,255,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-   .card {
+    .appbar h2 {
+      font-size: 18px;
+      font-weight: 800;
+      flex: 1;
+    }
+
+    .container {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      padding-bottom: 100px;
+    }
+
+    .card {
       background: rgba(0,26,51,0.7);
       padding: 16px;
       border-radius: 16px;
-      margin-bottom:16px;
-      border:1px solid rgba(0,212,255,0.1);
+      margin-bottom: 16px;
+      border: 1px solid rgba(0,212,255,0.1);
     }
 
     input, textarea, select {
@@ -54,9 +64,13 @@
       border: 1px solid rgba(255,255,255,0.1);
       background: #0b1b2d;
       color: #fff;
-      font-size:15px;
+      font-size: 15px;
     }
-    input:focus, textarea:focus, select:focus{border-color:#00d4ff;outline:none;}
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #00d4ff;
+      outline: none;
+    }
 
     button {
       width: 100%;
@@ -68,36 +82,65 @@
       color: #000;
       font-weight: 800;
       cursor: pointer;
-      font-size:16px;
+      font-size: 16px;
     }
-    button:hover { transform:scale(1.02); }
-    button:disabled { background: #333; color: #777; cursor: not-allowed; }
 
-   .log {
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    button:disabled {
+      background: #333;
+      color: #777;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .log {
       background: #000;
       padding: 12px;
       border-radius: 12px;
       height: 180px;
-      overflow-y: scroll;
+      overflow-y: auto;
       font-size: 12px;
       border: 1px solid #222;
       font-family: monospace;
+      overflow-wrap: anywhere;
     }
 
-   .templates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-   .templates button {
+    .templates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .templates button {
       background: rgba(0,43,92,0.8);
       color: #fff;
       margin: 0;
       font-size: 13px;
-      padding:12px;
-      border:1px solid rgba(0,212,255,0.2);
+      padding: 12px;
+      border: 1px solid rgba(0,212,255,0.2);
     }
-   .templates button:hover { background: #004a99; }
 
-    label { font-size: 13px; color: #00d4ff; font-weight:600; margin-top:8px;display:block; }
-   .user-count { font-size: 12px; color: #25d366; }
-   .admin-info {
+    .templates button:hover {
+      background: #004a99;
+    }
+
+    label {
+      font-size: 13px;
+      color: #00d4ff;
+      font-weight: 600;
+      margin-top: 8px;
+      display: block;
+    }
+
+    .user-count {
+      font-size: 12px;
+      color: #25d366;
+    }
+
+    .admin-info {
       background: rgba(0,212,255,0.1);
       padding: 12px;
       border-radius: 10px;
@@ -106,193 +149,658 @@
       border: 1px solid #00d4ff;
     }
 
-   .broadcast-btn{
+    .broadcast-btn {
       background: linear-gradient(135deg,#ff9500,#ff3b30);
-      color:#fff;
+      color: #fff;
     }
   </style>
 </head>
+
 <body>
+
   <div class="appbar">
     <i class="fas fa-bullhorn"></i>
     <h2>CYPX Admin Panel</h2>
   </div>
 
   <div class="container">
-    <div class="admin-info" id="adminInfo"><i class="fas fa-spinner fa-spin"></i> Checking login...</div>
+
+    <div class="admin-info" id="adminInfo">
+      <i class="fas fa-spinner fa-spin"></i> Checking login...
+    </div>
 
     <div class="card">
-      <label><i class="fas fa-wand-magic-sparkles"></i> Quick Templates</label>
+      <label>
+        <i class="fas fa-wand-magic-sparkles"></i> Quick Templates
+      </label>
+
       <div class="templates">
-        <button type="button" onclick="fillTemplate('deposit')"><i class="fas fa-wallet"></i> Deposit</button>
-        <button type="button" onclick="fillTemplate('withdraw')"><i class="fas fa-money-bill-transfer"></i> Withdraw</button>
-        <button type="button" onclick="fillTemplate('vip')"><i class="fas fa-crown"></i> VIP</button>
-        <button type="button" onclick="fillTemplate('copy')"><i class="fas fa-chart-line"></i> Copy Trade</button>
+        <button type="button" onclick="fillTemplate('deposit')">
+          <i class="fas fa-wallet"></i> Deposit
+        </button>
+
+        <button type="button" onclick="fillTemplate('withdraw')">
+          <i class="fas fa-money-bill-transfer"></i> Withdraw
+        </button>
+
+        <button type="button" onclick="fillTemplate('vip')">
+          <i class="fas fa-crown"></i> VIP
+        </button>
+
+        <button type="button" onclick="fillTemplate('copy')">
+          <i class="fas fa-chart-line"></i> Copy Trade
+        </button>
       </div>
     </div>
 
     <div class="card">
-      <label><i class="fas fa-user-group"></i> Select User <span class="user-count" id="userCount"></span></label>
-      <select id="uid">
+
+      <label>
+        <i class="fas fa-user-group"></i>
+        Select User
+        <span class="user-count" id="userCount"></span>
+      </label>
+
+      <select id="uid" disabled>
         <option value="">-- Loading users... --</option>
-        <option value="all">📢 ALL USERS - Broadcast</option>
       </select>
 
-      <label><i class="fas fa-heading"></i> Title</label>
-      <input type="text" id="title" value="CYPX HOLDINGS">
+      <label>
+        <i class="fas fa-heading"></i> Title
+      </label>
 
-      <label><i class="fas fa-message"></i> Message</label>
-      <textarea id="body" rows="4" placeholder="Type your notification message..."></textarea>
+      <input
+        type="text"
+        id="title"
+        value="CYPX HOLDINGS"
+        maxlength="100"
+      >
 
-      <button id="sendBtn"><i class="fas fa-paper-plane"></i> Send Notification</button>
-      <button class="broadcast-btn" onclick="quickBroadcast()"><i class="fas fa-broadcast-tower"></i> Quick Broadcast to ALL</button>
+      <label>
+        <i class="fas fa-message"></i> Message
+      </label>
+
+      <textarea
+        id="body"
+        rows="4"
+        maxlength="1000"
+        placeholder="Type your notification message..."
+      ></textarea>
+
+      <button id="sendBtn" disabled>
+        <i class="fas fa-paper-plane"></i> Send Notification
+      </button>
+
+      <button
+        type="button"
+        class="broadcast-btn"
+        id="broadcastBtn"
+        disabled
+      >
+        <i class="fas fa-broadcast-tower"></i>
+        Quick Broadcast to ALL
+      </button>
+
     </div>
 
     <div class="card">
-      <h3 style="font-size:15px;margin-bottom:8px;"><i class="fas fa-terminal"></i> Activity Log</h3>
+      <h3 style="font-size:15px;margin-bottom:8px;">
+        <i class="fas fa-terminal"></i> Activity Log
+      </h3>
+
       <div class="log" id="log"></div>
     </div>
+
   </div>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-    authDomain: "quantum-rio.firebaseapp.com",
-    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
-    projectId: "quantum-rio",
-    storageBucket: "quantum-rio.firebasestorage.app",
-    messagingSenderId: "805433999377",
-    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-    measurementId: "G-4RSQXZJX44"
-  };
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const auth = getAuth(app);
-  const logEl = document.getElementById('log');
-  const sendBtn = document.getElementById('sendBtn');
-  const uidSelect = document.getElementById('uid');
-  const userCountEl = document.getElementById('userCount');
-  const adminInfoEl = document.getElementById('adminInfo');
+    import {
+      getDatabase,
+      ref,
+      push,
+      onValue,
+      get,
+      set
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  function log(msg, type='info') {
-    const color = type === 'error'? '#ff5555' : type === 'success'? '#00ff88' : '#aaa';
-    const icon = type === 'error'? '❌' : type === 'success'? '✅' : 'ℹ️';
-    logEl.innerHTML += `<span style="color:${color}">${icon} [${new Date().toLocaleTimeString()}] ${msg}</span><br>`;
-    logEl.scrollTop = logEl.scrollHeight;
-  }
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  onAuthStateChanged(auth, async (user) => {
-    if(!user) {
-      adminInfoEl.innerHTML = `❌ Not logged in`;
-      sendBtn.disabled = true;
-      uidSelect.disabled = true;
-      return;
+    import {
+      getFunctions,
+      httpsCallable
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
+
+    // FIREBASE CONFIGURATION
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+      authDomain: "quantum-rio.firebaseapp.com",
+      databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+      projectId: "quantum-rio",
+      storageBucket: "quantum-rio.firebasestorage.app",
+      messagingSenderId: "805433999377",
+      appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+      measurementId: "G-4RSQXZJX44"
+    };
+
+
+    // FIREBASE INITIALIZATION
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    // Default Cloud Functions region: us-central1
+    const functions = getFunctions(app);
+
+    const sendPushNotification = httpsCallable(
+      functions,
+      "sendNotification"
+    );
+
+
+    // PAGE ELEMENTS
+    const logEl = document.getElementById("log");
+    const sendBtn = document.getElementById("sendBtn");
+    const broadcastBtn = document.getElementById("broadcastBtn");
+    const uidSelect = document.getElementById("uid");
+    const userCountEl = document.getElementById("userCount");
+    const adminInfoEl = document.getElementById("adminInfo");
+
+    let isAdmin = false;
+    let isSending = false;
+    let usersListenerStarted = false;
+
+
+    // SAFE ACTIVITY LOG
+    function log(message, type = "info") {
+
+      const colors = {
+        error: "#ff5555",
+        success: "#00ff88",
+        info: "#aaa"
+      };
+
+      const icons = {
+        error: "❌",
+        success: "✅",
+        info: "ℹ️"
+      };
+
+      const line = document.createElement("div");
+      line.style.color = colors[type] || colors.info;
+
+      const time = new Date().toLocaleTimeString();
+
+      line.textContent =
+        `${icons[type] || icons.info} [${time}] ${message}`;
+
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
     }
-    const adminSnap = await get(ref(db, `admins/${user.uid}`));
-    if(adminSnap.exists() && ['admin','superadmin'].includes(adminSnap.val().role)){
-      adminInfoEl.innerHTML = `✅ ${user.email} | <b>${adminSnap.val().role}</b>`;
-      loadUsers();
-    } else {
-      adminInfoEl.innerHTML = `❌ Access Denied`;
-      sendBtn.disabled = true;
-      uidSelect.disabled = true;
-    }
-  });
 
-  function loadUsers(){
-    const usersRef = ref(db, 'users');
-    onValue(usersRef, (snapshot) => {
-      uidSelect.innerHTML = `<option value="">-- Select User --</option><option value="all">📢 ALL USERS - Broadcast</option>`;
-      let count = 0;
-      if(snapshot.exists()) {
-        snapshot.forEach(userSnap => {
-          count++;
-          const uid = userSnap.key;
-          const data = userSnap.val() || {};
-          const name = data.fullName || data.name || data.email || data.phone || uid.substring(0,8);
-          const option = document.createElement('option');
-          option.value = uid;
-          option.textContent = `${name} - ${uid.substring(0,8)}`;
-          uidSelect.appendChild(option);
-        });
-        log(`Loaded ${count} users`, 'success');
-      } else {
-        log(`No users found in /users`, 'error');
+
+    // BUTTON STATE
+    function setSendingState(sending) {
+
+      isSending = sending;
+
+      sendBtn.disabled = sending || !isAdmin;
+      broadcastBtn.disabled = sending || !isAdmin;
+      uidSelect.disabled = !isAdmin;
+
+      sendBtn.innerHTML = sending
+        ? '<i class="fas fa-spinner fa-spin"></i> Sending...'
+        : '<i class="fas fa-paper-plane"></i> Send Notification';
+
+      broadcastBtn.disabled = sending || !isAdmin;
+    }
+
+
+    // CHECK ADMIN LOGIN
+    onAuthStateChanged(auth, async (user) => {
+
+      isAdmin = false;
+
+      sendBtn.disabled = true;
+      broadcastBtn.disabled = true;
+      uidSelect.disabled = true;
+
+      if (!user) {
+
+        adminInfoEl.textContent = "❌ Not logged in";
+        log("Please log in with your admin account.", "error");
+
+        return;
       }
-      userCountEl.innerText = `(${count} users)`;
-    });
-  }
 
-  async function sendInAppNotification(uid, title, body, type = "manual") {
-    const notification = {
-      title, body, type, read: false,
-      timestamp: Date.now(),
-      url: "dashboard.html"
-    };
-    const notifRef = ref(db, `notifications/${uid}`);
-    const newNotifRef = push(notifRef);
-    await set(newNotifRef, notification);
-    return newNotifRef.key;
-  }
+      try {
 
-  window.fillTemplate = (type) => {
-    const templates = {
-      deposit: {title: "Deposit Successful ✅", body: "KSH 5,000 has been added to your CYPX wallet."},
-      withdraw: {title: "Withdrawal Processed 💸", body: "Your withdrawal of KSH 2,000 is on the way to M-PESA."},
-      vip: {title: "VIP Level Unlocked 🔓", body: "Congrats! You are now VIP 3. Higher returns unlocked."},
-      copy: {title: "New Copy Trade 📈", body: "Pro Trader 'AlphaFX' just opened a BTC trade. Auto-copied."}
-    };
-    if(templates[type]) {
-      document.getElementById('title').value = templates[type].title;
-      document.getElementById('body').value = templates[type].body;
-    }
-  }
+        const adminSnap = await get(
+          ref(db, `admins/${user.uid}`)
+        );
 
-  // QUICK BROADCAST BUTTON
-  window.quickBroadcast = () => {
-    document.getElementById('uid').value = "all";
-    sendNotification();
-  }
+        const adminData = adminSnap.val();
 
-  async function sendNotification(){
-    const uid = document.getElementById('uid').value.trim();
-    const title = document.getElementById('title').value.trim();
-    const body = document.getElementById('body').value.trim();
-    if(!uid ||!title ||!body) return log("Fill all fields", 'error');
+        if (
+          adminSnap.exists() &&
+          adminData &&
+          ["admin", "superadmin"].includes(adminData.role)
+        ) {
 
-    sendBtn.disabled = true;
-    sendBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Sending...`;
+          isAdmin = true;
 
-    try {
-      if(uid.toLowerCase() === 'all') {
-        log("Broadcasting to ALL users...", 'info');
-        const snap = await get(ref(db, 'users'));
-        if(!snap.exists()) return log("No users found", 'error');
-        let successCount = 0;
-        const usersData = snap.val();
-        for(const userUid in usersData){
-          await sendInAppNotification(userUid, title, body, "broadcast");
-          successCount++;
+          adminInfoEl.textContent =
+            `${user.email || user.uid} | ${adminData.role}`;
+
+          log("Admin login verified.", "success");
+
+          if (!usersListenerStarted) {
+            usersListenerStarted = true;
+            loadUsers();
+          }
+
+          sendBtn.disabled = false;
+          broadcastBtn.disabled = false;
+          uidSelect.disabled = false;
+
+        } else {
+
+          adminInfoEl.textContent = "❌ Access Denied";
+
+          log("This account does not have admin access.", "error");
         }
-        log(`Broadcast sent to ${successCount} users`, 'success');
-      } else {
-        const key = await sendInAppNotification(uid, title, body, "manual");
-        log(`Sent to ${uid.substring(0,8)}. ID: ${key}`, 'success');
-      }
-      document.getElementById('body').value = ""; // clear after send
-    } catch(err) {
-      log("Error: " + err.message, 'error');
-    }
-    sendBtn.disabled = false;
-    sendBtn.innerHTML = `<i class="fas fa-paper-plane"></i> Send Notification`;
-  }
 
-  sendBtn.addEventListener('click', sendNotification);
+      } catch (error) {
+
+        adminInfoEl.textContent = "❌ Unable to verify admin";
+
+        log(
+          "Admin verification failed: " + error.message,
+          "error"
+        );
+      }
+
+    });
+
+
+    // LOAD USERS
+    function loadUsers() {
+
+      const usersRef = ref(db, "users");
+
+      onValue(
+        usersRef,
+
+        (snapshot) => {
+
+          uidSelect.innerHTML = "";
+
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.textContent = "-- Select User --";
+          uidSelect.appendChild(defaultOption);
+
+          const allOption = document.createElement("option");
+          allOption.value = "all";
+          allOption.textContent = "📢 ALL USERS - Broadcast";
+          uidSelect.appendChild(allOption);
+
+          let count = 0;
+
+          if (snapshot.exists()) {
+
+            snapshot.forEach((userSnap) => {
+
+              count++;
+
+              const uid = userSnap.key;
+              const data = userSnap.val() || {};
+
+              const name =
+                data.fullName ||
+                data.name ||
+                data.email ||
+                data.phone ||
+                uid.substring(0, 8);
+
+              const option = document.createElement("option");
+
+              option.value = uid;
+              option.textContent =
+                `${name} - ${uid.substring(0, 8)}`;
+
+              uidSelect.appendChild(option);
+
+            });
+
+            log(`Loaded ${count} users.`, "success");
+
+          } else {
+
+            log("No users found in /users.", "error");
+          }
+
+          userCountEl.textContent = `(${count} users)`;
+
+        },
+
+        (error) => {
+          log("Unable to load users: " + error.message, "error");
+        }
+      );
+
+    }
+
+
+    // SAVE IN-APP NOTIFICATION AND SEND PHONE PUSH
+    async function sendInAppNotification(
+      uid,
+      title,
+      body,
+      type = "manual"
+    ) {
+
+      // Save the in-app notification first.
+      const notification = {
+        title: title,
+        body: body,
+        type: type,
+        read: false,
+        timestamp: Date.now(),
+        url: "dashboard.html"
+      };
+
+      const notifRef = ref(db, `notifications/${uid}`);
+      const newNotifRef = push(notifRef);
+
+      await set(newNotifRef, notification);
+
+      // Retrieve the recipient's FCM token.
+      let token = null;
+
+      try {
+
+        const tokenSnap = await get(
+          ref(db, `users/${uid}/fcmToken`)
+        );
+
+        token = tokenSnap.val();
+
+      } catch (error) {
+
+        log(
+          `Could not read push token for ${uid.substring(0, 8)}: ${error.message}`,
+          "error"
+        );
+
+        return {
+          key: newNotifRef.key,
+          pushSent: false
+        };
+      }
+
+
+      // In-app notification remains saved even without a push token.
+      if (!token) {
+
+        log(
+          `In-app notification saved. No push token for ${uid.substring(0, 8)}.`,
+          "info"
+        );
+
+        return {
+          key: newNotifRef.key,
+          pushSent: false
+        };
+      }
+
+
+      // Send the phone notification through the Cloud Function.
+      try {
+
+        await sendPushNotification({
+
+          token: token,
+
+          title: title,
+
+          body: body,
+
+          url: "/CYPX-ONLINE-CRYPTO-/dashboard.html"
+
+        });
+
+        log(
+          `Phone push successfully sent to ${uid.substring(0, 8)}.`,
+          "success"
+        );
+
+        return {
+          key: newNotifRef.key,
+          pushSent: true
+        };
+
+      } catch (error) {
+
+        log(
+          `Push failed for ${uid.substring(0, 8)}: ${error.message}`,
+          "error"
+        );
+
+        return {
+          key: newNotifRef.key,
+          pushSent: false
+        };
+      }
+
+    }
+
+
+    // QUICK MESSAGE TEMPLATES
+    window.fillTemplate = (type) => {
+
+      const templates = {
+
+        deposit: {
+          title: "Deposit Successful ✅",
+          body: "KSH 5,000 has been added to your CYPX wallet."
+        },
+
+        withdraw: {
+          title: "Withdrawal Processed 💸",
+          body: "Your withdrawal of KSH 2,000 is on the way to M-PESA."
+        },
+
+        vip: {
+          title: "VIP Level Unlocked 🔓",
+          body: "Congrats! You are now VIP 3. Higher returns unlocked."
+        },
+
+        copy: {
+          title: "New Copy Trade 📈",
+          body: "Pro Trader 'AlphaFX' just opened a BTC trade. Auto-copied."
+        }
+
+      };
+
+      if (templates[type]) {
+
+        document.getElementById("title").value =
+          templates[type].title;
+
+        document.getElementById("body").value =
+          templates[type].body;
+      }
+
+    };
+
+
+    // QUICK BROADCAST BUTTON
+    window.quickBroadcast = () => {
+
+      if (!isAdmin || isSending) {
+        return;
+      }
+
+      uidSelect.value = "all";
+
+      sendNotification();
+    };
+
+
+    // SEND NOTIFICATION
+    async function sendNotification() {
+
+      if (!isAdmin) {
+        log("Admin access required.", "error");
+        return;
+      }
+
+      if (isSending) {
+        return;
+      }
+
+      const uid = uidSelect.value.trim();
+
+      const title = document
+        .getElementById("title")
+        .value.trim();
+
+      const body = document
+        .getElementById("body")
+        .value.trim();
+
+
+      if (!uid || !title || !body) {
+
+        log("Please select a user and enter a title and message.", "error");
+
+        return;
+      }
+
+      if (title.length > 100 || body.length > 1000) {
+
+        log("The title or message is too long.", "error");
+
+        return;
+      }
+
+
+      setSendingState(true);
+
+      try {
+
+        if (uid === "all") {
+
+          log("Starting broadcast to all users...", "info");
+
+          const snap = await get(ref(db, "users"));
+
+          if (!snap.exists()) {
+
+            log("No users found.", "error");
+
+            return;
+          }
+
+          let total = 0;
+          let savedCount = 0;
+          let pushCount = 0;
+          let failedCount = 0;
+
+          const usersData = snap.val();
+
+          for (const userUid of Object.keys(usersData)) {
+
+            total++;
+
+            try {
+
+              const result = await sendInAppNotification(
+                userUid,
+                title,
+                body,
+                "broadcast"
+              );
+
+              savedCount++;
+
+              if (result.pushSent) {
+                pushCount++;
+              }
+
+            } catch (error) {
+
+              failedCount++;
+
+              log(
+                `Could not notify ${userUid.substring(0, 8)}: ${error.message}`,
+                "error"
+              );
+            }
+
+          }
+
+          log(
+            `Broadcast finished. Users: ${total}, in-app saved: ${savedCount}, phone pushes: ${pushCount}, failures: ${failedCount}.`,
+            failedCount ? "info" : "success"
+          );
+
+        } else {
+
+          const result = await sendInAppNotification(
+            uid,
+            title,
+            body,
+            "manual"
+          );
+
+          log(
+            `Notification saved for ${uid.substring(0, 8)}. ID: ${result.key}`,
+            "success"
+          );
+
+          if (!result.pushSent) {
+
+            log(
+              "The in-app notification was saved, but no phone push was confirmed.",
+              "info"
+            );
+          }
+
+        }
+
+        document.getElementById("body").value = "";
+
+      } catch (error) {
+
+        log("Notification error: " + error.message, "error");
+
+      } finally {
+
+        setSendingState(false);
+
+      }
+
+    }
+
+
+    // BUTTON EVENTS
+    sendBtn.addEventListener("click", sendNotification);
+
+    broadcastBtn.addEventListener("click", window.quickBroadcast);
+
+    log("Notification page initialized.", "success");
+
   </script>
+
 </body>
   </html>
