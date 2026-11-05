@@ -1,1679 +1,331 @@
-<!DOCTYPE html><html lang="en">
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CYPX Mining - Flutterwave Deposit</title><style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYPX HOLDINGS - MTN Uganda Payment</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-body{
-    background:#0a0f1a;
-    color:#fff;
-    min-height:100vh;
+body {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #050d25, #0a182c);
+  color: #fff;
 }
 
-header{
-    background:#001a33;
-    padding:18px;
-    text-align:center;
-    border-bottom:1px solid #002f6c;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
+.container {
+  width: 100%;
+  max-width: 420px;
+  background: #101d32;
+  border: 1px solid #263952;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 15px 45px #0005;
 }
 
-.logo-icon{
-    width:42px;
-    height:42px;
-    background:linear-gradient(135deg,#007BFF,#00C896);
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-    color:#fff;
+.brand {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
-header h1{
-    color:#ffd700;
-    font-size:18px;
+.subtitle {
+  text-align: center;
+  color: #9aadc6;
+  font-size: 13px;
+  margin-top: 7px;
 }
 
-header h1 span{
-    color:#fff;
-    font-weight:400;
-    font-size:12px;
-    display:block;
+.agent-card {
+  margin: 25px 0;
+  padding: 23px 15px;
+  text-align: center;
+  background: #192b43;
+  border: 1px solid #344961;
+  border-radius: 15px;
 }
 
-.container{
-    max-width:650px;
-    margin:0 auto;
-    padding:15px;
+.mtn {
+  color: #ffcc00;
+  font-size: 25px;
+  font-weight: 900;
+  margin-bottom: 14px;
 }
 
-/* ROUTE */
-
-.route-card{
-    background:linear-gradient(135deg,#001a33 0%,#002f6c 100%);
-    border:1px solid rgba(255,215,0,0.25);
-    border-radius:16px;
-    padding:18px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:18px;
+.agent-label {
+  color: #9aadc6;
+  font-size: 12px;
+  margin-bottom: 7px;
 }
 
-.flag{
-    font-size:32px;
+.agent-name {
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 9px;
 }
 
-.route-arrow{
-    color:#ffd700;
-    font-size:22px;
+.agent-number {
+  font-size: 23px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 1px;
 }
 
-/* NOTICE */
-
-.notice{
-    background:rgba(0,200,150,0.12);
-    border:1px solid rgba(0,200,150,0.3);
-    padding:12px;
-    border-radius:12px;
-    font-size:12px;
-    color:#94e2cc;
-    margin-bottom:18px;
-    line-height:1.6;
+.copy-btn {
+  margin-top: 13px;
+  background: #ffcc00;
+  color: #111;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-/* PAYMENT METHOD */
-
-.method{
-    background:rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:16px;
-    padding:18px;
-    margin-bottom:14px;
+label {
+  display: block;
+  font-size: 13px;
+  color: #d8e2ef;
+  margin: 17px 0 8px;
 }
 
-.method-header{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    margin-bottom:14px;
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #354861;
+  background: #091629;
+  color: white;
+  outline: none;
+  font-size: 15px;
 }
 
-.method-icon{
-    width:46px;
-    height:46px;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-    font-weight:800;
+input:focus {
+  border-color: #ffcc00;
+  box-shadow: 0 0 0 2px #ffcc0025;
 }
 
-.flutterwave{
-    background:linear-gradient(135deg,#f5a623,#ff6b00);
-    color:#fff;
+.submit-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  color: #111;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffcc00, #ffe36b);
 }
 
-.detail-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:rgba(0,0,0,0.35);
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:8px;
+.submit-btn:disabled {
+  opacity: .65;
 }
 
-.detail-label{
-    font-size:11px;
-    color:#8aa0b8;
-    text-transform:uppercase;
+.notice {
+  margin-top: 16px;
+  padding: 12px;
+  text-align: center;
+  border-radius: 9px;
+  background: #172a40;
+  color: #bdcde0;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
-.detail-value{
-    font-weight:800;
-    font-size:15px;
-    color:#ffd700;
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 25px;
+  transform: translate(-50%, -20px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: #142b42;
+  border: 1px solid #ffcc00;
+  color: white;
+  text-align: center;
+  width: max-content;
+  max-width: 90%;
+  transition: .25s;
+  z-index: 10;
 }
 
-.pay-btn,
-.proceed-btn{
-    display:block;
-    width:100%;
-    padding:14px;
-    background:linear-gradient(135deg,#f5a623,#ff6b00);
-    color:#fff;
-    font-weight:900;
-    text-align:center;
-    border-radius:10px;
-    border:none;
-    cursor:pointer;
-    margin-top:12px;
-    font-size:14px;
-    text-decoration:none;
-    box-shadow:0 5px 18px rgba(255,107,0,0.2);
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
-.pay-btn:active,
-.proceed-btn:active{
-    transform:scale(.98);
+.footer {
+  text-align: center;
+  color: #758ba6;
+  font-size: 11px;
+  margin-top: 20px;
 }
+</style>
+</head>
 
-/* PAYMENT INFO */
+<body>
 
-.steps-box{
-    background:rgba(0,0,0,0.35);
-    padding:12px;
-    border-radius:10px;
-    margin:10px 0;
-    font-size:12px;
-    line-height:1.9;
-    border:1px solid rgba(255,255,255,0.06);
-}
+<div class="container">
 
-.steps-title{
-    font-weight:800;
-    color:#ffd700;
-    margin-bottom:6px;
-}
+  <div class="brand">CYPX HOLDINGS</div>
+  <div class="subtitle">MTN Uganda Payment Portal</div>
 
-/* TOAST */
+  <div class="agent-card">
 
-.toast{
-    position:fixed;
-    top:20px;
-    left:15px;
-    right:15px;
-    background:#0a0f1a;
-    border:1px solid #00C896;
-    color:#00ffaa;
-    padding:14px;
-    border-radius:12px;
-    display:none;
-    z-index:1000;
-    text-align:center;
-    font-weight:700;
-}
+    <div class="mtn">MTN MOBILE MONEY</div>
 
-.toast.error{
-    border-color:#ff4444;
-    color:#ff8888;
-    background:#1a0a0a;
-}
+    <div class="agent-label">AGENT NAME</div>
+    <div class="agent-name">HALIFA NAMUNGHOLO</div>
 
-/* PAGE 2 */
-
-#page2{
-    display:none;
-}
-
-.back-btn{
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);
-    color:#fff;
-    padding:10px 14px;
-    border-radius:10px;
-    font-size:12px;
-    cursor:pointer;
-    margin-bottom:15px;
-}
-
-.page2-card{
-    background:#001a33;
-    border:1px solid rgba(255,215,0,0.3);
-    border-radius:18px;
-    padding:20px;
-}
-
-.form-group{
-    margin-bottom:14px;
-}
-
-.form-group label{
-    font-size:11px;
-    color:#8aa0b8;
-    text-transform:uppercase;
-    display:block;
-    margin-bottom:6px;
-    font-weight:700;
-}
-
-.form-group input,
-.form-group select{
-    width:100%;
-    background:rgba(0,0,0,0.4);
-    border:1px solid rgba(255,255,255,0.12);
-    padding:13px 14px;
-    border-radius:10px;
-    color:#fff;
-    font-size:14px;
-    outline:none;
-}
-
-.form-group input:focus,
-.form-group select:focus{
-    border-color:#ffd700;
-}
-
-.form-group input.input-error{
-    border-color:#ff4444!important;
-}
-
-.error-text{
-    font-size:11px;
-    color:#ff6b6b;
-    margin-top:5px;
-    display:none;
-}
-
-.convert-box{
-    display:flex;
-    gap:10px;
-    align-items:center;
-}
-
-.eq{
-    color:#ffd700;
-    font-weight:900;
-    font-size:18px;
-}
-
-.ugx-display{
-    background:rgba(0,200,150,0.15)!important;
-    border:1px solid rgba(0,200,150,0.3)!important;
-    color:#00ffaa!important;
-    font-weight:800!important;
-}
-
-/* PAYMENT STATUS */
-
-.paid-box{
-    background:rgba(0,200,150,0.08);
-    border:1px solid rgba(0,200,150,0.25);
-    border-radius:12px;
-    padding:13px;
-    margin-bottom:15px;
-    font-size:12px;
-    line-height:1.7;
-}
-
-.paid-box strong{
-    color:#00ffaa;
-}
-
-/* SUBMIT */
-
-.submit-btn{
-    width:100%;
-    padding:14px;
-    background:linear-gradient(135deg,#ffd700,#ffb700);
-    color:#000;
-    font-weight:900;
-    border:none;
-    border-radius:12px;
-    font-size:14px;
-    cursor:pointer;
-    margin-top:8px;
-}
-
-.submit-btn:disabled{
-    opacity:0.5;
-    cursor:not-allowed;
-}
-
-/* SUCCESS */
-
-.success-box{
-    text-align:center;
-    padding:30px 15px;
-    display:none;
-}
-
-.success-box h2{
-    color:#ffd700;
-    margin-top:10px;
-}
-
-.success-box p{
-    font-size:13px;
-    color:#cbd5e1;
-    margin-top:10px;
-    line-height:1.6;
-}
-
-.small-note{
-    color:#8aa0b8;
-    font-size:10px;
-    margin-top:12px;
-    line-height:1.5;
-}
-
-/* MOBILE */
-
-@media(max-width:480px){
-
-    .route-card{
-        padding:15px 10px;
-    }
-
-    .flag{
-        font-size:28px;
-    }
-
-    .route-arrow{
-        font-size:19px;
-    }
-
-    .convert-box{
-        gap:6px;
-    }
-
-    .eq{
-        font-size:15px;
-    }
-
-}
-</style></head><body><header><div class="logo-icon">
-    <span>⌘</span>
-</div>
-
-<h1>
-    CYPX HOLDINGS 
-    <span>FLUTTERWAVE DEPOSIT</span>
-</h1>
-
-</header><div class="toast" id="toast"></div><div class="container"><!-- ================= PAGE 1 ================= --><div id="page1"><div class="route-card">
-
-    <div style="text-align:center">
-        <div class="flag">🇺🇬</div>
-        <div style="font-weight:800;">UGANDA</div>
+    <div class="agent-label">MTN NUMBER</div>
+    <div class="agent-number" id="agentNumber">
+      0767326443
     </div>
 
-    <div style="text-align:center">
-
-        <div class="route-arrow">
-            ⇄
-        </div>
-
-        <div>UGX → USD</div>
-
-    </div>
-
-    <div style="text-align:center">
-
-        <div class="flag">💳</div>
-
-        <div style="font-weight:800;">
-            FLUTTERWAVE
-        </div>
-
-    </div>
-
-</div>
-
-
-<div class="notice">
-
-    <span>🛡</span>
-
-    Secure deposit powered by Flutterwave.
-    Minimum deposit is <b>$10</b>.
-    After completing payment, return here and submit your payment details.
-
-</div>
-
-
-<!-- FLUTTERWAVE METHOD -->
-
-<div class="method">
-
-    <div class="method-header">
-
-        <div class="method-icon flutterwave">
-            💳
-        </div>
-
-        <div>
-
-            <div style="font-weight:800;">
-                Flutterwave
-            </div>
-
-            <small style="color:#8aa0b8;">
-                Secure online payment
-            </small>
-
-        </div>
-
-    </div>
-
-
-    <div class="detail-row">
-
-        <div>
-
-            <div class="detail-label">
-                Payment Currency
-            </div>
-
-            <div class="detail-value">
-                UGX / USD
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="steps-box">
-
-        <div class="steps-title">
-            ⓘ PAYMENT STEPS
-        </div>
-
-        <div>» Enter your deposit amount</div>
-        <div>» Tap <b>Pay with Flutterwave</b></div>
-        <div>» Complete the payment on Flutterwave</div>
-        <div>» Keep your payment/reference number</div>
-        <div>» Return here and submit your payment details</div>
-
-    </div>
-
-
-    <button
-        class="proceed-btn"
-        id="continueBtn"
-        type="button">
-
-        →
-        CONTINUE TO DEPOSIT
-
+    <button type="button" class="copy-btn" id="copyBtn">
+      Copy MTN Number
     </button>
 
-</div>
+  </div>
 
-</div><!-- ================= PAGE 2 ================= --><div id="page2"><button
-    class="back-btn"
-    id="backBtn"
-    type="button">
+  <form id="paymentForm">
 
-    ←
-    Back
+    <label for="amount">Payment Amount (UGX)</label>
+    <input
+      type="number"
+      id="amount"
+      min="1"
+      step="1"
+      placeholder="Enter amount in UGX"
+      required
+    >
 
-</button>
+    <label for="sender">Your MTN Mobile Money Number</label>
+    <input
+      type="tel"
+      id="sender"
+      placeholder="+2567XXXXXXXX"
+      pattern="(\+256|0)?[0-9]{9}"
+      required
+    >
 
+    <label for="reference">MTN Transaction ID</label>
+    <input
+      type="text"
+      id="reference"
+      maxlength="80"
+      placeholder="Enter MTN transaction ID"
+      required
+    >
 
-<div class="page2-card" id="formCard">
-
-    <div style="font-size:18px;font-weight:900;color:#ffd700;">
-        Deposit via Flutterwave
-    </div>
-
-    <div style="font-size:12px;color:#8aa0b8;margin-top:4px;margin-bottom:15px;">
-        Complete your payment first, then submit the details below.
-    </div>
-
-
-    <!-- AMOUNT -->
-
-    <div class="form-group">
-
-        <label>
-            Amount in USD ($) * — MINIMUM $10
-        </label>
-
-        <div class="convert-box">
-
-            <input
-                type="number"
-                id="usdAmount"
-                placeholder="Min. 10"
-                min="10"
-                step="0.01"
-                inputmode="decimal"
-                autocomplete="off"
-                style="flex:1;"
-            >
-
-            <span class="eq">
-                =
-            </span>
-
-            <input
-                type="text"
-                id="ugxAmount"
-                class="ugx-display"
-                placeholder="0 UGX"
-                readonly
-                tabindex="-1"
-                style="flex:1;"
-            >
-
-        </div>
-
-        <div
-            class="error-text"
-            id="usdError">
-
-            Minimum deposit is $10
-
-        </div>
-
-    </div>
-
-
-    <!-- PAYMENT BUTTON -->
-
-    <div class="paid-box">
-
-        <div>
-
-            <strong>
-                Step 1 — Pay with Flutterwave
-            </strong>
-
-        </div>
-
-        <div>
-
-            Your Flutterwave payment page will open in a new tab.
-            Complete the payment there before submitting this form.
-
-        </div>
-
-    </div>
-
-
-    <button
-        class="pay-btn"
-        id="flutterwaveBtn"
-        type="button">
-
-        🔒
-        PAY WITH FLUTTERWAVE
-
+    <button type="submit" class="submit-btn" id="submitBtn">
+      Submit Payment Details
     </button>
 
+  </form>
 
-    <!-- PHONE -->
+  <div class="notice">
+    Send your payment using MTN or AIRTEL Mobile Money to the
+    number displayed above. Enter your transaction
+    details after completing the payment.
 
-    <div class="form-group" style="margin-top:18px;">
+    <br><br>
 
-        <label>
-            Your Uganda Phone Number *
-        </label>
+    Submission does not automatically confirm receipt
+    of funds. Payments are subject to verification.
+  </div>
 
-        <input
-            type="tel"
-            id="userPhone"
-            placeholder="2567..."
-            inputmode="tel"
-            autocomplete="tel"
-        >
-
-        <div
-            class="error-text"
-            id="phoneError">
-
-            Enter your phone number
-
-        </div>
-
-    </div>
-
-
-    <!-- TRANSACTION ID -->
-
-    <div class="form-group">
-
-        <label>
-            Flutterwave Transaction / Reference ID *
-        </label>
-
-        <input
-            type="text"
-            id="transId"
-            placeholder="Enter Flutterwave transaction reference"
-            autocomplete="off"
-            autocapitalize="characters"
-            spellcheck="false"
-        >
-
-        <div
-            class="error-text"
-            id="transError">
-
-            Enter your Flutterwave transaction/reference ID
-
-        </div>
-
-    </div>
-
-
-    <!-- PAYMENT CONFIRMATION -->
-
-    <div class="form-group">
-
-        <label>
-            Payment Status
-        </label>
-
-        <select id="paymentStatus">
-
-            <option value="completed">
-                Payment Completed
-            </option>
-
-            <option value="processing">
-                Payment Processing
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <!-- SUBMIT -->
-
-    <button
-        class="submit-btn"
-        id="submitBtn"
-        type="button">
-
-        ➤
-        SUBMIT PAYMENT TO CYPX
-
-    </button>
-
-
-    <div class="small-note">
-
-        Your payment submission will be recorded for review.
-        Payment approval should only be granted after the
-        Flutterwave transaction has been verified.
-
-    </div>
+  <div class="footer">
+    CYPX HOLDINGS &copy; 2026
+  </div>
 
 </div>
 
+<div class="toast" id="toast" role="status"
+aria-live="polite"></div>
 
-<!-- SUCCESS -->
-
-<div
-    class="page2-card success-box"
-    id="successBox">
-
-    <div style="font-size:50px;color:#00C896;">
-        ✓
-    </div>
-
-    <h2>
-        Payment Submitted!
-    </h2>
-
-    <p id="successDetails"></p>
-
-    <p style="font-size:12px;color:#94e2cc;">
-        Your payment has been recorded and is pending verification.
-    </p>
-
-    <p style="font-size:12px;color:#94e2cc;">
-        Redirecting to financial.html...
-    </p>
-
-</div>
-
-</div></div>
-
-    <script type="module">
-
-/* =========================================================
-   CONFIGURATION
-========================================================= */
-
-const USD_TO_UGX = 3750;
-const MINIMUM_USD = 10;
-
-const FLUTTERWAVE_URL =
-    "https://flutterwave.com/pay/ugxeversend?email=nicelroberts141%40gmail.com&firstname=Nicel&lastname=Roberts";
-
-
-/* =========================================================
-   DOM
-========================================================= */
-
-const page1 = document.getElementById("page1");
-const page2 = document.getElementById("page2");
-
-const formCard = document.getElementById("formCard");
-const successBox = document.getElementById("successBox");
-
+<script>
+const form = document.getElementById("paymentForm");
 const toast = document.getElementById("toast");
+const submitBtn = document.getElementById("submitBtn");
 
-const continueBtn = document.getElementById("continueBtn");
-const backBtn = document.getElementById("backBtn");
+const agentName = "HALIFA NAMUNGHOLO";
+const agentNumber = "+256767326443";
 
-const usdAmount = document.getElementById("usdAmount");
-const ugxAmount = document.getElementById("ugxAmount");
-const usdError = document.getElementById("usdError");
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
 
-const userPhone = document.getElementById("userPhone");
-const phoneError = document.getElementById("phoneError");
-
-const transId = document.getElementById("transId");
-const transError = document.getElementById("transError");
-
-const paymentStatus = document.getElementById("paymentStatus");
-
-const flutterwaveBtn =
-    document.getElementById("flutterwaveBtn");
-
-const submitBtn =
-    document.getElementById("submitBtn");
-
-const successDetails =
-    document.getElementById("successDetails");
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let isSubmitting = false;
-let toastTimer = null;
-
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-function showToast(message, error = false){
-
-    clearTimeout(toastTimer);
-
-    toast.textContent = message;
-
-    toast.className =
-        error ? "toast error" : "toast";
-
-    toast.style.display = "block";
-
-    toastTimer = setTimeout(() => {
-
-        toast.style.display = "none";
-
-    }, 3500);
-
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2600);
 }
 
-
-/* =========================================================
-   PAGE NAVIGATION
-========================================================= */
-
-function openDepositForm(){
-
-    page1.style.display = "none";
-    page2.style.display = "block";
-
-    window.scrollTo({
-        top: 0,
-        behavior: "instant"
-    });
-
-}
-
-
-function closePage2(){
-
-    page2.style.display = "none";
-    page1.style.display = "block";
-
-    window.scrollTo({
-        top: 0,
-        behavior: "instant"
-    });
-
-}
-
-
-/* =========================================================
-   CONTINUE / BACK BUTTONS
-========================================================= */
-
-continueBtn.addEventListener(
-    "click",
-    function(){
-
-        openDepositForm();
-
+document.getElementById("copyBtn").addEventListener(
+  "click", async () => {
+    try {
+      await navigator.clipboard.writeText(agentNumber);
+      showToast("MTN number copied successfully");
+    } catch (error) {
+      showToast("Please copy: " + agentNumber);
     }
+  }
 );
 
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
 
-backBtn.addEventListener(
-    "click",
-    function(){
+  if (!form.reportValidity()) return;
 
-        closePage2();
+  const payment = {
+    agentName: agentName,
+    agentNumber: agentNumber,
+    method: "MTN Mobile Money Uganda",
+    currency: "UGX",
+    amount: Number(document.getElementById("amount").value),
+    senderNumber: document.getElementById("sender").value.trim(),
+    transactionId: document.getElementById("reference").value.trim(),
+    status: "pending_verification",
+    submittedAt: new Date().toISOString()
+  };
 
-    }
-);
-
-
-/* =========================================================
-   USD → UGX
-========================================================= */
-
-function convertToUGX(){
-
-    const value =
-        parseFloat(usdAmount.value);
-
-    if(
-        !Number.isFinite(value) ||
-        value <= 0
-    ){
-
-        ugxAmount.value = "";
-
-        usdError.style.display = "none";
-
-        usdAmount.classList.remove(
-            "input-error"
-        );
-
-        return;
-
-    }
-
-    const amountUGX =
-        value * USD_TO_UGX;
-
-    ugxAmount.value =
-        amountUGX.toLocaleString() +
-        " UGX";
-
-
-    if(value < MINIMUM_USD){
-
-        usdError.textContent =
-            "Minimum deposit is $10";
-
-        usdError.style.display =
-            "block";
-
-        usdAmount.classList.add(
-            "input-error"
-        );
-
-    }else{
-
-        usdError.style.display =
-            "none";
-
-        usdAmount.classList.remove(
-            "input-error"
-        );
-
-    }
-
-}
-
-
-usdAmount.addEventListener(
-    "input",
-    convertToUGX
-);
-
-
-/* =========================================================
-   FLUTTERWAVE
-========================================================= */
-
-function openFlutterwave(){
-
-    const usd =
-        parseFloat(usdAmount.value);
-
-
-    if(
-        !Number.isFinite(usd) ||
-        usd < MINIMUM_USD
-    ){
-
-        usdError.textContent =
-            "Enter a minimum deposit of $10";
-
-        usdError.style.display =
-            "block";
-
-        usdAmount.classList.add(
-            "input-error"
-        );
-
-        showToast(
-            "Minimum deposit is $10",
-            true
-        );
-
-        usdAmount.focus();
-
-        return;
-
-    }
-
-
-    usdError.style.display =
-        "none";
-
-    usdAmount.classList.remove(
-        "input-error"
+  try {
+    sessionStorage.setItem(
+      "cypxAgentPayment",
+      JSON.stringify(payment)
     );
-
-
-    const paymentWindow =
-        window.open(
-            FLUTTERWAVE_URL,
-            "_blank",
-            "noopener,noreferrer"
-        );
-
-
-    if(!paymentWindow){
-
-        showToast(
-            "Please allow pop-ups to open Flutterwave.",
-            true
-        );
-
-        return;
-
-    }
-
-
-    showToast(
-        "Flutterwave payment opened"
-    );
-
-}
-
-
-flutterwaveBtn.addEventListener(
-    "click",
-    function(){
-
-        openFlutterwave();
-
-    }
-);
-
-
-/* =========================================================
-   VALIDATION
-========================================================= */
-
-function setError(
-    input,
-    errorElement,
-    message
-){
-
-    input.classList.add(
-        "input-error"
-    );
-
-    errorElement.textContent =
-        message;
-
-    errorElement.style.display =
-        "block";
-
-}
-
-
-function clearError(
-    input,
-    errorElement
-){
-
-    input.classList.remove(
-        "input-error"
-    );
-
-    errorElement.style.display =
-        "none";
-
-}
-
-
-/* =========================================================
-   FIREBASE
-========================================================= */
-
-let firebaseApp = null;
-let firebaseAuth = null;
-let firebaseDatabase = null;
-
-let firebasePush = null;
-let firebaseSet = null;
-let firebaseRef = null;
-
-let firebaseOnAuthStateChanged = null;
-
-let firebaseLoading = null;
-
-
-async function loadFirebase(){
-
-    if(firebaseDatabase){
-
-        return firebaseDatabase;
-
-    }
-
-
-    if(firebaseLoading){
-
-        return firebaseLoading;
-
-    }
-
-
-    firebaseLoading =
-        (async () => {
-
-            const [
-                appModule,
-                authModule,
-                databaseModule
-            ] = await Promise.all([
-
-                import(
-                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
-                ),
-
-                import(
-                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"
-                ),
-
-                import(
-                    "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"
-                )
-
-            ]);
-
-
-            const firebaseConfig = {
-
-                apiKey:
-                    "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-
-                authDomain:
-                    "quantum-rio.firebaseapp.com",
-
-                databaseURL:
-                    "https://quantum-rio-default-rtdb.firebaseio.com",
-
-                projectId:
-                    "quantum-rio",
-
-                storageBucket:
-                    "quantum-rio.firebasestorage.app",
-
-                messagingSenderId:
-                    "805433999377",
-
-                appId:
-                    "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-
-                measurementId:
-                    "G-4RSQXZJX44"
-
-            };
-
-
-            firebaseApp =
-                appModule.initializeApp(
-                    firebaseConfig
-                );
-
-
-            firebaseAuth =
-                authModule.getAuth(
-                    firebaseApp
-                );
-
-
-            firebaseOnAuthStateChanged =
-                authModule.onAuthStateChanged;
-
-
-            firebaseDatabase =
-                databaseModule.getDatabase(
-                    firebaseApp
-                );
-
-
-            firebasePush =
-                databaseModule.push;
-
-            firebaseSet =
-                databaseModule.set;
-
-            firebaseRef =
-                databaseModule.ref;
-
-
-            return firebaseDatabase;
-
-        })();
-
-
-    try{
-
-        return await firebaseLoading;
-
-    }catch(error){
-
-        firebaseLoading = null;
-
-        throw error;
-
-    }
-
-}
-
-
-/* =========================================================
-   WAIT FOR CURRENT USER
-========================================================= */
-
-function getCurrentUser(){
-
-    return new Promise(
-        (resolve, reject) => {
-
-            let finished = false;
-
-            const unsubscribe =
-                firebaseOnAuthStateChanged(
-                    firebaseAuth,
-
-                    user => {
-
-                        if(finished){
-                            return;
-                        }
-
-                        finished = true;
-
-                        unsubscribe();
-
-                        resolve(user);
-
-                    },
-
-                    error => {
-
-                        if(finished){
-                            return;
-                        }
-
-                        finished = true;
-
-                        unsubscribe();
-
-                        reject(error);
-
-                    }
-                );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SUBMIT PAYMENT
-========================================================= */
-
-async function submitPayment(){
-
-    if(isSubmitting){
-
-        return;
-
-    }
-
-
-    let hasError = false;
-
-
-    /* ================= AMOUNT ================= */
-
-    const usd =
-        parseFloat(
-            usdAmount.value
-        );
-
-
-    if(
-        !usdAmount.value.trim() ||
-        !Number.isFinite(usd) ||
-        usd < MINIMUM_USD
-    ){
-
-        setError(
-            usdAmount,
-            usdError,
-            "Minimum deposit is $10"
-        );
-
-        hasError = true;
-
-    }else{
-
-        clearError(
-            usdAmount,
-            usdError
-        );
-
-    }
-
-
-    /* ================= PHONE ================= */
-
-    const phone =
-        userPhone.value.trim();
-
-
-    if(!phone){
-
-        setError(
-            userPhone,
-            phoneError,
-            "Enter your phone number"
-        );
-
-        hasError = true;
-
-    }else{
-
-        clearError(
-            userPhone,
-            phoneError
-        );
-
-    }
-
-
-    /* ================= TRANSACTION ID ================= */
-
-    const transactionId =
-        transId.value.trim();
-
-
-    if(!transactionId){
-
-        setError(
-            transId,
-            transError,
-            "Enter your Flutterwave transaction/reference ID"
-        );
-
-        hasError = true;
-
-    }else{
-
-        clearError(
-            transId,
-            transError
-        );
-
-    }
-
-
-    if(hasError){
-
-        showToast(
-            "Please complete all required fields",
-            true
-        );
-
-        return;
-
-    }
-
-
-    /* ================= AMOUNT ================= */
-
-    const amountUGX =
-        usd * USD_TO_UGX;
-
-
-    isSubmitting = true;
 
     submitBtn.disabled = true;
-
-    submitBtn.innerHTML =
-        "⟳ SUBMITTING...";
-
-
-    try{
-
-        /* ================= LOAD FIREBASE ================= */
-
-        const db =
-            await loadFirebase();
-
-
-        /* ================= CURRENT USER ================= */
-
-        const user =
-            await getCurrentUser();
-
-
-        if(!user){
-
-            showToast(
-                "Please login first.",
-                true
-            );
-
-            return;
-
-        }
-
-
-        const uid =
-            user.uid;
-
-
-        /* ================= PAYMENT DATA ================= */
-
-        const paymentData = {
-
-            uid: uid,
-
-            paymentMethod:
-                "Flutterwave",
-
-            provider:
-                "Flutterwave",
-
-            method:
-                "Flutterwave",
-
-            amount:
-                usd,
-
-            amountUSD:
-                usd,
-
-            amountUGX:
-                amountUGX,
-
-            amountUGX_formatted:
-                amountUGX.toLocaleString() +
-                " UGX",
-
-            userPhone:
-                phone,
-
-            transactionId:
-                transactionId,
-
-            paymentStatus:
-                paymentStatus.value,
-
-            status:
-                "pending",
-
-            verificationStatus:
-                "pending",
-
-            timestamp:
-                Date.now(),
-
-            createdAt:
-                Date.now(),
-
-            date:
-                new Date().toISOString()
-
-        };
-
-
-        /* ================= DATABASE PATH ================= */
-
-        const depositsRef =
-            firebaseRef(
-                db,
-                "deposits/" + uid
-            );
-
-
-        const newPayment =
-            firebasePush(
-                depositsRef
-            );
-
-
-        /* ================= SAVE ================= */
-
-        await firebaseSet(
-            newPayment,
-            paymentData
-        );
-
-
-        /* ================= SUCCESS ================= */
-
-        formCard.style.display =
-            "none";
-
-        successBox.style.display =
-            "block";
-
-
-        successDetails.innerHTML =
-
-            "Deposit Amount: " +
-
-            '<b style="color:#ffd700;">$' +
-
-            usd.toFixed(2) +
-
-            "</b>" +
-
-            "<br>" +
-
-            "Equivalent: " +
-
-            '<b style="color:#00ffaa;">' +
-
-            amountUGX.toLocaleString() +
-
-            " UGX</b>" +
-
-            "<br>" +
-
-            "Flutterwave Reference: " +
-
-            '<b style="color:#ffd700;">' +
-
-            escapeHtml(transactionId) +
-
-            "</b>";
-
-
-        showToast(
-            "Payment submitted successfully"
-        );
-
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "financial.html";
-
-            },
-            2500
-        );
-
-
-    }catch(error){
-
-        console.error(
-            "Payment submission error:",
-            error
-        );
-
-
-        let message =
-            "Failed to submit payment.";
-
-
-        if(
-            error &&
-            error.code ===
-            "PERMISSION_DENIED"
-        ){
-
-            message =
-                "Firebase permission denied.";
-
-        }
-
-
-        showToast(
-            message,
-            true
-        );
-
-
-    }finally{
-
-        isSubmitting = false;
-
-        submitBtn.disabled = false;
-
-        submitBtn.innerHTML =
-            "➤ SUBMIT PAYMENT TO CYPX";
-
-    }
-
-}
-
-
-submitBtn.addEventListener(
-    "click",
-    function(){
-
-        submitPayment();
-
-    }
-);
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(value){
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-/* =========================================================
-   ENTER KEY
-========================================================= */
-
-usdAmount.addEventListener(
-    "keydown",
-    event => {
-
-        if(event.key === "Enter"){
-
-            event.preventDefault();
-
-            openFlutterwave();
-
-        }
-
-    }
-);
-
-
-transId.addEventListener(
-    "keydown",
-    event => {
-
-        if(
-            event.key === "Enter" &&
-            !isSubmitting
-        ){
-
-            event.preventDefault();
-
-            submitPayment();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   INITIAL STATE
-========================================================= */
-
-page1.style.display =
-    "block";
-
-page2.style.display =
-    "none";
-
+    submitBtn.textContent = "Submitting...";
+
+    showToast("Details submitted. Redirecting...");
+
+    setTimeout(() => {
+      window.location.href = "financial.html";
+    }, 900);
+
+  } catch (error) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Payment Details";
+    showToast("Unable to save details. Please try again.");
+  }
+});
 </script>
+
 </body>
 </html>
