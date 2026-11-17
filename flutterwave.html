@@ -543,13 +543,10 @@ paymentForm.addEventListener("submit", async event => {
       submittedAt: firebase.database.ServerValue.TIMESTAMP
     };
 
-    // Write to both Firebase locations atomically.
-    const updates = {};
+    // Save deposit directly to the deposits database.
+await db.ref("deposits/" + uid + "/" + depositId).set(payment);
 
-    updates["deposits/" + uid + "/" + depositId] = payment;
-    updates["financial/" + uid + "/" + depositId] = payment;
-
-    await db.ref().update(updates);
+console.log("Deposit successfully saved:", depositId);
 
     showToast("Deposit submitted successfully. Awaiting verification.");
 
@@ -563,18 +560,18 @@ paymentForm.addEventListener("submit", async event => {
     setTimeout(() => {
       window.location.href = "financial.html";
     }, 1800);
+} catch (error) {
+  console.error("Firebase error code:", error.code);
+  console.error("Firebase error message:", error.message);
 
-  } catch (error) {
-    console.error("Deposit submission failed:", error);
+  showToast(
+    "Firebase: " + error.code + " - " + error.message,
+    "error"
+  );
 
-    showToast(
-      "Submission failed: " + (error.message || "Please try again."),
-      "error"
-    );
-
-    submitting = false;
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Deposit";
+  submitting = false;
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Submit Deposit";
   }
 });
 </script>
