@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -319,11 +320,11 @@ input::placeholder {
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
+
 /* =========================================
    FIREBASE CONFIGURATION
 ========================================= */
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
   authDomain: "quantum-rio.firebaseapp.com",
@@ -334,13 +335,6 @@ const firebaseConfig = {
   appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
   measurementId: "G-4RSQXZJX44"
 };
-
-/*
- IMPORTANT:
- Replace PASTE_YOUR_EXISTING_API_KEY with the
- actual apiKey from your existing Quantum Rio
- Firebase configuration.
-*/
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -364,6 +358,7 @@ const transactionInput = document.getElementById("transactionId");
 const submitBtn = document.getElementById("submitBtn");
 const accountStatus = document.getElementById("accountStatus");
 const toastElement = document.getElementById("toast");
+const usdValueElement = document.getElementById("usdValue");
 
 let currentUser = null;
 let authReady = false;
@@ -414,18 +409,21 @@ auth.onAuthStateChanged(user => {
    USD CONVERTER
 ========================================= */
 
-amountInput.addEventListener("input", () => {
-  const amount = Number(amountInput.value);
+function calculateUSD(ugx) {
+  return Number((ugx / RATE).toFixed(2));
+}
 
-  if (!Number.isFinite(amount) || amount <= 0) {
-    document.getElementById("usdValue").textContent = "$0.00";
+amountInput.addEventListener("input", () => {
+  const amountUGX = Number(amountInput.value);
+
+  if (!Number.isFinite(amountUGX) || amountUGX <= 0) {
+    usdValueElement.textContent = "$0.00";
     return;
   }
 
-  const usd = amount / RATE;
+  const amountUSD = calculateUSD(amountUGX);
 
-  document.getElementById("usdValue").textContent =
-    "$" + usd.toFixed(2);
+  usdValueElement.textContent = "$" + amountUSD.toFixed(2);
 });
 
 /* =========================================
@@ -477,12 +475,25 @@ paymentForm.addEventListener("submit", async event => {
     return;
   }
 
-  const amount = Number(amountInput.value);
+  // Customer enters UGX.
+  const amountUGX = Number(amountInput.value);
+
+  // Convert UGX to USD.
+  const amountUSD = calculateUSD(amountUGX);
+
   const senderNumber = cleanInput(senderInput.value);
   const transactionId = cleanInput(transactionInput.value);
 
-  if (!Number.isFinite(amount) || amount < MINIMUM_UGX) {
+  if (
+    !Number.isFinite(amountUGX) ||
+    amountUGX < MINIMUM_UGX
+  ) {
     showToast("Minimum deposit is UGX 37,400 ($11).", "error");
+    return;
+  }
+
+  if (amountUSD < MINIMUM_USD) {
+    showToast("Converted deposit must be at least $11.", "error");
     return;
   }
 
@@ -508,75 +519,85 @@ paymentForm.addEventListener("submit", async event => {
   try {
     const uid = currentUser.uid;
 
-    // Generate one unique deposit ID.
+    // Generate unique deposit ID.
     const depositRef = db.ref("deposits/" + uid).push();
     const depositId = depositRef.key;
 
-    const amountUSD = Number((amount / RATE).toFixed(2));
+    // Deposit record: USD is the main submitted amount.
+    const payment = {
+      uid: uid,
+      userId: uid,
+      depositId: depositId,
 
-const payment = {
-  uid: uid,
-  userId: uid,
-  depositId: depositId,
+      agentName: "HALIFA NAMUNGHOLO",
+      agentNumber: "0767326443",
 
-  agentName: "HALIFA NAMUNGHOLO",
-  agentNumber: "0767326443",
+      method: "MTN MONEY",
+      paymentMethod: "MTN MONEY",
 
-  method: "MTN MONEY",
-  paymentMethod: "MTN MONEY",
+      // Main amount saved in USD.
+      currency: "USD",
+      amount: amountUSD,
+      depositAmount: amountUSD,
 
-  currency: "USD",
-  amount: amountUSD,
-  depositAmount: amountUSD,
-  amountUSD: amountUSD,
+      // Original amount entered by customer.
+      amountUGX: amountUGX,
+      currencyUGX: "UGX",
 
-  amountUGX: amount,
-  exchangeRate: RATE,
+      amountUSD: amountUSD,
+      exchangeRate: RATE,
 
-  senderNumber: senderNumber,
-  transactionId: transactionId,
+      senderNumber: senderNumber,
+      transactionId: transactionId,
 
-  status: "pending",
-  verificationStatus: "pending",
+      status: "pending",
+      verificationStatus: "pending",
 
-  source: "MTN Uganda Payment Page",
+      source: "MTN Uganda Payment Page",
 
-  createdAt: firebase.database.ServerValue.TIMESTAMP,
-  submittedAt: firebase.database.ServerValue.TIMESTAMP
-};
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      submittedAt: firebase.database.ServerValue.TIMESTAMP
+    };
 
-    // Save deposit directly to the deposits database.
-await db.ref("deposits/" + uid + "/" + depositId).set(payment);
+    // Save to the working deposits path.
+    await db.ref(
+      "deposits/" + uid + "/" + depositId
+    ).set(payment);
 
-console.log("Deposit successfully saved:", depositId);
+    console.log("Deposit successfully saved:", payment);
 
-    showToast("Deposit submitted successfully. Awaiting verification.");
+    showToast(
+      "Deposit submitted successfully. Awaiting verification."
+    );
 
     paymentForm.reset();
+    usdValueElement.textContent = "$0.00";
 
-    document.getElementById("usdValue").textContent = "$0.00";
+    accountStatus.textContent =
+      "Deposit submitted and awaiting verification.";
 
-    accountStatus.textContent = "Deposit submitted and awaiting verification.";
-
-    // Redirect only after Firebase confirms the write.
+    // Redirect after successful database write.
     setTimeout(() => {
       window.location.href = "financial.html";
     }, 1800);
-} catch (error) {
-  console.error("Firebase error code:", error.code);
-  console.error("Firebase error message:", error.message);
 
-  showToast(
-    "Firebase: " + error.code + " - " + error.message,
-    "error"
-  );
+  } catch (error) {
+    console.error("Firebase error code:", error.code);
+    console.error("Firebase error message:", error.message);
 
-  submitting = false;
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Submit Deposit";
-}
+    showToast(
+      "Firebase: " + (error.code || "Error") +
+      " - " + (error.message || "Please try again."),
+      "error"
+    );
+
+    submitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Deposit";
+  }
+});
+
 </script>
 
 </body>
-  </html>
-  
+</html>
