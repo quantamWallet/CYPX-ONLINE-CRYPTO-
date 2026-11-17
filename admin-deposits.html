@@ -1714,58 +1714,65 @@ async function updateDeposit(uid, id, status) {
         if (!Number.isFinite(amount) || amount <= 0) {
             throw new Error("Invalid deposit amount. Balance was not changed.");
         }
+const userRef = db.ref("users/" + uid);
 
-        /*
-         * 5. CUSTOMER BALANCE TRANSACTION
-         *
-         * The processedDeposits record prevents
-         * a second credit for the same deposit.
-         */
+const creditResult = await userRef.transaction(userData => {
 
-        const userRef = db.ref("users/" + uid);
+    if (!userData || typeof userData !== "object") {
+        return;
+    }
 
-        const creditResult = await userRef.transaction(userData => {
+    if (!userData.processedDeposits) {
+        userData.processedDeposits = {};
+    }
 
-            if (!userData || typeof userData !== "object") {
-                return;
-            }
+    // Prevent duplicate credit for this deposit.
+    if (userData.processedDeposits[id]) {
+        return userData;
+    }
 
-            if (!userData.processedDeposits) {
-                userData.processedDeposits = {};
-            }
+    // Accept both numeric balances and formatted strings.
+    const rawBalance = userData.balance ?? 0;
 
-            // Already credited: do not add the amount again.
-            if (userData.processedDeposits[id]) {
-                return userData;
-            }
+    const currentBalance = Number(
+        String(rawBalance).replace(/[^\d.-]/g, "")
+    );
 
-            const currentBalance = Number(userData.balance ?? 0);
+    if (!Number.isFinite(currentBalance) || currentBalance < 0) {
+        console.error("Invalid customer balance:", rawBalance);
+        return;
+    }
 
-            if (
-                !Number.isFinite(currentBalance) ||
-                currentBalance < 0
-            ) {
-                return;
-            }
+    if (!Number.isFinite(amount) || amount <= 0) {
+        console.error("Invalid deposit amount:", amount);
+        return;
+    }
 
-            userData.balance = currentBalance + amount;
+    userData.balance = currentBalance + amount;
 
-            userData.processedDeposits[id] = {
-                amount: amount,
-                depositId: id,
-                processedAt: Date.now(),
-                processedBy: adminUID
-            };
+    userData.processedDeposits[id] = {
+        amount: amount,
+        depositId: id,
+        processedAt: Date.now(),
+        processedBy: adminUID
+    };
 
-            return userData;
+    return userData;
 
-        });
+});
 
-        if (!creditResult.committed) {
-            throw new Error(
-                "Balance credit was denied or cancelled. Check users database permissions and customer balance."
-            );
-        }
+if (!creditResult.committed) {
+    console.error("Balance transaction was not committed.", {
+        uid: uid,
+        depositId: id,
+        amount: amount,
+        rawBalance: userSnapshotBalanceForDebug
+    });
+
+    throw new Error(
+        "Balance update was cancelled. Check the Firebase console for the exact reason."
+    );
+}
 
         /*
          * 6. CONFIRM APPROVAL
