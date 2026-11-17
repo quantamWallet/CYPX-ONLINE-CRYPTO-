@@ -514,34 +514,36 @@ paymentForm.addEventListener("submit", async event => {
 
     const amountUSD = Number((amount / RATE).toFixed(2));
 
-    const payment = {
-      uid: uid,
-      userId: uid,
-      depositId: depositId,
+const payment = {
+  uid: uid,
+  userId: uid,
+  depositId: depositId,
 
-      agentName: "HALIFA NAMUNGHOLO",
-      agentNumber: "0767326443",
+  agentName: "HALIFA NAMUNGHOLO",
+  agentNumber: "0767326443",
 
-      method: "MTN MONEY",
-      paymentMethod: "MTN MONEY",
+  method: "MTN MONEY",
+  paymentMethod: "MTN MONEY",
 
-      currency: "UGX",
-      amount: amount,
-      depositAmount: amount,
-      amountUSD: amountUSD,
-      exchangeRate: RATE,
+  currency: "USD",
+  amount: amountUSD,
+  depositAmount: amountUSD,
+  amountUSD: amountUSD,
 
-      senderNumber: senderNumber,
-      transactionId: transactionId,
+  amountUGX: amount,
+  exchangeRate: RATE,
 
-      status: "pending",
-      verificationStatus: "pending",
+  senderNumber: senderNumber,
+  transactionId: transactionId,
 
-      source: "MTN Uganda Payment Page",
+  status: "pending",
+  verificationStatus: "pending",
 
-      createdAt: firebase.database.ServerValue.TIMESTAMP,
-      submittedAt: firebase.database.ServerValue.TIMESTAMP
-    };
+  source: "MTN Uganda Payment Page",
+
+  createdAt: firebase.database.ServerValue.TIMESTAMP,
+  submittedAt: firebase.database.ServerValue.TIMESTAMP
+};
 
     // Save deposit directly to the deposits database.
 await db.ref("deposits/" + uid + "/" + depositId).set(payment);
@@ -572,8 +574,7 @@ console.log("Deposit successfully saved:", depositId);
   submitting = false;
   submitBtn.disabled = false;
   submitBtn.textContent = "Submit Deposit";
-  }
-});
+}
 </script>
 
 </body>
