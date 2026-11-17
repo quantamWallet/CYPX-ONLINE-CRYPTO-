@@ -855,85 +855,68 @@ body{
 
 </div>
 
+                                                   ?
+   
 <!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <script>
 
-/* ==================================================
-   FIREBASE CONFIG
-================================================== */
+/* =========================================
+   FIREBASE CONFIGURATION
+========================================= */
 
 const firebaseConfig = {
-
-    apiKey:
-        "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
-
-    authDomain:
-        "quantum-rio.firebaseapp.com",
-
-    databaseURL:
-        "https://quantum-rio-default-rtdb.firebaseio.com",
-
-    projectId:
-        "quantum-rio",
-
-    storageBucket:
-        "quantum-rio.firebasestorage.app",
-
-    messagingSenderId:
-        "805433999377",
-
-    appId:
-        "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
-
-    measurementId:
-        "G-4RSQXZJX44"
-
+    apiKey: "AIzaSyCCW4G9JlVu_xb0bGjlKmsi5mdqXSwvFak",
+    authDomain: "quantum-rio.firebaseapp.com",
+    databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+    projectId: "quantum-rio",
+    storageBucket: "quantum-rio.firebasestorage.app",
+    messagingSenderId: "805433999377",
+    appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+    measurementId: "G-4RSQXZJX44"
 };
 
-
-if(!firebase.apps.length){
-
+if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-
 }
 
-
 const auth = firebase.auth();
-
 const db = firebase.database();
 
 let adminEmail = "";
-
 let adminUID = "";
 
+let depositsData = {};
+let financialData = {};
 
-/* ==================================================
-   ADMIN CHECK
-================================================== */
+let depositsLoaded = false;
+let financialLoaded = false;
 
-auth.onAuthStateChanged(user => {
 
-    if(!user){
+/* =========================================
+   ADMIN AUTHENTICATION
+========================================= */
 
+auth.onAuthStateChanged(async user => {
+
+    if (!user) {
         window.location.href = "auth.html";
-
         return;
-
     }
 
     adminEmail = user.email || "";
-
     adminUID = user.uid;
 
-    db.ref("admins/" + user.uid)
-    .once("value")
+    try {
 
-    .then(admin => {
+        const adminSnapshot = await db.ref(
+            "admins/" + user.uid
+        ).once("value");
 
-        if(!admin.exists()){
+        if (!adminSnapshot.exists()) {
 
             showNotification(
                 "Admin access required.",
@@ -941,442 +924,508 @@ auth.onAuthStateChanged(user => {
             );
 
             setTimeout(() => {
-
                 window.location.href = "auth.html";
-
-            },1200);
+            }, 1500);
 
             return;
-
         }
 
         loadDeposits();
 
-    })
+    } catch (error) {
 
-    .catch(error => {
-
-        console.error(error);
+        console.error("Admin verification:", error);
 
         showNotification(
-            "Unable to verify admin access.",
+            "Unable to verify admin access: " + error.message,
             "error"
         );
 
-    });
+    }
 
 });
 
 
-/* ==================================================
-   LOAD DEPOSITS
-================================================== */
-
-function loadDeposits(){
-
-    db.ref("deposits").on(
-
-        "value",
-
-        snap => {
-
-            let deposits = [];
-
-            /*
-             * ORIGINAL FIREBASE STRUCTURE:
-             *
-             * deposits
-             *   └── UID
-             *       └── Deposit ID
-             */
-
-            snap.forEach(userSnap => {
-
-                const uid = userSnap.key;
-
-                userSnap.forEach(depositSnap => {
-
-                    const d = depositSnap.val() || {};
-
-                    deposits.push({
-
-                        uid: uid,
-
-                        id: depositSnap.key,
-
-                        data: d
-
-                    });
-
-                });
-
-            });
-
-
-            /* NEWEST FIRST */
-
-            deposits.sort((a,b) => {
-
-                const aTime = getDepositTime(a.data);
-
-                const bTime = getDepositTime(b.data);
-
-                return bTime - aTime;
-
-            });
-
-
-            let html = "";
-
-
-            if(!deposits.length){
-
-                document.getElementById("depositList").innerHTML = `
-
-                    <div class="empty-state">
-
-                        <i class="fas fa-wallet"></i>
-
-                        <strong>
-                            No deposits found
-                        </strong>
-
-                        <span>
-                            Deposit transactions will appear here.
-                        </span>
-
-                    </div>
-
-                `;
-
-                return;
-
-            }
-
-
-            html += `<div class="deposit-grid">`;
-
-
-            deposits.forEach(item => {
-
-                const uid = item.uid;
-
-                const id = item.id;
-
-                const d = item.data;
-
-
-                const status = String(
-                    d.status || "pending"
-                ).toLowerCase();
-
-
-                const amount = Number(
-                    d.amount ||
-                    d.depositAmount ||
-                    0
-                );
-
-
-                const statusClass =
-                    status === "approved"
-
-                    ? "status-approved"
-
-                    :
-
-                    status === "rejected"
-
-                    ? "status-rejected"
-
-                    :
-
-                    "status-pending";
-
-
-                const statusIcon =
-                    status === "approved"
-
-                    ? "fa-circle-check"
-
-                    :
-
-                    status === "rejected"
-
-                    ? "fa-circle-xmark"
-
-                    :
-
-                    "fa-clock";
-
-
-                html += `
-
-                    <div class="deposit-card">
-
-                        <!-- CARD HEADER -->
-
-                        <div class="deposit-header">
-
-                            <div class="deposit-heading">
-
-                                <div class="deposit-icon">
-
-                                    <i class="fas fa-wallet"></i>
-
-                                </div>
-
-                                <div>
-
-                                    <div class="deposit-title">
-                                        Deposit
-                                    </div>
-
-                                    <div class="deposit-number">
-                                        ID: ${escapeHTML(id)}
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <span class="status ${statusClass}">
-
-                                <i class="fas ${statusIcon}"></i>
-
-                                ${escapeHTML(status)}
-
-                            </span>
-
-                        </div>
-
-
-                        <!-- AMOUNT -->
-
-                        <div class="amount-box">
-
-                            <div class="amount-label">
-                                Deposit Amount
-                            </div>
-
-                            <div class="amount-value">
-
-                                $${amount.toLocaleString(
-                                    "en-US",
-                                    {
-                                        minimumFractionDigits:2,
-                                        maximumFractionDigits:2
-                                    }
-                                )}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- DETAILS -->
-
-                        <div class="details">
-
-                            <div class="detail-row">
-
-                                <div class="detail-label">
-
-                                    <i class="fas fa-user"></i>
-
-                                    User UID
-
-                                </div>
-
-                                <div class="detail-value uid-value">
-
-                                    ${escapeHTML(uid)}
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="detail-row">
-
-                                <div class="detail-label">
-
-                                    <i class="fas fa-hashtag"></i>
-
-                                    Deposit ID
-
-                                </div>
-
-                                <div class="detail-value">
-
-                                    ${escapeHTML(id)}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        ${
-                            status === "pending"
-
-                            ?
-
-                            `
-
-                            <div class="actions">
-
-                                <button
-                                    class="action-btn approve"
-                                    onclick="updateDeposit(
-                                        '${escapeHTML(uid)}',
-                                        '${escapeHTML(id)}',
-                                        'approved'
-                                    )">
-
-                                    <i class="fas fa-check"></i>
-
-                                    Approve
-
-                                </button>
-
-
-                                <button
-                                    class="action-btn reject"
-                                    onclick="updateDeposit(
-                                        '${escapeHTML(uid)}',
-                                        '${escapeHTML(id)}',
-                                        'rejected'
-                                    )">
-
-                                    <i class="fas fa-xmark"></i>
-
-                                    Reject
-
-                                </button>
-
-                            </div>
-
-                            `
-
-                            :
-
-                            `
-
-                            <div class="processed">
-
-                                <i class="fas fa-shield-check"></i>
-
-                                Deposit processed
-
-                            </div>
-
-                            `
-
-                        }
-
-                    </div>
-
-                `;
-
-            });
-
-
-            html += `</div>`;
-
-
-            document.getElementById("depositList").innerHTML = html;
-
-        },
-
-
-        error => {
-
-            console.error(error);
-
-            document.getElementById("depositList").innerHTML = `
-
-                <div class="empty-state">
-
-                    <i class="fas fa-triangle-exclamation"></i>
-
-                    <strong>
-                        Firebase Error
-                    </strong>
-
-                    <span>
-                        ${escapeHTML(error.message)}
-                    </span>
-
-                </div>
-
-            `;
-
-        }
-
+/* =========================================
+   CHECK DEPOSIT RECORD
+========================================= */
+
+function isDepositRecord(data) {
+
+    if (!data || typeof data !== "object") {
+        return false;
+    }
+
+    return (
+        data.amount !== undefined ||
+        data.depositAmount !== undefined ||
+        data.paymentMethod !== undefined ||
+        data.receipt !== undefined ||
+        data.status !== undefined ||
+        data.transactionId !== undefined
     );
 
 }
 
 
-/* ==================================================
-   GET DEPOSIT TIME
-================================================== */
+/* =========================================
+   NORMALIZE FIREBASE DATA
+   Supports:
+   deposits/UID/DEPOSIT_ID
+   deposits/DEPOSIT_ID
+   financial/UID/DEPOSIT_ID
+========================================= */
 
-function getDepositTime(data){
+function normalizeDeposits(snapshot) {
+
+    const result = {};
+
+    snapshot.forEach(firstLevel => {
+
+        const firstData = firstLevel.val() || {};
+
+        // Direct deposit record
+        if (isDepositRecord(firstData)) {
+
+            const uid =
+                firstData.uid ||
+                firstData.userId ||
+                firstData.userUID ||
+                "Unknown";
+
+            result[uid + "_" + firstLevel.key] = {
+                uid: uid,
+                id: firstLevel.key,
+                data: firstData
+            };
+
+            return;
+        }
+
+        // Nested structure: UID / Deposit ID
+        firstLevel.forEach(secondLevel => {
+
+            const data = secondLevel.val() || {};
+
+            if (!isDepositRecord(data)) {
+                return;
+            }
+
+            const uid = firstLevel.key;
+
+            result[uid + "_" + secondLevel.key] = {
+                uid: uid,
+                id: secondLevel.key,
+                data: data
+            };
+
+        });
+
+    });
+
+    return result;
+
+}
+
+
+/* =========================================
+   LOAD DEPOSITS FROM FIREBASE
+========================================= */
+
+function loadDeposits() {
+
+    const depositsRef = db.ref("deposits");
+    const financialRef = db.ref("financial");
+
+    depositsRef.on("value", snapshot => {
+
+        depositsData = normalizeDeposits(snapshot);
+        depositsLoaded = true;
+
+        renderDeposits();
+
+    }, error => {
+
+        console.error("Deposits database error:", error);
+
+        showFirebaseError(error);
+
+    });
+
+
+    financialRef.on("value", snapshot => {
+
+        financialData = normalizeDeposits(snapshot);
+        financialLoaded = true;
+
+        renderDeposits();
+
+    }, error => {
+
+        console.error("Financial database error:", error);
+
+        // Deposits can still load from the deposits path.
+        financialLoaded = true;
+
+        renderDeposits();
+
+    });
+
+}
+
+
+/* =========================================
+   DISPLAY DEPOSITS
+========================================= */
+
+function renderDeposits() {
+
+    if (!depositsLoaded) {
+        return;
+    }
+
+    // Deposits path takes priority.
+    // Financial is used as an additional source.
+    const combined = {
+        ...financialData,
+        ...depositsData
+    };
+
+    const deposits = Object.values(combined);
+
+
+    deposits.sort((a, b) => {
+
+        return getDepositTime(b.data) -
+               getDepositTime(a.data);
+
+    });
+
+
+    const container = document.getElementById(
+        "depositList"
+    );
+
+    if (!deposits.length) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+
+                <i class="fas fa-wallet"></i>
+
+                <strong>No deposits found</strong>
+
+                <span>
+                    No deposit records were found in
+                    deposits or financial.
+                </span>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    let html = `<div class="deposit-grid">`;
+
+
+    deposits.forEach(item => {
+
+        const uid = item.uid;
+        const id = item.id;
+        const d = item.data;
+
+        const status = String(
+            d.status || "pending"
+        ).toLowerCase();
+
+
+        const amount = Number(
+            d.amount ||
+            d.depositAmount ||
+            d.price ||
+            0
+        );
+
+
+        const statusClass =
+            status === "approved"
+                ? "status-approved"
+                : status === "rejected"
+                    ? "status-rejected"
+                    : "status-pending";
+
+
+        const statusIcon =
+            status === "approved"
+                ? "fa-circle-check"
+                : status === "rejected"
+                    ? "fa-circle-xmark"
+                    : "fa-clock";
+
+
+        html += `
+
+            <div class="deposit-card">
+
+                <div class="deposit-header">
+
+                    <div class="deposit-heading">
+
+                        <div class="deposit-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="deposit-title">
+                                Deposit
+                            </div>
+
+                            <div class="deposit-number">
+                                ID: ${escapeHTML(id)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <span class="status ${statusClass}">
+
+                        <i class="fas ${statusIcon}"></i>
+
+                        ${escapeHTML(status)}
+
+                    </span>
+
+                </div>
+
+
+                <div class="amount-box">
+
+                    <div class="amount-label">
+                        Deposit Amount
+                    </div>
+
+                    <div class="amount-value">
+
+                        $${amount.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+
+                    </div>
+
+                </div>
+
+
+                <div class="details">
+
+                    <div class="detail-row">
+
+                        <div class="detail-label">
+
+                            <i class="fas fa-user"></i>
+                            User UID
+
+                        </div>
+
+                        <div class="detail-value uid-value">
+
+                            ${escapeHTML(uid)}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <div class="detail-label">
+
+                            <i class="fas fa-hashtag"></i>
+                            Deposit ID
+
+                        </div>
+
+                        <div class="detail-value">
+
+                            ${escapeHTML(id)}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <div class="detail-label">
+
+                            <i class="fas fa-credit-card"></i>
+                            Payment Method
+
+                        </div>
+
+                        <div class="detail-value">
+
+                            ${escapeHTML(
+                                d.paymentMethod ||
+                                d.method ||
+                                d.network ||
+                                "Not provided"
+                            )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <div class="detail-label">
+
+                            <i class="fas fa-calendar"></i>
+                            Date
+
+                        </div>
+
+                        <div class="detail-value">
+
+                            ${getDisplayDate(d)}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                ${
+                    status === "pending"
+
+                    ? `
+
+                    <div class="actions">
+
+                        <button
+                            class="action-btn approve"
+                            data-action="approved"
+                            data-uid="${escapeHTML(uid)}"
+                            data-id="${escapeHTML(id)}">
+
+                            <i class="fas fa-check"></i>
+                            Approve
+
+                        </button>
+
+
+                        <button
+                            class="action-btn reject"
+                            data-action="rejected"
+                            data-uid="${escapeHTML(uid)}"
+                            data-id="${escapeHTML(id)}">
+
+                            <i class="fas fa-xmark"></i>
+                            Reject
+
+                        </button>
+
+                    </div>
+
+                    `
+
+                    : `
+
+                    <div class="processed">
+
+                        <i class="fas fa-shield-check"></i>
+
+                        Deposit processed
+
+                    </div>
+
+                    `
+
+                }
+
+            </div>
+
+        `;
+
+    });
+
+
+    html += `</div>`;
+
+    container.innerHTML = html;
+
+}
+
+
+/* =========================================
+   BUTTON EVENT HANDLING
+========================================= */
+
+document.getElementById("depositList")
+.addEventListener("click", function(event) {
+
+    const button = event.target.closest(
+        "button[data-action]"
+    );
+
+    if (!button) {
+        return;
+    }
+
+    const uid = button.dataset.uid;
+    const id = button.dataset.id;
+    const status = button.dataset.action;
+
+    updateDeposit(uid, id, status);
+
+});
+
+
+/* =========================================
+   DEPOSIT TIME
+========================================= */
+
+function getDepositTime(data) {
 
     const possibleTimes = [
-
         data.createdAt,
-
         data.timestamp,
-
         data.created_at,
-
         data.time,
-
         data.date,
-
         data.submittedAt,
-
         data.created,
-
         data.depositTime
-
     ];
 
+    for (const value of possibleTimes) {
 
-    for(const value of possibleTimes){
+        if (value === undefined || value === null || value === "") {
+            continue;
+        }
 
-        if(
-            value !== undefined &&
-            value !== null &&
-            value !== ""
-        ){
+        const numeric = Number(value);
 
-            const numeric = Number(value);
+        if (Number.isFinite(numeric) && numeric > 0) {
 
-            if(
-                Number.isFinite(numeric) &&
-                numeric > 0
-            ){
+            return numeric < 10000000000
+                ? numeric * 1000
+                : numeric;
 
-                return numeric < 10000000000
-                    ? numeric * 1000
-                    : numeric;
+        }
 
-            }
+        const parsed = Date.parse(value);
 
-
-            const parsed = Date.parse(value);
-
-            if(!Number.isNaN(parsed)){
-
-                return parsed;
-
-            }
-
+        if (!Number.isNaN(parsed)) {
+            return parsed;
         }
 
     }
@@ -1386,42 +1435,85 @@ function getDepositTime(data){
 }
 
 
-/* ==================================================
-   ESCAPE HTML
-================================================== */
+/* =========================================
+   DISPLAY DATE
+========================================= */
 
-function escapeHTML(value){
+function getDisplayDate(data) {
 
-    return String(value ?? "")
+    const time = getDepositTime(data);
 
-        .replace(/&/g,"&amp;")
+    if (!time) {
+        return "Not provided";
+    }
 
-        .replace(/</g,"&lt;")
-
-        .replace(/>/g,"&gt;")
-
-        .replace(/"/g,"&quot;")
-
-        .replace(/'/g,"&#039;");
+    return escapeHTML(
+        new Date(time).toLocaleString()
+    );
 
 }
 
 
-/* ==================================================
-   NOTIFICATION
-================================================== */
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================
+   FIREBASE ERROR DISPLAY
+========================================= */
+
+function showFirebaseError(error) {
+
+    document.getElementById(
+        "depositList"
+    ).innerHTML = `
+
+        <div class="empty-state">
+
+            <i class="fas fa-triangle-exclamation"></i>
+
+            <strong>Firebase Error</strong>
+
+            <span>
+                ${escapeHTML(error.message)}
+            </span>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   NOTIFICATIONS
+========================================= */
 
 function showNotification(
     message,
-    type="success"
-){
+    type = "success"
+) {
 
-    const box = document.getElementById("notification");
+    const box = document.getElementById(
+        "notification"
+    );
 
     box.className = "";
 
     box.classList.add(type);
-
     box.classList.add("show");
 
     box.textContent = message;
@@ -1432,19 +1524,23 @@ function showNotification(
 
         box.classList.remove("show");
 
-    },3000);
+    }, 3000);
 
 }
-   <script>
 
-/* ==================================================
+   </script>
+
+   
+<script>
+
+/* =========================================
    UPDATE DEPOSIT
-   SAFE APPROVAL AND REJECTION
-================================================== */
+   APPROVE / REJECT
+========================================= */
 
-async function updateDeposit(uid, id, status){
+async function updateDeposit(uid, id, status) {
 
-    if(!["approved", "rejected"].includes(status)){
+    if (!["approved", "rejected"].includes(status)) {
 
         showNotification(
             "Invalid deposit action.",
@@ -1454,35 +1550,57 @@ async function updateDeposit(uid, id, status){
         return;
     }
 
-    const depositRef = db.ref(
-        "deposits/" + uid + "/" + id
-    );
+    if (!adminUID) {
 
-    const userRef = db.ref(
-        "users/" + uid
-    );
+        showNotification(
+            "Admin session not verified.",
+            "error"
+        );
 
-    try{
+        return;
+    }
+
+
+    try {
 
         /*
-         * READ CURRENT DEPOSIT
+         * FIND THE ACTUAL DATABASE LOCATION
          */
 
-        const snapshot = await depositRef.once("value");
+        let depositRef = db.ref(
+            "deposits/" + uid + "/" + id
+        );
+
+        let snapshot = await depositRef.once("value");
+
+        if (!snapshot.exists()) {
+
+            depositRef = db.ref(
+                "financial/" + uid + "/" + id
+            );
+
+            snapshot = await depositRef.once("value");
+
+        }
+
 
         const deposit = snapshot.val();
 
-        if(!deposit){
+        if (!deposit) {
 
             showNotification(
-                "Deposit not found.",
+                "Deposit not found in Firebase.",
                 "error"
             );
 
             return;
         }
 
-        if(String(deposit.status || "").toLowerCase() !== "pending"){
+
+        if (
+            String(deposit.status || "pending").toLowerCase()
+            !== "pending"
+        ) {
 
             showNotification(
                 "This deposit has already been processed.",
@@ -1494,39 +1612,28 @@ async function updateDeposit(uid, id, status){
 
 
         /*
-         * CLAIM THE ACTION
-         *
-         * This prevents another admin from
-         * approving or rejecting the same
-         * deposit at the same time.
+         * CLAIM PROCESSING
          */
 
         const claim = await depositRef.transaction(current => {
 
-            if(!current){
-
+            if (!current) {
                 return;
-
             }
 
-            if(
-                String(current.status || "").toLowerCase() !== "pending"
-            ){
-
+            if (
+                String(current.status || "pending").toLowerCase()
+                !== "pending"
+            ) {
                 return;
-
             }
 
-            if(current.processingAction){
-
+            if (current.processingAction) {
                 return;
-
             }
 
             current.processingAction = status;
-
             current.processingBy = adminUID;
-
             current.processingAt = Date.now();
 
             return current;
@@ -1534,10 +1641,10 @@ async function updateDeposit(uid, id, status){
         });
 
 
-        if(!claim.committed){
+        if (!claim.committed) {
 
             showNotification(
-                "Another admin is processing this deposit, or it has already changed.",
+                "Another admin is processing this deposit.",
                 "warning"
             );
 
@@ -1546,10 +1653,71 @@ async function updateDeposit(uid, id, status){
 
 
         /*
+         * REJECT DEPOSIT
+         */
+
+        if (status === "rejected") {
+
+            const rejectionResult = await depositRef.transaction(current => {
+
+                if (!current) {
+                    return;
+                }
+
+                if (
+                    String(current.status || "pending").toLowerCase()
+                    !== "pending" ||
+                    current.processingAction !== "rejected"
+                ) {
+                    return;
+                }
+
+                current.status = "rejected";
+
+                current.processedAt =
+                    firebase.database.ServerValue.TIMESTAMP;
+
+                current.processedBy = adminEmail;
+
+                delete current.processingAction;
+                delete current.processingBy;
+                delete current.processingAt;
+
+                return current;
+
+            });
+
+
+            if (!rejectionResult.committed) {
+
+                throw new Error(
+                    "Could not confirm deposit rejection."
+                );
+
+            }
+
+            await writeAdminLog(
+                uid,
+                id,
+                deposit,
+                "rejected"
+            );
+
+            showNotification(
+                "Deposit rejected successfully.",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        /*
          * APPROVE DEPOSIT
          */
 
-        if(status === "approved"){
+        if (status === "approved") {
 
             const amount = Number(
                 deposit.amount ||
@@ -1559,20 +1727,12 @@ async function updateDeposit(uid, id, status){
             );
 
 
-            if(!Number.isFinite(amount) || amount <= 0){
+            if (!Number.isFinite(amount) || amount <= 0) {
 
-                await depositRef.update({
-
-                    processingAction: null,
-
-                    processingBy: null,
-
-                    processingAt: null
-
-                });
+                await releaseDepositClaim(depositRef);
 
                 showNotification(
-                    "Invalid deposit amount. No balance was changed.",
+                    "Invalid deposit amount. Balance unchanged.",
                     "error"
                 );
 
@@ -1581,35 +1741,34 @@ async function updateDeposit(uid, id, status){
 
 
             /*
+             * USER BALANCE
+             */
+
+            const userRef = db.ref(
+                "users/" + uid
+            );
+
+
+            /*
              * ATOMIC BALANCE CREDIT
-             *
-             * Balance and processedDeposits marker
-             * are saved together in one transaction.
-             *
-             * If the marker already exists, the
-             * amount is NOT credited again.
+             * PREVENT DUPLICATE CREDIT
              */
 
             const creditResult = await userRef.transaction(userData => {
 
-                if(!userData){
-
+                if (!userData) {
                     return;
-
                 }
 
-                if(!userData.processedDeposits){
+                if (!userData.processedDeposits) {
 
                     userData.processedDeposits = {};
 
                 }
 
 
-                /*
-                 * ALREADY CREDITED
-                 */
-
-                if(userData.processedDeposits[id]){
+                // Already credited: do not credit again.
+                if (userData.processedDeposits[id]) {
 
                     return userData;
 
@@ -1621,14 +1780,18 @@ async function updateDeposit(uid, id, status){
                 );
 
 
-                if(!Number.isFinite(currentBalance)){
+                if (
+                    !Number.isFinite(currentBalance) ||
+                    currentBalance < 0
+                ) {
 
                     return;
 
                 }
 
 
-                userData.balance = currentBalance + amount;
+                userData.balance =
+                    currentBalance + amount;
 
 
                 userData.processedDeposits[id] = {
@@ -1649,40 +1812,32 @@ async function updateDeposit(uid, id, status){
             });
 
 
-            if(!creditResult.committed){
+            if (!creditResult.committed) {
 
-                await depositRef.update({
-
-                    processingAction: null,
-
-                    processingBy: null,
-
-                    processingAt: null
-
-                });
+                await releaseDepositClaim(depositRef);
 
                 throw new Error(
-                    "Balance credit could not be completed. Deposit remains pending."
+                    "Balance credit failed. Deposit remains pending."
                 );
+
             }
 
 
             /*
-             * CONFIRM APPROVAL ONLY AFTER CREDIT
+             * CONFIRM DEPOSIT APPROVAL
              */
 
             const finalUpdate = await depositRef.transaction(current => {
 
-                if(!current){
-
+                if (!current) {
                     return;
-
                 }
 
-                if(
-                    String(current.status || "").toLowerCase() !== "pending" ||
+                if (
+                    String(current.status || "pending").toLowerCase()
+                    !== "pending" ||
                     current.processingAction !== "approved"
-                ){
+                ) {
 
                     return;
 
@@ -1696,9 +1851,7 @@ async function updateDeposit(uid, id, status){
                 current.processedBy = adminEmail;
 
                 delete current.processingAction;
-
                 delete current.processingBy;
-
                 delete current.processingAt;
 
                 return current;
@@ -1706,106 +1859,36 @@ async function updateDeposit(uid, id, status){
             });
 
 
-            if(!finalUpdate.committed){
+            if (!finalUpdate.committed) {
 
                 throw new Error(
-                    "Balance was credited, but deposit status confirmation failed. Please check the deposit before retrying."
+                    "Balance may have been credited, but deposit confirmation failed. Check the transaction before retrying."
                 );
+
             }
+
+
+            /*
+             * ADMIN LOG
+             */
+
+            await writeAdminLog(
+                uid,
+                id,
+                deposit,
+                "approved"
+            );
+
+
+            showNotification(
+                "Deposit approved and balance credited successfully.",
+                "success"
+            );
 
         }
 
 
-        /*
-         * REJECT DEPOSIT
-         *
-         * No balance is added or deducted.
-         */
-
-        else if(status === "rejected"){
-
-            const rejectionResult = await depositRef.transaction(current => {
-
-                if(!current){
-
-                    return;
-
-                }
-
-                if(
-                    String(current.status || "").toLowerCase() !== "pending" ||
-                    current.processingAction !== "rejected"
-                ){
-
-                    return;
-
-                }
-
-                current.status = "rejected";
-
-                current.processedAt =
-                    firebase.database.ServerValue.TIMESTAMP;
-
-                current.processedBy = adminEmail;
-
-                delete current.processingAction;
-
-                delete current.processingBy;
-
-                delete current.processingAt;
-
-                return current;
-
-            });
-
-
-            if(!rejectionResult.committed){
-
-                throw new Error(
-                    "Could not confirm deposit rejection."
-                );
-            }
-
-        }
-
-
-        /*
-         * ADMIN LOG
-         */
-
-        await db.ref("adminLogs").push({
-
-            action: "Deposit " + status,
-
-            user: uid,
-
-            amount: Number(
-                deposit.amount ||
-                deposit.depositAmount ||
-                deposit.price ||
-                0
-            ),
-
-            admin: adminEmail,
-
-            adminUID: adminUID,
-
-            time: Date.now()
-
-        });
-
-
-        showNotification(
-            status === "approved"
-                ? "Deposit approved and balance credited successfully."
-                : "Deposit rejected successfully.",
-            status === "approved"
-                ? "success"
-                : "warning"
-        );
-
-
-    }catch(error){
+    } catch (error) {
 
         console.error(
             "Deposit processing error:",
@@ -1818,6 +1901,68 @@ async function updateDeposit(uid, id, status){
         );
 
     }
+
+}
+
+
+/* =========================================
+   RELEASE PROCESSING CLAIM
+========================================= */
+
+async function releaseDepositClaim(depositRef) {
+
+    await depositRef.transaction(current => {
+
+        if (!current) {
+            return;
+        }
+
+        delete current.processingAction;
+        delete current.processingBy;
+        delete current.processingAt;
+
+        return current;
+
+    });
+
+}
+
+
+/* =========================================
+   ADMIN ACTIVITY LOG
+========================================= */
+
+async function writeAdminLog(
+    uid,
+    id,
+    deposit,
+    status
+) {
+
+    const amount = Number(
+        deposit.amount ||
+        deposit.depositAmount ||
+        deposit.price ||
+        0
+    );
+
+    await db.ref("adminLogs").push({
+
+        action: "Deposit " + status,
+
+        user: uid,
+
+        depositId: id,
+
+        amount: amount,
+
+        admin: adminEmail,
+
+        adminUID: adminUID,
+
+        time: Date.now()
+
+    });
 
 }
 
