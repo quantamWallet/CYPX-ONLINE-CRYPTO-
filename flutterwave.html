@@ -8,70 +8,79 @@
 
 <style>
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  min-height: 100vh;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #050d25, #0a182c);
   color: #fff;
+  min-height: 100vh;
+  padding: 20px 14px 40px;
 }
 
 .container {
   width: 100%;
-  max-width: 420px;
-  background: #101d32;
-  border: 1px solid #263952;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 15px 45px #0005;
+  max-width: 480px;
+  margin: 20px auto;
 }
 
-.brand {
+.header {
   text-align: center;
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: 1px;
+  margin-bottom: 25px;
 }
 
-.subtitle {
-  text-align: center;
-  color: #9aadc6;
-  font-size: 13px;
-  margin-top: 7px;
-}
-
-.agent-card {
-  margin: 25px 0;
-  padding: 23px 15px;
-  text-align: center;
-  background: #192b43;
-  border: 1px solid #344961;
-  border-radius: 15px;
-}
-
-.airtel {
-  color: #ffcc00;
+.logo {
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 12px;
+  border-radius: 18px;
+  background: #ffcc00;
+  color: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 23px;
-  font-weight: 800;
-  margin-bottom: 14px;
+  font-weight: bold;
 }
 
-.agent-label {
-  color: #9aadc6;
-  font-size: 12px;
+.header h1 {
+  font-size: 23px;
   margin-bottom: 7px;
 }
 
+.header p {
+  color: #aab8d0;
+  font-size: 13px;
+}
+
+.card {
+  background: #111f38;
+  border: 1px solid #263b5d;
+  border-radius: 17px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+
+.card h2 {
+  font-size: 17px;
+  margin-bottom: 17px;
+  color: #ffcc00;
+}
+
+.agent-box {
+  background: #172b48;
+  border: 1px solid #344b6c;
+  border-radius: 12px;
+  padding: 17px;
+  text-align: center;
+}
+
 .agent-name {
-  font-size: 21px;
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 9px;
 }
@@ -79,138 +88,133 @@ body {
 .agent-number {
   font-size: 24px;
   font-weight: bold;
-  color: #fff;
+  color: #ffcc00;
   letter-spacing: 1px;
+  margin-bottom: 13px;
 }
 
 .copy-btn {
-  margin-top: 13px;
-  background: #293d57;
-  color: #fff;
-  border: 1px solid #536780;
-  padding: 9px 18px;
+  background: #ffcc00;
+  color: #111;
+  border: none;
+  padding: 10px 18px;
   border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
 }
 
 label {
   display: block;
   font-size: 13px;
-  color: #d8e2ef;
-  margin: 17px 0 8px;
+  color: #cbd5e1;
+  margin-bottom: 8px;
 }
 
 input {
   width: 100%;
   padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #354861;
-  background: #091629;
-  color: white;
+  border-radius: 9px;
+  border: 1px solid #354b6a;
+  background: #09162a;
+  color: #fff;
   outline: none;
   font-size: 15px;
+  margin-bottom: 17px;
 }
 
 input:focus {
   border-color: #ffcc00;
-  box-shadow: 0 0 0 2px #ffcc0025;
+}
+
+input::placeholder {
+  color: #718096;
 }
 
 .converter {
-  margin-top: 20px;
-  padding: 16px;
-  background: #192b43;
-  border: 1px solid #344961;
-  border-radius: 12px;
+  background: #172b48;
+  padding: 13px;
+  border-radius: 10px;
+  margin-top: -5px;
+  margin-bottom: 17px;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.7;
 }
 
-.converter h3 {
-  font-size: 15px;
-  margin-bottom: 12px;
+.converter strong {
   color: #ffcc00;
-}
-
-.converter .rate {
-  font-size: 12px;
-  color: #9aadc6;
-  margin-top: 10px;
-  line-height: 1.6;
-}
-
-.convert-result {
-  margin-top: 12px;
-  padding: 12px;
-  background: #091629;
-  border-radius: 9px;
-  color: #ffcc00;
-  font-weight: bold;
-  text-align: center;
-  font-size: 17px;
-}
-
-.minimum {
-  margin-top: 12px;
-  color: #ffcc00;
-  font-size: 12px;
-  text-align: center;
-  line-height: 1.6;
 }
 
 .submit-btn {
   width: 100%;
-  margin-top: 24px;
   padding: 15px;
   border: none;
   border-radius: 10px;
-  color: #17202c;
-  font-weight: bold;
+  background: linear-gradient(90deg, #ffcc00, #f5a900);
+  color: #111;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  background: linear-gradient(135deg, #ffcc00, #ffe36b);
+  transition: .2s;
 }
 
 .submit-btn:disabled {
-  opacity: .65;
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 .notice {
-  margin-top: 16px;
-  padding: 12px;
-  text-align: center;
-  border-radius: 9px;
-  background: #172a40;
-  color: #bdcde0;
   font-size: 12px;
-  line-height: 1.6;
+  color: #aab8d0;
+  line-height: 1.7;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.status {
+  text-align: center;
+  font-size: 12px;
+  color: #aab8d0;
+  margin-top: 12px;
 }
 
 .toast {
   position: fixed;
+  top: 20px;
   left: 50%;
-  top: 25px;
   transform: translate(-50%, -20px);
-  opacity: 0;
-  pointer-events: none;
-  padding: 14px 20px;
-  border-radius: 12px;
-  background: #142b42;
-  border: 1px solid #ffcc00;
+  width: calc(100% - 30px);
+  max-width: 380px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #172b48;
   color: white;
   text-align: center;
-  width: max-content;
-  max-width: 90%;
-  transition: .25s;
-  z-index: 10;
+  font-size: 14px;
+  opacity: 0;
+  visibility: hidden;
+  transition: .3s;
+  z-index: 9999;
+  box-shadow: 0 8px 25px rgba(0,0,0,.4);
 }
 
 .toast.show {
   opacity: 1;
+  visibility: visible;
   transform: translate(-50%, 0);
+}
+
+.toast.success {
+  border: 1px solid #00d68f;
+}
+
+.toast.error {
+  border: 1px solid #ff5252;
 }
 
 .footer {
   text-align: center;
-  color: #758ba6;
+  color: #718096;
   font-size: 11px;
   margin-top: 20px;
 }
@@ -221,220 +225,360 @@ input:focus {
 
 <div class="container">
 
-  <div class="brand">CYPX HOLDINGS</div>
-  <div class="subtitle">Secure Agent Payment Portal</div>
-
-  <div class="agent-card">
-    <div class="airtel">MTN MONEY</div>
-    <div class="agent-label">AGENT NAME</div>
-    <div class="agent-name">HALIFA NAMUNGHOLO</div>
-    <div class="agent-label">AGENT NUMBER</div>
-    <div class="agent-number">0767326443</div>
-
-    <button type="button" class="copy-btn" id="copyBtn">
-      Copy Agent Number
-    </button>
+  <div class="header">
+    <div class="logo">CYPX</div>
+    <h1>CYPX HOLDINGS</h1>
+    <p>MTN Uganda Money Payment</p>
   </div>
 
-  <!-- Currency Converter -->
-  <div class="converter">
-    <h3>USD / UGX Currency Converter</h3>
+  <div class="card">
+    <h2>Payment Agent Details</h2>
 
-    <label for="usdAmount">US Dollar (USD)</label>
-    <input
-      type="number"
-      id="usdAmount"
-      min="0"
-      step="0.01"
-      value="11"
-      placeholder="Enter USD amount"
-    >
-
-    <div class="convert-result" id="ugxResult">
-      UGX 37,400
+    <div class="agent-box">
+      <div class="agent-name">HALIFA NAMUNGHOLO</div>
+      <div class="agent-number" id="agentNumber">0767326443</div>
+      <button class="copy-btn" type="button" id="copyBtn">
+        Copy Number
+      </button>
     </div>
 
-    <label for="ugxAmount">Ugandan Shilling (UGX)</label>
-    <input
-      type="number"
-      id="ugxAmount"
-      min="0"
-      step="1"
-      value="37400"
-      placeholder="Enter UGX amount"
-    >
-
-    <div class="rate">
-      Exchange rate: 1 USD = UGX 3,400<br>
-      Minimum deposit: $11 = UGX 37,400
+    <div class="notice">
+      Send your payment to the MTN Money number shown above.
+      Make sure the recipient details are correct before sending.
     </div>
   </div>
 
-  <form id="paymentForm">
+  <div class="card">
+    <h2>Submit Payment Details</h2>
 
-    <label for="amount">Payment Amount (UGX)</label>
-    <input
-      type="number"
-      id="amount"
-      min="37400"
-      step="1"
-      placeholder="Minimum UGX 37,400"
-      required
-    >
+    <form id="paymentForm">
 
-    <div class="minimum">
-      Minimum deposit: $11 (UGX 37,400)
+      <label for="amount">Amount Paid (UGX)</label>
+      <input
+        type="number"
+        id="amount"
+        placeholder="Enter amount in UGX"
+        min="37400"
+        step="1"
+        required
+      >
+
+      <div class="converter">
+        Minimum deposit: <strong>UGX 37,400 ($11)</strong><br>
+        Exchange rate: <strong>1 USD = UGX 3,400</strong><br>
+        Estimated USD value: <strong id="usdValue">$0.00</strong>
+      </div>
+
+      <label for="senderNumber">Your MTN Phone Number</label>
+      <input
+        type="tel"
+        id="senderNumber"
+        placeholder="e.g. 076XXXXXXX"
+        required
+      >
+
+      <label for="transactionId">MTN Transaction ID</label>
+      <input
+        type="text"
+        id="transactionId"
+        placeholder="Enter transaction ID"
+        required
+      >
+
+      <button
+        type="submit"
+        class="submit-btn"
+        id="submitBtn"
+        disabled
+      >
+        Checking Account...
+      </button>
+
+      <div class="status" id="accountStatus">
+        Checking your account...
+      </div>
+
+    </form>
+
+    <div class="notice">
+      Submitting payment details does not automatically confirm receipt
+      of funds. Your deposit will remain pending until it is verified.
     </div>
-
-    <label for="sender">Your MTN Money Number</label>
-    <input
-      type="tel"
-      id="sender"
-      placeholder="e.g. 076XXXXXXX"
-      pattern="[0-9+ ]{9,15}"
-      required
-    >
-
-    <label for="reference">MTN Money Transaction ID</label>
-    <input
-      type="text"
-      id="reference"
-      maxlength="80"
-      placeholder="Enter transaction reference"
-      required
-    >
-
-    <button type="submit" class="submit-btn" id="submitBtn">
-      Submit Payment Details
-    </button>
-
-  </form>
-
-  <div class="notice">
-    Send your payment to the agent number above, then enter
-    your transaction details. Submission does not itself confirm
-    that funds have been received.
   </div>
 
   <div class="footer">
-    CYPX HOLDINGS &copy; 2026
+    CYPX HOLDINGS © 2026. All Rights Reserved.
   </div>
 
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
 <script>
-const form = document.getElementById("paymentForm");
-const toast = document.getElementById("toast");
-const submitBtn = document.getElementById("submitBtn");
+/* =========================================
+   FIREBASE CONFIGURATION
+========================================= */
+
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_EXISTING_API_KEY",
+  authDomain: "quantum-rio.firebaseapp.com",
+  databaseURL: "https://quantum-rio-default-rtdb.firebaseio.com",
+  projectId: "quantum-rio",
+  storageBucket: "quantum-rio.firebasestorage.app",
+  messagingSenderId: "805433999377",
+  appId: "1:805433999377:web:d0efa8c46ec4a0fa30f1b0",
+  measurementId: "G-4RSQXZJX44"
+};
+
+/*
+ IMPORTANT:
+ Replace PASTE_YOUR_EXISTING_API_KEY with the
+ actual apiKey from your existing Quantum Rio
+ Firebase configuration.
+*/
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+/* =========================================
+   SETTINGS
+========================================= */
 
 const RATE = 3400;
 const MINIMUM_USD = 11;
 const MINIMUM_UGX = 37400;
 
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.add("show");
+const paymentForm = document.getElementById("paymentForm");
+const amountInput = document.getElementById("amount");
+const senderInput = document.getElementById("senderNumber");
+const transactionInput = document.getElementById("transactionId");
+const submitBtn = document.getElementById("submitBtn");
+const accountStatus = document.getElementById("accountStatus");
+const toastElement = document.getElementById("toast");
 
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2600);
+let currentUser = null;
+let authReady = false;
+let submitting = false;
+let toastTimer = null;
+
+/* =========================================
+   TOAST NOTIFICATIONS
+========================================= */
+
+function showToast(message, type = "success") {
+  toastElement.textContent = message;
+  toastElement.className = "toast show " + type;
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    toastElement.className = "toast";
+  }, 3000);
 }
 
-// USD to UGX converter
-const usdInput = document.getElementById("usdAmount");
-const ugxInput = document.getElementById("ugxAmount");
-const ugxResult = document.getElementById("ugxResult");
-const paymentAmount = document.getElementById("amount");
+/* =========================================
+   AUTHENTICATION
+========================================= */
 
-function formatUGX(value) {
-  return "UGX " + Math.round(value).toLocaleString("en-US");
-}
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .catch(error => {
+    console.error("Auth persistence error:", error);
+  });
 
-usdInput.addEventListener("input", () => {
-  const usd = Number(usdInput.value) || 0;
-  const ugx = usd * RATE;
+auth.onAuthStateChanged(user => {
+  authReady = true;
+  currentUser = user;
 
-  ugxInput.value = ugx ? Math.round(ugx) : "";
-  ugxResult.textContent = formatUGX(ugx);
-});
-
-ugxInput.addEventListener("input", () => {
-  const ugx = Number(ugxInput.value) || 0;
-  const usd = ugx / RATE;
-
-  usdInput.value = usd ? usd.toFixed(2) : "";
-  ugxResult.textContent = formatUGX(ugx);
-});
-
-paymentAmount.addEventListener("input", () => {
-  const ugx = Number(paymentAmount.value) || 0;
-  const usd = ugx / RATE;
-
-  usdInput.value = usd.toFixed(2);
-  ugxInput.value = Math.round(ugx);
-  ugxResult.textContent = formatUGX(ugx);
-});
-
-// Copy agent number
-document.getElementById("copyBtn").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText("0767326443");
-    showToast("Agent number copied successfully");
-  } catch (error) {
-    showToast("Please copy the number: 0767326443");
+  if (user) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Deposit";
+    accountStatus.textContent = "Account connected successfully.";
+  } else {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sign In Required";
+    accountStatus.textContent =
+      "Please sign in to your CYPX account before submitting payment.";
   }
 });
 
-// Submit payment details
-form.addEventListener("submit", function(event) {
-  event.preventDefault();
+/* =========================================
+   USD CONVERTER
+========================================= */
 
-  if (!form.reportValidity()) return;
+amountInput.addEventListener("input", () => {
+  const amount = Number(amountInput.value);
 
-  const amount = Number(paymentAmount.value);
-
-  if (!Number.isFinite(amount) || amount < MINIMUM_UGX) {
-    showToast("Minimum deposit is UGX 37,400 ($11)");
-    paymentAmount.focus();
+  if (!Number.isFinite(amount) || amount <= 0) {
+    document.getElementById("usdValue").textContent = "$0.00";
     return;
   }
 
-  const payment = {
-    agentName: "HALIFA NAMUNGHOLO",
-    agentNumber: "0767326443",
-    method: "MTN MONEY",
-    currency: "UGX",
-    amount: amount,
-    amountUSD: Number((amount / RATE).toFixed(2)),
-    exchangeRate: RATE,
-    senderNumber: document.getElementById("sender").value.trim(),
-    transactionId: document.getElementById("reference").value.trim(),
-    status: "pending_verification",
-    submittedAt: new Date().toISOString()
-  };
+  const usd = amount / RATE;
+
+  document.getElementById("usdValue").textContent =
+    "$" + usd.toFixed(2);
+});
+
+/* =========================================
+   COPY AGENT NUMBER
+========================================= */
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const number = "0767326443";
 
   try {
-    sessionStorage.setItem(
-      "cypxAgentPayment",
-      JSON.stringify(payment)
-    );
+    await navigator.clipboard.writeText(number);
+    showToast("MTN number copied successfully.");
+  } catch (error) {
+    const temp = document.createElement("textarea");
+    temp.value = number;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    temp.remove();
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting...";
+    showToast("MTN number copied.");
+  }
+});
 
-    showToast("Details submitted. Redirecting...");
+/* =========================================
+   CLEAN INPUT
+========================================= */
 
+function cleanInput(value) {
+  return String(value || "").trim();
+}
+
+/* =========================================
+   SUBMIT DEPOSIT TO FIREBASE
+========================================= */
+
+paymentForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (submitting) return;
+
+  if (!authReady) {
+    showToast("Please wait while your account is checked.", "error");
+    return;
+  }
+
+  if (!currentUser) {
+    showToast("Please sign in before submitting a deposit.", "error");
+    return;
+  }
+
+  const amount = Number(amountInput.value);
+  const senderNumber = cleanInput(senderInput.value);
+  const transactionId = cleanInput(transactionInput.value);
+
+  if (!Number.isFinite(amount) || amount < MINIMUM_UGX) {
+    showToast("Minimum deposit is UGX 37,400 ($11).", "error");
+    return;
+  }
+
+  if (!senderNumber || !transactionId) {
+    showToast("Please complete all payment details.", "error");
+    return;
+  }
+
+  if (senderNumber.length < 9 || senderNumber.length > 15) {
+    showToast("Please enter a valid phone number.", "error");
+    return;
+  }
+
+  if (transactionId.length < 4) {
+    showToast("Please enter a valid MTN transaction ID.", "error");
+    return;
+  }
+
+  submitting = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting Deposit...";
+
+  try {
+    const uid = currentUser.uid;
+
+    // Generate one unique deposit ID.
+    const depositRef = db.ref("deposits/" + uid).push();
+    const depositId = depositRef.key;
+
+    const amountUSD = Number((amount / RATE).toFixed(2));
+
+    const payment = {
+      uid: uid,
+      userId: uid,
+      depositId: depositId,
+
+      agentName: "HALIFA NAMUNGHOLO",
+      agentNumber: "0767326443",
+
+      method: "MTN MONEY",
+      paymentMethod: "MTN MONEY",
+
+      currency: "UGX",
+      amount: amount,
+      depositAmount: amount,
+      amountUSD: amountUSD,
+      exchangeRate: RATE,
+
+      senderNumber: senderNumber,
+      transactionId: transactionId,
+
+      status: "pending",
+      verificationStatus: "pending",
+
+      source: "MTN Uganda Payment Page",
+
+      createdAt: firebase.database.ServerValue.TIMESTAMP,
+      submittedAt: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    // Write to both Firebase locations atomically.
+    const updates = {};
+
+    updates["deposits/" + uid + "/" + depositId] = payment;
+    updates["financial/" + uid + "/" + depositId] = payment;
+
+    await db.ref().update(updates);
+
+    showToast("Deposit submitted successfully. Awaiting verification.");
+
+    paymentForm.reset();
+
+    document.getElementById("usdValue").textContent = "$0.00";
+
+    accountStatus.textContent = "Deposit submitted and awaiting verification.";
+
+    // Redirect only after Firebase confirms the write.
     setTimeout(() => {
       window.location.href = "financial.html";
-    }, 900);
+    }, 1800);
 
   } catch (error) {
-    showToast("Unable to save details. Please try again.");
+    console.error("Deposit submission failed:", error);
+
+    showToast(
+      "Submission failed: " + (error.message || "Please try again."),
+      "error"
+    );
+
+    submitting = false;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Deposit";
   }
 });
 </script>
 
 </body>
-</html>
+  </html>
+  
