@@ -1740,89 +1740,71 @@ async function updateDeposit(uid, id, status) {
                 return;
             }
 
+/*
+ * USER BALANCE
+ */
 
-            /*
-             * USER BALANCE
-             */
+const userRef = db.ref("users/" + uid);
 
-            const userRef = db.ref(
-                "users/" + uid
-            );
+/* Load the customer's record before starting transaction */
+const userSnapshot = await userRef.once("value");
 
+if (!userSnapshot.exists()) {
+    await releaseDepositClaim(depositRef);
+    throw new Error("Customer account not found at users/" + uid);
+}
 
-            /*
-             * ATOMIC BALANCE CREDIT
-             * PREVENT DUPLICATE CREDIT
-             */
+const rawBalance = userSnapshot.child("balance").val();
+const currentBalance = rawBalance == null ? 0 : Number(rawBalance);
 
-            const creditResult = await userRef.transaction(userData => {
+if (!Number.isFinite(currentBalance) || currentBalance < 0) {
+    await releaseDepositClaim(depositRef);
+    throw new Error("Customer balance is not a valid number.");
+}
 
-                if (!userData) {
-                    return;
-                }
+let alreadyCredited = false;
 
-                if (!userData.processedDeposits) {
+const creditResult = await userRef.transaction(userData => {
 
-                    userData.processedDeposits = {};
+    if (!userData) {
+        return;
+    }
 
-                }
+    if (!userData.processedDeposits) {
+        userData.processedDeposits = {};
+    }
 
+    // Prevent duplicate credit
+    if (userData.processedDeposits[id]) {
+        alreadyCredited = true;
+        return userData;
+    }
 
-                // Already credited: do not credit again.
-                if (userData.processedDeposits[id]) {
+    const balance = Number(userData.balance ?? 0);
 
-                    return userData;
+    if (!Number.isFinite(balance) || balance < 0) {
+        return;
+    }
 
-                }
+    userData.balance = balance + amount;
 
+    userData.processedDeposits[id] = {
+        amount: amount,
+        depositId: id,
+        processedAt: Date.now(),
+        processedBy: adminUID
+    };
 
-                const currentBalance = Number(
-                    userData.balance || 0
-                );
+    return userData;
 
+});
 
-                if (
-                    !Number.isFinite(currentBalance) ||
-                    currentBalance < 0
-                ) {
-
-                    return;
-
-                }
-
-
-                userData.balance =
-                    currentBalance + amount;
-
-
-                userData.processedDeposits[id] = {
-
-                    amount: amount,
-
-                    depositId: id,
-
-                    processedAt: Date.now(),
-
-                    processedBy: adminUID
-
-                };
-
-
-                return userData;
-
-            });
-
-
-            if (!creditResult.committed) {
-
-                await releaseDepositClaim(depositRef);
-
-                throw new Error(
-                    "Balance credit failed. Deposit remains pending."
-                );
-
-            }
-
+if (!creditResult.committed) {
+    await releaseDepositClaim(depositRef);
+    throw new Error(
+        "Balance transaction was cancelled. Check customer balance and database permissions."
+    );
+}
 
             /*
              * CONFIRM DEPOSIT APPROVAL
