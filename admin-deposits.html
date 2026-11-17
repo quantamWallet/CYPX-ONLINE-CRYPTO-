@@ -1533,370 +1533,335 @@ function showNotification(
 
    
 <script>
-
 /* =========================================
-   UPDATE DEPOSIT
+   CYPX DEPOSIT PROCESSING
    APPROVE / REJECT
 ========================================= */
 
+const PROCESSING_LOCK_MS = 5 * 60 * 1000;
+let processingDeposits = new Set();
+
 async function updateDeposit(uid, id, status) {
 
+    const key = uid + "_" + id;
+
     if (!["approved", "rejected"].includes(status)) {
-
-        showNotification(
-            "Invalid deposit action.",
-            "error"
-        );
-
+        showNotification("Invalid deposit action.", "error");
         return;
     }
 
     if (!adminUID) {
-
-        showNotification(
-            "Admin session not verified.",
-            "error"
-        );
-
+        showNotification("Admin session not verified.", "error");
         return;
     }
 
+    if (processingDeposits.has(key)) {
+        showNotification("This deposit is already being processed on this device.", "warning");
+        return;
+    }
+
+    processingDeposits.add(key);
+
+    let depositRef = null;
+    let claimAcquired = false;
 
     try {
 
         /*
-         * FIND THE ACTUAL DATABASE LOCATION
+         * 1. FIND DEPOSIT
          */
 
-        let depositRef = db.ref(
-            "deposits/" + uid + "/" + id
-        );
+        depositRef = db.ref("deposits/" + uid + "/" + id);
 
         let snapshot = await depositRef.once("value");
 
         if (!snapshot.exists()) {
-
-            depositRef = db.ref(
-                "financial/" + uid + "/" + id
-            );
-
+            depositRef = db.ref("financial/" + uid + "/" + id);
             snapshot = await depositRef.once("value");
-
         }
 
-
-        const deposit = snapshot.val();
-
-        if (!deposit) {
-
-            showNotification(
-                "Deposit not found in Firebase.",
-                "error"
-            );
-
-            return;
+        if (!snapshot.exists()) {
+            throw new Error("Deposit record was not found.");
         }
 
+        let deposit = snapshot.val();
 
-        if (
-            String(deposit.status || "pending").toLowerCase()
-            !== "pending"
-        ) {
-
-            showNotification(
-                "This deposit has already been processed.",
-                "warning"
-            );
-
-            return;
+        if (!deposit || typeof deposit !== "object") {
+            throw new Error("Invalid deposit record.");
         }
 
+        if (String(deposit.status || "pending").toLowerCase() !== "pending") {
+            throw new Error("This deposit has already been processed.");
+        }
 
         /*
-         * CLAIM PROCESSING
+         * 2. CLAIM DEPOSIT
+         * Old locks expire after five minutes.
          */
 
         const claim = await depositRef.transaction(current => {
 
-            if (!current) {
+            if (!current) return;
+
+            if (String(current.status || "pending").toLowerCase() !== "pending") {
                 return;
             }
 
-            if (
-                String(current.status || "pending").toLowerCase()
-                !== "pending"
-            ) {
-                return;
-            }
+            const now = Date.now();
 
             if (current.processingAction) {
-                return;
+
+                const lockTime = Number(current.processingAt || 0);
+                const lockAge = now - lockTime;
+
+                // Do not take over a fresh lock.
+                if (
+                    lockTime > 0 &&
+                    lockAge >= 0 &&
+                    lockAge < PROCESSING_LOCK_MS
+                ) {
+                    return;
+                }
+
+                // Remove expired or invalid old lock.
+                delete current.processingAction;
+                delete current.processingBy;
+                delete current.processingAt;
             }
 
             current.processingAction = status;
             current.processingBy = adminUID;
-            current.processingAt = Date.now();
+            current.processingAt = now;
 
             return current;
-
         });
 
-
         if (!claim.committed) {
-
-            showNotification(
-                "Another admin is processing this deposit.",
-                "warning"
+            throw new Error(
+                "This deposit is already being processed, or its status has changed. Refresh and try again."
             );
-
-            return;
         }
 
+        const claimedDeposit = claim.snapshot.val();
+
+        if (
+            !claimedDeposit ||
+            claimedDeposit.processingBy !== adminUID ||
+            claimedDeposit.processingAction !== status
+        ) {
+            throw new Error("Could not verify your deposit processing lock.");
+        }
+
+        claimAcquired = true;
+        deposit = claimedDeposit;
 
         /*
-         * REJECT DEPOSIT
+         * 3. REJECT DEPOSIT
          */
 
         if (status === "rejected") {
 
-            const rejectionResult = await depositRef.transaction(current => {
+            const rejection = await depositRef.transaction(current => {
 
-                if (!current) {
+                if (!current) return;
+
+                if (String(current.status || "pending").toLowerCase() !== "pending") {
                     return;
                 }
 
                 if (
-                    String(current.status || "pending").toLowerCase()
-                    !== "pending" ||
+                    current.processingBy !== adminUID ||
                     current.processingAction !== "rejected"
                 ) {
                     return;
                 }
 
                 current.status = "rejected";
-
                 current.processedAt =
                     firebase.database.ServerValue.TIMESTAMP;
-
-                current.processedBy = adminEmail;
+                current.processedBy = adminEmail || adminUID;
 
                 delete current.processingAction;
                 delete current.processingBy;
                 delete current.processingAt;
 
                 return current;
-
             });
 
-
-            if (!rejectionResult.committed) {
-
-                throw new Error(
-                    "Could not confirm deposit rejection."
-                );
-
+            if (!rejection.committed) {
+                throw new Error("Could not complete deposit rejection.");
             }
 
-            await writeAdminLog(
-                uid,
-                id,
-                deposit,
-                "rejected"
-            );
+            claimAcquired = false;
 
-            showNotification(
-                "Deposit rejected successfully.",
-                "warning"
-            );
+            await writeAdminLogSafely(uid, id, deposit, "rejected");
 
+            showNotification("Deposit rejected successfully.", "warning");
             return;
-
         }
 
-
         /*
-         * APPROVE DEPOSIT
+         * 4. APPROVE DEPOSIT
          */
 
-        if (status === "approved") {
+        const amount = Number(
+            deposit.amount ??
+            deposit.depositAmount ??
+            deposit.price ??
+            0
+        );
 
-            const amount = Number(
-                deposit.amount ||
-                deposit.depositAmount ||
-                deposit.price ||
-                0
-            );
+        if (!Number.isFinite(amount) || amount <= 0) {
+            throw new Error("Invalid deposit amount. Balance was not changed.");
+        }
 
+        /*
+         * 5. CUSTOMER BALANCE TRANSACTION
+         *
+         * The processedDeposits record prevents
+         * a second credit for the same deposit.
+         */
 
-            if (!Number.isFinite(amount) || amount <= 0) {
+        const userRef = db.ref("users/" + uid);
 
-                await releaseDepositClaim(depositRef);
+        const creditResult = await userRef.transaction(userData => {
 
-                showNotification(
-                    "Invalid deposit amount. Balance unchanged.",
-                    "error"
-                );
-
+            if (!userData || typeof userData !== "object") {
                 return;
             }
 
-/*
- * USER BALANCE
- */
-
-const userRef = db.ref("users/" + uid);
-
-/* Load the customer's record before starting transaction */
-const userSnapshot = await userRef.once("value");
-
-if (!userSnapshot.exists()) {
-    await releaseDepositClaim(depositRef);
-    throw new Error("Customer account not found at users/" + uid);
-}
-
-const rawBalance = userSnapshot.child("balance").val();
-const currentBalance = rawBalance == null ? 0 : Number(rawBalance);
-
-if (!Number.isFinite(currentBalance) || currentBalance < 0) {
-    await releaseDepositClaim(depositRef);
-    throw new Error("Customer balance is not a valid number.");
-}
-
-let alreadyCredited = false;
-
-const creditResult = await userRef.transaction(userData => {
-
-    if (!userData) {
-        return;
-    }
-
-    if (!userData.processedDeposits) {
-        userData.processedDeposits = {};
-    }
-
-    // Prevent duplicate credit
-    if (userData.processedDeposits[id]) {
-        alreadyCredited = true;
-        return userData;
-    }
-
-    const balance = Number(userData.balance ?? 0);
-
-    if (!Number.isFinite(balance) || balance < 0) {
-        return;
-    }
-
-    userData.balance = balance + amount;
-
-    userData.processedDeposits[id] = {
-        amount: amount,
-        depositId: id,
-        processedAt: Date.now(),
-        processedBy: adminUID
-    };
-
-    return userData;
-
-});
-
-if (!creditResult.committed) {
-    await releaseDepositClaim(depositRef);
-    throw new Error(
-        "Balance transaction was cancelled. Check customer balance and database permissions."
-    );
-}
-
-            /*
-             * CONFIRM DEPOSIT APPROVAL
-             */
-
-            const finalUpdate = await depositRef.transaction(current => {
-
-                if (!current) {
-                    return;
-                }
-
-                if (
-                    String(current.status || "pending").toLowerCase()
-                    !== "pending" ||
-                    current.processingAction !== "approved"
-                ) {
-
-                    return;
-
-                }
-
-                current.status = "approved";
-
-                current.processedAt =
-                    firebase.database.ServerValue.TIMESTAMP;
-
-                current.processedBy = adminEmail;
-
-                delete current.processingAction;
-                delete current.processingBy;
-                delete current.processingAt;
-
-                return current;
-
-            });
-
-
-            if (!finalUpdate.committed) {
-
-                throw new Error(
-                    "Balance may have been credited, but deposit confirmation failed. Check the transaction before retrying."
-                );
-
+            if (!userData.processedDeposits) {
+                userData.processedDeposits = {};
             }
 
+            // Already credited: do not add the amount again.
+            if (userData.processedDeposits[id]) {
+                return userData;
+            }
 
-            /*
-             * ADMIN LOG
-             */
+            const currentBalance = Number(userData.balance ?? 0);
 
-            await writeAdminLog(
-                uid,
-                id,
-                deposit,
-                "approved"
+            if (
+                !Number.isFinite(currentBalance) ||
+                currentBalance < 0
+            ) {
+                return;
+            }
+
+            userData.balance = currentBalance + amount;
+
+            userData.processedDeposits[id] = {
+                amount: amount,
+                depositId: id,
+                processedAt: Date.now(),
+                processedBy: adminUID
+            };
+
+            return userData;
+
+        });
+
+        if (!creditResult.committed) {
+            throw new Error(
+                "Balance credit was denied or cancelled. Check users database permissions and customer balance."
             );
-
-
-            showNotification(
-                "Deposit approved and balance credited successfully.",
-                "success"
-            );
-
         }
 
+        /*
+         * 6. CONFIRM APPROVAL
+         *
+         * This also works on a retry if the balance
+         * was credited but deposit confirmation failed.
+         */
+
+        const finalResult = await depositRef.transaction(current => {
+
+            if (!current) return;
+
+            if (String(current.status || "pending").toLowerCase() !== "pending") {
+                return;
+            }
+
+            if (
+                current.processingBy !== adminUID ||
+                current.processingAction !== "approved"
+            ) {
+                return;
+            }
+
+            current.status = "approved";
+            current.processedAt =
+                firebase.database.ServerValue.TIMESTAMP;
+            current.processedBy = adminEmail || adminUID;
+
+            delete current.processingAction;
+            delete current.processingBy;
+            delete current.processingAt;
+
+            return current;
+        });
+
+        if (!finalResult.committed) {
+            throw new Error(
+                "Balance transaction completed, but approval confirmation failed. Do not manually credit this deposit again. Check processedDeposits before retrying."
+            );
+        }
+
+        claimAcquired = false;
+
+        /*
+         * 7. ADMIN LOG
+         */
+
+        await writeAdminLogSafely(uid, id, deposit, "approved");
+
+        showNotification(
+            "Deposit approved and balance credited successfully.",
+            "success"
+        );
 
     } catch (error) {
 
-        console.error(
-            "Deposit processing error:",
-            error
-        );
+        console.error("Deposit processing error:", error);
+
+        /*
+         * Release only this admin's own lock.
+         * Never clear another admin's active lock.
+         */
+
+        if (depositRef && claimAcquired) {
+            try {
+                await releaseDepositClaim(depositRef, status);
+            } catch (releaseError) {
+                console.error("Lock release failed:", releaseError);
+            }
+        }
 
         showNotification(
             error.message || "Deposit processing failed.",
             "error"
         );
 
+    } finally {
+        processingDeposits.delete(key);
     }
-
 }
 
 
 /* =========================================
-   RELEASE PROCESSING CLAIM
+   RELEASE OWN PROCESSING LOCK
 ========================================= */
 
-async function releaseDepositClaim(depositRef) {
+async function releaseDepositClaim(depositRef, action) {
 
-    await depositRef.transaction(current => {
+    const result = await depositRef.transaction(current => {
 
-        if (!current) {
+        if (!current) return;
+
+        if (
+            current.processingBy !== adminUID ||
+            current.processingAction !== action
+        ) {
             return;
         }
 
@@ -1905,9 +1870,9 @@ async function releaseDepositClaim(depositRef) {
         delete current.processingAt;
 
         return current;
-
     });
 
+    return result.committed;
 }
 
 
@@ -1915,38 +1880,35 @@ async function releaseDepositClaim(depositRef) {
    ADMIN ACTIVITY LOG
 ========================================= */
 
-async function writeAdminLog(
-    uid,
-    id,
-    deposit,
-    status
-) {
+async function writeAdminLogSafely(uid, id, deposit, status) {
 
-    const amount = Number(
-        deposit.amount ||
-        deposit.depositAmount ||
-        deposit.price ||
-        0
-    );
+    try {
 
-    await db.ref("adminLogs").push({
+        const amount = Number(
+            deposit.amount ??
+            deposit.depositAmount ??
+            deposit.price ??
+            0
+        );
 
-        action: "Deposit " + status,
+        await db.ref("adminLogs").push({
 
-        user: uid,
+            action: "Deposit " + status,
+            user: uid,
+            depositId: id,
+            amount: amount,
+            admin: adminEmail || "",
+            adminUID: adminUID,
+            time: Date.now()
 
-        depositId: id,
+        });
 
-        amount: amount,
+    } catch (error) {
 
-        admin: adminEmail,
+        // Logging failure must not undo a completed transaction.
+        console.error("Admin log error:", error);
 
-        adminUID: adminUID,
-
-        time: Date.now()
-
-    });
-
+    }
 }
 
 </script>
